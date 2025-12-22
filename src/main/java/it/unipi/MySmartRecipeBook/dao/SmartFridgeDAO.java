@@ -6,7 +6,7 @@ import com.google.gson.reflect.TypeToken;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
-
+//prova di modifica
 public class SmartFridgeDAO {
 
 //questo sarebbe il DAO (Data Access Object): serve per salvare e recuperare dati dal database
