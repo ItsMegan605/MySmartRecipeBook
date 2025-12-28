@@ -1,4 +1,5 @@
 package it.unipi.MySmartRecipeBook.dao.redis;
+import it.unipi.MySmartRecipeBook.dao.SmartFridgeDAO;
 import it.unipi.MySmartRecipeBook.model.SmartFridge;
 import com.google.gson.Gson;
 import redis.clients.jedis.Jedis;
@@ -6,7 +7,7 @@ import redis.clients.jedis.JedisPool;
 
 //prova di modifica
 //megan puzza, ma chiara di più
-public class SmartFridgeRedisDAO {
+public class SmartFridgeRedisDAO  implements SmartFridgeDAO {
 
 //questo sarebbe il DAO (Data Access Object): serve per salvare e recuperare dati dal database
 
