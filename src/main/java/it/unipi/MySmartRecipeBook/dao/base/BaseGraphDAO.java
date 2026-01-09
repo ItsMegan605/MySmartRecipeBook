@@ -1,4 +1,4 @@
 package it.unipi.MySmartRecipeBook.dao.base;
 
-public class provaDAO {
+public class BaseGraphDAO {
 }
