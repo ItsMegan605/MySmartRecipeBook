@@ -1,0 +1,8 @@
+tutta sta roba agisce insieme:
+
+io dal fornt-end chiam il controller che mi dice ho bisogno di questo srvrizio
+
+infatti va a invocare un metodo dal service
+il service quindi fa il lavoro sporco pe rnoi e fa la lgoica
+
+Se serve va ad accedere i dati al DB tramite la repository

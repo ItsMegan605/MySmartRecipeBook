@@ -1,0 +1,9 @@
+Nel service ho la logica di business, quindi il cure dell'app
+prende i dati, li elabora, controlla e prepara quello che ci serve
+
+Io ho più database ma quando io voglio interagire con controller o in generale
+con la mi aapp non lo voglio vedere deve tutto essere servito
+
+È il Service che deve dire: "Ok, sto salvando una ricetta.
+Prima salvo i dettagli su Mongo, poi salvo i nodi su Neo4j per il grafo.
+Se uno fallisce, annullo tutto".
