@@ -1,4 +1,7 @@
 package it.unipi.MySmartRecipeBook.repository;
 
-public class ShoppingListRepository extends CrudRepository<ShoppingList, String>{
+
+//la shopping list è su redis e basta
+
+public interface ShoppingListRepository {
 }
