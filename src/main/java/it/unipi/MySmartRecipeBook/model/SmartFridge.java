@@ -2,7 +2,7 @@ package it.unipi.MySmartRecipeBook.model;
 
 import java.util.ArrayList;
 import java.util.List;
-
+@RedisHash("smartFridge")
 public class SmartFridge {
 
     private Integer userId;
