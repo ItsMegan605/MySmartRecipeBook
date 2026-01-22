@@ -13,4 +13,5 @@ import java.util.Optional;
 
         // Check esistenza
         boolean existsByUsername(String username);
+        boolean existsByEmail(String email);
     }

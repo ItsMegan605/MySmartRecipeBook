@@ -9,20 +9,14 @@ import java.util.List;
 @Repository
 public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, String> {
 
-    // IL TUO CODICE "DIVERSO" ANDRÀ QUI.
-
-    // Esempio: Se vuoi fare una cosa custom usando Cypher, usi l'annotazione @Query.
-    // Non importa quanto sia strana la tua logica, la scrivi qui dentro.
-
-    // @Query("MATCH (r:Recipe)-[:SIMILAR_TO]->(other) WHERE ... RETURN r")
-    // List<RecipeNeo4j> laMiaLogicaStrana();
+    /**
+     * SMART FRIDGE QUERY (Relazione Inversa):
+     * Trova le ricette partendo dagli ingredienti.
+     */
+    @Query("MATCH (i:Ingredient)-[:USED_IN]->(r:Recipe) " +
+            "WHERE i.name IN $myIngredients " +
+            "WITH r, count(i) as matches " +
+            "ORDER BY matches DESC " +
+            "RETURN r")
+    List<RecipeNeo4j> findRecipesByIngredients(List<String> myIngredients);
 }
-
-/*
-// QUERY GRAFO: Trova le ricette che contengono *tutti* o *alcuni* degli ingredienti passati
-    // Assumiamo che nel grafo tu abbia: (Recipe)-[:HAS_INGREDIENT]->(Ingredient)
-    @Query("MATCH (r:Recipe)-[:HAS_INGREDIENT]->(i:Ingredient) " +
-           "WHERE i.name IN $ingredients " +
-           "RETURN r DISTINCT")
-    List<RecipeNeo4j> findRecipesByIngredients(List<String> ingredients);
- */
