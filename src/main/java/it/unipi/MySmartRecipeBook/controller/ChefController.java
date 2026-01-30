@@ -2,21 +2,40 @@ package it.unipi.MySmartRecipeBook.controller;
 
 import it.unipi.MySmartRecipeBook.dto.RecipeDTO;
 import it.unipi.MySmartRecipeBook.service.ChefService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import it.unipi.MySmartRecipeBook.model.Chef;
+
+import java.security.Principal;
 
 // 1. Diciamo a Spring che questo è un componente Web che risponde con dati JSON
 @RestController
-// 2. Tutti gli indirizzi di questa classe inizieranno con "http://localhost:8080/api/chef"
 @RequestMapping("/api/chef")
 public class ChefController {
 
     private final ChefService chefService;
 
-    // 3. COSTRUTTORE: Spring vede che ci serve il ChefService e ce lo inietta automaticamente (Dependency Injection).
-    // Non dobbiamo fare "new ChefService()", ci pensa Spring.
     public ChefController(ChefService chefService) {
         this.chefService = chefService;
+    }
+    //capire se mettere register o no
+
+    public static class LoginRequest {
+        public String username;
+        public String password;
+    }
+    //capire se li vogliamo far registrare
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        Chef chef = chefService.login(request.username, request.password);
+
+        if (chef != null) {
+            return ResponseEntity.ok(chef);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenziali errate");
+        }
     }
 
     // 4. Definiamo un endpoint POST. L'URL completo sarà: POST /api/chef/recipe
