@@ -16,6 +16,7 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Stri
     @Query("MATCH (i:Ingredient)-[:USED_IN]->(r:Recipe) " +
             "WHERE i.name IN $myIngredients " +
             "WITH r, count(i) as matches " +
+            "WHERE matches >= 3 " +
             "ORDER BY matches DESC " +
             "RETURN r")
     List<RecipeNeo4j> findRecipesByIngredients(List<String> myIngredients);

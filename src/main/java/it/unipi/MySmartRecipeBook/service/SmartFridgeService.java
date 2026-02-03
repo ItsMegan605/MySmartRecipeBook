@@ -3,6 +3,7 @@ package it.unipi.MySmartRecipeBook.service;
 import it.unipi.MySmartRecipeBook.model.SmartFridge;
 import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
 import it.unipi.MySmartRecipeBook.model.Neo4j.RecipeNeo4j;
+import it.unipi.MySmartRecipeBook.model.SmartFridgeIngredient;
 import it.unipi.MySmartRecipeBook.repository.SmartFridgeRepository;
 import it.unipi.MySmartRecipeBook.repository.RecipeNeo4jRepository;
 import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
@@ -25,28 +26,33 @@ public class SmartFridgeService {
         this.mongoRepo = mongoRepo;
     }
 
-    // 1. Aggiungi ingrediente al frigo (Redis)
-    public void addIngredientToFridge(String userId, String ingredient) {
-        SmartFridge fridge = fridgeRepo.findById(userId).orElse(new SmartFridge(userId, new ArrayList<>()));
-        fridge.getIngredients().add(ingredient);
+    public void addIngredientToFridge(Integer userId, String ingredient) {
+        // Usa Integer per coerenza con il modello SmartFridge
+        SmartFridge fridge = fridgeRepo.findById(userId)
+                .orElse(new SmartFridge(userId));
+
+        // Usa il metodo addProduct definito nel tuo modello SmartFridge
+        fridge.addProduct(null, ingredient); // ingredientId può essere null se non lo gestisci
         fridgeRepo.save(fridge);
     }
 
-    // 2. "Cosa posso cucinare?"
-    public List<RecipeMongo> whatCanICook(String userId) {
-        // A. Prendi ingredienti da Redis
-        SmartFridge fridge = fridgeRepo.findById(userId).orElseThrow(() -> new RuntimeException("Frigo vuoto!"));
-        List<String> myIngredients = fridge.getIngredients();
+    public List<RecipeMongo> whatCanICook(Integer userId) {
+        SmartFridge fridge = fridgeRepo.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Frigo vuoto!"));
 
-        // B. Chiedi a Neo4j le ricette compatibili (ritorna oggetti leggeri)
+        // Estrai i nomi (String) dalla lista di SmartFridgeIngredient
+        List<String> myIngredients = fridge.getProducts().stream()
+                .map(SmartFridgeIngredient::getIngredientName)
+                .collect(Collectors.toList());
+
+        // Chiamata a Neo4j (che ora filtra per >= 3 match)
         List<RecipeNeo4j> possibleMatches = neo4jRepo.findRecipesByIngredients(myIngredients);
 
-        // C. Estrai gli ID
         List<String> recipeIds = possibleMatches.stream()
                 .map(RecipeNeo4j::getId)
                 .collect(Collectors.toList());
 
-        // D. Prendi i dettagli completi da Mongo (titolo, foto, preparazione)
+        // Recupera i dettagli completi da MongoDB
         return (List<RecipeMongo>) mongoRepo.findAllById(recipeIds);
     }
 
