@@ -49,4 +49,5 @@ public class SmartFridgeService {
         // D. Prendi i dettagli completi da Mongo (titolo, foto, preparazione)
         return (List<RecipeMongo>) mongoRepo.findAllById(recipeIds);
     }
+
 }

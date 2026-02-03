@@ -1,10 +1,13 @@
 package it.unipi.MySmartRecipeBook.model;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
+
 import java.util.ArrayList;
 import java.util.List;
 @RedisHash("smartFridge")
 public class SmartFridge {
-
+    @Id
     private Integer userId;
     private List<SmartFridgeIngredient> ingredients;
 
