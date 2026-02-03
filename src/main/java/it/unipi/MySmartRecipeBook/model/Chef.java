@@ -1,8 +1,34 @@
 package it.unipi.MySmartRecipeBook.model;
 
-import java.util.Date;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.time.LocalDateTime;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Document(collection = "chefs")
 
 public class Chef extends RegisteredUser {
+
+    @Id
+    private String id;
+
+    private Date registeredDate;
+}
+
+/*
+import java.util.Date;
+
+public class  Chef extends RegisteredUser {
     private Date RegistrationDate;
 
     public Chef(String username, String password, String email, String name, String surname, Date registrationDate) {
@@ -19,3 +45,4 @@ public class Chef extends RegisteredUser {
     }
 
 }
+*/

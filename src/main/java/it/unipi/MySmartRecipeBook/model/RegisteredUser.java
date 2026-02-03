@@ -1,4 +1,46 @@
+
 package it.unipi.MySmartRecipeBook.model;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
+import java.util.Date;
+
+
+//genero solo cio che serve, non metto direttamente lombok.data e cosi evito effetti collaterali
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public abstract class RegisteredUser {
+
+    @NotBlank
+    @Size(max = 20)
+    protected String username;
+
+    @NotBlank(message = "First name is required")
+    protected String name;
+
+    @NotBlank(message = "Last name is required")
+    protected String surname;
+
+    @NotBlank
+    @Email
+    @Size(max = 50)
+    protected String email;
+
+    @NotBlank
+    @Size(min = 8, max = 20)
+    protected String password;
+
+    @Past(message = "Birthdate must be in the past")
+    protected Date birthdate;
+}
+
+
+/*
 
 public class RegisteredUser {
     private String username;
@@ -55,3 +97,4 @@ public class RegisteredUser {
         this.surname = surname;
     }
 }
+*/
