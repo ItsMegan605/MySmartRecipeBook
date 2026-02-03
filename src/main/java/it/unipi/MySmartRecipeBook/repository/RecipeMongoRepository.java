@@ -1,6 +1,6 @@
 package it.unipi.MySmartRecipeBook.repository;
 
-import it.unipi.MySmartRecipeBook.model.RecipeMongo;
+import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;

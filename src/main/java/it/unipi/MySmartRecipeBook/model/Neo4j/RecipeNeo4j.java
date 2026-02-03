@@ -1,4 +1,4 @@
-package it.unipi.MySmartRecipeBook.model;
+package it.unipi.MySmartRecipeBook.model.Neo4j;
 
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;

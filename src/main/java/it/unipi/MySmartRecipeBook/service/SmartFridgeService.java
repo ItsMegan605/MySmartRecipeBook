@@ -1,8 +1,8 @@
 package it.unipi.MySmartRecipeBook.service;
 
 import it.unipi.MySmartRecipeBook.model.SmartFridge;
-import it.unipi.MySmartRecipeBook.model.RecipeMongo;
-import it.unipi.MySmartRecipeBook.model.RecipeNeo4j;
+import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
+import it.unipi.MySmartRecipeBook.model.Neo4j.RecipeNeo4j;
 import it.unipi.MySmartRecipeBook.repository.SmartFridgeRepository;
 import it.unipi.MySmartRecipeBook.repository.RecipeNeo4jRepository;
 import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;

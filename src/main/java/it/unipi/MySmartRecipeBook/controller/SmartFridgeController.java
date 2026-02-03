@@ -1,10 +1,8 @@
 package it.unipi.MySmartRecipeBook.controller;
 
-import it.unipi.MySmartRecipeBook.model.RecipeMongo;
 import it.unipi.MySmartRecipeBook.service.SmartFridgeService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/fridge") // Base URL: /api/fridge

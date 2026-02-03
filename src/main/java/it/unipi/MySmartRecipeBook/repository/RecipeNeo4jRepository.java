@@ -1,6 +1,6 @@
 package it.unipi.MySmartRecipeBook.repository;
 
-import it.unipi.MySmartRecipeBook.model.RecipeNeo4j;
+import it.unipi.MySmartRecipeBook.model.Neo4j.RecipeNeo4j;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
