@@ -8,6 +8,10 @@ import java.util.Optional;
 
     @Repository
     public interface FoodieRepository extends MongoRepository<Foodie, String> {
+        boolean existsByUsername(String username);
+
+        Optional<Foodie> findByUsername(String username);
+
         //login: Cerca per username e password, decidere se vogliamo email o psw
         Optional<Foodie> findByUsernameAndPassword(String username, String password);
 

@@ -2,7 +2,7 @@ package it.unipi.MySmartRecipeBook.controller;
 import it.unipi.MySmartRecipeBook.dto.CreateRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.UpdateRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.RecipeResponseDTO;
-import it.unipi.MySmartRecipeBook.model.RecipeMongo;
+import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
 import it.unipi.MySmartRecipeBook.service.RecipeMongoService;
 
 import jakarta.validation.Valid;

@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
 import java.util.Date;
-
+import jakarta.validation.constraints.*;
 
 //genero solo cio che serve, non metto direttamente lombok.data e cosi evito effetti collaterali
 @Getter

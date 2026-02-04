@@ -1,22 +1,12 @@
 package it.unipi.MySmartRecipeBook.controller;
 
-import it.unipi.MySmartRecipeBook.model.Foodie;
-import it.unipi.MySmartRecipeBook.service.FoodieService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-package it.unipi.MySmartRecipeBook.controller;
-
 import it.unipi.MySmartRecipeBook.dto.CreateFoodieDTO;
 import it.unipi.MySmartRecipeBook.dto.UpdateFoodieDTO;
-import it.unipi.MySmartRecipeBook.dto.FoodieResponseDTO;
-import it.unipi.MySmartRecipeBook.model.Foodie;
 import it.unipi.MySmartRecipeBook.service.FoodieService;
-
-import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/foodies")

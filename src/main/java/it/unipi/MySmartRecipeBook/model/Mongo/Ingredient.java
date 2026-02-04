@@ -1,4 +1,4 @@
-package it.unipi.MySmartRecipeBook.model;
+package it.unipi.MySmartRecipeBook.model.Mongo;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

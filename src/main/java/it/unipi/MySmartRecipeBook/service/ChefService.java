@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 
 import it.unipi.MySmartRecipeBook.dto.CreateChefDTO;
+import it.unipi.MySmartRecipeBook.dto.UpdateChefDTO;
+
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -37,12 +39,12 @@ public class ChefService {
         chef.setEmail(dto.getEmail());
         chef.setPassword(dto.getPassword());
         chef.setBirthdate(dto.getBirthdate());
-        chef.setRegistDate(LocalDateTime.now());
+        chef.setRegisteredDate(LocalDateTime.now());
 
         return chefRepository.save(chef);
     }
 
-    public Chef updateChef(String username, CreateChefDTO dto) {
+    public Chef updateChef(String username, UpdateChefDTO dto) {
 
         Chef chef = chefRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Chef not found"));

@@ -1,6 +1,7 @@
 package it.unipi.MySmartRecipeBook.service;
 
 import it.unipi.MySmartRecipeBook.dto.CreateFoodieDTO;
+import it.unipi.MySmartRecipeBook.dto.UpdateFoodieDTO;
 import it.unipi.MySmartRecipeBook.model.Foodie;
 import it.unipi.MySmartRecipeBook.repository.FoodieRepository;
 import org.springframework.stereotype.Service;
@@ -35,7 +36,7 @@ public class FoodieService {
         return foodieRepository.save(foodie);
     }
 
-    public Foodie updateFoodie(String username, CreateFoodieDTO dto) {
+    public Foodie updateFoodie(String username,  UpdateFoodieDTO dto) {
 
         Foodie foodie = foodieRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Foodie not found"));

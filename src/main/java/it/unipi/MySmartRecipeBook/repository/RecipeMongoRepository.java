@@ -16,7 +16,7 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
     List<RecipeMongo> findByTitleContainingIgnoreCase(String titleFragment);
 
     //trove le ricette create da uno specifico chef
-    List<RecipeMongo> findByChefName(String chefName);
+    List<RecipeMongo> findByChefUsername(String chefUsername);
 
 
 }
