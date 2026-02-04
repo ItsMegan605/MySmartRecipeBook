@@ -9,6 +9,64 @@ import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.repository.RecipeNeo4jRepository;
 import org.springframework.stereotype.Service;
 
+
+import it.unipi.MySmartRecipeBook.dto.CreateChefDTO;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
+
+@Service
+public class ChefService {
+
+    private final ChefRepository chefRepository;
+
+    public ChefService(ChefRepository chefRepository) {
+        this.chefRepository = chefRepository;
+    }
+
+    /* =========================
+       PROFILE MANAGEMENT
+       ========================= */
+
+    public Chef createChef(CreateChefDTO dto) {
+
+        Chef chef = new Chef();
+        chef.setName(dto.getName());
+        chef.setSurname(dto.getSurname());
+        chef.setUsername(dto.getUsername());
+        chef.setEmail(dto.getEmail());
+        chef.setPassword(dto.getPassword());
+        chef.setBirthdate(dto.getBirthdate());
+        chef.setRegistDate(LocalDateTime.now());
+
+        return chefRepository.save(chef);
+    }
+
+    public Chef updateChef(String username, CreateChefDTO dto) {
+
+        Chef chef = chefRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Chef not found"));
+
+        chef.setName(dto.getName());
+        chef.setSurname(dto.getSurname());
+        chef.setEmail(dto.getEmail());
+        chef.setPassword(dto.getPassword());
+        chef.setBirthdate(dto.getBirthdate());
+
+        return chefRepository.save(chef);
+    }
+
+    public void deleteChef(String username) {
+        chefRepository.findByUsername(username)
+                .ifPresent(chefRepository::delete);
+    }
+
+    public Optional<Chef> getChefByUsername(String username) {
+        return chefRepository.findByUsername(username);
+    }
+}
+
+/*
 @Service
 public class ChefService {
 
@@ -43,3 +101,5 @@ public class ChefService {
         neo4jRepo.save(neoRecipe);
     }
 }
+
+ */

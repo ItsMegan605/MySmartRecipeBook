@@ -23,6 +23,11 @@ public class Foodie extends RegisteredUser {
     private String id;
 
     private LocalDateTime registDate;
+    /**
+     * List of saved recipes (recipe IDs)
+     * Handled by MongoDB as required by project specifications
+     */
+    private List<String> savedRecipeIds = new ArrayList<>();
 }
 
 

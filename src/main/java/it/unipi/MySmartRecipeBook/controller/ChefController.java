@@ -9,6 +9,99 @@ import it.unipi.MySmartRecipeBook.model.Chef;
 
 import java.security.Principal;
 
+import it.unipi.MySmartRecipeBook.dto.CreateChefDTO;
+import it.unipi.MySmartRecipeBook.dto.UpdateChefDTO;
+import it.unipi.MySmartRecipeBook.dto.ChefResponseDTO;
+import it.unipi.MySmartRecipeBook.model.Chef;
+import it.unipi.MySmartRecipeBook.service.ChefService;
+
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/chefs")
+public class ChefController {
+
+    private final ChefService chefService;
+
+    public ChefController(ChefService chefService) {
+        this.chefService = chefService;
+    }
+
+    /* =========================
+       CREATE CHEF
+       ========================= */
+    @PostMapping
+    public ResponseEntity<ChefResponseDTO> createChef(
+            @Valid @RequestBody CreateChefDTO dto) {
+
+        Chef chef = chefService.createChef(dto);
+
+        ChefResponseDTO response = new ChefResponseDTO(
+                chef.getUsername(),
+                chef.getName(),
+                chef.getSurname(),
+                chef.getEmail()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    /* =========================
+       GET CHEF
+       ========================= */
+    @GetMapping("/{username}")
+    public ResponseEntity<ChefResponseDTO> getChef(
+            @PathVariable String username) {
+
+        return chefService.getChefByUsername(username)
+                .map(chef -> new ChefResponseDTO(
+                        chef.getUsername(),
+                        chef.getName(),
+                        chef.getSurname(),
+                        chef.getEmail()
+                ))
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    /* =========================
+       UPDATE CHEF
+       ========================= */
+    @PutMapping("/{username}")
+    public ResponseEntity<ChefResponseDTO> updateChef(
+            @PathVariable String username,
+            @Valid @RequestBody UpdateChefDTO dto) {
+
+        Chef chef = chefService.updateChef(username, dto);
+
+        return ResponseEntity.ok(
+                new ChefResponseDTO(
+                        chef.getUsername(),
+                        chef.getName(),
+                        chef.getSurname(),
+                        chef.getEmail()
+                )
+        );
+    }
+
+    /* =========================
+       DELETE CHEF
+       ========================= */
+    @DeleteMapping("/{username}")
+    public ResponseEntity<Void> deleteChef(
+            @PathVariable String username) {
+
+        chefService.deleteChef(username);
+        return ResponseEntity.noContent().build();
+    }
+}
+
+
+
+/*
+
 // 1. Diciamo a Spring che questo è un componente Web che risponde con dati JSON
 @RestController
 @RequestMapping("/api/chef")
@@ -52,3 +145,4 @@ public class ChefController {
         return ResponseEntity.ok("Ricetta creata con successo!");
     }
 }
+*/
