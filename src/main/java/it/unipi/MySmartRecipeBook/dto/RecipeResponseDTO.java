@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.List;
+import it.unipi.MySmartRecipeBook.model.Ingredient;
 
 @Getter
 @AllArgsConstructor
@@ -15,6 +16,6 @@ public class RecipeResponseDTO {
     private Integer prepTime;
     private String difficulty;
     private String imageURL;
-    private List<String> ingredients;
+    private List<Ingredient> ingredients;
     private String chefUsername;
 }

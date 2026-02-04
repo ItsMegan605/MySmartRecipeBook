@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import it.unipi.MySmartRecipeBook.model.Ingredient;
 
 @Getter
 @Setter
@@ -30,7 +31,7 @@ public class CreateRecipeDTO {
     @NotBlank
     private String preparation;
 
-    private List<String> ingredients;
+    private List<Ingredient> ingredients;
 
     @NotBlank
     private String chefUsername;

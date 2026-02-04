@@ -34,6 +34,8 @@ public class RecipeMongoService {
         recipe.setDescription(dto.getDescription());
         recipe.setPhotoURL(dto.getPhotoURL());
         recipe.setChefUsername(dto.getChefUsername());
+        recipe.setIngredients(dto.getIngredients());
+
 
         return recipeRepository.save(recipe);
     }

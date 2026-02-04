@@ -30,5 +30,5 @@ public class UpdateRecipeDTO {
     @NotBlank
     private String preparation;
 
-    private List<String> ingredients;
+    private List<Ingredient> ingredients;
 }
