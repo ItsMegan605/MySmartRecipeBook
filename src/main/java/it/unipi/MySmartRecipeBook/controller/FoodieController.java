@@ -5,6 +5,9 @@ import it.unipi.MySmartRecipeBook.dto.UpdateFoodieDTO;
 import it.unipi.MySmartRecipeBook.service.FoodieService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import it.unipi.MySmartRecipeBook.dto.FoodieResponseDTO;
+import it.unipi.MySmartRecipeBook.model.Foodie;
+import jakarta.validation.Valid;
 
 import java.util.List;
 

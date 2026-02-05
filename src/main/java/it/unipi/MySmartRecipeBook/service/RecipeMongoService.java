@@ -31,7 +31,7 @@ public class RecipeMongoService {
         recipe.setPrepTime(dto.getPrepTime());
         recipe.setDifficulty(dto.getDifficulty());
         recipe.setDescription(dto.getDescription());
-        recipe.setPhotoURL(dto.getPhotoURL());
+        recipe.setImageURL(dto.getImageURL());
         recipe.setChefUsername(dto.getChefUsername());
         recipe.setIngredients(dto.getIngredients());
 
@@ -40,7 +40,7 @@ public class RecipeMongoService {
     }
 
     public RecipeMongo updateRecipe(String id, UpdateRecipeDTO dto) {
-        RecipeMongo recipe = recipeMongoRepository.findById(id)
+        RecipeMongo recipe = recipeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Recipe not found"));
 
         if (dto.getTitle() != null) recipe.setTitle(dto.getTitle());
@@ -49,9 +49,9 @@ public class RecipeMongoService {
         if (dto.getChefUsername() != null) recipe.setChefUsername(dto.getChefUsername());
 
         // IMMAGINE: scegli uno dei due (vedi sotto)
-        if (dto.getImageURL() != null) recipe.setPhotoURL(dto.getImageURL()); // se nel model si chiama photoURL
+        if (dto.getImageURL() != null) recipe.setImageURL(dto.getImageURL()); // se nel model si chiama photoURL
 
-        return recipeMongoRepository.save(recipe);
+        return recipeRepository.save(recipe);
     }
 
 

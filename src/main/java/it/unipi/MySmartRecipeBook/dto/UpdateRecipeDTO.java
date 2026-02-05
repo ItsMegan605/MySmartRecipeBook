@@ -31,4 +31,7 @@ public class UpdateRecipeDTO {
     private String preparation;
 
     private List<Ingredient> ingredients;
+
+    @NotBlank
+    private String chefUsername;
 }

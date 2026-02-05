@@ -26,11 +26,11 @@ public class RecipeMongo {
 
     //necessarie le condizioni vedi altri model
     private String category;
-    private double prepTime;
+    private Integer prepTime;
     private String preparation;
     private String difficulty;
     private String description;
-    private String photoURL;
+    private String imageURL;
 
     @Indexed
     private String chefUsername;

@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.List;
-import it.unipi.MySmartRecipeBook.model.Ingredient;
+import it.unipi.MySmartRecipeBook.model.Mongo.Ingredient;
 
 @Getter
 @AllArgsConstructor

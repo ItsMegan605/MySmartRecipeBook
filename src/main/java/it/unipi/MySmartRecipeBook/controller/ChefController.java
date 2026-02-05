@@ -1,17 +1,8 @@
 package it.unipi.MySmartRecipeBook.controller;
 
-import it.unipi.MySmartRecipeBook.dto.RecipeDTO;
-import it.unipi.MySmartRecipeBook.service.ChefService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import it.unipi.MySmartRecipeBook.model.Chef;
-
-import java.security.Principal;
-
+import it.unipi.MySmartRecipeBook.dto.ChefResponseDTO;
 import it.unipi.MySmartRecipeBook.dto.CreateChefDTO;
 import it.unipi.MySmartRecipeBook.dto.UpdateChefDTO;
-import it.unipi.MySmartRecipeBook.dto.ChefResponseDTO;
 import it.unipi.MySmartRecipeBook.model.Chef;
 import it.unipi.MySmartRecipeBook.service.ChefService;
 

@@ -9,9 +9,9 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
-import jaca.util.ArrayList;
+import java.util.ArrayList;
 
 
 @Getter
@@ -25,7 +25,7 @@ public class Foodie extends RegisteredUser {
     @Id
     private String id;
 
-    private LocalDateTime registDate;
+    private Date registDate;
     /**
      * List of saved recipes (recipe IDs)
      * Handled by MongoDB as required by project specifications

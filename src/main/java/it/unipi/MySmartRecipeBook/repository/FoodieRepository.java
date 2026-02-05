@@ -8,7 +8,6 @@ import java.util.Optional;
 
     @Repository
     public interface FoodieRepository extends MongoRepository<Foodie, String> {
-        boolean existsByUsername(String username);
 
         Optional<Foodie> findByUsername(String username);
 

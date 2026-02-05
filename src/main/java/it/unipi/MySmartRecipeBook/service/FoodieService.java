@@ -6,7 +6,7 @@ import it.unipi.MySmartRecipeBook.model.Foodie;
 import it.unipi.MySmartRecipeBook.repository.FoodieRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -31,7 +31,7 @@ public class FoodieService {
         foodie.setEmail(dto.getEmail());
         foodie.setPassword(dto.getPassword());
         foodie.setBirthdate(dto.getBirthdate());
-        foodie.setRegistDate(LocalDateTime.now());
+        foodie.setRegistDate(new Date());
 
         return foodieRepository.save(foodie);
     }

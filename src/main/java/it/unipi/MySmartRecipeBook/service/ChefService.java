@@ -14,7 +14,7 @@ import it.unipi.MySmartRecipeBook.dto.CreateChefDTO;
 import it.unipi.MySmartRecipeBook.dto.UpdateChefDTO;
 
 
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -39,7 +39,7 @@ public class ChefService {
         chef.setEmail(dto.getEmail());
         chef.setPassword(dto.getPassword());
         chef.setBirthdate(dto.getBirthdate());
-        chef.setRegisteredDate(LocalDateTime.now());
+        chef.setRegisteredDate(new Date());
 
         return chefRepository.save(chef);
     }
