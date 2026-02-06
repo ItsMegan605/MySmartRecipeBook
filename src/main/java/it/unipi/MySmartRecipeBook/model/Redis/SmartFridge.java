@@ -6,10 +6,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-// Rimosso @RedisHash("smartFridge")
+
 public class SmartFridge implements Serializable {
 
-    // Rimosso @Id
+
     private Integer id; // ID dell'utente
     private List<SmartFridgeIngredient> ingredients;
 
@@ -22,9 +22,17 @@ public class SmartFridge implements Serializable {
         this.ingredients = new ArrayList<>();
     }
 
-    // Getter e Setter...
-    public Integer getId() { return id; }
-    public void setId(Integer id) { this.id = id; }
-    public List<SmartFridgeIngredient> getIngredients() { return ingredients; }
-    public void setIngredients(List<SmartFridgeIngredient> ingredients) { this.ingredients = ingredients; }
+
+    public Integer getId() {
+        return id;
+    }
+    public void setId(Integer id) {
+        this.id = id;
+    }
+    public List<SmartFridgeIngredient> getIngredients() {
+        return ingredients;
+    }
+    public void setIngredients(List<SmartFridgeIngredient> ingredients) {
+        this.ingredients = ingredients;
+    }
 }
