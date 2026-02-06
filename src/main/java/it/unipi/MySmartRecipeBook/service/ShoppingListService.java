@@ -44,4 +44,4 @@ public class ShoppingListService {
         // Uso del comando DEL di Jedis
         jedis.del(REDIS_KEY_PREFIX + userId);
     }
-}}
+}

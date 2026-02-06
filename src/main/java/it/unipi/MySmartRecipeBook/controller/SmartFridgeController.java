@@ -1,7 +1,10 @@
 package it.unipi.MySmartRecipeBook.controller;
 
 import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
+import it.unipi.MySmartRecipeBook.model.Redis.SmartFridge;
+import it.unipi.MySmartRecipeBook.model.SmartFridgeIngredient;
 import it.unipi.MySmartRecipeBook.service.SmartFridgeService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,23 +14,19 @@ import java.util.*;
 @RequestMapping("/api/fridge")
 public class SmartFridgeController {
 
-    private final SmartFridgeService fridgeService;
-
-    public SmartFridgeController(SmartFridgeService fridgeService) {
-        this.fridgeService = fridgeService;
-    }
+    @Autowired
+    private SmartFridgeService smartFridgeService;
 
     @PostMapping("/{userId}/add")
-    public ResponseEntity<Void> addIngredient(
-            @PathVariable Integer userId, // Cambiato in Integer
-            @RequestBody String ingredient) {
-        fridgeService.addIngredientToFridge(userId, ingredient);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<String> addIngredient(@PathVariable Integer userId, @RequestBody SmartFridgeIngredient ingredient) {
+        SmartFridge fridge = smartFridgeService.getFridgeByUserId(userId);
+        fridge.getIngredients().add(ingredient);
+        smartFridgeService.updateFridge(fridge);
+        return ResponseEntity.ok("Ingrediente aggiunto al frigo di " + userId);
     }
 
-    @GetMapping("/{userId}/recipes") // Endpoint mancante per vedere i risultati
-    public ResponseEntity<List<RecipeMongo>> getPossibleRecipes(@PathVariable Integer userId) {
-        List<RecipeMongo> recipes = fridgeService.whatCanICook(userId);
-        return ResponseEntity.ok(recipes);
+    @GetMapping("/{userId}")
+    public ResponseEntity<SmartFridge> getFridge(@PathVariable Integer userId) {
+        return ResponseEntity.ok(smartFridgeService.getFridgeByUserId(userId));
     }
 }
