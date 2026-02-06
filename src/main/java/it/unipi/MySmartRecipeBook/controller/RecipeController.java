@@ -37,7 +37,7 @@ public class RecipeController {
                         recipe.getCategory(),
                         recipe.getPrepTime(),
                         recipe.getDifficulty(),
-                        recipe.getPhotoURL(),
+                        recipe.getImageURL(),
                         recipe.getIngredients(),
                         recipe.getChefUsername()
                 )
@@ -58,7 +58,7 @@ public class RecipeController {
                         recipe.getCategory(),
                         recipe.getPrepTime(),
                         recipe.getDifficulty(),
-                        recipe.getPhotoURL(),
+                        recipe.getImageURL(),
                         recipe.getIngredients(),
                         recipe.getChefUsername()
                 ))
@@ -83,7 +83,7 @@ public class RecipeController {
                         recipe.getCategory(),
                         recipe.getPrepTime(),
                         recipe.getDifficulty(),
-                        recipe.getPhotoURL(),
+                        recipe.getImageURL(),
                         recipe.getIngredients(),
                         recipe.getChefUsername()
                 )

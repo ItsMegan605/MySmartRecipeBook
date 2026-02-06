@@ -1,26 +1,11 @@
 package it.unipi.MySmartRecipeBook.repository;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import it.unipi.MySmartRecipeBook.model.SmartFridge;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
-import redis.clients.jedis.JedisPooled;
 
 @Repository
-public class SmartFridgeRepository {
-
-    @Autowired
-    private JedisPooled jedis; // Bean configurato nella tua RedisConfig
-
-    private static final String PREFIX = "fridge:";
-
-    public void save(String userId, String jsonFridge) {
-        jedis.set(PREFIX + userId, jsonFridge);
-    }
-
-    public String findById(String userId) {
-        return jedis.get(PREFIX + userId);
-    }
-
-    public void delete(String userId) {
-        jedis.del(PREFIX + userId);
-    }
+public interface SmartFridgeRepository extends CrudRepository<SmartFridge, Integer> {
+    // Redis repository base: fornisce save(), findById(), deleteById()...
 }
+
