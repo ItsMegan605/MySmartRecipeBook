@@ -1,5 +1,6 @@
-package it.unipi.MySmartRecipeBook.model;
+package it.unipi.MySmartRecipeBook.model.Redis;
 
+import it.unipi.MySmartRecipeBook.model.SmartFridgeIngredient;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 

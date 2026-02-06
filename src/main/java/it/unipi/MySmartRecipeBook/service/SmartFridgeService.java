@@ -1,6 +1,6 @@
 package it.unipi.MySmartRecipeBook.service;
 
-import it.unipi.MySmartRecipeBook.model.SmartFridge;
+import it.unipi.MySmartRecipeBook.model.Redis.SmartFridge;
 import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
 import it.unipi.MySmartRecipeBook.model.Neo4j.RecipeNeo4j;
 import it.unipi.MySmartRecipeBook.model.SmartFridgeIngredient;
@@ -9,7 +9,6 @@ import it.unipi.MySmartRecipeBook.repository.RecipeNeo4jRepository;
 import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
