@@ -2,21 +2,35 @@ package it.unipi.MySmartRecipeBook.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import redis.clients.jedis.JedisPooled;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
+import redis.clients.jedis.JedisCluster;
+import redis.*;
+
 
 @Configuration
 public class RedisConfig {
 
+    /**
+    serve a gestire nodi, connessioni, client etc
+     mi sa che va fatto dopo aer definito le collezioni etc
+     */
     @Bean
-    public JedisPooled jedisPooled() {
-        // Usa i parametri definiti nel tuo application.properties
-        // Host: localhost, Port: 6379
-        return new JedisPooled("localhost", 6379);
-    }
-}
+    public JedisCluster jedisCluster() {
+        // 1. TODO: Definizione dei nodi del Cluster.
+        // Inserisci qui gli IP reali del tuo cluster
+        System.out.println("da fare");
+        return null;
 
-/*
-Se il tuo obiettivo è un'architettura a cluster come l'altro progetto,
-dovresti usare JedisCluster invece di JedisPooled, ma basandosi sul
-tuo application.properties, attualmente punti a un'istanza singola locale.
- */
+        // 2. Configurazione del Client (Timeout di connessione e socket)
+        // Un timeout di 2 secondi è lo standard per evitare blocchi infiniti.
+
+        // 3. Configurazione del Connection Pool
+        // Gestisce quante connessioni simultanee l'app può aprire verso Redis.
+
+        // 4. Creazione del Cluster
+    }
+
+}

@@ -1,0 +1,12 @@
+Allora alcune note da quello degli scacchi:
+- loro hanno anche una classe per l'accesso negato, non so se è necessaria
+- handler eccezioni globale per quella li dell'accesso negato
+- JWT service serve per controllare effettivamente autenticazione
+- hano il security spring come volevo metrere anche io per il login in
+
+non so di quando è sto progetto, però non so se ci serve tutta sta roba dato che il front end non
+lo vuole implementato ma solo a mo di mockup
+
+
+- invece il redison config va bene p'erche ci serve per redis appunto
+

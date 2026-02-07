@@ -38,3 +38,5 @@ public class ShoppingList implements Serializable {
         this.items.remove(item);
     }
 }
+
+//TO-DO: forse aggiungere metodi per json

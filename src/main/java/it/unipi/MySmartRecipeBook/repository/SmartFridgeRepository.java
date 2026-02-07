@@ -1,6 +1,6 @@
 package it.unipi.MySmartRecipeBook.repository;
 
-import it.unipi.MySmartRecipeBook.model.SmartFridge;
+import it.unipi.MySmartRecipeBook.model.Redis.SmartFridge;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

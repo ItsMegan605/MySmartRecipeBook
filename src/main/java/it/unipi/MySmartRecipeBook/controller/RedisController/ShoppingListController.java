@@ -1,4 +1,4 @@
-package it.unipi.MySmartRecipeBook.controller;
+package it.unipi.MySmartRecipeBook.controller.RedisController;
 
 import it.unipi.MySmartRecipeBook.model.Redis.ShoppingList;
 import it.unipi.MySmartRecipeBook.service.ShoppingListService;

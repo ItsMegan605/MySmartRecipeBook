@@ -1,14 +1,11 @@
-package it.unipi.MySmartRecipeBook.controller;
+package it.unipi.MySmartRecipeBook.controller.RedisController;
 
-import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
 import it.unipi.MySmartRecipeBook.model.Redis.SmartFridge;
 import it.unipi.MySmartRecipeBook.model.SmartFridgeIngredient;
 import it.unipi.MySmartRecipeBook.service.SmartFridgeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.*;
 
 @RestController
 @RequestMapping("/api/fridge")
