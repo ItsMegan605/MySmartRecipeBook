@@ -12,10 +12,12 @@ public class RecipeResponseDTO {
 
     private String id;
     private String title;
+    private String description;
     private String category;
-    private Integer prepTime;
+    private String prepTime;
     private String difficulty;
     private String imageURL;
+    private String preparation;
     private List<Ingredient> ingredients;
     private String chefUsername;
 }

@@ -13,7 +13,7 @@ public class SmartFridgeController {
 
     @Autowired
     private SmartFridgeService smartFridgeService;
-
+/*
     @PostMapping("/{userId}/add")
     public ResponseEntity<String> addIngredient(@PathVariable Integer userId, @RequestBody SmartFridgeIngredient ingredient) {
         SmartFridge fridge = smartFridgeService.getFridgeByUserId(userId);
@@ -26,4 +26,6 @@ public class SmartFridgeController {
     public ResponseEntity<SmartFridge> getFridge(@PathVariable Integer userId) {
         return ResponseEntity.ok(smartFridgeService.getFridgeByUserId(userId));
     }
+
+ */
 }

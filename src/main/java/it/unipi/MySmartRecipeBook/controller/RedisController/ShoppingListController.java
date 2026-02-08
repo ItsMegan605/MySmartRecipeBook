@@ -14,7 +14,7 @@ public class ShoppingListController {
 
     @Autowired
     private ShoppingListService shoppingListService;
-
+/*
     @PostMapping("/add/{userId}")
     public ResponseEntity<String> addItem(@PathVariable Integer userId, @RequestBody String item) {
         ShoppingList list = shoppingListService.getShoppingList(userId);
@@ -27,4 +27,6 @@ public class ShoppingListController {
     public ResponseEntity<ShoppingList> getList(@PathVariable Integer userId) {
         return ResponseEntity.ok(shoppingListService.getShoppingList(userId));
     }
+
+ */
 }

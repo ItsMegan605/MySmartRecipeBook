@@ -6,7 +6,7 @@ import redis.clients.jedis.JedisPooled;
 
 
 //non so se serve intanto sistermo delle cose
-
+/*
 @Repository
 public class RecipeRedisRepository {
 
@@ -22,3 +22,4 @@ public class RecipeRedisRepository {
         return jedis.get("recipe:" + id);
     }
 }
+ */
