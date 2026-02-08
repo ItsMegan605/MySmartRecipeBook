@@ -20,11 +20,13 @@ public class ShoppingListController {
         ShoppingList list = shoppingListService.getShoppingList(userId);
         list.addItem(item);
         shoppingListService.saveShoppingList(list);
-        return ResponseEntity.ok("Elemento aggiunto alla lista di " + userId);
+        return ResponseEntity.ok("Ingredient added to your list " + userId);
     }
 
     @GetMapping("/{userId}")
     public ResponseEntity<ShoppingList> getList(@PathVariable Integer userId) {
         return ResponseEntity.ok(shoppingListService.getShoppingList(userId));
     }
+
+    //metodo per togliere elementi
 }
