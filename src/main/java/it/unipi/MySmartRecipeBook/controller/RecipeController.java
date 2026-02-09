@@ -3,7 +3,7 @@ import it.unipi.MySmartRecipeBook.dto.CreateRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.UpdateRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.RecipeResponseDTO;
 import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
-import it.unipi.MySmartRecipeBook.service.RecipeMongoService;
+import it.unipi.MySmartRecipeBook.service.RecipeService;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -15,9 +15,9 @@ import java.util.List;
 @RequestMapping("/api/recipes")
 public class RecipeController {
 
-    private final RecipeMongoService recipeService;
+    private final RecipeService recipeService;
 
-    public RecipeController(RecipeMongoService recipeService) {
+    public RecipeController(RecipeService recipeService) {
         this.recipeService = recipeService;
     }
 
@@ -25,25 +25,12 @@ public class RecipeController {
        CREATE RECIPE
        ========================= */
     @PostMapping("/create")
-    public ResponseEntity<RecipeResponseDTO> createRecipe(
+    public ResponseEntity<RecipeMongo> saveRecipe(
             @Valid @RequestBody CreateRecipeDTO dto) {
 
+        // creazione elemento ricetta che viene inserito nel DB di mongo
         RecipeMongo recipe = recipeService.createRecipe(dto);
-
-        return ResponseEntity.ok(
-                new RecipeResponseDTO(
-                        recipe.getId(),
-                        recipe.getTitle(),
-                        recipe.getDescription(),
-                        recipe.getCategory(),
-                        recipe.getPrepTime(),
-                        recipe.getDifficulty(),
-                        recipe.getPreparation(),
-                        recipe.getImageURL(),
-                        recipe.getIngredients(),
-                        recipe.getChefUsername()
-                )
-        );
+        return ResponseEntity.ok(recipe);
     }
 
     /* =========================

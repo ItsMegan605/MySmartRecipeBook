@@ -2,19 +2,21 @@ package it.unipi.MySmartRecipeBook.service;
 
 import it.unipi.MySmartRecipeBook.dto.CreateRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
+import it.unipi.MySmartRecipeBook.model.Neo4j.RecipeNeo4j;
 import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
 import org.springframework.stereotype.Service;
 import it.unipi.MySmartRecipeBook.dto.UpdateRecipeDTO;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class RecipeMongoService {
+public class RecipeService {
 
     private final RecipeMongoRepository recipeRepository;
 
-    public RecipeMongoService(RecipeMongoRepository recipeRepository) {
+    public RecipeService(RecipeMongoRepository recipeRepository) {
         this.recipeRepository = recipeRepository;
     }
 
@@ -22,7 +24,7 @@ public class RecipeMongoService {
        CRUD OPERATIONS
        ========================= */
 
-    public RecipeMongo createRecipe(CreateRecipeDTO dto) {
+    private RecipeMongo createRecipeMongo(CreateRecipeDTO dto){
 
         RecipeMongo recipe = new RecipeMongo();
         recipe.setTitle(dto.getTitle());
@@ -34,10 +36,26 @@ public class RecipeMongoService {
         recipe.setImageURL(dto.getImageURL());
         recipe.setChefUsername(dto.getChefUsername());
         recipe.setIngredients(dto.getIngredients());
-
+        recipe.setCreationDate(LocalDateTime.now());
 
         return recipeRepository.save(recipe);
     }
+
+    /*
+    private RecipeNeo4j createRecipeNeo4j(CreateRecipeDTO dto){
+
+    }*/
+
+    public RecipeMongo createRecipe(CreateRecipeDTO dto) {
+
+        RecipeMongo savedRecipe = createRecipeMongo(dto);
+        //createRecipeNeo4j(dto);
+
+        // per il momento facciamo solo il salvataggio in mongo, dovremmo poi gestire
+        // anche il salvataggio in Neo4j più eventuali repliche
+        return savedRecipe;
+    }
+
 
     public RecipeMongo updateRecipe(String id, UpdateRecipeDTO dto) {
         RecipeMongo recipe = recipeRepository.findById(id)
