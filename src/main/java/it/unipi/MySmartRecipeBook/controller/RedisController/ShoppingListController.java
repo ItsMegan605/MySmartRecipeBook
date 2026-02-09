@@ -14,13 +14,13 @@ public class ShoppingListController {
 
     @Autowired
     private ShoppingListService shoppingListService;
-
+/*
     @PostMapping("/add/{userId}")
     public ResponseEntity<String> addItem(@PathVariable Integer userId, @RequestBody String item) {
         ShoppingList list = shoppingListService.getShoppingList(userId);
         list.addItem(item);
         shoppingListService.saveShoppingList(list);
-        return ResponseEntity.ok("Ingredient added to your list " + userId);
+        return ResponseEntity.ok("Elemento aggiunto alla lista di " + userId);
     }
 
     @GetMapping("/{userId}")
@@ -28,5 +28,5 @@ public class ShoppingListController {
         return ResponseEntity.ok(shoppingListService.getShoppingList(userId));
     }
 
-    //metodo per togliere elementi
+ */
 }

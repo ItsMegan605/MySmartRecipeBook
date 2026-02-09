@@ -23,13 +23,13 @@ public class RecipeMongo {
 
     @Indexed
     private String title;
+    private String description;
 
     //necessarie le condizioni vedi altri model
     private String category;
-    private Integer prepTime;
+    private String prepTime;
     private String preparation;
     private String difficulty;
-    private String description;
     private String imageURL;
 
     @Indexed

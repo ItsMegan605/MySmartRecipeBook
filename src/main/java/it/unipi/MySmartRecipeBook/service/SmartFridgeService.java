@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class SmartFridgeService {
-
+/*
     @Autowired
     private SmartFridgeRepository smartFridgeRepository;
 
@@ -43,4 +43,5 @@ public class SmartFridgeService {
         }
         return new SmartFridge(userId); // Ritorna un frigo vuoto se non trovato
     }
+    */
 }

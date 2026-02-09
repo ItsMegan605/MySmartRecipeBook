@@ -24,7 +24,7 @@ public class RecipeController {
     /* =========================
        CREATE RECIPE
        ========================= */
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<RecipeResponseDTO> createRecipe(
             @Valid @RequestBody CreateRecipeDTO dto) {
 
@@ -34,9 +34,11 @@ public class RecipeController {
                 new RecipeResponseDTO(
                         recipe.getId(),
                         recipe.getTitle(),
+                        recipe.getDescription(),
                         recipe.getCategory(),
                         recipe.getPrepTime(),
                         recipe.getDifficulty(),
+                        recipe.getPreparation(),
                         recipe.getImageURL(),
                         recipe.getIngredients(),
                         recipe.getChefUsername()
@@ -55,10 +57,12 @@ public class RecipeController {
                 .map(recipe -> new RecipeResponseDTO(
                         recipe.getId(),
                         recipe.getTitle(),
+                        recipe.getDescription(),
                         recipe.getCategory(),
                         recipe.getPrepTime(),
                         recipe.getDifficulty(),
                         recipe.getImageURL(),
+                        recipe.getPreparation(),
                         recipe.getIngredients(),
                         recipe.getChefUsername()
                 ))
@@ -80,10 +84,12 @@ public class RecipeController {
                 new RecipeResponseDTO(
                         recipe.getId(),
                         recipe.getTitle(),
+                        recipe.getDescription(),
                         recipe.getCategory(),
                         recipe.getPrepTime(),
                         recipe.getDifficulty(),
                         recipe.getImageURL(),
+                        recipe.getPreparation(),
                         recipe.getIngredients(),
                         recipe.getChefUsername()
                 )

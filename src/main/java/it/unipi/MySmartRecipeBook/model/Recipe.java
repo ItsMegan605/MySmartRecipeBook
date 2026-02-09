@@ -2,9 +2,10 @@ package it.unipi.MySmartRecipeBook.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import it.unipi.MySmartRecipeBook.model.Mongo.Ingredient;
 
 public class Recipe {
-
+/*
     private String title;
     private String description;
     private String category;
@@ -12,7 +13,7 @@ public class Recipe {
     private String difficulty;
     private String imageURL;
     private String preparation;
-    private ArrayList<String> ingredients;
+    private List<Ingredient> ingredients;
     private String chefName;
 
     public Recipe(String title, String description, String category, Double prepTime, String difficulty, String imageURL, String preparation, ArrayList<String> ingredients, String chefName) {
@@ -98,4 +99,5 @@ public class Recipe {
     public void setChefName(String chefName) {
         this.chefName = chefName;
     }
+    */
 }

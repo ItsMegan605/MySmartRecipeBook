@@ -21,7 +21,7 @@ public class CreateRecipeDTO {
     private String category;
 
     @NotNull
-    private Integer prepTime;
+    private String prepTime;
 
     @NotBlank
     private String difficulty;

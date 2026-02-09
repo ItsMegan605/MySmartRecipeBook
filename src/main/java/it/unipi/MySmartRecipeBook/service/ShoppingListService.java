@@ -18,7 +18,7 @@ public class ShoppingListService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private static final String REDIS_KEY_PREFIX = "shoppingList:";
-
+/*
     public void saveShoppingList(ShoppingList list) {
         try {
             String json = objectMapper.writeValueAsString(list);
@@ -40,6 +40,6 @@ public class ShoppingListService {
         }
         return new ShoppingList(userId);
     }
-
+*/
     // TODO: Aggiungere logica di verifica replicazione se la lista è critica
 }
