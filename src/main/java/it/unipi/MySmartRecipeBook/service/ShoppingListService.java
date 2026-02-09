@@ -2,16 +2,22 @@ package it.unipi.MySmartRecipeBook.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.unipi.MySmartRecipeBook.model.Mongo.Ingredient;
 import it.unipi.MySmartRecipeBook.model.Redis.ShoppingList;
+import it.unipi.MySmartRecipeBook.repository.FoodieRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.JedisCluster;
+import it.unipi.MySmartRecipeBook.model.enums.Ingredients;
+
 
 @Service
 public class ShoppingListService {
 
     @Autowired
     private JedisCluster jedisCluster; // Utilizzo diretto del cluster
+    @Autowired
+    private FoodieRepository foodieRepository; // Repository per MongoDB
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private static final String REDIS_KEY_PREFIX = "shoppingList:";
@@ -26,7 +32,7 @@ public class ShoppingListService {
         }
     }
 
-    public ShoppingList getShoppingList(Integer userId) {
+    public ShoppingList getShoppingList(String userId) {
         String json = jedisCluster.get(REDIS_KEY_PREFIX + userId);
         if (json != null) {
             try {
@@ -37,4 +43,31 @@ public class ShoppingListService {
         }
         return new ShoppingList(userId);
     }
+
+
+    public ShoppingList addIngredient(String userId, String ingredient) {
+        if (!Ingredients.IngredientName.isValid(ingredient)) {
+            throw new IllegalArgumentException("The ingredient: " + ingredient + " is not allowed!");
+        }
+        if (!foodieRepository.existsFoodieById(userId)) { // Usa il nuovo metodo
+            throw new RuntimeException("User not found");
+        }
+        ShoppingList list = getShoppingList(userId);
+        list.addItem(ingredient);
+        saveShoppingList(list);
+        return list;
+    }
+
+    public ShoppingList removeIngredient(String userId, String ingredient) {
+        if (!foodieRepository.existsFoodieById(userId)) { //come nella add
+            throw new RuntimeException("User not found");
+        }
+        ShoppingList list = getShoppingList(userId);
+        list.removeItem(ingredient); //chiamo la funzione che rimuove con case sensitive a regola
+        //è la funzione del model
+        saveShoppingList(list);
+        return list;
+    }
+
+
 }

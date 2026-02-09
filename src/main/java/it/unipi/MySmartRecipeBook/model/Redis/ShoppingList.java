@@ -6,22 +6,22 @@ import java.util.List;
 
 public class ShoppingList implements Serializable {
 
-    private Integer id;
+    private String id;
     private List<String> items;
 
     public ShoppingList() {
         this.items = new ArrayList<>();
     }
 
-    public ShoppingList(Integer id) {
+    public ShoppingList(String id) {
         this.id = id;
         this.items = new ArrayList<>();
     }
 
-    public Integer getId() {
+    public String getId() {
         return id;
     }
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
     public List<String> getItems() {
@@ -32,10 +32,19 @@ public class ShoppingList implements Serializable {
     }
 
     public void addItem(String item) {
-        this.items.add(item);
+        if (item == null || item.trim().isEmpty()) return;
+        String trimmedItem = item.trim();
+        boolean exists = items.stream().anyMatch(i -> i.equalsIgnoreCase(trimmedItem));
+
+        if (!exists) {
+            items.add(trimmedItem);
+        }
     }
+
     public void removeItem(String item) {
-        this.items.remove(item);
+        if (item == null) return;
+        String trimmedItem = item.trim();
+        items.removeIf(i -> i.equalsIgnoreCase(trimmedItem)); //logica per il case sensitive
     }
 }
 
