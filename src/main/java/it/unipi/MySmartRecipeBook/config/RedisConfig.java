@@ -2,34 +2,34 @@ package it.unipi.MySmartRecipeBook.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
-import redis.clients.jedis.JedisCluster;
-
+import redis.clients.jedis.*;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import java.time.Duration;
+import java.util.HashSet;
+import java.util.Set;
 
 @Configuration
 public class RedisConfig {
 
-    /**
-    serve a gestire nodi, connessioni, client etc
-     mi sa che va fatto dopo aer definito le collezioni etc
-     */
     @Bean
     public JedisCluster jedisCluster() {
-        // 1. TODO: Definizione dei nodi del Cluster.
-        // Inserisci qui gli IP reali del tuo cluster
-        System.out.println("da fare");
-        return null;
+        // Nodi del Cluster: per ora usiamo localhost su WSL
+        Set<HostAndPort> clusterNodes = new HashSet<>();
+        clusterNodes.add(new HostAndPort("127.0.0.1", 7001));
+        clusterNodes.add(new HostAndPort("127.0.0.1", 7002));
+        clusterNodes.add(new HostAndPort("127.0.0.1", 7003));
 
-        // 2. Configurazione del Client (Timeout di connessione e socket)
-        // Un timeout di 2 secondi è lo standard per evitare blocchi infiniti.
+        JedisClientConfig clientConfig = DefaultJedisClientConfig.builder()
+                .timeoutMillis(2000)
+                .socketTimeoutMillis(2000)
+                .build();
 
-        // 3. Configurazione del Connection Pool
-        // Gestisce quante connessioni simultanee l'app può aprire verso Redis.
+        GenericObjectPoolConfig<Connection> poolConfig = new GenericObjectPoolConfig<>();
+        poolConfig.setMaxTotal(10);
+        poolConfig.setMaxIdle(5);
+        poolConfig.setMinIdle(1);
+        poolConfig.setJmxEnabled(false); // Fondamentale per evitare l'UnableToRegisterMBeanException
 
-        // 4. Creazione del Cluster
+        return new JedisCluster(clusterNodes, clientConfig, 5, Duration.ofSeconds(2), poolConfig);
     }
-
 }
