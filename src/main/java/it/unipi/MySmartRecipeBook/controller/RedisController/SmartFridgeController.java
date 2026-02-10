@@ -13,7 +13,7 @@ public class SmartFridgeController {
     @Autowired
     private SmartFridgeService smartFridgeService;
 
-    @PostMapping("/add/{userId")
+    @PostMapping("/add/{userId}")
     public ResponseEntity<?> addIngredient(@PathVariable String userId, @RequestBody String ingredient) {
         try {
             SmartFridge list = smartFridgeService.addItem(userId, ingredient);
@@ -25,7 +25,7 @@ public class SmartFridgeController {
         }
     }
 
-    @PostMapping("/remove/{userId")
+    @PostMapping("/remove/{userId}")
     public ResponseEntity<?> removeIngredient(@PathVariable String userId, @RequestBody String ingredient) {
         try {
             SmartFridge list = smartFridgeService.removeItem(userId, ingredient);
