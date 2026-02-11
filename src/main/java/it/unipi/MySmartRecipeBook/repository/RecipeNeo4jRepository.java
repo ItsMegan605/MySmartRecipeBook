@@ -9,10 +9,11 @@ import java.util.List;
 @Repository
 public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, String> {
 
-    /**
-     * SMART FRIDGE QUERY (Relazione Inversa):
-     * Trova le ricette partendo dagli ingredienti.
-     */
+    // Questa query "crea" la relazione senza che sia scritta nel Model Java
+    @Query("MATCH (i:Ingredient {name: $ingredientName}), (r:Recipe {title: $recipeTitle}) " +
+            "MERGE (i)-[:USED_IN]->(r)")
+    void linkIngredientToRecipe(String ingredientName, String recipeTitle);
+
     @Query("MATCH (i:Ingredient)-[:USED_IN]->(r:Recipe) " +
             "WHERE i.name IN $myIngredients " +
             "WITH r, count(i) as matches " +
