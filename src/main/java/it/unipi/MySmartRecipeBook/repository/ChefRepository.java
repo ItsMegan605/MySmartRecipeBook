@@ -9,7 +9,7 @@ import java.util.Optional;
 @Repository
 public interface ChefRepository extends MongoRepository<Chef, String> {
     Optional<Chef> findByUsername(String username);
-    Optional<Chef> findByUsernameAndPassword(String username, String password);
+    boolean existsByEmail(String email);
     boolean existsByUsername(String username);
 }
 

@@ -12,4 +12,9 @@ public interface FoodieRepository extends MongoRepository<Foodie, String> {
     Optional<Foodie> findByUsername(String username);
     Optional<Foodie> findById(String id);
     boolean existsFoodieById(String id);
+
+    boolean existsByUsername(String username);
+
+    boolean existsByEmail(String email);
+
 }

@@ -1,71 +1,80 @@
 package it.unipi.MySmartRecipeBook.service;
 
-import it.unipi.MySmartRecipeBook.dto.CreateFoodieDTO;
+import it.unipi.MySmartRecipeBook.dto.FoodieResponseDTO;
 import it.unipi.MySmartRecipeBook.dto.UpdateFoodieDTO;
 import it.unipi.MySmartRecipeBook.model.Foodie;
 import it.unipi.MySmartRecipeBook.repository.FoodieRepository;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.Optional;
 
 @Service
 public class FoodieService {
 
     private final FoodieRepository foodieRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public FoodieService(FoodieRepository foodieRepository) {
+    public FoodieService(FoodieRepository foodieRepository,
+                         PasswordEncoder passwordEncoder) {
         this.foodieRepository = foodieRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /* =========================
        PROFILE MANAGEMENT
        ========================= */
 
-    public Foodie createFoodie(CreateFoodieDTO dto) {
-
-        Foodie foodie = new Foodie();
-        foodie.setName(dto.getName());
-        foodie.setSurname(dto.getSurname());
-        foodie.setUsername(dto.getUsername());
-        foodie.setEmail(dto.getEmail());
-        foodie.setPassword(dto.getPassword());
-        foodie.setBirthdate(dto.getBirthdate());
-        foodie.setRegistDate(new Date());
-
-        return foodieRepository.save(foodie);
-    }
-
-    public Foodie updateFoodie(String username,  UpdateFoodieDTO dto) {
+    public FoodieResponseDTO getByUsername(String username) {
 
         Foodie foodie = foodieRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Foodie not found"));
 
-        foodie.setName(dto.getName());
-        foodie.setSurname(dto.getSurname());
-        foodie.setEmail(dto.getEmail());
-        foodie.setPassword(dto.getPassword());
-        foodie.setBirthdate(dto.getBirthdate());
+        return mapToResponse(foodie);
+    }
 
-        return foodieRepository.save(foodie);
+    public FoodieResponseDTO updateFoodie(String username,
+                                          UpdateFoodieDTO dto) {
+
+        Foodie foodie = foodieRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Foodie not found"));
+
+        if (dto.getName() != null)
+            foodie.setName(dto.getName());
+
+        if (dto.getSurname() != null)
+            foodie.setSurname(dto.getSurname());
+
+        if (dto.getEmail() != null)
+            foodie.setEmail(dto.getEmail());
+
+        if (dto.getPassword() != null && !dto.getPassword().isBlank())
+            foodie.setPassword(passwordEncoder.encode(dto.getPassword()));
+
+        if (dto.getBirthdate() != null)
+            foodie.setBirthdate(dto.getBirthdate());
+
+        foodieRepository.save(foodie);
+
+        return mapToResponse(foodie);
     }
 
     public void deleteFoodie(String username) {
-        foodieRepository.findByUsername(username)
-                .ifPresent(foodieRepository::delete);
-    }
 
-    public Optional<Foodie> getFoodieByUsername(String username) {
-        return foodieRepository.findByUsername(username);
+        Foodie foodie = foodieRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Foodie not found"));
+
+        foodieRepository.delete(foodie);
     }
 
     /* =========================
-       SAVED RECIPES (MongoDB)
+       SAVED RECIPES
        ========================= */
 
-    public void saveRecipe(String foodieUsername, String recipeId) {
+    public void saveRecipe(String username, String recipeId) {
 
-        Foodie foodie = foodieRepository.findByUsername(foodieUsername)
+        Foodie foodie = foodieRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Foodie not found"));
 
         if (!foodie.getSavedRecipeIds().contains(recipeId)) {
@@ -74,35 +83,26 @@ public class FoodieService {
         }
     }
 
-    public void removeSavedRecipe(String foodieUsername, String recipeId) {
+    public void removeSavedRecipe(String username, String recipeId) {
 
-        Foodie foodie = foodieRepository.findByUsername(foodieUsername)
+        Foodie foodie = foodieRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Foodie not found"));
 
         foodie.getSavedRecipeIds().remove(recipeId);
         foodieRepository.save(foodie);
     }
-}
 
+    /* =========================
+       MAPPING
+       ========================= */
 
-/*
-import it.unipi.MySmartRecipeBook.model.Foodie;
-import it.unipi.MySmartRecipeBook.repository.FoodieRepository;
-import org.springframework.stereotype.Service;
+    private FoodieResponseDTO mapToResponse(Foodie foodie) {
 
-@Service
-public class FoodieService {
-    private final FoodieRepository foodieRepository;
-
-    public FoodieService(FoodieRepository foodieRepository) {
-        this.foodieRepository = foodieRepository; //tecnicamente li abbiamo su mongo ma non necessaro psecificarlo ?
+        return new FoodieResponseDTO(
+                foodie.getUsername(),
+                foodie.getName(),
+                foodie.getSurname(),
+                foodie.getEmail()
+        );
     }
-
-    public Foodie login (String username, String password) {
-        return foodieRepository.findByUsernameAndPassword(username, password)
-                .orElse(null);
-    }
-
-    //forse ci va il metodo save delle ricette? non lo so
 }
-*/
