@@ -26,7 +26,7 @@ public class AdminController {
 
         return ResponseEntity.ok("Ricetta eliminata con successo");
     }
-
+    //fare funzione per approvare gli chef
     //alcune che avevamo detto: ingredienti più usati
     //avg numero di ricette salvate di ogni chef in certo tempo
     //forse conviene ridurli?

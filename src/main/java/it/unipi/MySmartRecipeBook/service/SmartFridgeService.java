@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import it.unipi.MySmartRecipeBook.model.Redis.SmartFridge;
 import it.unipi.MySmartRecipeBook.model.enums.Ingredients;
 import it.unipi.MySmartRecipeBook.repository.FoodieRepository;
+import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
+import it.unipi.MySmartRecipeBook.repository.RecipeNeo4jRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.JedisCluster;
@@ -17,6 +19,12 @@ public class SmartFridgeService {
 
     @Autowired
     private FoodieRepository foodieRepository;
+
+    @Autowired
+    private RecipeNeo4jRepository recipeNeo4jRepository;
+
+    @Autowired
+    private RecipeMongoRepository recipeMongoRepository;
 
 
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -32,6 +40,7 @@ public class SmartFridgeService {
             e.printStackTrace();
         }
     }
+
     public SmartFridge addItem(String userId, String ingredient) {
         if (!Ingredients.IngredientName.isValid(ingredient)) {
             throw new IllegalArgumentException("The ingredient: " + ingredient + " is not allowed!");
@@ -67,5 +76,10 @@ public class SmartFridgeService {
         }
         return new SmartFridge(userId);
     }
+
+    /*
+    public SmartFridge getRecipeById(String recipeId) {
+        return null;
+    } */
 
 }
