@@ -1,6 +1,8 @@
 package it.unipi.MySmartRecipeBook.repository;
 
 import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;
@@ -18,5 +20,5 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
     //trove le ricette create da uno specifico chef
     List<RecipeMongo> findByChefUsername(String chefUsername);
 
-
+    Page<RecipeMongo> findByCategory(String category, Pageable pageable);
 }

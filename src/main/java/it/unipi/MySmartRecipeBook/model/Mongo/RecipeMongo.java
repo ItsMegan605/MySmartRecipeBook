@@ -1,5 +1,6 @@
 package it.unipi.MySmartRecipeBook.model.Mongo;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
@@ -23,49 +24,34 @@ public class RecipeMongo {
     @Id
     private String id;
 
-    @Indexed
+    @JsonProperty("title")
     private String title;
+
+    @JsonProperty("presentation")
     private String description;
 
-    //necessarie le condizioni vedi altri model
+    @JsonProperty("category")
     private String category;
+
+    @JsonProperty("prep_Time")
     private String prepTime;
+
+    @JsonProperty("preparation")
     private String preparation;
+
+    @JsonProperty("difficulty")
     private String difficulty;
+
+    @JsonProperty("image_url")
     private String imageURL;
 
-    @Indexed
+    @JsonProperty("chef")
     private String chefUsername;
 
+    @JsonProperty("ingredients")
     private List<Ingredient> ingredients;
+
+    @JsonProperty("creation_date")
     private LocalDateTime creationDate;
+
 }
-
-
-
-/*
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-import lombok.Data;
-import java.util.List;
-
-//Serve a salvare tutto il contenuto "pesante" della ricetta.
-
-@Data // Lombok genera getter, setter, toString da solo
-@Document(collection = "recipes") // Dice a Mongo: "Salva questi dati nella collezione 'recipes'"
-public class RecipeMongo {
-    @Id
-    private String id; // L'ID univoco che Mongo genera in automatico
-
-    private String title;
-    private String description;
-    private String category;
-    private Double prepTime;
-    private String difficulty;
-    private String imageURL;
-    private String preparation;
-    private List<String> ingredients;
-    private String chefName;
-}
-
- */
