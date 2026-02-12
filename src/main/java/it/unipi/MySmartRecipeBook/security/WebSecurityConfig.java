@@ -49,31 +49,31 @@ public class WebSecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
-                        // 🔓 PUBBLICO
+                        // PUBBLICO
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/recipes/**").permitAll()
 
-                        // 👨‍🍳 CHEF - gestione ricette
+                        // CHEF - gestione ricette
                         .requestMatchers(HttpMethod.POST, "/api/recipes/**").hasRole("CHEF")
                         .requestMatchers(HttpMethod.PUT, "/api/recipes/**").hasRole("CHEF")
                         .requestMatchers(HttpMethod.DELETE, "/api/recipes/**").hasRole("CHEF")
 
-                        // 👨‍🍳 CHEF - gestione proprio profilo
+                        //CHEF - gestione proprio profilo
                         .requestMatchers("/api/chefs/**").hasRole("CHEF")
 
-                        // 👤 FOODIE - gestione profilo
+                        //FOODIE - gestione profilo
                         .requestMatchers("/api/foodies/**").hasRole("FOODIE")
 
-                        // 👤 FOODIE - salvataggio ricette
+                        // FOODIE - salvataggio ricette
                         .requestMatchers("/api/savedrecipes/**").hasRole("FOODIE")
 
-                        // 👤 FOODIE - SmartFridge
+                        //FOODIE - SmartFridge
                         .requestMatchers("/api/smartfridge/**").hasRole("FOODIE")
 
-                        // 👤 FOODIE - SmartShoppingList
+                        //FOODIE - SmartShoppingList
                         .requestMatchers("/api/smartshoppinglist/**").hasRole("FOODIE")
 
-                        // 🔐 tutto il resto autenticato
+                        // tutto il resto autenticato
                         .anyRequest().authenticated()
                 )
 

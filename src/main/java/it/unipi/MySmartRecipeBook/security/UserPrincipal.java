@@ -24,7 +24,7 @@ public class UserPrincipal implements UserDetails {
         this.authorities = authorities;
     }
 
-    // 👨‍🍳 Costruzione Chef
+    //Chef
     public static UserPrincipal buildChef(Chef chef) {
         return new UserPrincipal(
                 chef.getUsername(),
@@ -35,7 +35,7 @@ public class UserPrincipal implements UserDetails {
         );
     }
 
-    // 👤 Costruzione Foodie
+    //Foodie
     public static UserPrincipal buildFoodie(Foodie foodie) {
         return new UserPrincipal(
                 foodie.getUsername(),
