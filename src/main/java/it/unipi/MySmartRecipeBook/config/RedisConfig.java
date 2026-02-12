@@ -15,9 +15,9 @@ public class RedisConfig {
     public JedisCluster jedisCluster() {
         // Nodi del Cluster: per ora usiamo localhost su WSL
         Set<HostAndPort> clusterNodes = new HashSet<>();
-        clusterNodes.add(new HostAndPort("127.0.0.1", 7001));
-        clusterNodes.add(new HostAndPort("127.0.0.1", 7002));
-        clusterNodes.add(new HostAndPort("127.0.0.1", 7003));
+        clusterNodes.add(new HostAndPort("127.0.0.1", 7004));
+        clusterNodes.add(new HostAndPort("127.0.0.1", 7005));
+        clusterNodes.add(new HostAndPort("127.0.0.1", 7006));
 
         JedisClientConfig clientConfig = DefaultJedisClientConfig.builder()
                 .timeoutMillis(2000)

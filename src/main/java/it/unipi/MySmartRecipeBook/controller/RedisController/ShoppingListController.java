@@ -4,6 +4,7 @@ import it.unipi.MySmartRecipeBook.model.Redis.ShoppingList;
 import it.unipi.MySmartRecipeBook.service.ShoppingListService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -18,9 +19,10 @@ public class ShoppingListController {
     //le deve fare il service quindi ho messo la chiamata diretta
 
     @PostMapping("/add")
-    public ResponseEntity<?> addItem(@PathVariable String userId, @RequestBody String item) {
+    public ResponseEntity<?> addItem(@RequestBody String item) {
         try {
-            ShoppingList list = shoppingListService.addIngredient(userId, item);
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+            ShoppingList list = shoppingListService.addIngredient(username, item);
             return ResponseEntity.ok(list);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -30,9 +32,10 @@ public class ShoppingListController {
     }
 
     @PostMapping("/remove")
-    public ResponseEntity<?> removeItem(@PathVariable String userId, @RequestBody String ingredient) {
+    public ResponseEntity<?> removeItem(@RequestBody String ingredient) {
         try {
-            ShoppingList list = shoppingListService.removeIngredient(userId, ingredient);
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+            ShoppingList list = shoppingListService.removeIngredient(username, ingredient);
             return ResponseEntity.ok(list);
         } catch (Exception e) {
             return ResponseEntity.status(404).body(e.getMessage());
@@ -40,7 +43,8 @@ public class ShoppingListController {
     }
 
     @GetMapping
-    public ResponseEntity<ShoppingList> getList(@PathVariable String userId) {
-        return ResponseEntity.ok(shoppingListService.getShoppingList(userId));
+    public ResponseEntity<ShoppingList> getList() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return ResponseEntity.ok(shoppingListService.getShoppingList(username));
     }
 }

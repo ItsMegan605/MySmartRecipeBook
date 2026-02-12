@@ -33,11 +33,8 @@ public class ShoppingListService {
         }
     }
 
-    public ShoppingList getShoppingList(String userId) {
-        String json = jedisCluster.get(REDIS_KEY_PREFIX + userId);
-        String username = SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getName();
+    public ShoppingList getShoppingList(String username) {
+        String json = jedisCluster.get(REDIS_KEY_PREFIX + username);
         if (json != null) {
             try {
                 return objectMapper.readValue(json, ShoppingList.class);
@@ -45,28 +42,28 @@ public class ShoppingListService {
                 e.printStackTrace();
             }
         }
-        return new ShoppingList(userId);
+        return new ShoppingList(username);
     }
 
 
-    public ShoppingList addIngredient(String userId, String ingredient) {
+    public ShoppingList addIngredient(String username, String ingredient) {
         if (!Ingredients.IngredientName.isValid(ingredient)) {
             throw new IllegalArgumentException("The ingredient: " + ingredient + " is not allowed!");
         }
-        if (!foodieRepository.existsFoodieById(userId)) { // Usa il nuovo metodo
+        if (!foodieRepository.existsByUsername(username)) {
             throw new RuntimeException("User not found");
         }
-        ShoppingList list = getShoppingList(userId);
+        ShoppingList list = getShoppingList(username);
         list.addItem(ingredient);
         saveShoppingList(list);
         return list;
     }
 
-    public ShoppingList removeIngredient(String userId, String ingredient) {
-        if (!foodieRepository.existsFoodieById(userId)) { //come nella add
+    public ShoppingList removeIngredient(String username, String ingredient) {
+        if (!foodieRepository.existsByUsername(username)) {
             throw new RuntimeException("User not found");
         }
-        ShoppingList list = getShoppingList(userId);
+        ShoppingList list = getShoppingList(username);
         list.removeItem(ingredient); //chiamo la funzione che rimuove con case sensitive a regola
         //è la funzione del model
         saveShoppingList(list);

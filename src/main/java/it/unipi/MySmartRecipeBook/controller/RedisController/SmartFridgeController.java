@@ -7,6 +7,7 @@ import it.unipi.MySmartRecipeBook.service.RecipeMatchService;
 import it.unipi.MySmartRecipeBook.service.SmartFridgeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import it.unipi.MySmartRecipeBook.model.*;
 
@@ -23,9 +24,10 @@ public class SmartFridgeController {
     private RecipeNeo4jRepository recipeNeo4jRepository;
 
     @PostMapping("/add")
-    public ResponseEntity<?> addIngredient(@PathVariable String userId, @RequestBody String ingredient) {
+    public ResponseEntity<?> addIngredient(@RequestBody String ingredient) {
         try {
-            SmartFridge list = smartFridgeService.addItem(userId, ingredient);
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+            SmartFridge list = smartFridgeService.addItem(username, ingredient);
             return ResponseEntity.ok(list);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -35,9 +37,10 @@ public class SmartFridgeController {
     }
 
     @PostMapping("/remove")
-    public ResponseEntity<?> removeIngredient(@PathVariable String userId, @RequestBody String ingredient) {
+    public ResponseEntity<?> removeIngredient(@RequestBody String ingredient) {
         try {
-            SmartFridge list = smartFridgeService.removeItem(userId, ingredient);
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+            SmartFridge list = smartFridgeService.removeItem(username, ingredient);
             return ResponseEntity.ok(list);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -47,8 +50,9 @@ public class SmartFridgeController {
     }
 
     @GetMapping
-    public ResponseEntity<SmartFridge> getList(@PathVariable String userId) {
-        return ResponseEntity.ok(smartFridgeService.getSmartFridge(userId));
+    public ResponseEntity<SmartFridge> getList() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return ResponseEntity.ok(smartFridgeService.getSmartFridge(username));
     }
 
    /* @PostMapping("/recommendations")

@@ -42,35 +42,32 @@ public class SmartFridgeService {
         }
     }
 
-    public SmartFridge addItem(String userId, String ingredient) {
+    public SmartFridge addItem(String username, String ingredient) {
         if (!Ingredients.IngredientName.isValid(ingredient)) {
             throw new IllegalArgumentException("The ingredient: " + ingredient + " is not allowed!");
         }
-        if (!foodieRepository.existsFoodieById(userId)) { // Usa il nuovo metodo
+        if (!foodieRepository.existsByUsername(username)) {
             throw new RuntimeException("User not found");
         }
 
-        SmartFridge list = getSmartFridge(userId);
+        SmartFridge list = getSmartFridge(username);
         list.addIngredient(ingredient);
         saveSmartFridge(list);
         return list;
     }
 
-    public SmartFridge removeItem(String userId, String ingredient) {
-        if (!foodieRepository.existsFoodieById(userId)) { //come nella add
+    public SmartFridge removeItem(String username, String ingredient) {
+        if (!foodieRepository.existsByUsername(username)) {
             throw new RuntimeException("User not found");
         }
-        SmartFridge list = getSmartFridge(userId);
+        SmartFridge list = getSmartFridge(username);
         list.removeIngredient(ingredient);
         saveSmartFridge(list);
         return list;
     }
 
-    public SmartFridge getSmartFridge(String userId) {
-        String json = jedisCluster.get(REDIS_KEY_PREFIX + userId);
-        String username = SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getName();
+    public SmartFridge getSmartFridge(String username) {
+        String json = jedisCluster.get(REDIS_KEY_PREFIX + username);
         if (json != null) {
             try {
                 return objectMapper.readValue(json, SmartFridge.class);
@@ -78,7 +75,7 @@ public class SmartFridgeService {
                 e.printStackTrace();
             }
         }
-        return new SmartFridge(userId);
+        return new SmartFridge(username);
     }
 
     /*
