@@ -16,7 +16,7 @@ import jakarta.validation.constraints.*;
 @AllArgsConstructor
 public abstract class RegisteredUser {
 
-    @NotBlank
+    @NotBlank(message = "Username is required")
     @Size(max = 20)
     protected String username;
 
@@ -26,7 +26,7 @@ public abstract class RegisteredUser {
     @NotBlank(message = "Last name is required")
     protected String surname;
 
-    @NotBlank
+    @NotBlank (message = "E-mail is required")
     @Email
     @Size(max = 50)
     protected String email;

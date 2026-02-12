@@ -1,5 +1,6 @@
 package it.unipi.MySmartRecipeBook.dto.recipe;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -13,9 +14,15 @@ import lombok.Setter;
 @NoArgsConstructor
 public class UserPreviewRecipeDTO {
 
-    private String mongo_id;
+    @JsonProperty("mongo_id")
+    private String mongoId;
     private String title;
-    private String description;
+
+    private String presentation;
+
+    @JsonProperty("image_url")
     private String imageURL;
-    private String chefUsername;
+
+    @JsonProperty("chef_name")
+    private String chefName;
 }

@@ -59,7 +59,7 @@ public class RecipeService {
         return recipeDTO;
     }
 
-    /* Ci va aggiunto lo chef sulla base del login*/
+
     private RecipeMongo createRecipeMongo(CreateRecipeDTO dto){
 
         RecipeMongo recipe = new RecipeMongo();
@@ -68,18 +68,17 @@ public class RecipeService {
         recipe.setPreparation(dto.getPreparation());
         recipe.setPrepTime(dto.getPrepTime());
         recipe.setDifficulty(dto.getDifficulty());
-        recipe.setDescription(dto.getDescription());
+        recipe.setPresentation(dto.getPresentation());
         recipe.setImageURL(dto.getImageURL());
         recipe.setIngredients(dto.getIngredients());
         recipe.setCreationDate(LocalDateTime.now());
-        recipe.setChefName(SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getName());
+        recipe.setChefName(SecurityContextHolder.getContext().getAuthentication().getName());
 
         return recipeRepository.save(recipe);
     }
 
     /*
+    Con aggiunta in un secondo momento
     private RecipeNeo4j createRecipeNeo4j(CreateRecipeDTO dto){
 
     }*/

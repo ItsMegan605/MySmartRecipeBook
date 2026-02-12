@@ -13,7 +13,7 @@ public class RecipeConvertions {
 
         RecipeDTO recipeDTO = new RecipeDTO();
         recipeDTO.setTitle(recipe.getTitle());
-        recipeDTO.setDescription(recipe.getDescription());
+        recipeDTO.setPresentation(recipe.getPresentation());
         recipeDTO.setCategory(recipe.getCategory());
         recipeDTO.setPrepTime(recipe.getPrepTime());
         recipeDTO.setDifficulty(recipe.getDifficulty());
@@ -28,11 +28,11 @@ public class RecipeConvertions {
     public UserPreviewRecipeDTO EntityToUserDto (RecipeMongo recipe){
 
         UserPreviewRecipeDTO recipeDTO = new UserPreviewRecipeDTO();
-        recipeDTO.setMongo_id(recipe.getId());
+        recipeDTO.setMongoId(recipe.getId());
         recipeDTO.setTitle(recipe.getTitle());
-        recipeDTO.setDescription(recipe.getDescription());
+        recipeDTO.setPresentation(recipe.getPresentation());
         recipeDTO.setImageURL(recipe.getImageURL());
-        recipeDTO.setChefUsername(recipe.getChefName());
+        recipeDTO.setChefName(recipe.getChefName());
 
         return recipeDTO;
     }
@@ -40,9 +40,9 @@ public class RecipeConvertions {
     public ChefPreviewRecipeDTO EntityToChefDto (RecipeMongo recipe){
 
         ChefPreviewRecipeDTO recipeDTO = new ChefPreviewRecipeDTO();
-        recipeDTO.setMongo_id(recipe.getId());
+        recipeDTO.setMongoId(recipe.getId());
         recipeDTO.setTitle(recipe.getTitle());
-        recipeDTO.setDescription(recipe.getDescription());
+        recipeDTO.setPresentation(recipe.getPresentation());
         recipeDTO.setImageURL(recipe.getImageURL());
         recipeDTO.setCreationDate(recipe.getCreationDate().toLocalDate());
 

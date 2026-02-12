@@ -12,9 +12,13 @@ import java.util.List;
 public class BasePreviewRecipeDTO {
 
     private String title;
-    private String imageURL;
-    private String description;
-    private List<Ingredient> ingredients;
 
+    @JsonProperty("image_URL")
+    private String imageURL;
+
+    @JsonProperty("presentation")
+    private String description;
+
+    private List<Ingredient> ingredients;
 }
 

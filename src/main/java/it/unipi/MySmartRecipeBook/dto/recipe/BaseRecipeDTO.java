@@ -13,8 +13,10 @@ import java.util.List;
 
 @Getter
 @Setter
-public abstract class BaseRecipeDTO {
+public class BaseRecipeDTO {
 
+    @JsonProperty("mongo_id")
+    private String mongoId;
     private String title;
 
     @JsonProperty("image_url")
@@ -26,9 +28,11 @@ public abstract class BaseRecipeDTO {
     private String prepTime;
 
     @JsonProperty("presentation")
-    private String description;
+    private String presentation;
     private List<Ingredient> ingredients;
     private String preparation;
+
+    @JsonProperty("chef_name")
     private String chef;
 
 }

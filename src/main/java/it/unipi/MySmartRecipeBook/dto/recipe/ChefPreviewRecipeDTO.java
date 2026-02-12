@@ -1,5 +1,6 @@
 package it.unipi.MySmartRecipeBook.dto.recipe;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,9 +14,15 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class ChefPreviewRecipeDTO {
 
-    private String mongo_id;
+    @JsonProperty("mongo_id")
+    private String mongoId;
+
     private String title;
-    private String description;
+    private String presentation;
+
+    @JsonProperty("image_url")
     private String imageURL;
+
+    @JsonProperty("creation_date")
     private LocalDate creationDate;
 }

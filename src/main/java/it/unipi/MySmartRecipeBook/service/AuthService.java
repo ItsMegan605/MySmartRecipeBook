@@ -3,7 +3,7 @@ package it.unipi.MySmartRecipeBook.service;
 import it.unipi.MySmartRecipeBook.dto.LoginRequestDTO;
 import it.unipi.MySmartRecipeBook.dto.JwtResponseDTO;
 import it.unipi.MySmartRecipeBook.dto.CreateChefDTO;
-import it.unipi.MySmartRecipeBook.dto.CreateFoodieDTO;
+import it.unipi.MySmartRecipeBook.dto.foodie.CreateFoodieDTO;
 import it.unipi.MySmartRecipeBook.model.Chef;
 import it.unipi.MySmartRecipeBook.model.Foodie;
 import it.unipi.MySmartRecipeBook.repository.ChefRepository;
@@ -77,7 +77,7 @@ public class AuthService {
         foodie.setName(dto.getName());
         foodie.setSurname(dto.getSurname());
         foodie.setBirthdate(dto.getBirthdate());
-        foodie.setRegistDate(new Date());
+        foodie.setRegistrationDate(new Date());
 
 
         foodieRepository.save(foodie);

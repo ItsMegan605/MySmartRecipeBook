@@ -1,16 +1,20 @@
-package it.unipi.MySmartRecipeBook.dto;
+package it.unipi.MySmartRecipeBook.dto.foodie;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Past;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
 
 @Getter
 @Setter
-public class CreateFoodieDTO {
+@NoArgsConstructor
+@AllArgsConstructor
+public class FoodieDTO {
 
     @NotBlank
     private String username;
@@ -24,9 +28,6 @@ public class CreateFoodieDTO {
     @Email
     @NotBlank
     private String email;
-
-    @NotBlank
-    private String password;
 
     @Past
     private Date birthdate;

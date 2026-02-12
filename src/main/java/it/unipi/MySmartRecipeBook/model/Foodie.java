@@ -1,5 +1,8 @@
 package it.unipi.MySmartRecipeBook.model;
 
+import it.unipi.MySmartRecipeBook.model.Mongo.FoodieRecipeMongo;
+import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
+import it.unipi.MySmartRecipeBook.model.Mongo.ReducedRecipeMongo;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
@@ -29,9 +32,15 @@ public class Foodie extends RegisteredUser {
     @Field("id")
     private String id;
 
-    //qui me lo sono fatto cambiare così, poi dobbiamo sistemarlo
-    // //quando faremo le collezioni con id di mongo
+    // qui me lo sono fatto cambiare così, poi dobbiamo sistemarlo
+    // quando faremo le collezioni con id di mongo
 
-    private Date registDate;
-    private List<String> savedRecipeIds = new ArrayList<>();
+    @Field("registration_date")
+    private Date registrationDate;
+
+    @Field("last_saved_rec")
+    private List<FoodieRecipeMongo> lastSavedRecipes = new ArrayList<>();
+
+    @Field("old_recipes")
+    private List<ReducedRecipeMongo> savedRecipes = new ArrayList<>();
 }

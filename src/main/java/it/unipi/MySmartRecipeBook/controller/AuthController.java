@@ -3,7 +3,7 @@ package it.unipi.MySmartRecipeBook.controller;
 import it.unipi.MySmartRecipeBook.dto.LoginRequestDTO;
 import it.unipi.MySmartRecipeBook.dto.JwtResponseDTO;
 import it.unipi.MySmartRecipeBook.dto.CreateChefDTO;
-import it.unipi.MySmartRecipeBook.dto.CreateFoodieDTO;
+import it.unipi.MySmartRecipeBook.dto.foodie.CreateFoodieDTO;
 import it.unipi.MySmartRecipeBook.service.AuthService;
 
 import org.springframework.http.ResponseEntity;
