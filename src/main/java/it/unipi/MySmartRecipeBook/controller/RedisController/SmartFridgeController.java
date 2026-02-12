@@ -22,7 +22,7 @@ public class SmartFridgeController {
     @Autowired
     private RecipeNeo4jRepository recipeNeo4jRepository;
 
-    @PostMapping("/add/{userId}")
+    @PostMapping("/add")
     public ResponseEntity<?> addIngredient(@PathVariable String userId, @RequestBody String ingredient) {
         try {
             SmartFridge list = smartFridgeService.addItem(userId, ingredient);
@@ -34,7 +34,7 @@ public class SmartFridgeController {
         }
     }
 
-    @PostMapping("/remove/{userId}")
+    @PostMapping("/remove")
     public ResponseEntity<?> removeIngredient(@PathVariable String userId, @RequestBody String ingredient) {
         try {
             SmartFridge list = smartFridgeService.removeItem(userId, ingredient);
@@ -46,12 +46,12 @@ public class SmartFridgeController {
         }
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping
     public ResponseEntity<SmartFridge> getList(@PathVariable String userId) {
         return ResponseEntity.ok(smartFridgeService.getSmartFridge(userId));
     }
 
-    @PostMapping("/recommendations")
+   /* @PostMapping("/recommendations")
     public ResponseEntity<List<RecipeNeo4j>> getRecommendations(@RequestBody List<String> ingredients) {
         // Chiamata al metodo d'istanza del service (non statico)
         List<RecipeNeo4j> recipes = RecipeMatchService.getSmartFridgeSuggestions(ingredients);
@@ -60,7 +60,7 @@ public class SmartFridgeController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(recipes);
-    }
+    }*/
 
     /*
     //non so se serve intanto lo metto lì va aggiustato con Neo4j

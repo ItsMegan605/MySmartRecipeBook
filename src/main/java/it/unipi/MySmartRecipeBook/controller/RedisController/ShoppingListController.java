@@ -17,7 +17,7 @@ public class ShoppingListController {
     //qui avevamo la ridondanza perchè faceva lui le operaizoni per niente
     //le deve fare il service quindi ho messo la chiamata diretta
 
-    @PostMapping("/add/{userId}")
+    @PostMapping("/add")
     public ResponseEntity<?> addItem(@PathVariable String userId, @RequestBody String item) {
         try {
             ShoppingList list = shoppingListService.addIngredient(userId, item);
@@ -29,7 +29,7 @@ public class ShoppingListController {
         }
     }
 
-    @PostMapping("/remove/{userId}")
+    @PostMapping("/remove")
     public ResponseEntity<?> removeItem(@PathVariable String userId, @RequestBody String ingredient) {
         try {
             ShoppingList list = shoppingListService.removeIngredient(userId, ingredient);
@@ -39,7 +39,7 @@ public class ShoppingListController {
         }
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping
     public ResponseEntity<ShoppingList> getList(@PathVariable String userId) {
         return ResponseEntity.ok(shoppingListService.getShoppingList(userId));
     }

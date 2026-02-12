@@ -8,6 +8,7 @@ import it.unipi.MySmartRecipeBook.repository.FoodieRepository;
 import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.repository.RecipeNeo4jRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.JedisCluster;
 
@@ -67,6 +68,9 @@ public class SmartFridgeService {
 
     public SmartFridge getSmartFridge(String userId) {
         String json = jedisCluster.get(REDIS_KEY_PREFIX + userId);
+        String username = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
         if (json != null) {
             try {
                 return objectMapper.readValue(json, SmartFridge.class);

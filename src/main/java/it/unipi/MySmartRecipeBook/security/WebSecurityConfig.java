@@ -68,10 +68,10 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/savedrecipes/**").hasRole("FOODIE")
 
                         //FOODIE - SmartFridge
-                        .requestMatchers("/api/smartfridge/**").hasRole("FOODIE")
+                        .requestMatchers("/api/fridge/**").hasRole("FOODIE")
 
                         //FOODIE - SmartShoppingList
-                        .requestMatchers("/api/smartshoppinglist/**").hasRole("FOODIE")
+                        .requestMatchers("/api/shopping/**").hasRole("FOODIE")
 
                         // tutto il resto autenticato
                         .anyRequest().authenticated()

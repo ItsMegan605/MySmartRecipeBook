@@ -10,6 +10,7 @@ import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.utils.RecipeConvertions;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -71,6 +72,9 @@ public class RecipeService {
         recipe.setImageURL(dto.getImageURL());
         recipe.setIngredients(dto.getIngredients());
         recipe.setCreationDate(LocalDateTime.now());
+        recipe.setChefName(SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName());
 
         return recipeRepository.save(recipe);
     }

@@ -6,6 +6,7 @@ import it.unipi.MySmartRecipeBook.model.Mongo.Ingredient;
 import it.unipi.MySmartRecipeBook.model.Redis.ShoppingList;
 import it.unipi.MySmartRecipeBook.repository.FoodieRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.JedisCluster;
 import it.unipi.MySmartRecipeBook.model.enums.Ingredients;
@@ -34,6 +35,9 @@ public class ShoppingListService {
 
     public ShoppingList getShoppingList(String userId) {
         String json = jedisCluster.get(REDIS_KEY_PREFIX + userId);
+        String username = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
         if (json != null) {
             try {
                 return objectMapper.readValue(json, ShoppingList.class);
