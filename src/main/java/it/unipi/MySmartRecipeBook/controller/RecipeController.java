@@ -1,6 +1,7 @@
 package it.unipi.MySmartRecipeBook.controller;
 import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
-import it.unipi.MySmartRecipeBook.dto.RecipeDTO;
+import it.unipi.MySmartRecipeBook.dto.recipe.CreateRecipeDTO;
+import it.unipi.MySmartRecipeBook.dto.recipe.RecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.service.RecipeService;
 
@@ -20,65 +21,59 @@ public class RecipeController {
         this.recipeService = recipeService;
     }
 
-    /* Dopo aver compilato il form, lo chef schiaccia save per salvare la ricetta*/
+    /* We return an object of type ChefPreviewRecipeDTO because we have to show the recipe preview in the Chef Personal
+    Area */
     @PostMapping("/addNewRecipe")
-    public ResponseEntity<ChefPreviewRecipeDTO> saveRecipe(
-            @Valid @RequestBody RecipeDTO dto) {
+    public ResponseEntity<ChefPreviewRecipeDTO> saveRecipe (@Valid @RequestBody CreateRecipeDTO dto){
 
-        // creazione elemento ricetta che viene inserito nel DB di mongo
         ChefPreviewRecipeDTO recipe = recipeService.createRecipe(dto);
         return ResponseEntity.ok(recipe);
-        // forse qui basta anche solo l'esito del salvataggio
     }
 
-    /* Restituisce il contenuto della ricetta, leggendola direttamente dal DB*/
+    /* When we click on a recipe preview all the details must be shown*/
     @GetMapping("/{id}")
-    public ResponseEntity<RecipeDTO> getRecipe(
-            @PathVariable String id) {
+    public ResponseEntity<RecipeDTO> getRecipe (@PathVariable String id) {
 
         RecipeDTO recipeDTO = recipeService.getRecipeById(id);
         return ResponseEntity.ok(recipeDTO);
     }
 
-    /* Eliminazione ricetta */
+    /* Delete Reciope */
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteRecipe(
-            @PathVariable String id) {
+    public ResponseEntity<Void> deleteRecipe (@PathVariable String id) {
 
         recipeService.deleteRecipe(id);
         return ResponseEntity.noContent().build();
     }
 
-    /* Function to search a recipe by title in the home page (the research will be done searching sub-strings)*/
+    /* Function to search a recipe by title in the home page (the research will be done searching sub-strings).
+    Five recipes at the time will be shown */
     @GetMapping("/search")
-    public ResponseEntity<List<RecipeDTO>> getRecipeByTitle(@RequestParam String title){
-        List<RecipeDTO> recipes_list = recipeService.getRecipeByTitle(title);
+    public ResponseEntity<List<UserPreviewRecipeDTO>> getRecipeByTitle(@RequestParam String title, @RequestParam(defaultValue = "1") Integer pageNumber){
 
+        List<UserPreviewRecipeDTO> recipes_list = recipeService.getRecipeByTitle(title, pageNumber);
         return ResponseEntity.ok(recipes_list);
     }
 
-    /* Function to show the latest updated recipes on the home page (all users - even the unregistered ones - can
-    see this first page). In particular, if a user press the button relative to a specific page (for example 4th page),
-    this function will be called */
-    @GetMapping("load/{pageNumber}")
-    public ResponseEntity<List<UserPreviewRecipeDTO>> getRecipesNewPage(@PathVariable Integer pageNumber){
+    @GetMapping("/homeRecipe")
+    public ResponseEntity<List<UserPreviewRecipeDTO>> getHomeRecipe (@RequestParam(defaultValue = "1") Integer pageNumber){
 
-        List<UserPreviewRecipeDTO> recipe_list = recipeService.getRecipePage(pageNumber, 3);
+        List<UserPreviewRecipeDTO> recipe_list = recipeService.getNewestRecipe(pageNumber);
         return ResponseEntity.ok(recipe_list);
     }
 
-    /* Function to order the user saved recipes by specifing a category*/
-    @GetMapping("load/user/{pageNumber}/{filter}")
-    public ResponseEntity<List<UserPreviewRecipeDTO>> getUserRecipes (@PathVariable Integer pageNumber, String filter){
+    /* Function to order the user saved recipes by specifing a category */
+    @GetMapping("/category")
+    public ResponseEntity<List<UserPreviewRecipeDTO>> getRecipeByCategory (@RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam String category){
 
-        List<UserPreviewRecipeDTO> recipe_list = recipeService.getUserRecipePage(pageNumber, 3, filter);
+        List<UserPreviewRecipeDTO> recipe_list = recipeService.getByCategory(pageNumber, category);
         return ResponseEntity.ok(recipe_list);
     }
 
-    @GetMapping("load/chef/{pageNumber}/{filter}")
-    public ResponseEntity<List<ChefPreviewRecipeDTO>> getChefRecipes (@PathVariable Integer pageNumber, String filter){
+    @GetMapping("/chef")
+    public ResponseEntity<List<ChefPreviewRecipeDTO>> getChefRecipes (@RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam String chefName){
 
-        List<ChefPreviewRecipeDTO> recipe_list = recipeService.getChefRecipePage(pageNumber, 3, filter);
+        List<ChefPreviewRecipeDTO> recipe_list = recipeService.getChefRecipePage(pageNumber, chefName);
         return ResponseEntity.ok(recipe_list);
     }
 }

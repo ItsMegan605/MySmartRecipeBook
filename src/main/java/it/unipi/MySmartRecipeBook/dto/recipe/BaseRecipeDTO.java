@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,8 +30,5 @@ public abstract class BaseRecipeDTO {
     private List<Ingredient> ingredients;
     private String preparation;
     private String chef;
-
-    @JsonProperty("creation_date")
-    private LocalDateTime creationDate;
 
 }

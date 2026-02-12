@@ -18,5 +18,4 @@ public class UserPreviewRecipeDTO {
     private String description;
     private String imageURL;
     private String chefUsername;
-    private LocalDate creationDate;
 }
