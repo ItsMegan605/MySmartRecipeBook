@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 
 import java.util.Date;
 import jakarta.validation.constraints.*;
+import org.springframework.data.annotation.Id;
 
 //genero solo cio che serve, non metto direttamente lombok.data e cosi evito effetti collaterali
 @Getter
@@ -15,6 +16,9 @@ import jakarta.validation.constraints.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public abstract class RegisteredUser {
+
+    @Id
+    private String id;
 
     @NotBlank(message = "Username is required")
     @Size(max = 20)

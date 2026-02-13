@@ -1,6 +1,5 @@
 package it.unipi.MySmartRecipeBook.model.Mongo;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,7 +14,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 
-public class ReducedRecipeMongo {
+public class FoodieRecipeSummary {
 
     @Id
     private String id;

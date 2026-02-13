@@ -1,13 +1,11 @@
 package it.unipi.MySmartRecipeBook.model;
 
-import it.unipi.MySmartRecipeBook.model.Mongo.FoodieRecipeMongo;
-import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
-import it.unipi.MySmartRecipeBook.model.Mongo.ReducedRecipeMongo;
+import it.unipi.MySmartRecipeBook.model.Mongo.FoodieRecipe;
+import it.unipi.MySmartRecipeBook.model.Mongo.FoodieRecipeSummary;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field; // Importante
 import java.util.Date;
@@ -23,8 +21,6 @@ public class Foodie extends RegisteredUser {
     //questo è quello che poi ho scoperto rompeva i coglioni
     //Chiave Primaria reale di MongoDB (_id)
     // nome diverso per non creare confusione (es. uniqueId)
-    @Id
-    private String uniqueId;
 
     // 2. Il tuo ID personalizzato ("61934")
     // Togliamo @Id da qui perché NON è la chiave primaria per Mongo
@@ -38,9 +34,9 @@ public class Foodie extends RegisteredUser {
     @Field("registration_date")
     private Date registrationDate;
 
-    @Field("last_saved_rec")
-    private List<FoodieRecipeMongo> lastSavedRecipes = new ArrayList<>();
+    @Field("new_saved")
+    private List<FoodieRecipe> newSavedRecipes = new ArrayList<>();
 
-    @Field("old_recipes")
-    private List<ReducedRecipeMongo> savedRecipes = new ArrayList<>();
+    @Field("old_saved")
+    private List<FoodieRecipeSummary> oldSavedRecipes = new ArrayList<>();
 }

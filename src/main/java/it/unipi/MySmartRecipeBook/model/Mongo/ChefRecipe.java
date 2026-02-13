@@ -1,27 +1,22 @@
 package it.unipi.MySmartRecipeBook.model.Mongo;
 
 import it.unipi.MySmartRecipeBook.model.ReducedChef;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "recipes")
-public class RecipeMongo {
 
+public class ChefRecipe {
     @Id
     private String id;
 
@@ -41,10 +36,11 @@ public class RecipeMongo {
     @Field("image_url")
     private String imageURL;
 
-    private ReducedChef chef;
     private List<Ingredient> ingredients;
 
     @Field("creation_date")
     private LocalDateTime creationDate;
 
+    @Field("num_saves")
+    private Integer numSaves;
 }

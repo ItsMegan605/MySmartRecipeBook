@@ -2,10 +2,10 @@ package it.unipi.MySmartRecipeBook.service;
 
 import it.unipi.MySmartRecipeBook.dto.foodie.StandardFoodieDTO;
 import it.unipi.MySmartRecipeBook.dto.foodie.UpdateStandardFoodieDTO;
+import it.unipi.MySmartRecipeBook.model.Chef;
 import it.unipi.MySmartRecipeBook.model.Foodie;
-import it.unipi.MySmartRecipeBook.model.Mongo.FoodieRecipeMongo;
-import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
-import it.unipi.MySmartRecipeBook.model.Mongo.ReducedRecipeMongo;
+import it.unipi.MySmartRecipeBook.model.Mongo.*;
+import it.unipi.MySmartRecipeBook.repository.ChefRepository;
 import it.unipi.MySmartRecipeBook.repository.FoodieRepository;
 import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.utils.UsersConvertions;
@@ -13,10 +13,13 @@ import it.unipi.MySmartRecipeBook.utils.UsersConvertions;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class FoodieService {
 
     private final FoodieRepository foodieRepository;
+    private final ChefRepository chefRepository;
     private final RecipeMongoRepository recipeRepository;
     private final PasswordEncoder passwordEncoder;
     private final UsersConvertions usersConvertions;
@@ -24,11 +27,13 @@ public class FoodieService {
     public FoodieService(FoodieRepository foodieRepository,
                          RecipeMongoRepository recipeRepository,
                          PasswordEncoder passwordEncoder,
-                         UsersConvertions usersConvertions) {
+                         UsersConvertions usersConvertions,
+                         ChefRepository chefRepository) {
         this.foodieRepository = foodieRepository;
         this.recipeRepository = recipeRepository;
         this.passwordEncoder = passwordEncoder;
         this.usersConvertions = usersConvertions;
+        this.chefRepository = chefRepository;
     }
 
     /* PROFILE MANAGEMENT */
@@ -67,7 +72,7 @@ public class FoodieService {
         return usersConvertions.entityToFoodieDTO(foodie);
     }
 
-    public void deleteFoodie(String username) {
+    public void deleteFoodie(String username){
 
         Foodie foodie = foodieRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Foodie not found"));
@@ -82,13 +87,13 @@ public class FoodieService {
                 .orElseThrow(() -> new RuntimeException("Foodie not found"));
 
         //check if the recipe has already been saved in the old recipes
-        for (ReducedRecipeMongo recipe : foodie.getSavedRecipes()){
+        for (FoodieRecipeSummary recipe : foodie.getOldSavedRecipes()){
             if (recipe.getId().equals(recipeId))
                 throw new RuntimeException("Recipe already saved");
         }
 
         //check if the recipe has already been saved in the last recipes
-        for (FoodieRecipeMongo recipe : foodie.getLastSavedRecipes()) {
+        for (FoodieRecipe recipe : foodie.getNewSavedRecipes()) {
             if (recipe.getId().equals(recipeId))
                 throw new RuntimeException("Recipe already saved");
         }
@@ -97,27 +102,52 @@ public class FoodieService {
                 .orElseThrow(() -> new RuntimeException("Recipe to save not found"));
 
 
-        FoodieRecipeMongo fullRecipe = usersConvertions.entityToFoodieEntity(recipe);
+        FoodieRecipe fullRecipe = usersConvertions.entityToFoodieEntity(recipe);
 
-        if(foodie.getLastSavedRecipes().size() == 5){
+        if(foodie.getNewSavedRecipes().size() == 5){
 
-            FoodieRecipeMongo oldestRecipe = foodie.getLastSavedRecipes().get(0);
-            ReducedRecipeMongo reduced_old = usersConvertions.entityToReducedRecipe(oldestRecipe);
-            foodie.getSavedRecipes().add(reduced_old);
-            foodie.getLastSavedRecipes().remove(reduced_old);
+            FoodieRecipe oldestRecipe = foodie.getNewSavedRecipes().remove(0);
+            FoodieRecipeSummary reduced_old = usersConvertions.entityToReducedRecipe(oldestRecipe);
+            foodie.getOldSavedRecipes().add(reduced_old);
         }
 
-        foodie.getLastSavedRecipes().add(fullRecipe);
+        foodie.getNewSavedRecipes().add(fullRecipe);
         foodieRepository.save(foodie);
 
-        String chefName = fullRecipe.getChefName();
-        updateChefCounters(chefName, recipeId);
-        /* Bisogna prendere il nome dello chef, cercare nella collection chef e modificare il counter dei saves
-        ricercandolo in entrambe le liste ed eventualmente decrementando il contatore globale */
+        String chefId = fullRecipe.getChef().getMongoId();
+        updateChefCounters(chefId, recipeId);
     }
 
-    private void updateChefCounters(String chefName, String recipeId) {
+    /* Attenzione perchè non so se questa operazione è atomica, quindi nel caso bisogna gestire se viene salvata
+    la ricetta ma non aggiornati i contatori */
+    private void updateChefCounters(String chefId, String recipeId){
 
+        Chef chef = chefRepository.findById(chefId)
+                .orElseThrow(() -> new RuntimeException("Chef not found"));
+
+        boolean recipeFound = false;
+        for (ChefRecipe recipe : chef.getNewRecipes()) {
+            if (recipe.getId().equals(recipeId)){
+                recipe.setNumSaves(recipe.getNumSaves() + 1);
+                recipeFound = true;
+                break;
+            }
+        }
+
+        if (!recipeFound){
+            for (ChefRecipeSummary recipe : chef.getOldRecipes()) {
+                if (recipe.getMongoId().equals(recipeId)){
+                    recipe.setNumSaves(recipe.getNumSaves() + 1);
+                    recipeFound = true;
+                    break;
+                }
+            }
+        }
+
+        if(recipeFound){
+            chef.setTotalSaves(chef.getTotalSaves() + 1);
+            chefRepository.save(chef);
+        }
     }
 
 

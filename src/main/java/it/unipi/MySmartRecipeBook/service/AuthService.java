@@ -56,7 +56,7 @@ public class AuthService {
         chef.setName(dto.getName());
         chef.setSurname(dto.getSurname());
         chef.setBirthdate(dto.getBirthdate());
-        chef.setRegisteredDate(new Date());
+        chef.setRegistrationDate(new Date());
 
         chefRepository.save(chef);
     }

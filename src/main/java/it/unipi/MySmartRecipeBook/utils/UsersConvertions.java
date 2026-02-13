@@ -3,9 +3,9 @@ package it.unipi.MySmartRecipeBook.utils;
 import it.unipi.MySmartRecipeBook.dto.foodie.StandardFoodieDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.BaseRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Foodie;
-import it.unipi.MySmartRecipeBook.model.Mongo.FoodieRecipeMongo;
+import it.unipi.MySmartRecipeBook.model.Mongo.FoodieRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
-import it.unipi.MySmartRecipeBook.model.Mongo.ReducedRecipeMongo;
+import it.unipi.MySmartRecipeBook.model.Mongo.FoodieRecipeSummary;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -24,9 +24,9 @@ public class UsersConvertions {
         );
     }
 
-    public FoodieRecipeMongo dtoToFoodieRecipe (BaseRecipeDTO recipeDTO) {
+    public FoodieRecipe dtoToFoodieRecipe (BaseRecipeDTO recipeDTO) {
 
-        FoodieRecipeMongo recipeMongo = new FoodieRecipeMongo();
+        FoodieRecipe recipeMongo = new FoodieRecipe();
         recipeMongo.setId(recipeDTO.getMongoId());
         recipeMongo.setTitle(recipeDTO.getTitle());
         recipeMongo.setImageURL(recipeDTO.getImageURL());
@@ -36,15 +36,15 @@ public class UsersConvertions {
         recipeMongo.setPresentation(recipeDTO.getPresentation());
         recipeMongo.setIngredients(recipeDTO.getIngredients());
         recipeMongo.setPreparation(recipeDTO.getPreparation());
-        recipeMongo.setChefName(recipeDTO.getChef());
+        //recipeMongo.setChef(recipeDTO.getChefName());
         recipeMongo.setSavingDate(LocalDate.now());
 
         return recipeMongo;
     }
 
-    public ReducedRecipeMongo entityToReducedRecipe (FoodieRecipeMongo recipeMongo) {
+    public FoodieRecipeSummary entityToReducedRecipe (FoodieRecipe recipeMongo) {
 
-        ReducedRecipeMongo recipe = new ReducedRecipeMongo();
+        FoodieRecipeSummary recipe = new FoodieRecipeSummary();
         recipe.setId(recipeMongo.getId());
         recipe.setTitle(recipeMongo.getTitle());
         recipe.setImageURL(recipeMongo.getImageURL());
@@ -55,9 +55,9 @@ public class UsersConvertions {
         return  recipe;
     }
 
-    public FoodieRecipeMongo entityToFoodieEntity (RecipeMongo recipeMongo) {
+    public FoodieRecipe entityToFoodieEntity (RecipeMongo recipeMongo) {
 
-        FoodieRecipeMongo recipe = new FoodieRecipeMongo();
+        FoodieRecipe recipe = new FoodieRecipe();
         recipe.setId(recipeMongo.getId());
         recipe.setTitle(recipeMongo.getTitle());
         recipe.setImageURL(recipeMongo.getImageURL());
@@ -67,7 +67,7 @@ public class UsersConvertions {
         recipe.setPresentation(recipeMongo.getPresentation());
         recipe.setIngredients(recipeMongo.getIngredients());
         recipe.setPreparation(recipeMongo.getPreparation());
-        recipe.setChefName(recipeMongo.getChefName());
+        //recipe.setChefName(recipeMongo.getChefName());
         recipe.setSavingDate(LocalDate.now());
 
         return recipe;

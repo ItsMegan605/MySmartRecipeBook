@@ -72,7 +72,9 @@ public class RecipeService {
         recipe.setImageURL(dto.getImageURL());
         recipe.setIngredients(dto.getIngredients());
         recipe.setCreationDate(LocalDateTime.now());
-        recipe.setChefName(SecurityContextHolder.getContext().getAuthentication().getName());
+        recipe.getChef().setMongoId(SecurityContextHolder.getContext().getAuthentication().getId());
+        recipe.getChef().setName(SecurityContextHolder.getContext().getAuthentication().getName());
+        recipe.getChef().setSurname(SecurityContextHolder.getContext().getAuthentication().getSurname());
 
         return recipeRepository.save(recipe);
     }

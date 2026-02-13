@@ -32,7 +32,7 @@ public class RecipeConvertions {
         recipeDTO.setTitle(recipe.getTitle());
         recipeDTO.setPresentation(recipe.getPresentation());
         recipeDTO.setImageURL(recipe.getImageURL());
-        recipeDTO.setChefName(recipe.getChefName());
+        //recipeDTO.setChefName(recipe.getChefName());
 
         return recipeDTO;
     }
