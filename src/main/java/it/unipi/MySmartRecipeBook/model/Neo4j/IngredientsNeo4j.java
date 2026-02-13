@@ -7,7 +7,7 @@ import lombok.Data;
 
 //ingredient node
 @Data
-@Node("Ingredients")
+@Node("Ingredient")
 public class IngredientsNeo4j {
 
     @Id

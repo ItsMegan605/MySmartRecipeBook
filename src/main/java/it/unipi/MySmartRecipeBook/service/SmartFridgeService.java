@@ -36,7 +36,6 @@ public class SmartFridgeService {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private static final String REDIS_FRIDGE_PREFIX = "smartFridge:items:";
     private static final String REDIS_RECIPES_PREFIX = "smartFridge:suggestions:";
-    private static final int CACHE_TTL_SECONDS = 3600; // 1 ora
 
 
 
@@ -80,7 +79,6 @@ public class SmartFridgeService {
     public List<RecipeSuggestionDTO> getRecommendations(String username) {
         String cacheKey = REDIS_RECIPES_PREFIX + username;
 
-        // 1. Controllo Redis (Cache Hit)
         String json = jedisCluster.get(cacheKey);
         if (json != null) {
             try {
@@ -89,8 +87,7 @@ public class SmartFridgeService {
                 e.printStackTrace();
             }
         }
-
-        // 2. Cache Miss: Recupero ingredienti
+        //if the recipe is not already in the cache check if there are the matched 3 ingredients
         SmartFridge fridge = getSmartFridge(username);
         List<String> ingredients = fridge.getIngredients();
 
@@ -98,14 +95,13 @@ public class SmartFridgeService {
             return new ArrayList<>();
         }
 
-        // 3. Query Neo4j (Repository style)
+        //and we check in neo4j
         List<RecipeSuggestionDTO> suggestions = recipeNeo4jRepository.findRecipesByIngredients(ingredients);
 
-        // 4. Cache Populate
+        //we get the suggestion and cache it
         if (!suggestions.isEmpty()) {
             try {
                 jedisCluster.set(cacheKey, objectMapper.writeValueAsString(suggestions));
-                jedisCluster.expire(cacheKey, CACHE_TTL_SECONDS);
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
@@ -135,10 +131,10 @@ public class SmartFridgeService {
                 List<RecipeSuggestionDTO> updatedList = new ArrayList<>();
 
                 for (RecipeSuggestionDTO recipe : cachedRecipes) {
-                    // Rimuovi l'ingrediente dalla lista dei match (gestione case-insensitive)
+                   //removing of the ingredient
                     recipe.getMatchedIngredients().removeIf(i -> i.equalsIgnoreCase(removedIngredient));
 
-                    // Filtro: mantengo solo se ho ancora >= 3 match
+                    //keep the recipe just if we still have 3 matches
                     if (recipe.getMatchedIngredients().size() >= 3) {
                         updatedList.add(recipe);
                     }
@@ -147,10 +143,7 @@ public class SmartFridgeService {
                 if (updatedList.isEmpty()) {
                     jedisCluster.del(cacheKey);
                 } else {
-                    // Aggiorno la cache con la lista ridotta
                     jedisCluster.set(cacheKey, objectMapper.writeValueAsString(updatedList));
-                    // IMPORTANTE: Reimposto il TTL, altrimenti SET potrebbe rimuoverlo o renderlo persistente
-                    jedisCluster.expire(cacheKey, CACHE_TTL_SECONDS);
                 }
 
             } catch (JsonProcessingException e) {
@@ -158,12 +151,5 @@ public class SmartFridgeService {
             }
         }
     }
-
-
-
-    /*
-    public SmartFridge getRecipeById(String recipeId) {
-        return null;
-    } */
 
 }
