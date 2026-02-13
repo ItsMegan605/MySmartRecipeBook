@@ -2,6 +2,7 @@ package it.unipi.MySmartRecipeBook.controller;
 
 import it.unipi.MySmartRecipeBook.dto.foodie.StandardFoodieDTO;
 import it.unipi.MySmartRecipeBook.dto.foodie.UpdateStandardFoodieDTO;
+import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import it.unipi.MySmartRecipeBook.service.FoodieService;
 
 import jakarta.validation.Valid;
@@ -51,8 +52,13 @@ public class FoodieController {
     @PostMapping("/me/saved-recipes/{recipeId}")
     public ResponseEntity<Void> saveRecipe (@PathVariable String recipeId) {
 
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        foodieService.saveRecipe(username, recipeId);
+        //String foodieID = SecurityContextHolder.getContext().getAuthentication().get();
+
+        UserPrincipal foodie = (UserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+        String foodieID = foodie.getId();
+        foodieService.saveRecipe(foodieID, recipeId);
 
         return ResponseEntity.ok().build();
     }

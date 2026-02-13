@@ -71,8 +71,7 @@ public class UserPrincipal implements UserDetails {
 
     public String getSurname() { return surname; }
 
-    public String getId() { return id;
-    }
+    public String getId() { return id;}
 
     @Override
     public String getUsername() {return id; }

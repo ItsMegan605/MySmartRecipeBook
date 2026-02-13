@@ -1,5 +1,5 @@
 package it.unipi.MySmartRecipeBook.controller.RedisController;
-
+/*
 import it.unipi.MySmartRecipeBook.dto.recipe.RecipeSuggestionDTO;
 import it.unipi.MySmartRecipeBook.model.Neo4j.RecipeNeo4j;
 import it.unipi.MySmartRecipeBook.model.Redis.SmartFridge;
@@ -78,4 +78,3 @@ public class SmartFridgeController {
     //tolgo un ingrediente e quando lo tolgo devo controllare nuovamente le ricette
 
     //vedere se aggiungere metodo per neo4j
-}

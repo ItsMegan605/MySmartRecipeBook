@@ -1,9 +1,9 @@
 package it.unipi.MySmartRecipeBook.repository;
-
+/*
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import redis.clients.jedis.JedisPooled;
-
+*/
 
 //non so se serve intanto sistermo delle cose
 /*

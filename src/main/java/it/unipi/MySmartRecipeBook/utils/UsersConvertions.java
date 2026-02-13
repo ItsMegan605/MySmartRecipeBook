@@ -67,7 +67,7 @@ public class UsersConvertions {
         recipe.setPresentation(recipeMongo.getPresentation());
         recipe.setIngredients(recipeMongo.getIngredients());
         recipe.setPreparation(recipeMongo.getPreparation());
-        //recipe.setChefName(recipeMongo.getChefName());
+        recipe.setChef(recipeMongo.getChef());
         recipe.setSavingDate(LocalDate.now());
 
         return recipe;

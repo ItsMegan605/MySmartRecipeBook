@@ -81,9 +81,9 @@ public class FoodieService {
     }
 
 
-    public void saveRecipe(String username, String recipeId) {
+    public void saveRecipe(String foodieId, String recipeId) {
 
-        Foodie foodie = foodieRepository.findByUsername(username)
+        Foodie foodie = foodieRepository.findById(foodieId)
                 .orElseThrow(() -> new RuntimeException("Foodie not found"));
 
         //check if the recipe has already been saved in the old recipes
