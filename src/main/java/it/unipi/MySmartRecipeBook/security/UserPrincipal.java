@@ -12,14 +12,21 @@ import java.util.Collections;
 
 public class UserPrincipal implements UserDetails {
 
-    private String username;
+
     private String password;
+    private String id;
+    private String name;
+    private String surname;
     private Collection<? extends GrantedAuthority> authorities;
 
-    public UserPrincipal(String username,
+    public UserPrincipal(String id,
+                         String name,
+                         String surname,
                          String password,
                          Collection<? extends GrantedAuthority> authorities) {
-        this.username = username;
+        this.id = id;
+        this.name = name;
+        this.surname = surname;
         this.password = password;
         this.authorities = authorities;
     }
@@ -27,7 +34,9 @@ public class UserPrincipal implements UserDetails {
     //Chef
     public static UserPrincipal buildChef(Chef chef) {
         return new UserPrincipal(
-                chef.getUsername(),
+                chef.getId(),
+                chef.getName(),
+                chef.getSurname(),
                 chef.getPassword(),
                 Collections.singletonList(
                         new SimpleGrantedAuthority("ROLE_CHEF")
@@ -38,7 +47,9 @@ public class UserPrincipal implements UserDetails {
     //Foodie
     public static UserPrincipal buildFoodie(Foodie foodie) {
         return new UserPrincipal(
-                foodie.getUsername(),
+                foodie.getId(),
+                foodie.getName(),
+                foodie.getSurname(),
                 foodie.getPassword(),
                 Collections.singletonList(
                         new SimpleGrantedAuthority("ROLE_FOODIE")
@@ -56,10 +67,15 @@ public class UserPrincipal implements UserDetails {
         return password;
     }
 
-    @Override
-    public String getUsername() {
-        return username;
+    public String getName() { return name; }
+
+    public String getSurname() { return surname; }
+
+    public String getId() { return id;
     }
+
+    @Override
+    public String getUsername() {return id; }
 
     @Override public boolean isAccountNonExpired() {
         return true;

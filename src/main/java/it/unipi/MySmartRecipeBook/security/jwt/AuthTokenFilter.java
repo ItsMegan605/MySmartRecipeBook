@@ -1,23 +1,24 @@
 package it.unipi.MySmartRecipeBook.security.jwt;
 
-import it.unipi.MySmartRecipeBook.security.UserDetailsServiceImp;
+import it.unipi.MySmartRecipeBook.security.UserPrincipal;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
-import jakarta.servlet.*;
-import jakarta.servlet.http.*;
+
 import java.io.IOException;
+import java.util.List;
 
 public class AuthTokenFilter extends OncePerRequestFilter {
 
     @Autowired
     private JwtUtils jwtUtils;
-
-    @Autowired
-    private UserDetailsServiceImp userDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -33,16 +34,31 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
             if (jwtUtils.validateJwtToken(jwt)) {
 
-                String username = jwtUtils.getUsernameFromJwtToken(jwt);
+                String id = jwtUtils.getIdFromJwtToken(jwt);
+                String name = jwtUtils.getNameFromJwtToken(jwt);
+                String surname = jwtUtils.getSurnameFromJwtToken(jwt);
 
-                UserDetails userDetails =
-                        userDetailsService.loadUserByUsername(username);
+                List<String> roles = jwtUtils.getRolesFromJwtToken(jwt);
+
+                var authorities = roles.stream()
+                        .map(SimpleGrantedAuthority::new)
+                        .toList();
+
+                // Creo un UserPrincipal SENZA query al DB
+                UserPrincipal userPrincipal = new UserPrincipal(
+                        id,
+                        name,
+                        surname,
+                        null, // password non serve nelle request
+                        authorities
+                );
 
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
-                                userDetails,
+                                userPrincipal,
                                 null,
-                                userDetails.getAuthorities());
+                                authorities
+                        );
 
                 authentication.setDetails(
                         new WebAuthenticationDetailsSource()
