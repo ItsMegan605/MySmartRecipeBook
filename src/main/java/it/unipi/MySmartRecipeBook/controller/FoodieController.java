@@ -52,8 +52,6 @@ public class FoodieController {
     @PostMapping("/me/saved-recipes/{recipeId}")
     public ResponseEntity<Void> saveRecipe (@PathVariable String recipeId) {
 
-        //String foodieID = SecurityContextHolder.getContext().getAuthentication().get();
-
         UserPrincipal foodie = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getPrincipal();

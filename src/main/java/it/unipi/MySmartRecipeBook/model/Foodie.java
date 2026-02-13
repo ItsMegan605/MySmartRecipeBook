@@ -35,8 +35,8 @@ public class Foodie extends RegisteredUser {
     private Date registrationDate;
 
     @Field("new_saved")
-    private List<FoodieRecipe> newSavedRecipes = new ArrayList<>();
+    private List<FoodieRecipe> newSavedRecipes;
 
     @Field("old_saved")
-    private List<FoodieRecipeSummary> oldSavedRecipes = new ArrayList<>();
+    private List<FoodieRecipeSummary> oldSavedRecipes;
 }

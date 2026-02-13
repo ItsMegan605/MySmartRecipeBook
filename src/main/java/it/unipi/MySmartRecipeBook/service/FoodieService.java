@@ -13,6 +13,7 @@ import it.unipi.MySmartRecipeBook.utils.UsersConvertions;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 @Service
@@ -104,7 +105,15 @@ public class FoodieService {
 
         FoodieRecipe fullRecipe = usersConvertions.entityToFoodieEntity(recipe);
 
+        if (foodie.getNewSavedRecipes() == null) {
+            foodie.setNewSavedRecipes(new ArrayList<>());
+        }
+
         if(foodie.getNewSavedRecipes().size() == 5){
+
+            if (foodie.getOldSavedRecipes() == null) {
+                foodie.setOldSavedRecipes(new ArrayList<>());
+            }
 
             FoodieRecipe oldestRecipe = foodie.getNewSavedRecipes().remove(0);
             FoodieRecipeSummary reduced_old = usersConvertions.entityToReducedRecipe(oldestRecipe);

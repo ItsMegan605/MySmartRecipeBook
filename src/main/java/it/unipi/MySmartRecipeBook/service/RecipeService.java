@@ -1,6 +1,10 @@
 package it.unipi.MySmartRecipeBook.service;
 
 import it.unipi.MySmartRecipeBook.dto.recipe.StandardRecipeDTO;
+import it.unipi.MySmartRecipeBook.model.Chef;
+import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipe;
+import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipeSummary;
+import it.unipi.MySmartRecipeBook.repository.ChefRepository;
 import org.springframework.beans.factory.annotation.Value;
 import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.CreateRecipeDTO;
@@ -46,9 +50,12 @@ public class RecipeService {
 
     private final RecipeMongoRepository recipeRepository;
     private final RecipeConvertions convertions;
-    public RecipeService(RecipeMongoRepository recipeRepository, RecipeConvertions convertions) {
+    private final ChefRepository chefRepository;
+    public RecipeService(RecipeMongoRepository recipeRepository, RecipeConvertions convertions,
+                         ChefRepository chefRepository) {
         this.recipeRepository = recipeRepository;
         this.convertions = convertions;
+        this.chefRepository = chefRepository;
     }
 
 
@@ -57,8 +64,30 @@ public class RecipeService {
         RecipeMongo savedRecipe = createRecipeMongo(dto);
         //createRecipeNeo4j(dto);
 
+        //addToChefRecipes(savedRecipe);
+
         ChefPreviewRecipeDTO recipeDTO = convertions.EntityToChefDto(savedRecipe);
         return recipeDTO;
+    }
+
+    private void addToChefRecipes(RecipeMongo recipe) {
+
+        String chefId = recipe.getChef().getMongoId();
+        Chef chef = chefRepository.findById(chefId)
+                .orElseThrow(() -> new RuntimeException("Chef not found"));
+
+        if(chef.getNewRecipes() == null){
+            chef.setNewRecipes(new ArrayList<>());
+        }
+        else if (chef.getNewRecipes().size() == 5) {
+
+            if(chef.getOldRecipes().size() == 0){
+                chef.setOldRecipes(new ArrayList<>());
+            }
+
+        }
+
+
     }
 
 
