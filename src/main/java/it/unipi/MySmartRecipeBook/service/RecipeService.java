@@ -2,14 +2,12 @@ package it.unipi.MySmartRecipeBook.service;
 
 import it.unipi.MySmartRecipeBook.dto.recipe.StandardRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Chef;
-import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipe;
-import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipeSummary;
+import it.unipi.MySmartRecipeBook.model.Mongo.*;
 import it.unipi.MySmartRecipeBook.repository.ChefRepository;
 import org.springframework.beans.factory.annotation.Value;
 import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.CreateRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
-import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
 import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.utils.RecipeConvertions;
 import org.springframework.data.domain.*;
@@ -64,7 +62,7 @@ public class RecipeService {
         RecipeMongo savedRecipe = createRecipeMongo(dto);
         //createRecipeNeo4j(dto);
 
-        //addToChefRecipes(savedRecipe);
+        addToChefRecipes(savedRecipe);
 
         ChefPreviewRecipeDTO recipeDTO = convertions.EntityToChefDto(savedRecipe);
         return recipeDTO;
@@ -81,12 +79,18 @@ public class RecipeService {
         }
         else if (chef.getNewRecipes().size() == 5) {
 
-            if(chef.getOldRecipes().size() == 0){
+            if(chef.getOldRecipes() == null){
                 chef.setOldRecipes(new ArrayList<>());
             }
 
+            ChefRecipe oldestRecipe = chef.getNewRecipes().remove(0);
+            ChefRecipeSummary reduced_old = convertions.entityToReducedRecipe(oldestRecipe);
+            chef.getOldRecipes().add(reduced_old);
         }
 
+        ChefRecipe full_recipe = convertions.entityToChefRecipe(recipe);
+        chef.getNewRecipes().add(full_recipe);
+        chefRepository.save(chef);
 
     }
 
