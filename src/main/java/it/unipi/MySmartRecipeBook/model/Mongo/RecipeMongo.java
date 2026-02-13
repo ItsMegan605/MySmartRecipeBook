@@ -41,6 +41,7 @@ public class RecipeMongo {
     @Field("image_url")
     private String imageURL;
 
+    @Field("chef")
     private ReducedChef chef;
     private List<Ingredient> ingredients;
 

@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import it.unipi.MySmartRecipeBook.security.UserPrincipal;
+import it.unipi.MySmartRecipeBook.model.ReducedChef;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -72,10 +74,16 @@ public class RecipeService {
         recipe.setImageURL(dto.getImageURL());
         recipe.setIngredients(dto.getIngredients());
         recipe.setCreationDate(LocalDateTime.now());
-        recipe.getChef().setMongoId(SecurityContextHolder.getContext().getAuthentication().getId());
-        recipe.getChef().setName(SecurityContextHolder.getContext().getAuthentication().getName());
-        recipe.getChef().setSurname(SecurityContextHolder.getContext().getAuthentication().getSurname());
 
+        ReducedChef chef = new ReducedChef();
+        UserPrincipal chef1 = (UserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+        chef.setMongoId(chef1.getId());
+        chef.setName(chef1.getName());
+        chef.setSurname(chef1.getSurname());
+
+        recipe.setChef(chef);
         return recipeRepository.save(recipe);
     }
 
