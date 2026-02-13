@@ -1,5 +1,6 @@
 package it.unipi.MySmartRecipeBook.controller.RedisController;
 
+import it.unipi.MySmartRecipeBook.dto.recipe.RecipeSuggestionDTO;
 import it.unipi.MySmartRecipeBook.model.Neo4j.RecipeNeo4j;
 import it.unipi.MySmartRecipeBook.model.Redis.SmartFridge;
 import it.unipi.MySmartRecipeBook.repository.RecipeNeo4jRepository;
@@ -55,16 +56,16 @@ public class SmartFridgeController {
         return ResponseEntity.ok(smartFridgeService.getSmartFridge(username));
     }
 
-   /* @PostMapping("/recommendations")
-    public ResponseEntity<List<RecipeNeo4j>> getRecommendations(@RequestBody List<String> ingredients) {
-        // Chiamata al metodo d'istanza del service (non statico)
-        List<RecipeNeo4j> recipes = RecipeMatchService.getSmartFridgeSuggestions(ingredients);
+    @GetMapping("/recommendations")
+    public ResponseEntity<List<RecipeSuggestionDTO>> getRecommendations() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        List<RecipeSuggestionDTO> recipes = smartFridgeService.getRecommendations(username);
 
         if (recipes.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(recipes);
-    }*/
+    }
 
     /*
     //non so se serve intanto lo metto lì va aggiustato con Neo4j
