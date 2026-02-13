@@ -5,16 +5,14 @@ import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 import lombok.Data;
 
-
+//ingredient node
 @Data
 @Node("Ingredients")
 public class IngredientsNeo4j {
 
-    @Id // 2. Definisce la chiave primaria
-    @GeneratedValue(generatorClass = UUIDStringGenerator.class) // 3. Genera ID univoci in automatico
+    @Id
+    @GeneratedValue(generatorClass = UUIDStringGenerator.class)
     private String id;
 
-    // Aggiungi qui sotto solo i campi che ti servono per la tua logica "diversa"
-    // (es. property specifiche per il calcolo del peso, score, ecc.)
     private String name;
 }

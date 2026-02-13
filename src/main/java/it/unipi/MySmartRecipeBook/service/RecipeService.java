@@ -1,9 +1,9 @@
 package it.unipi.MySmartRecipeBook.service;
 
+import it.unipi.MySmartRecipeBook.dto.recipe.StandardRecipeDTO;
 import org.springframework.beans.factory.annotation.Value;
 import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.CreateRecipeDTO;
-import it.unipi.MySmartRecipeBook.dto.recipe.RecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
 import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
@@ -84,13 +84,13 @@ public class RecipeService {
     }*/
 
 
-    public RecipeDTO getRecipeById(String id){
+    public StandardRecipeDTO getRecipeById(String id){
 
         RecipeMongo full_recipe = recipeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Recipe not found"));
 
-        RecipeDTO recipeDTO = convertions.EntityToDto(full_recipe);
-        return recipeDTO;
+        StandardRecipeDTO standardRecipeDTO = convertions.EntityToDto(full_recipe);
+        return standardRecipeDTO;
     }
 
     public void deleteRecipe(String recipeId) {

@@ -20,5 +20,6 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Stri
             "WHERE matches >= 3 " +
             "ORDER BY matches DESC " +
             "RETURN r")
+
     List<RecipeNeo4j> findRecipesByIngredients(List<String> myIngredients);
 }

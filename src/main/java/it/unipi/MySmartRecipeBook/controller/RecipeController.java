@@ -1,7 +1,7 @@
 package it.unipi.MySmartRecipeBook.controller;
 import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.CreateRecipeDTO;
-import it.unipi.MySmartRecipeBook.dto.recipe.RecipeDTO;
+import it.unipi.MySmartRecipeBook.dto.recipe.StandardRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.service.RecipeService;
 
@@ -32,10 +32,10 @@ public class RecipeController {
 
     /* When we click on a recipe preview all the details must be shown*/
     @GetMapping("/{id}")
-    public ResponseEntity<RecipeDTO> getRecipe (@PathVariable String id) {
+    public ResponseEntity<StandardRecipeDTO> getRecipe (@PathVariable String id) {
 
-        RecipeDTO recipeDTO = recipeService.getRecipeById(id);
-        return ResponseEntity.ok(recipeDTO);
+        StandardRecipeDTO standardRecipeDTO = recipeService.getRecipeById(id);
+        return ResponseEntity.ok(standardRecipeDTO);
     }
 
     /* Delete Reciope */

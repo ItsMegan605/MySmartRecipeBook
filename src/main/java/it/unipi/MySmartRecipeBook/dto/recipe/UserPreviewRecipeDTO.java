@@ -8,20 +8,14 @@ import java.time.LocalDate;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+//recipe's preview for foodies
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserPreviewRecipeDTO {
 
-    @JsonProperty("mongo_id")
-    private String mongoId;
-    private String title;
-
-    private String presentation;
-
-    @JsonProperty("image_url")
-    private String imageURL;
+public class UserPreviewRecipeDTO extends BasePreviewRecipeDTO{
 
     @JsonProperty("chef_name")
     private String chefName;

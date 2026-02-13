@@ -1,7 +1,7 @@
 package it.unipi.MySmartRecipeBook.utils;
 
 import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
-import it.unipi.MySmartRecipeBook.dto.recipe.RecipeDTO;
+import it.unipi.MySmartRecipeBook.dto.recipe.StandardRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
 import org.springframework.stereotype.Component;
@@ -9,20 +9,20 @@ import org.springframework.stereotype.Component;
 @Component
 public class RecipeConvertions {
 
-    public RecipeDTO EntityToDto (RecipeMongo recipe){
+    public StandardRecipeDTO EntityToDto (RecipeMongo recipe){
 
-        RecipeDTO recipeDTO = new RecipeDTO();
-        recipeDTO.setTitle(recipe.getTitle());
-        recipeDTO.setPresentation(recipe.getPresentation());
-        recipeDTO.setCategory(recipe.getCategory());
-        recipeDTO.setPrepTime(recipe.getPrepTime());
-        recipeDTO.setDifficulty(recipe.getDifficulty());
-        recipeDTO.setImageURL(recipe.getImageURL());
-        recipeDTO.setPreparation(recipe.getPreparation());
-        recipeDTO.setIngredients(recipe.getIngredients());
-        recipeDTO.setCreationDate(recipe.getCreationDate().toLocalDate());
+        StandardRecipeDTO standardRecipeDTO = new StandardRecipeDTO();
+        standardRecipeDTO.setTitle(recipe.getTitle());
+        standardRecipeDTO.setPresentation(recipe.getPresentation());
+        standardRecipeDTO.setCategory(recipe.getCategory());
+        standardRecipeDTO.setPrepTime(recipe.getPrepTime());
+        standardRecipeDTO.setDifficulty(recipe.getDifficulty());
+        standardRecipeDTO.setImageURL(recipe.getImageURL());
+        standardRecipeDTO.setPreparation(recipe.getPreparation());
+        standardRecipeDTO.setIngredients(recipe.getIngredients());
+        standardRecipeDTO.setCreationDate(recipe.getCreationDate().toLocalDate());
 
-        return recipeDTO;
+        return standardRecipeDTO;
     }
 
     public UserPreviewRecipeDTO EntityToUserDto (RecipeMongo recipe){

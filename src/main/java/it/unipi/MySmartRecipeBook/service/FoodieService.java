@@ -1,7 +1,7 @@
 package it.unipi.MySmartRecipeBook.service;
 
-import it.unipi.MySmartRecipeBook.dto.foodie.FoodieDTO;
-import it.unipi.MySmartRecipeBook.dto.foodie.UpdateFoodieDTO;
+import it.unipi.MySmartRecipeBook.dto.foodie.StandardFoodieDTO;
+import it.unipi.MySmartRecipeBook.dto.foodie.UpdateStandardFoodieDTO;
 import it.unipi.MySmartRecipeBook.model.Foodie;
 import it.unipi.MySmartRecipeBook.model.Mongo.FoodieRecipeMongo;
 import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
@@ -33,7 +33,7 @@ public class FoodieService {
 
     /* PROFILE MANAGEMENT */
 
-    public FoodieDTO getByUsername(String username) {
+    public StandardFoodieDTO getByUsername(String username) {
 
         Foodie foodie = foodieRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Foodie not found"));
@@ -41,7 +41,7 @@ public class FoodieService {
         return usersConvertions.entityToFoodieDTO(foodie);
     }
 
-    public FoodieDTO updateFoodie(String username, UpdateFoodieDTO dto) {
+    public StandardFoodieDTO updateFoodie(String username, UpdateStandardFoodieDTO dto) {
 
         Foodie foodie = foodieRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Foodie not found"));
@@ -75,22 +75,19 @@ public class FoodieService {
         foodieRepository.delete(foodie);
     }
 
-    /* =========================
-       SAVED RECIPES
-       ========================= */
 
     public void saveRecipe(String username, String recipeId) {
 
         Foodie foodie = foodieRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Foodie not found"));
 
-        /* We check if the recipe has already been saved in the old recipes */
+        //check if the recipe has already been saved in the old recipes
         for (ReducedRecipeMongo recipe : foodie.getSavedRecipes()){
             if (recipe.getId().equals(recipeId))
                 throw new RuntimeException("Recipe already saved");
         }
 
-        /* We check if the recipe has already been saved in the last recipes */
+        //check if the recipe has already been saved in the last recipes
         for (FoodieRecipeMongo recipe : foodie.getLastSavedRecipes()) {
             if (recipe.getId().equals(recipeId))
                 throw new RuntimeException("Recipe already saved");

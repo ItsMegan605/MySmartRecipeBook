@@ -1,8 +1,7 @@
 package it.unipi.MySmartRecipeBook.utils;
 
-import it.unipi.MySmartRecipeBook.dto.foodie.FoodieDTO;
+import it.unipi.MySmartRecipeBook.dto.foodie.StandardFoodieDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.BaseRecipeDTO;
-import it.unipi.MySmartRecipeBook.dto.recipe.RecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Foodie;
 import it.unipi.MySmartRecipeBook.model.Mongo.FoodieRecipeMongo;
 import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
@@ -14,9 +13,9 @@ import java.time.LocalDate;
 @Component
 public class UsersConvertions {
 
-    public FoodieDTO entityToFoodieDTO (Foodie foodie) {
+    public StandardFoodieDTO entityToFoodieDTO (Foodie foodie) {
 
-        return new FoodieDTO(
+        return new StandardFoodieDTO(
                 foodie.getUsername(),
                 foodie.getName(),
                 foodie.getSurname(),

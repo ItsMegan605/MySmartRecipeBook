@@ -7,18 +7,21 @@ import lombok.Setter;
 
 import java.util.List;
 
+//DTO for recipe's preview, abstract
+
 @Getter
 @Setter
-public class BasePreviewRecipeDTO {
+public abstract class BasePreviewRecipeDTO {
+
+    @JsonProperty("mongo_id")
+    private String mongoId;
 
     private String title;
 
     @JsonProperty("image_URL")
     private String imageURL;
 
-    @JsonProperty("presentation")
-    private String description;
+    private String presentation;
 
-    private List<Ingredient> ingredients;
 }
 

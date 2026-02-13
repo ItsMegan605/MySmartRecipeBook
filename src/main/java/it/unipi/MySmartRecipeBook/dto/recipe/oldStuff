@@ -22,8 +22,8 @@
 
         List<UserPreviewRecipeDTO> recipe_list = new ArrayList<>();
         for (RecipeMongo recipe: pageResult.getContent()){
-            UserPreviewRecipeDTO recipeDTO = convert_entity_user_dto(recipe);
-            recipe_list.add(recipeDTO);
+            UserPreviewRecipeDTO standardRecipeDTO = convert_entity_user_dto(recipe);
+            recipe_list.add(standardRecipeDTO);
         }
         return recipe_list;
     }
