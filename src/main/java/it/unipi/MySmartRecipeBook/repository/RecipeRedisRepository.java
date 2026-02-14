@@ -1,4 +1,4 @@
-package it.unipi.MySmartRecipeBook.repository;
+/*package it.unipi.MySmartRecipeBook.repository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -20,3 +20,4 @@ public class RecipeRedisRepository {
         return jedis.get("recipe:" + id);
     }
 }
+*/

@@ -13,16 +13,12 @@ import java.util.List;
 @Data
 @Node("Recipe")
 public class RecipeNeo4j {
-
-    @Id // Usiamo l'ID di MongoDB, senza generatore automatico
-    private String id;
+    @Id
+    private String id; // Rimosso @GeneratedValue
 
     private String title;
+    private String imageURL;
 
-    // Indica che la relazione arriva DA Ingredient VERSO Recipe
     @Relationship(type = "USED_IN", direction = Relationship.Direction.INCOMING)
     private List<IngredientsNeo4j> ingredients;
-
-    // Inserisci qui solo i campi necessari per la visualizzazione rapida
-    private String chefName;
 }
