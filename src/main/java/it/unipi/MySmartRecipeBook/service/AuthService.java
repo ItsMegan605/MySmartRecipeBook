@@ -40,7 +40,7 @@ public class AuthService {
         this.jwtUtils = jwtUtils;
     }
 
-    // 👨‍🍳 REGISTER CHEF
+    //REGISTER CHEF
     public void registerChef(CreateChefDTO dto) {
 
         if (chefRepository.existsByUsername(dto.getUsername())

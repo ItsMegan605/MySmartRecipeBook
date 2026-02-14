@@ -4,7 +4,7 @@ import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 import lombok.Data;
-/*
+
 //ingredient node
 @Data
 @Node("Ingredient")
@@ -16,4 +16,3 @@ public class IngredientsNeo4j {
 
     private String name;
 }
-*/

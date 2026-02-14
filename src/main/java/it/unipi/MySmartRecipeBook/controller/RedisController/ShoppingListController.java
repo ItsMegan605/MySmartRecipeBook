@@ -1,5 +1,5 @@
 package it.unipi.MySmartRecipeBook.controller.RedisController;
-/*
+
 import it.unipi.MySmartRecipeBook.model.Redis.ShoppingList;
 import it.unipi.MySmartRecipeBook.service.ShoppingListService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,5 +48,3 @@ public class ShoppingListController {
         return ResponseEntity.ok(shoppingListService.getShoppingList(username));
     }
 }
-
- */

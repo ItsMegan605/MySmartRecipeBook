@@ -28,12 +28,12 @@ public class Chef extends RegisteredUser {
     private Date registrationDate;
 
     @Field("new_recipes")
-    List<ChefRecipe> newRecipes;
+    private List<ChefRecipe> newRecipes;
 
     @Field("old_recipes")
-    List<ChefRecipeSummary> oldRecipes;
+    private List<ChefRecipeSummary> oldRecipes;
 
     @Field("tot_saves")
-    Integer totalSaves;
+    private Integer totalSaves = 0;
 }
 

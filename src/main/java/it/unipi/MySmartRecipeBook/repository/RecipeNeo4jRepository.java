@@ -1,5 +1,5 @@
 package it.unipi.MySmartRecipeBook.repository;
-/*
+
 import it.unipi.MySmartRecipeBook.dto.recipe.RecipeSuggestionDTO;
 import it.unipi.MySmartRecipeBook.model.Neo4j.RecipeNeo4j;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
@@ -21,5 +21,3 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Stri
             "RETURN r.id AS id, r.title AS title, r.imageURL AS imageURL, c.username AS chefName, matchedIngredients")
     List<RecipeSuggestionDTO> findRecipesByIngredients(List<String> myIngredients);
 }
-
- */
