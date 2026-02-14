@@ -1,8 +1,6 @@
 package it.unipi.MySmartRecipeBook.controller;
-/*
-import it.unipi.MySmartRecipeBook.model.Recipe;
-import it.unipi.MySmartRecipeBook.service.AdminService;
-import org.springframework.http.ResponseEntity;
+
+import it.unipi.MySmartRecipeBook.service.AdminService;;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,4 +20,3 @@ public class AdminController {
 
 }
 
-*/

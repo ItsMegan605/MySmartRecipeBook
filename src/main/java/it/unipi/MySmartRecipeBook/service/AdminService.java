@@ -1,32 +1,64 @@
 package it.unipi.MySmartRecipeBook.service;
-/*
-import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
-import it.unipi.MySmartRecipeBook.dto.recipe.CreateRecipeDTO;
+
+import it.unipi.MySmartRecipeBook.model.Admin;
 import it.unipi.MySmartRecipeBook.model.Chef;
 import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipeSummary;
 import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
-import it.unipi.MySmartRecipeBook.model.ReducedChef;
-import it.unipi.MySmartRecipeBook.security.UserPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
+import it.unipi.MySmartRecipeBook.repository.AdminRepository;
+import it.unipi.MySmartRecipeBook.repository.ChefRepository;
+import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
+import it.unipi.MySmartRecipeBook.utils.RecipeConvertions;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class AdminService {
 
+    private final RecipeConvertions recipeConvertions;
+    private final ChefRepository chefRepository;
+    private final AdminRepository adminRepository;
+    private final RecipeMongoRepository recipeRepository;
+    public AdminService(RecipeConvertions recipeConvertions, ChefRepository chefRepository,
+                        AdminRepository adminRepository, RecipeMongoRepository recipeRepository) {
+        this.recipeConvertions = recipeConvertions;
+        this.chefRepository = chefRepository;
+        this.adminRepository = adminRepository;
+        this.recipeRepository = recipeRepository;
+    }
+
+    @Transactional
     public void saveRecipe(String recipeId) {
 
-        RecipeMongo savedRecipe = createRecipeMongo(dto);
-        //createRecipeNeo4j(dto);
+        Admin admin = adminRepository.findFirstBy();
+        if (admin == null) {
+            throw new RuntimeException("Admin not found");
+        }
+        List<RecipeMongo> recipesToApprove = admin.getRecipesToApprove();
 
-        addToChefRecipes(savedRecipe);
+        if(recipesToApprove == null){
+            throw new RuntimeException("No recipe has to be approved");
+        }
 
-        ChefPreviewRecipeDTO recipeDTO = convertions.EntityToChefDto(savedRecipe);
-        return recipeDTO;
+        RecipeMongo recipeApproved = null;
+        for(RecipeMongo recipe : recipesToApprove){
+            if(recipe.getId().equals(recipeId)){
+                recipeApproved = recipe;
+                recipesToApprove.remove(recipeApproved);
+                break;
+            }
+        }
+
+        if(recipeApproved == null){
+            throw new RuntimeException("Recipe not found");
+        }
+
+        addToChefRecipes(recipeApproved);
+        adminRepository.save(admin);
+        recipeRepository.save(recipeApproved);
 
     }
 
@@ -46,44 +78,17 @@ public class AdminService {
             }
 
             ChefRecipe oldestRecipe = chef.getNewRecipes().remove(0);
-            ChefRecipeSummary reduced_old = convertions.entityToReducedRecipe(oldestRecipe);
+            ChefRecipeSummary reduced_old = recipeConvertions.entityToReducedRecipe(oldestRecipe);
             chef.getOldRecipes().add(reduced_old);
         }
 
-        ChefRecipe full_recipe = convertions.entityToChefRecipe(recipe);
+        ChefRecipe full_recipe = recipeConvertions.entityToChefRecipe(recipe);
         chef.getNewRecipes().add(full_recipe);
         chefRepository.save(chef);
-
-    }
-
-
-    private RecipeMongo createRecipeMongo(CreateRecipeDTO dto){
-
-        RecipeMongo recipe = new RecipeMongo();
-        recipe.setTitle(dto.getTitle());
-        recipe.setCategory(dto.getCategory());
-        recipe.setPreparation(dto.getPreparation());
-        recipe.setPrepTime(dto.getPrepTime());
-        recipe.setDifficulty(dto.getDifficulty());
-        recipe.setPresentation(dto.getPresentation());
-        recipe.setImageURL(dto.getImageURL());
-        recipe.setIngredients(dto.getIngredients());
-        recipe.setCreationDate(LocalDateTime.now());
-
-        ReducedChef chef = new ReducedChef();
-        UserPrincipal chef1 = (UserPrincipal) SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getPrincipal();
-        chef.setMongoId(chef1.getId());
-        chef.setName(chef1.getName());
-        chef.setSurname(chef1.getSurname());
-
-        recipe.setChef(chef);
-        return recipeRepository.save(recipe);
     }
 
     /*
     Con aggiunta in un secondo momento
     private RecipeNeo4j createRecipeNeo4j(CreateRecipeDTO dto){
-
-    }*/
+*/
+    }

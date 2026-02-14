@@ -14,7 +14,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Optional;
 
 @Service
 public class FoodieService {
@@ -25,10 +24,8 @@ public class FoodieService {
     private final PasswordEncoder passwordEncoder;
     private final UsersConvertions usersConvertions;
 
-    public FoodieService(FoodieRepository foodieRepository,
-                         RecipeMongoRepository recipeRepository,
-                         PasswordEncoder passwordEncoder,
-                         UsersConvertions usersConvertions,
+    public FoodieService(FoodieRepository foodieRepository, RecipeMongoRepository recipeRepository,
+                         PasswordEncoder passwordEncoder, UsersConvertions usersConvertions,
                          ChefRepository chefRepository) {
         this.foodieRepository = foodieRepository;
         this.recipeRepository = recipeRepository;
