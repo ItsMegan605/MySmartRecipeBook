@@ -80,4 +80,20 @@ public class RecipeConvertions {
 
         return full_recipe;
     }
+
+    public ChefRecipe RecipeMongoToChefRecipe(RecipeMongo recipeMongo){
+        ChefRecipe recipe = new ChefRecipe();
+        recipe.setId(recipeMongo.getId());
+        recipe.setTitle(recipeMongo.getTitle());
+        recipe.setPresentation(recipeMongo.getPresentation());
+        recipe.setCategory(recipeMongo.getCategory());
+        recipe.setPrepTime(recipeMongo.getPrepTime());
+        recipe.setPreparation(recipeMongo.getPreparation());
+        recipe.setDifficulty(recipeMongo.getDifficulty());
+        recipe.setImageURL(recipeMongo.getImageURL());
+        recipe.setIngredients(recipeMongo.getIngredients());
+        recipe.setCreationDate(recipeMongo.getCreationDate());
+        recipe.setNumSaves(0);
+        return recipe;
+    }
 }

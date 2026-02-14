@@ -1,8 +1,10 @@
 package it.unipi.MySmartRecipeBook.service;
 
 import it.unipi.MySmartRecipeBook.dto.recipe.StandardRecipeDTO;
+import it.unipi.MySmartRecipeBook.model.Admin;
 import it.unipi.MySmartRecipeBook.model.Chef;
 import it.unipi.MySmartRecipeBook.model.Mongo.*;
+import it.unipi.MySmartRecipeBook.repository.AdminRepository;
 import it.unipi.MySmartRecipeBook.repository.ChefRepository;
 import org.springframework.beans.factory.annotation.Value;
 import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
@@ -46,54 +48,55 @@ public class RecipeService {
             "dessert"
     );
 
+    private final AdminRepository adminRepository;
     private final RecipeMongoRepository recipeRepository;
     private final RecipeConvertions convertions;
     private final ChefRepository chefRepository;
     public RecipeService(RecipeMongoRepository recipeRepository, RecipeConvertions convertions,
-                         ChefRepository chefRepository) {
+                         ChefRepository chefRepository, AdminRepository adminRepository) {
         this.recipeRepository = recipeRepository;
         this.convertions = convertions;
         this.chefRepository = chefRepository;
+        this.adminRepository = adminRepository;
     }
 
 
     public ChefPreviewRecipeDTO createRecipe(CreateRecipeDTO dto) {
 
+        Admin admin = adminRepository.findFirstBy();
+
+        if (admin == null) {
+            throw new RuntimeException("Admin not found");
+        }
+
         RecipeMongo savedRecipe = createRecipeMongo(dto);
-        //createRecipeNeo4j(dto);
 
-        addToChefRecipes(savedRecipe);
+        if(admin.getRecipesToApprove() == null){
+            admin.setRecipesToApprove(new ArrayList<>());
+        }
 
-        ChefPreviewRecipeDTO recipeDTO = convertions.EntityToChefDto(savedRecipe);
-        return recipeDTO;
-    }
+        admin.getRecipesToApprove().add(savedRecipe);
+        adminRepository.save(admin);
 
-    private void addToChefRecipes(RecipeMongo recipe) {
+        UserPrincipal chef1 = (UserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
 
-        String chefId = recipe.getChef().getMongoId();
-        Chef chef = chefRepository.findById(chefId)
+        Chef chef = chefRepository.findById(chef1.getId())
                 .orElseThrow(() -> new RuntimeException("Chef not found"));
 
-        if(chef.getNewRecipes() == null){
-            chef.setNewRecipes(new ArrayList<>());
-        }
-        else if (chef.getNewRecipes().size() == 5) {
+        ChefRecipe chefRecipe = convertions.RecipeMongoToChefRecipe(savedRecipe);
 
-            if(chef.getOldRecipes() == null){
-                chef.setOldRecipes(new ArrayList<>());
-            }
-
-            ChefRecipe oldestRecipe = chef.getNewRecipes().remove(0);
-            ChefRecipeSummary reduced_old = convertions.entityToReducedRecipe(oldestRecipe);
-            chef.getOldRecipes().add(reduced_old);
+        if(chef.getRecipesToConfirm() == null){
+            chef.setRecipesToConfirm(new ArrayList<>());
         }
 
-        ChefRecipe full_recipe = convertions.entityToChefRecipe(recipe);
-        chef.getNewRecipes().add(full_recipe);
+        chef.getRecipesToConfirm().add(chefRecipe);
         chefRepository.save(chef);
 
-    }
+        return convertions.EntityToChefDto(savedRecipe);
 
+    }
 
     private RecipeMongo createRecipeMongo(CreateRecipeDTO dto){
 
@@ -120,11 +123,6 @@ public class RecipeService {
         return recipeRepository.save(recipe);
     }
 
-    /*
-    Con aggiunta in un secondo momento
-    private RecipeNeo4j createRecipeNeo4j(CreateRecipeDTO dto){
-
-    }*/
 
 
     public StandardRecipeDTO getRecipeById(String id){
