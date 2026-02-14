@@ -73,6 +73,9 @@ public class WebSecurityConfig {
                         //FOODIE - SmartShoppingList
                         .requestMatchers("/api/shopping/**").hasRole("FOODIE")
 
+                        //aggiungere endpoint amministratore
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
                         // tutto il resto autenticato
                         .anyRequest().authenticated()
                 )

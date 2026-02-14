@@ -56,6 +56,18 @@ public class UserPrincipal implements UserDetails {
                 )
         );
     }
+    //ADMIN (senza campo role nel DB)
+    public static UserPrincipal buildAdmin(Chef admin) {
+        return new UserPrincipal(
+                admin.getId(),
+                null,
+                null,
+                admin.getPassword(),
+                Collections.singletonList(
+                        new SimpleGrantedAuthority("ROLE_ADMIN")
+                )
+        );
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

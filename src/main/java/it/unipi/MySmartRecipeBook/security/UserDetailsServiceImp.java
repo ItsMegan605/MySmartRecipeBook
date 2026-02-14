@@ -25,6 +25,12 @@ public class UserDetailsServiceImp implements UserDetailsService {
     public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException {
 
+        if(username.equals("admin")) {
+            Chef admin = chefRepository.findByUsername("admin")
+                    .orElseThrow(() -> new UsernameNotFoundException("Admin not found"));
+            return UserPrincipal.buildAdmin(admin);
+        }
+
         Optional<Chef> chefOpt = chefRepository.findByUsername(username);
         if (chefOpt.isPresent()) {
             return UserPrincipal.buildChef(chefOpt.get());
