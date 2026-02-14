@@ -1,5 +1,5 @@
 package it.unipi.MySmartRecipeBook.config;
-/*
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import redis.clients.jedis.*;
@@ -32,4 +32,4 @@ public class RedisConfig {
 
         return new JedisCluster(clusterNodes, clientConfig, 5, Duration.ofSeconds(2), poolConfig);
     }
-}*/
+}

@@ -10,15 +10,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RecipeSuggestionDTO implements Serializable {
-
     private String id;
     private String title;
     private String imageURL;
-    private String chefName;
-    //list to save ingredients for the recipe
-    private List<String> matchedIngredients;
-
-
-
-
+    private int matchCount; // Numero di ingredienti che fanno match
+    private List<String> matchedIngredients; // Elenco dei nomi degli ingredienti trovati
 }

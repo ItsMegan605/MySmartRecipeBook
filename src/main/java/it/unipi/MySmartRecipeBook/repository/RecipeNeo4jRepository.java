@@ -14,10 +14,13 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Stri
     // Esegue il match e mappa direttamente sul DTO RecipeSuggestionDTO
     @Query("MATCH (i:Ingredient)-[:USED_IN]->(r:Recipe) " +
             "WHERE i.name IN $myIngredients " +
-            "OPTIONAL MATCH (c:Chef)-[:WROTE]->(r) " +
-            "WITH r, c, count(i) as matchCount, collect(i.name) as matchedIngredients " +
+            "WITH r, count(i) AS matchCount, collect(i.name) AS matchedIngredients " +
             "WHERE matchCount >= 3 " +
             "ORDER BY matchCount DESC " +
-            "RETURN r.id AS id, r.title AS title, r.imageURL AS imageURL, c.username AS chefName, matchedIngredients")
+            "RETURN r.id AS id, " +
+            "       r.title AS title, " +
+            "       r.imageURL AS imageURL, " +
+            "       matchCount, " +
+            "       matchedIngredients")
     List<RecipeSuggestionDTO> findRecipesByIngredients(List<String> myIngredients);
 }

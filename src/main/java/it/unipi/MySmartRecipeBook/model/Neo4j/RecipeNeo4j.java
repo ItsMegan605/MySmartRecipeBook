@@ -3,22 +3,26 @@ package it.unipi.MySmartRecipeBook.model.Neo4j;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
+import org.springframework.data.neo4j.core.schema.Relationship;
 import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 import lombok.Data;
 
+import java.util.List;
+
 //recipe node
 @Data
-@Node("Recipe") // 1. Mappa questo oggetto all'etichetta (Label) :Recipe nel DB
+@Node("Recipe")
 public class RecipeNeo4j {
 
-    @Id // 2. Definisce la chiave primaria
-    @GeneratedValue(generatorClass = UUIDStringGenerator.class) //Genera ID univoci in automatico
+    @Id // Usiamo l'ID di MongoDB, senza generatore automatico
     private String id;
 
-    // Aggiungi qui sotto solo i campi che ti servono per la tua logica "diversa"
-    // (es. property specifiche per il calcolo del peso, score, ecc.)
     private String title;
-    private String imageURL;
-    private String chefName;
 
+    // Indica che la relazione arriva DA Ingredient VERSO Recipe
+    @Relationship(type = "USED_IN", direction = Relationship.Direction.INCOMING)
+    private List<IngredientsNeo4j> ingredients;
+
+    // Inserisci qui solo i campi necessari per la visualizzazione rapida
+    private String chefName;
 }

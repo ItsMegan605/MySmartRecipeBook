@@ -1,17 +1,14 @@
 package it.unipi.MySmartRecipeBook.model.Neo4j;
-import org.springframework.data.neo4j.core.schema.GeneratedValue;
+
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 import lombok.Data;
 
-//ingredient node
 @Data
-@Node("Ingredient")
+@Node("Ingredients") // Usiamo "Ingredients" per coerenza con le etichette del grafo
 public class IngredientsNeo4j {
 
-    @Id
-    @GeneratedValue(generatorClass = UUIDStringGenerator.class)
+    @Id // Rimosso @GeneratedValue per usare l'ID manuale/condiviso
     private String id;
 
     private String name;
