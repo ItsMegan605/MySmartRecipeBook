@@ -2,6 +2,7 @@ package it.unipi.MySmartRecipeBook.service;
 
 import it.unipi.MySmartRecipeBook.model.Admin;
 import it.unipi.MySmartRecipeBook.model.Chef;
+import it.unipi.MySmartRecipeBook.model.Mongo.AdminRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipeSummary;
 import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
@@ -11,6 +12,7 @@ import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.utils.RecipeConvertions;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,14 +39,14 @@ public class AdminService {
         if (admin == null) {
             throw new RuntimeException("Admin not found");
         }
-        List<RecipeMongo> recipesToApprove = admin.getRecipesToApprove();
+        List<AdminRecipe> recipesToApprove = admin.getRecipesToApprove();
 
         if(recipesToApprove == null){
             throw new RuntimeException("No recipe has to be approved");
         }
 
-        RecipeMongo recipeApproved = null;
-        for(RecipeMongo recipe : recipesToApprove){
+        AdminRecipe recipeApproved = null;
+        for(AdminRecipe recipe : recipesToApprove){
             if(recipe.getId().equals(recipeId)){
                 recipeApproved = recipe;
                 recipesToApprove.remove(recipeApproved);
@@ -58,11 +60,13 @@ public class AdminService {
 
         addToChefRecipes(recipeApproved);
         adminRepository.save(admin);
-        recipeRepository.save(recipeApproved);
+
+        RecipeMongo recipe = recipeConvertions.adminToMongoRecipe(recipeApproved);
+        recipeRepository.save(recipe);
 
     }
 
-    private void addToChefRecipes(RecipeMongo recipe) {
+    private void addToChefRecipes(AdminRecipe recipe) {
 
         String chefId = recipe.getChef().getMongoId();
         Chef chef = chefRepository.findById(chefId)
@@ -82,7 +86,7 @@ public class AdminService {
             chef.getOldRecipes().add(reduced_old);
         }
 
-        ChefRecipe full_recipe = recipeConvertions.entityToChefRecipe(recipe);
+        ChefRecipe full_recipe = recipeConvertions.adminToChefRecipe(recipe);
         chef.getNewRecipes().add(full_recipe);
         chefRepository.save(chef);
     }
@@ -91,4 +95,7 @@ public class AdminService {
     Con aggiunta in un secondo momento
     private RecipeNeo4j createRecipeNeo4j(CreateRecipeDTO dto){
 */
+    public void discardRecipe(String recipeId) {
+
     }
+}

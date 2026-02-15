@@ -69,7 +69,7 @@ public class RecipeService {
             throw new RuntimeException("Admin not found");
         }
 
-        RecipeMongo savedRecipe = createRecipeMongo(dto);
+        AdminRecipe savedRecipe = createAdminRecipe(dto);
 
         if(admin.getRecipesToApprove() == null){
             admin.setRecipesToApprove(new ArrayList<>());
@@ -85,7 +85,7 @@ public class RecipeService {
         Chef chef = chefRepository.findById(chef1.getId())
                 .orElseThrow(() -> new RuntimeException("Chef not found"));
 
-        ChefRecipe chefRecipe = convertions.RecipeMongoToChefRecipe(savedRecipe);
+        ChefRecipe chefRecipe = convertions.adminToChefRecipe(savedRecipe);
 
         if(chef.getRecipesToConfirm() == null){
             chef.setRecipesToConfirm(new ArrayList<>());
@@ -94,13 +94,13 @@ public class RecipeService {
         chef.getRecipesToConfirm().add(chefRecipe);
         chefRepository.save(chef);
 
-        return convertions.EntityToChefDto(savedRecipe);
+        return convertions.adminToChefDTO(savedRecipe);
 
     }
 
-    private RecipeMongo createRecipeMongo(CreateRecipeDTO dto){
+    private AdminRecipe createAdminRecipe (CreateRecipeDTO dto){
 
-        RecipeMongo recipe = new RecipeMongo();
+        AdminRecipe recipe = new AdminRecipe();
         recipe.setTitle(dto.getTitle());
         recipe.setCategory(dto.getCategory());
         recipe.setPreparation(dto.getPreparation());
@@ -120,7 +120,8 @@ public class RecipeService {
         chef.setSurname(chef1.getSurname());
 
         recipe.setChef(chef);
-        return recipeRepository.save(recipe);
+
+        return recipe;
     }
 
 
@@ -130,8 +131,7 @@ public class RecipeService {
         RecipeMongo full_recipe = recipeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Recipe not found"));
 
-        StandardRecipeDTO standardRecipeDTO = convertions.EntityToDto(full_recipe);
-        return standardRecipeDTO;
+        return convertions.EntityToDto(full_recipe);
     }
 
     public void deleteRecipe(String recipeId) {
@@ -213,7 +213,7 @@ public class RecipeService {
 
         List<ChefPreviewRecipeDTO> recipe_list = new ArrayList<>();
         for (RecipeMongo recipe: matching_recipes){
-            ChefPreviewRecipeDTO recipeDTO = convertions.EntityToChefDto(recipe);
+            ChefPreviewRecipeDTO recipeDTO = convertions.EntityToChefDTO(recipe);
             recipe_list.add(recipeDTO);
         }
         return recipe_list;

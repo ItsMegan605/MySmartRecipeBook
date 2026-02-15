@@ -14,8 +14,12 @@ public class AdminController {
 
     @PostMapping("/approve/{id}")
     public void approveRecipe(@PathVariable String recipeId) {
-
         adminService.saveRecipe(recipeId);
+    }
+
+    @DeleteMapping("/discard/{id}")
+    public void discardRecipe(@PathVariable String recipeId) {
+        adminService.discardRecipe(recipeId);
     }
 
 }
