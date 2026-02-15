@@ -55,7 +55,7 @@ public class RecipeConvertions {
     public ChefPreviewRecipeDTO adminToChefDTO (AdminRecipe recipe){
 
         ChefPreviewRecipeDTO recipeDTO = new ChefPreviewRecipeDTO();
-        recipeDTO.setMongoId(recipe.getId());
+        //recipeDTO.setMongoId(recipe.getId());
         recipeDTO.setTitle(recipe.getTitle());
         recipeDTO.setPresentation(recipe.getPresentation());
         recipeDTO.setImageURL(recipe.getImageURL());
@@ -97,7 +97,7 @@ public class RecipeConvertions {
     public ChefRecipe adminToChefRecipe (AdminRecipe recipe){
 
         ChefRecipe full_recipe = new ChefRecipe();
-        full_recipe.setId(recipe.getId());
+        //full_recipe.setId(recipe.getId());
         full_recipe.setTitle(recipe.getTitle());
         full_recipe.setPresentation(recipe.getPresentation());
         full_recipe.setCategory(recipe.getCategory());
@@ -115,7 +115,7 @@ public class RecipeConvertions {
     public RecipeMongo adminToMongoRecipe (AdminRecipe recipe){
 
         RecipeMongo full_recipe = new RecipeMongo();
-        full_recipe.setId(recipe.getId());
+        //full_recipe.setId(recipe.getId());
         full_recipe.setTitle(recipe.getTitle());
         full_recipe.setPresentation(recipe.getPresentation());
         full_recipe.setCategory(recipe.getCategory());

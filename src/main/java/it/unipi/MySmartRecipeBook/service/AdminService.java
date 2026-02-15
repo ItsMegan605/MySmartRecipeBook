@@ -33,9 +33,9 @@ public class AdminService {
     }
 
     @Transactional
-    public void saveRecipe(String recipeId) {
+    public void saveRecipe(String title) {
 
-        Admin admin = adminRepository.findFirstBy();
+        Admin admin = adminRepository.findByUsername("admin");
         if (admin == null) {
             throw new RuntimeException("Admin not found");
         }
@@ -47,7 +47,7 @@ public class AdminService {
 
         AdminRecipe recipeApproved = null;
         for(AdminRecipe recipe : recipesToApprove){
-            if(recipe.getId().equals(recipeId)){
+            if(recipe.getTitle().equals(title)){
                 recipeApproved = recipe;
                 recipesToApprove.remove(recipeApproved);
                 break;

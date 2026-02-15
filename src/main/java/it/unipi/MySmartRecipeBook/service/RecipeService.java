@@ -63,7 +63,7 @@ public class RecipeService {
 
     public ChefPreviewRecipeDTO createRecipe(CreateRecipeDTO dto) {
 
-        Admin admin = adminRepository.findFirstBy();
+        Admin admin = adminRepository.findByUsername("admin");
 
         if (admin == null) {
             throw new RuntimeException("Admin not found");
