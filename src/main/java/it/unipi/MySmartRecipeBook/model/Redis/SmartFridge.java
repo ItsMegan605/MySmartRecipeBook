@@ -1,5 +1,5 @@
 package it.unipi.MySmartRecipeBook.model.Redis;
-/*
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,4 +52,3 @@ public class SmartFridge implements Serializable {
         ingredients.removeIf(i -> i.equalsIgnoreCase(trimmedItem)); //logica per il case sensitive
     }
 }
-*/

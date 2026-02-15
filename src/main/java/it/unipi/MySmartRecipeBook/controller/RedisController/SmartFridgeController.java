@@ -1,5 +1,5 @@
 package it.unipi.MySmartRecipeBook.controller.RedisController;
-/*
+
 import it.unipi.MySmartRecipeBook.dto.recipe.RecipeSuggestionDTO;
 import it.unipi.MySmartRecipeBook.model.Neo4j.RecipeNeo4j;
 import it.unipi.MySmartRecipeBook.model.Redis.SmartFridge;
@@ -67,14 +67,16 @@ public class SmartFridgeController {
         return ResponseEntity.ok(recipes);
     }
 
-    /*
+}
+/*
     //non so se serve intanto lo metto lì va aggiustato con Neo4j
     @GetMapping("/findRecipe")
     public  ResponseEntity<SmartFridge> getRecipe(@PathVariable String recipeId){
-        return ResponseEntity.ok(smartFridgeService.getRecipeById);
-    } */
+        return ResponseEntity.ok(smartFridgeService.getRecipeById());
+    }
+
 
     //lista di ricette salvata su redis
     //tolgo un ingrediente e quando lo tolgo devo controllare nuovamente le ricette
 
-    //vedere se aggiungere metodo per neo4j
+    //vedere se aggiungere metodo per neo4j */
