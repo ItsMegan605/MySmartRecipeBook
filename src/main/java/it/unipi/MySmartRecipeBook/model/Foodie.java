@@ -24,7 +24,7 @@ public class Foodie extends RegisteredUser {
 
     // 2. Il tuo ID personalizzato ("61934")
     // Togliamo @Id da qui perché NON è la chiave primaria per Mongo
-    // Usiamo @Field("id") per essere sicuri che punti al campo "id" del JSON
+    //Usiamo @Field("id") per essere sicuri che punti al campo "id" del JSON
     //@Field("id")
     //private String id;
 
