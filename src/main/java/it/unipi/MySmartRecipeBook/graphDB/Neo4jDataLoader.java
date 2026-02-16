@@ -16,7 +16,7 @@ public class Neo4jDataLoader {
     // --- CONFIGURAZIONE ---
     private static final String URI = "bolt://localhost:7687";
     private static final String USER = "neo4j";
-    private static final String PASSWORD = "12345678"; // <--- METTI LA TUA PASSWORD QUI
+    private static final String PASSWORD = "12345678";
 
     // Percorsi ai file JSON (assicurati che partano dalla root del progetto)
     private static final String PATH_INGREDIENTS = "data/ingredients/eggfree_ingredients.json";
@@ -85,12 +85,12 @@ public class Neo4jDataLoader {
 
                 // 1. Prendiamo SOLO title e url per il nodo Ricetta
                 String title = (String) recipe.get("title");
-                String url = (String) recipe.get("url");
+                String image_url = (String) recipe.get("image_url");
 
-                if (title != null && url != null) {
+                if (title != null && image_url != null) {
                     // Crea il nodo Ricetta (usiamo l'URL come ID univoco)
-                    session.run("MERGE (r:Recipe {url: $url}) SET r.title = $title",
-                            Values.parameters("url", url, "title", title));
+                    session.run("MERGE (r:Recipe {image_url: $image_url}) SET r.title = $title",
+                            Values.parameters("image_url", image_url, "title", title));
 
                     // 2. Gestione Ingredienti dentro la ricetta
                     JSONArray ingredients = (JSONArray) recipe.get("ingredients");
@@ -108,11 +108,11 @@ public class Neo4jDataLoader {
                                     // Query: Collega la Ricetta all'Ingrediente
                                     // Usiamo MERGE su Ingredient per sicurezza (se mancava nel file master lo crea ora)
                                     String query =
-                                            "MATCH (r:Recipe {url: $url}) " +
+                                            "MATCH (r:Recipe {image_url: $image_url}) " +
                                                     "MERGE (i:Ingredient {name: $ingName}) " +
                                                     "MERGE (r)-[:CONTAINS_INGREDIENT]->(i)";
 
-                                    session.run(query, Values.parameters("url", url, "ingName", ingName));
+                                    session.run(query, Values.parameters("image_url", image_url, "ingName", ingName));
                                 }
                             }
                         }

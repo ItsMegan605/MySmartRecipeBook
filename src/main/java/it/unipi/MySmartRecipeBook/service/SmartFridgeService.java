@@ -65,7 +65,7 @@ public class SmartFridgeService {
         if (!Ingredients.IngredientName.isValid(ingredient)) {
             throw new IllegalArgumentException("The ingredient: " + ingredient + " is not allowed!");
         }
-        if (!foodieRepository.existsByUsername(username)) {
+        if (!foodieRepository.existsById(username)) {
             throw new RuntimeException("User not found");
         }
 
@@ -111,7 +111,7 @@ public class SmartFridgeService {
     }
 
     public SmartFridge removeItem(String username, String ingredient) {
-        if (!foodieRepository.existsByUsername(username)) {
+        if (!foodieRepository.existsById(username)) {
             throw new RuntimeException("User not found");
         }
         SmartFridge list = getSmartFridge(username);

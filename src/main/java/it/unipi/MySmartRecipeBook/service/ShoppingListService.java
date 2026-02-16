@@ -50,7 +50,7 @@ public class ShoppingListService {
         if (!Ingredients.IngredientName.isValid(ingredient)) {
             throw new IllegalArgumentException("The ingredient: " + ingredient + " is not allowed!");
         }
-        if (!foodieRepository.existsByUsername(username)) {
+        if (!foodieRepository.existsById(username)) {
             throw new RuntimeException("User not found");
         }
         ShoppingList list = getShoppingList(username);
@@ -60,7 +60,7 @@ public class ShoppingListService {
     }
 
     public ShoppingList removeIngredient(String username, String ingredient) {
-        if (!foodieRepository.existsByUsername(username)) {
+        if (!foodieRepository.existsById(username)) {
             throw new RuntimeException("User not found");
         }
         ShoppingList list = getShoppingList(username);

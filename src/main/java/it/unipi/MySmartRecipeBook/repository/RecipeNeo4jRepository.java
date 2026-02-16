@@ -15,11 +15,12 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Stri
             "WHERE i.name IN $myIngredients " +
             "WITH r, count(i) AS matchCount, collect(i.name) AS matchedIngredients " +
             "WHERE matchCount >= 3 " +
-            "ORDER BY matchCount DESC " +
+            // "ORDER BY" rimosso da qui
             "RETURN r.id AS id, " +
             "       r.title AS title, " +
             "       r.imageURL AS imageURL, " +
             "       matchCount, " +
-            "       matchedIngredients")
+            "       matchedIngredients " +
+            "ORDER BY matchCount DESC") 
     List<RecipeSuggestionDTO> findRecipesByIngredients(List<String> myIngredients);
 }
