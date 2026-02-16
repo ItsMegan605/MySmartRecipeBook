@@ -21,14 +21,6 @@ public class RecipeController {
         this.recipeService = recipeService;
     }
 
-    /* We return an object of type ChefPreviewRecipeDTO because we have to show the recipe preview in the Chef Personal
-    Area */
-    @PostMapping("/addNewRecipe")
-    public ResponseEntity<ChefPreviewRecipeDTO> saveRecipe (@Valid @RequestBody CreateRecipeDTO dto){
-
-        ChefPreviewRecipeDTO recipe = recipeService.createRecipe(dto);
-        return ResponseEntity.ok(recipe);
-    }
 
     /* When we click on a recipe preview all the details must be shown*/
     @GetMapping("/{id}")

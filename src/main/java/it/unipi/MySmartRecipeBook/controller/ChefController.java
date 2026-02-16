@@ -1,7 +1,9 @@
 package it.unipi.MySmartRecipeBook.controller;
 
-import it.unipi.MySmartRecipeBook.dto.ChefResponseDTO;
+import it.unipi.MySmartRecipeBook.dto.ChefInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.UpdateChefDTO;
+import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
+import it.unipi.MySmartRecipeBook.dto.recipe.CreateRecipeDTO;
 import it.unipi.MySmartRecipeBook.service.ChefService;
 
 import jakarta.validation.Valid;
@@ -21,52 +23,53 @@ public class ChefController {
         this.chefService = chefService;
     }
 
-    /* =========================
-       GET PROFILE
-       ========================= */
 
-    @GetMapping("/me")
-    public ResponseEntity<ChefResponseDTO> getMe() {
+    /*--------------- Retrieve chef's informations ----------------*/
 
-        String username = SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getName();
-
-        return ResponseEntity.ok(
-                chefService.getByUsername(username)
-        );
-    }
-
-    /* =========================
-       UPDATE PROFILE
-       ========================= */
-
-    @PatchMapping("/me")
-    public ResponseEntity<ChefResponseDTO> updateMe(
-            @Valid @RequestBody UpdateChefDTO dto) {
+    @GetMapping("/info")
+    public ResponseEntity<ChefInfoDTO> getInformations() {
 
         String username = SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getName();
 
-        return ResponseEntity.ok(
-                chefService.updateChef(username, dto)
-        );
+        return ResponseEntity.ok(chefService.getByUsername(username));
     }
 
-    /* =========================
-       DELETE PROFILE
-       ========================= */
 
-    @DeleteMapping("/me")
-    public ResponseEntity<Void> deleteMe() {
+    /*--------------- Change chef's informations ----------------*/
+
+    @PostMapping("/changeInfo")
+    public ResponseEntity<ChefInfoDTO> updateInformation (@Valid @RequestBody UpdateChefDTO dto){
+
+        String username = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+
+        return ResponseEntity.ok(chefService.updateChef(username, dto));
+    }
+
+
+    /*----------------- Delete chef's profile ------------------*/
+
+    @DeleteMapping("/deleteProfile")
+    public ResponseEntity<Void> deleteProfile() {
 
         String username = SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getName();
 
         chefService.deleteChef(username);
-
         return ResponseEntity.noContent().build();
+    }
+
+
+    /*------------------- Add new recipe --------------------*/
+
+    @PostMapping("/addNewRecipe")
+    public ResponseEntity<ChefPreviewRecipeDTO> saveRecipe (@Valid @RequestBody CreateRecipeDTO dto){
+
+        ChefPreviewRecipeDTO recipe = chefService.createRecipe(dto);
+        return ResponseEntity.ok(recipe);
     }
 }

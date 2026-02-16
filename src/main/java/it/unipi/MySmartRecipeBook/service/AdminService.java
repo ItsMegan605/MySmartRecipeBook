@@ -9,10 +9,11 @@ import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
 import it.unipi.MySmartRecipeBook.repository.AdminRepository;
 import it.unipi.MySmartRecipeBook.repository.ChefRepository;
 import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
+import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import it.unipi.MySmartRecipeBook.utils.RecipeConvertions;
-import jakarta.transaction.Transactional;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,13 +33,18 @@ public class AdminService {
         this.recipeRepository = recipeRepository;
     }
 
-    @Transactional
-    public void saveRecipe(String title) {
 
-        Admin admin = adminRepository.findByUsername("admin");
-        if (admin == null) {
-            throw new RuntimeException("Admin not found");
-        }
+
+    //@Transactional
+    public void saveRecipe(String recipeId) {
+
+        UserPrincipal logged_admin = (UserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        Admin admin = adminRepository.findById(logged_admin.getId())
+                .orElseThrow(() -> new RuntimeException("Admin not found"));
+
         List<AdminRecipe> recipesToApprove = admin.getRecipesToApprove();
 
         if(recipesToApprove == null){
@@ -47,7 +53,7 @@ public class AdminService {
 
         AdminRecipe recipeApproved = null;
         for(AdminRecipe recipe : recipesToApprove){
-            if(recipe.getTitle().equals(title)){
+            if(recipe.getId().equals(recipeId)){
                 recipeApproved = recipe;
                 recipesToApprove.remove(recipeApproved);
                 break;
@@ -71,6 +77,17 @@ public class AdminService {
         String chefId = recipe.getChef().getMongoId();
         Chef chef = chefRepository.findById(chefId)
                 .orElseThrow(() -> new RuntimeException("Chef not found"));
+
+
+        /* In questo caso non c'è nessun controllo sul fatto che la ricetta effettivamente fosse presente tra quelle da confermare*/
+        List<ChefRecipe> recipesToConfirm = chef.getRecipesToConfirm();
+
+        for (ChefRecipe singleRecipe : recipesToConfirm){
+            if(singleRecipe.getId().equals(recipe.getId())){
+                recipesToConfirm.remove(singleRecipe);
+                break;
+            }
+        }
 
         if(chef.getNewRecipes() == null){
             chef.setNewRecipes(new ArrayList<>());

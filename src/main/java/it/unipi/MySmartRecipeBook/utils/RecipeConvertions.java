@@ -31,7 +31,7 @@ public class RecipeConvertions {
     public UserPreviewRecipeDTO EntityToUserDto (RecipeMongo recipe){
 
         UserPreviewRecipeDTO recipeDTO = new UserPreviewRecipeDTO();
-        recipeDTO.setMongoId(recipe.getId());
+        recipeDTO.setId(recipe.getId());
         recipeDTO.setTitle(recipe.getTitle());
         recipeDTO.setPresentation(recipe.getPresentation());
         recipeDTO.setImageURL(recipe.getImageURL());
@@ -43,7 +43,7 @@ public class RecipeConvertions {
     public ChefPreviewRecipeDTO EntityToChefDTO (RecipeMongo recipe){
 
         ChefPreviewRecipeDTO recipeDTO = new ChefPreviewRecipeDTO();
-        recipeDTO.setMongoId(recipe.getId());
+        recipeDTO.setId(recipe.getId());
         recipeDTO.setTitle(recipe.getTitle());
         recipeDTO.setPresentation(recipe.getPresentation());
         recipeDTO.setImageURL(recipe.getImageURL());
@@ -52,17 +52,7 @@ public class RecipeConvertions {
         return recipeDTO;
     }
 
-    public ChefPreviewRecipeDTO adminToChefDTO (AdminRecipe recipe){
 
-        ChefPreviewRecipeDTO recipeDTO = new ChefPreviewRecipeDTO();
-        //recipeDTO.setMongoId(recipe.getId());
-        recipeDTO.setTitle(recipe.getTitle());
-        recipeDTO.setPresentation(recipe.getPresentation());
-        recipeDTO.setImageURL(recipe.getImageURL());
-        recipeDTO.setCreationDate(recipe.getCreationDate().toLocalDate());
-
-        return recipeDTO;
-    }
 
     public ChefRecipeSummary entityToReducedRecipe (ChefRecipe full_recipe){
 
@@ -97,7 +87,7 @@ public class RecipeConvertions {
     public ChefRecipe adminToChefRecipe (AdminRecipe recipe){
 
         ChefRecipe full_recipe = new ChefRecipe();
-        //full_recipe.setId(recipe.getId());
+        full_recipe.setId(recipe.getId());
         full_recipe.setTitle(recipe.getTitle());
         full_recipe.setPresentation(recipe.getPresentation());
         full_recipe.setCategory(recipe.getCategory());

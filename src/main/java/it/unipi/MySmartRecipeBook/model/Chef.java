@@ -2,7 +2,6 @@ package it.unipi.MySmartRecipeBook.model;
 
 import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipeSummary;
-import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
 import jakarta.validation.constraints.Past;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,7 +11,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -26,7 +25,7 @@ public class Chef extends RegisteredUser {
 
     @Field("reg_date")
     @Past
-    private Date registrationDate;
+    private LocalDate registrationDate;
 
     @Field("new_recipes")
     private List<ChefRecipe> newRecipes;

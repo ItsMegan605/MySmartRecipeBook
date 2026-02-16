@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Past;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Getter
@@ -29,5 +30,5 @@ public class CreateChefDTO {
     private String password;
 
     @Past
-    private Date birthdate;
+    private LocalDate birthdate;
 }

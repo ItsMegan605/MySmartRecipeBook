@@ -61,68 +61,6 @@ public class RecipeService {
     }
 
 
-    public ChefPreviewRecipeDTO createRecipe(CreateRecipeDTO dto) {
-
-        Admin admin = adminRepository.findByUsername("admin");
-
-        if (admin == null) {
-            throw new RuntimeException("Admin not found");
-        }
-
-        AdminRecipe savedRecipe = createAdminRecipe(dto);
-
-        if(admin.getRecipesToApprove() == null){
-            admin.setRecipesToApprove(new ArrayList<>());
-        }
-
-        admin.getRecipesToApprove().add(savedRecipe);
-        adminRepository.save(admin);
-
-        UserPrincipal chef1 = (UserPrincipal) SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getPrincipal();
-
-        Chef chef = chefRepository.findById(chef1.getId())
-                .orElseThrow(() -> new RuntimeException("Chef not found"));
-
-        ChefRecipe chefRecipe = convertions.adminToChefRecipe(savedRecipe);
-
-        if(chef.getRecipesToConfirm() == null){
-            chef.setRecipesToConfirm(new ArrayList<>());
-        }
-
-        chef.getRecipesToConfirm().add(chefRecipe);
-        chefRepository.save(chef);
-
-        return convertions.adminToChefDTO(savedRecipe);
-
-    }
-
-    private AdminRecipe createAdminRecipe (CreateRecipeDTO dto){
-
-        AdminRecipe recipe = new AdminRecipe();
-        recipe.setTitle(dto.getTitle());
-        recipe.setCategory(dto.getCategory());
-        recipe.setPreparation(dto.getPreparation());
-        recipe.setPrepTime(dto.getPrepTime());
-        recipe.setDifficulty(dto.getDifficulty());
-        recipe.setPresentation(dto.getPresentation());
-        recipe.setImageURL(dto.getImageURL());
-        recipe.setIngredients(dto.getIngredients());
-        recipe.setCreationDate(LocalDateTime.now());
-
-        ReducedChef chef = new ReducedChef();
-        UserPrincipal chef1 = (UserPrincipal) SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getPrincipal();
-        chef.setMongoId(chef1.getId());
-        chef.setName(chef1.getName());
-        chef.setSurname(chef1.getSurname());
-
-        recipe.setChef(chef);
-
-        return recipe;
-    }
 
 
 

@@ -4,18 +4,29 @@ import jakarta.validation.constraints.Email;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Getter
 @Setter
 public class UpdateChefDTO {
 
+    /* We want to allow chef to change their personal informations. In particular, the user
+    can choose to modify one or more of the following parameters:
+
+        - name
+        - surname
+        - password
+        - email
+        - birthday
+
+     We don't allow chefs to change their username
+     */
+
     private String name;
     private String surname;
+    private String password;
 
     @Email
     private String email;
-
-    private String password;
-    private Date birthdate;
+    private LocalDate birthdate;
 }

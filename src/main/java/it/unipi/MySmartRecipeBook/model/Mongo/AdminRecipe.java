@@ -17,7 +17,6 @@ import java.util.List;
 @AllArgsConstructor
 public class AdminRecipe {
 
-    @Id
     private String id;
 
     private String title;

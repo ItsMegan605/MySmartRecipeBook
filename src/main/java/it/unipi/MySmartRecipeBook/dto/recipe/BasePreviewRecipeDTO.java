@@ -13,8 +13,8 @@ import java.util.List;
 @Setter
 public abstract class BasePreviewRecipeDTO {
 
-    @JsonProperty("mongo_id")
-    private String mongoId;
+    @JsonProperty("id")
+    private String id;
 
     private String title;
 

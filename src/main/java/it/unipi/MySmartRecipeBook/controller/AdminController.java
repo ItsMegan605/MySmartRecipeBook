@@ -13,7 +13,7 @@ public class AdminController {
     }
 
     @PostMapping("/approve/{id}")
-    public void approveRecipe(@PathVariable String recipeId) {
+    public void approveRecipe(@PathVariable("id") String recipeId) {
         adminService.saveRecipe(recipeId);
     }
 
