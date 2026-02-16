@@ -14,7 +14,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.JedisCluster;
 
+
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -131,8 +133,15 @@ public class SmartFridgeService {
                 List<RecipeSuggestionDTO> updatedList = new ArrayList<>();
 
                 for (RecipeSuggestionDTO recipe : cachedRecipes) {
-                   //removing of the ingredient
-                    recipe.getMatchedIngredients().removeIf(i -> i.equalsIgnoreCase(removedIngredient));
+
+                     List<String> listIngredient = recipe.getMatchedIngredients();
+                     for (String ingredient : listIngredient) {
+                         if (ingredient.equals(removedIngredient)) {
+                             recipe.setMatchCount(recipe.getMatchCount() - 1 );
+                             listIngredient.remove(ingredient);
+                             break;
+                         }
+                     }
 
                     //keep the recipe just if we still have 3 matches
                     if (recipe.getMatchedIngredients().size() >= 3) {
@@ -143,6 +152,7 @@ public class SmartFridgeService {
                 if (updatedList.isEmpty()) {
                     jedisCluster.del(cacheKey);
                 } else {
+                    updatedList.sort(Comparator.comparingInt(RecipeSuggestionDTO::getMatchCount).reversed());
                     jedisCluster.set(cacheKey, objectMapper.writeValueAsString(updatedList));
                 }
 

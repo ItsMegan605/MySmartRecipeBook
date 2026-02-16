@@ -10,15 +10,15 @@ import org.neo4j.driver.Session;
 import org.neo4j.driver.Values;
 
 import java.io.FileReader;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Neo4jDataLoader {
 
-    // --- CONFIGURAZIONE ---
     private static final String URI = "bolt://localhost:7687";
     private static final String USER = "neo4j";
-    private static final String PASSWORD = "12345678";
+    private static final String PASSWORD = "12345678"; // <--- INSERISCI LA TUA PASSWORD QUI
 
-    // Percorsi ai file JSON (assicurati che partano dalla root del progetto)
     private static final String PATH_INGREDIENTS = "data/ingredients/eggfree_ingredients.json";
     private static final String PATH_RECIPES = "data/recipes/NEW_allrecipes_egg_free_CLEANED.json";
 
@@ -26,106 +26,101 @@ public class Neo4jDataLoader {
         Driver driver = GraphDatabase.driver(URI, AuthTokens.basic(USER, PASSWORD));
 
         try (Session session = driver.session()) {
-            System.out.println("=== INIZIO CARICAMENTO NEO4J ===");
-
-            // 1. Carichiamo prima tutti gli ingredienti puliti dal file specifico
-            loadMasterIngredients(session);
-
-            // 2. Carichiamo le ricette e le colleghiamo agli ingredienti
-            loadRecipesAndConnect(session);
-
-            System.out.println("=== CARICAMENTO COMPLETATO ===");
+            System.out.println("=== START LOADING NEO4J ===");
+            loadIngredients(session, PATH_INGREDIENTS);
+            loadRecipesAndConnect(session, PATH_RECIPES);
 
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             driver.close();
+            System.out.println("=== END ===");
         }
     }
 
-    // FASE 1: Carica la lista pura degli ingredienti
-    private static void loadMasterIngredients(Session session) {
+    private static void loadIngredients(Session session, String filePath) {
         JSONParser parser = new JSONParser();
-        System.out.println("--> Caricamento Ingredienti da: " + PATH_INGREDIENTS);
-
-        try {
-            // Questo file è un array di stringhe: ["zucchero", "sale", ...]
-            Object obj = parser.parse(new FileReader(PATH_INGREDIENTS));
-            JSONArray ingredientList = (JSONArray) obj;
+        try (FileReader reader = new FileReader(filePath)) {
+            System.out.println("--- uploading ingredient ---");
+            Object obj = parser.parse(reader);
+            JSONArray ingredientsList = (JSONArray) obj;
 
             int count = 0;
-            for (Object o : ingredientList) {
-                String ingName = (String) o; // Qui il cast a String è corretto
-                if (ingName != null && !ingName.isEmpty()) {
-                    // Creiamo il nodo
+            for (Object o : ingredientsList) {
+                String ingName = (String) o;
+                if (ingName != null) {
                     session.run("MERGE (i:Ingredient {name: $name})",
                             Values.parameters("name", ingName.trim().toLowerCase()));
                     count++;
                 }
             }
-            System.out.println("    Fatto! Caricati " + count + " nodi Ingrediente.");
+            System.out.println(" Uploaded " + count + " ingredients.");
 
         } catch (Exception e) {
-            System.err.println("Errore in loadMasterIngredients: " + e.getMessage());
+            System.err.println("Error loadIngredients: " + e.getMessage());
         }
     }
 
-    // FASE 2: Carica Ricette e crea relazioni
-    private static void loadRecipesAndConnect(Session session) {
+    private static void loadRecipesAndConnect(Session session, String filePath) {
         JSONParser parser = new JSONParser();
-        System.out.println("--> Caricamento Ricette da: " + PATH_RECIPES);
-
-        try {
-            Object obj = parser.parse(new FileReader(PATH_RECIPES));
-            JSONArray recipeList = (JSONArray) obj;
+        try (FileReader reader = new FileReader(filePath)) {
+            System.out.println("--- Uploading of recipes ---");
+            Object obj = parser.parse(reader);
+            JSONArray recipesList = (JSONArray) obj;
 
             int count = 0;
-            for (Object o : recipeList) {
+            for (Object o : recipesList) {
                 JSONObject recipe = (JSONObject) o;
 
-                // 1. Prendiamo SOLO title e url per il nodo Ricetta
+                // CORREZIONE: Usiamo "url" come ID, perché "id" non esiste nel JSON
+                String id = (String) recipe.get("url");
                 String title = (String) recipe.get("title");
-                String image_url = (String) recipe.get("image_url");
+                String imageUrl = (String) recipe.get("image_url"); // Nel JSON è snake_case
 
-                if (title != null && image_url != null) {
-                    // Crea il nodo Ricetta (usiamo l'URL come ID univoco)
-                    session.run("MERGE (r:Recipe {image_url: $image_url}) SET r.title = $title",
-                            Values.parameters("image_url", image_url, "title", title));
+                // Procediamo solo se abbiamo almeno URL e Titolo
+                if (id != null && title != null) {
+                    Map<String, Object> params = new HashMap<>();
+                    params.put("id", id);
+                    params.put("title", title);
+                    // Salviamo come imageURL (camelCase) per compatibilità con il tuo codice Java
+                    params.put("imageURL", imageUrl != null ? imageUrl : "");
 
-                    // 2. Gestione Ingredienti dentro la ricetta
+                    // 1. Creiamo il nodo Ricetta
+                    String createRecipeQuery =
+                            "MERGE (r:Recipe {id: $id}) " +
+                                    "SET r.title = $title, r.imageURL = $imageURL";
+
+                    session.run(createRecipeQuery, params);
+
+                    // 2. Gestione Ingredienti e Relazione USED_IN
                     JSONArray ingredients = (JSONArray) recipe.get("ingredients");
                     if (ingredients != null) {
                         for (Object ingObj : ingredients) {
-                            // *** QUI ERA L'ERRORE ***
-                            // Nel file ricette, l'ingrediente è un OGGETTO: {"name": "sugar", ...}
-                            if (ingObj instanceof JSONObject) {
-                                JSONObject fullIng = (JSONObject) ingObj;
-                                String ingName = (String) fullIng.get("name"); // Estraiamo solo il nome
+                            JSONObject fullIng = (JSONObject) ingObj;
+                            String ingName = (String) fullIng.get("name");
 
-                                if (ingName != null) {
-                                    ingName = ingName.trim().toLowerCase();
+                            if (ingName != null) {
+                                ingName = ingName.trim().toLowerCase();
 
-                                    // Query: Collega la Ricetta all'Ingrediente
-                                    // Usiamo MERGE su Ingredient per sicurezza (se mancava nel file master lo crea ora)
-                                    String query =
-                                            "MATCH (r:Recipe {image_url: $image_url}) " +
-                                                    "MERGE (i:Ingredient {name: $ingName}) " +
-                                                    "MERGE (r)-[:CONTAINS_INGREDIENT]->(i)";
+                                // Query: (Ingrediente)-[:USED_IN]->(Ricetta)
+                                String relationQuery =
+                                        "MATCH (r:Recipe {id: $id}) " +
+                                                "MERGE (i:Ingredient {name: $ingName}) " +
+                                                "MERGE (i)-[:USED_IN]->(r)";
 
-                                    session.run(query, Values.parameters("image_url", image_url, "ingName", ingName));
-                                }
+                                session.run(relationQuery, Values.parameters("id", id, "ingName", ingName));
                             }
                         }
                     }
                     count++;
-                    if (count % 50 == 0) System.out.println("    Processate " + count + " ricette...");
+                    if (count % 100 == 0) System.out.println("    Processed " + count + " recipes...");
                 }
             }
-            System.out.println("    Fatto! Totale ricette caricate: " + count);
+            System.out.println("    Done! Total recipes: " + count);
 
         } catch (Exception e) {
-            System.err.println("Errore in loadRecipesAndConnect: " + e.getMessage());
-            e.printStackTrace(); // Utile per capire se il path è sbagliato
+            System.err.println("Error loadRecipesAndConnect: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }
