@@ -1,6 +1,7 @@
 package it.unipi.MySmartRecipeBook.controller;
 
 import it.unipi.MySmartRecipeBook.service.AdminService;;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -12,14 +13,21 @@ public class AdminController {
         this.adminService = adminService;
     }
 
+    /*------------------- Approve a pending recipe  --------------------*/
+
     @PostMapping("/approve/{id}")
-    public void approveRecipe(@PathVariable("id") String recipeId) {
+    public ResponseEntity<String> approveRecipe(@PathVariable("id") String recipeId) {
         adminService.saveRecipe(recipeId);
+        return ResponseEntity.ok("Recipe approved");
     }
 
+
+    /*------------------- Discard a pending recipe  --------------------*/
+
     @DeleteMapping("/discard/{id}")
-    public void discardRecipe(@PathVariable String recipeId) {
+    public ResponseEntity<String> discardRecipe(@PathVariable("id") String recipeId) {
         adminService.discardRecipe(recipeId);
+        return ResponseEntity.ok("Recipe succesfully discarded");
     }
 
 }

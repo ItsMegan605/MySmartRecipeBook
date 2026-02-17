@@ -39,6 +39,7 @@ public class RecipeService {
     @Value("${app.recipe.pag-size-chef:10}")
     private Integer pageSizeChef;
 
+
     private static final List<String> VALID_CATEGORIES = List.of(
             "vegan",
             "dairy-free",
@@ -48,20 +49,13 @@ public class RecipeService {
             "dessert"
     );
 
-    private final AdminRepository adminRepository;
+
     private final RecipeMongoRepository recipeRepository;
     private final RecipeConvertions convertions;
-    private final ChefRepository chefRepository;
-    public RecipeService(RecipeMongoRepository recipeRepository, RecipeConvertions convertions,
-                         ChefRepository chefRepository, AdminRepository adminRepository) {
+    public RecipeService(RecipeMongoRepository recipeRepository, RecipeConvertions convertions) {
         this.recipeRepository = recipeRepository;
         this.convertions = convertions;
-        this.chefRepository = chefRepository;
-        this.adminRepository = adminRepository;
     }
-
-
-
 
 
     public StandardRecipeDTO getRecipeById(String id){
@@ -142,7 +136,7 @@ public class RecipeService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid parameters");
         }
 
-        Pageable pageable = PageRequest.of(--pageNumber, pageSizeChef, Sort.by("creationDate").descending());
+        Pageable pageable = PageRequest.of(--pageNumber, pageSizeChef, Sort.by("totalSaves").descending());
         Slice<RecipeMongo> matching_recipes = recipeRepository.findByChefName(chefName, pageable);
 
         if (matching_recipes.isEmpty()){

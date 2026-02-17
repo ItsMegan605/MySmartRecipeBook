@@ -3,7 +3,7 @@ package it.unipi.MySmartRecipeBook.service;
 import it.unipi.MySmartRecipeBook.dto.LoginRequestDTO;
 import it.unipi.MySmartRecipeBook.dto.JwtResponseDTO;
 import it.unipi.MySmartRecipeBook.dto.CreateChefDTO;
-import it.unipi.MySmartRecipeBook.dto.foodie.UpdateStandardFoodieDTO;
+import it.unipi.MySmartRecipeBook.dto.foodie.FoodieDTO;
 import it.unipi.MySmartRecipeBook.model.Chef;
 import it.unipi.MySmartRecipeBook.model.Foodie;
 import it.unipi.MySmartRecipeBook.repository.ChefRepository;
@@ -64,7 +64,7 @@ public class AuthService {
     }
 
     //REGISTER FOODIE
-    public void registerFoodie(UpdateStandardFoodieDTO dto) {
+    public void registerFoodie(FoodieDTO dto) {
 
         if (chefRepository.existsByUsername(dto.getUsername())
                 || foodieRepository.existsByUsername(dto.getUsername())) {

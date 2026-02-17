@@ -18,18 +18,6 @@ import java.util.ArrayList;
 @AllArgsConstructor
 @Document(collection = "users")
 public class Foodie extends RegisteredUser {
-    //questo è quello che poi ho scoperto rompeva i coglioni
-    //Chiave Primaria reale di MongoDB (_id)
-    // nome diverso per non creare confusione (es. uniqueId)
-
-    // 2. Il tuo ID personalizzato ("61934")
-    // Togliamo @Id da qui perché NON è la chiave primaria per Mongo
-    //Usiamo @Field("id") per essere sicuri che punti al campo "id" del JSON
-    //@Field("id")
-    //private String id;
-
-    // qui me lo sono fatto cambiare così, poi dobbiamo sistemarlo
-    // quando faremo le collezioni con id di mongo
 
     @Field("registration_date")
     private Date registrationDate;

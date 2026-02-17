@@ -3,7 +3,7 @@ package it.unipi.MySmartRecipeBook.controller;
 import it.unipi.MySmartRecipeBook.dto.LoginRequestDTO;
 import it.unipi.MySmartRecipeBook.dto.JwtResponseDTO;
 import it.unipi.MySmartRecipeBook.dto.CreateChefDTO;
-import it.unipi.MySmartRecipeBook.dto.foodie.UpdateStandardFoodieDTO;
+import it.unipi.MySmartRecipeBook.dto.foodie.FoodieDTO;
 import it.unipi.MySmartRecipeBook.service.AuthService;
 
 import org.springframework.http.ResponseEntity;
@@ -31,7 +31,7 @@ public class AuthController {
     //Register Foodie
     @PostMapping("/register/foodie")
     public ResponseEntity<?> registerFoodie(
-            @RequestBody UpdateStandardFoodieDTO dto) {
+            @RequestBody FoodieDTO dto) {
 
         authService.registerFoodie(dto);
         return ResponseEntity.ok("Foodie registered successfully");

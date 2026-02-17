@@ -72,4 +72,17 @@ public class UsersConvertions {
 
         return recipe;
     }
+
+    public FoodieRecipeSummary foodieToFoodieSummary (FoodieRecipe recipe) {
+
+        FoodieRecipeSummary recipeSummary = new FoodieRecipeSummary();
+        recipeSummary.setId(recipe.getId());
+        recipeSummary.setTitle(recipe.getTitle());
+        recipeSummary.setImageURL(recipe.getImageURL());
+        recipeSummary.setCategory(recipe.getCategory());
+        recipeSummary.setDifficulty(recipe.getDifficulty());
+        recipeSummary.setSavingDate(recipe.getSavingDate());
+
+        return recipeSummary;
+    }
 }

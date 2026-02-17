@@ -105,7 +105,6 @@ public class RecipeConvertions {
     public RecipeMongo adminToMongoRecipe (AdminRecipe recipe){
 
         RecipeMongo full_recipe = new RecipeMongo();
-        //full_recipe.setId(recipe.getId());
         full_recipe.setTitle(recipe.getTitle());
         full_recipe.setPresentation(recipe.getPresentation());
         full_recipe.setCategory(recipe.getCategory());
@@ -115,6 +114,7 @@ public class RecipeConvertions {
         full_recipe.setImageURL(recipe.getImageURL());
         full_recipe.setIngredients(recipe.getIngredients());
         full_recipe.setCreationDate(recipe.getCreationDate());
+        full_recipe.setChef(recipe.getChef());
 
         return full_recipe;
     }

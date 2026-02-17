@@ -72,4 +72,21 @@ public class ChefController {
         ChefPreviewRecipeDTO recipe = chefService.createRecipe(dto);
         return ResponseEntity.ok(recipe);
     }
+
+
+    /*------------------- Delete recipe --------------------*/
+
+    @DeleteMapping("/deleteRecipe/{id}")
+    public ResponseEntity<String> deleteRecipe (@PathVariable("id") String recipeId){
+
+        chefService.deleteRecipe(recipeId);
+        return ResponseEntity.ok("Recipe succesfully deleted");
+    }
+
+
+    /*------------------- Show recipe --------------------*/
+    /*
+    @GetMapping("/show/{category}/{page}")
+    public List<ChefPreviewRecipeDTO> showRecipe (@PathVariable("category") String category,
+                                                  @PathVariable("page") Integer page){}*/
 }

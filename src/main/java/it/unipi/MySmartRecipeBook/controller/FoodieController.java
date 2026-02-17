@@ -1,7 +1,7 @@
 package it.unipi.MySmartRecipeBook.controller;
 
 import it.unipi.MySmartRecipeBook.dto.foodie.StandardFoodieDTO;
-import it.unipi.MySmartRecipeBook.dto.foodie.UpdateStandardFoodieDTO;
+import it.unipi.MySmartRecipeBook.dto.foodie.UpdateFoodieDTO;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import it.unipi.MySmartRecipeBook.service.FoodieService;
 
@@ -22,55 +22,62 @@ public class FoodieController {
         this.foodieService = foodieService;
     }
 
+    /*--------------- Retrieve foodie's informations ----------------*/
 
-    @GetMapping("/getMe")
-    public ResponseEntity<StandardFoodieDTO> getMe(){
+    @GetMapping("/info")
+    public ResponseEntity<StandardFoodieDTO> getInfo(){
 
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-
         return ResponseEntity.ok(foodieService.getByUsername(username));
     }
 
-    @PatchMapping("/updateMe")
-    public ResponseEntity<StandardFoodieDTO> updateMe (@RequestBody @Valid UpdateStandardFoodieDTO updates){
+
+    /*--------------- Change foodie's informations ----------------*/
+
+    @PatchMapping("/changeInfo")
+    public ResponseEntity<StandardFoodieDTO> changeInfo (@RequestBody @Valid UpdateFoodieDTO updates){
 
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-
         return ResponseEntity.ok(foodieService.updateFoodie(username, updates));
     }
 
-    @DeleteMapping("/deleteMe")
-    public ResponseEntity<Void> deleteMe() {
+
+    /*------------------ Delete foodie's Profile -------------------*/
+
+    @DeleteMapping("/deleteProfile")
+    public ResponseEntity<String> deleteProfile() {
 
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         foodieService.deleteFoodie(username);
-
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Foodie has been succesfully deleted");
     }
 
-//functions for saved recipes
-    @PostMapping("/me/saved-recipes/{recipeId}")
-    public ResponseEntity<Void> saveRecipe (@PathVariable String recipeId) {
+
+    /*------------ Add a recipe to foodie's favourites  -------------*/
+
+    @PostMapping("/addFavourite/{recipeId}")
+    public ResponseEntity<String> saveRecipe (@PathVariable String recipeId) {
 
         UserPrincipal foodie = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getPrincipal();
         String foodieID = foodie.getId();
-        foodieService.saveRecipe(foodieID, recipeId);
 
-        return ResponseEntity.ok().build();
+        foodieService.saveRecipe(foodieID, recipeId);
+        return ResponseEntity.ok("Recipe has been succesfully add to favourites");
     }
 
-    @DeleteMapping("/me/saved-recipes/{recipeId}")
-    public ResponseEntity<Void> removeSavedRecipe(
-            @PathVariable String recipeId) {
 
-        String username = SecurityContextHolder.getContext()
+    /*------------ Remove a recipe from foodie's favourites  -------------*/
+
+    @DeleteMapping("/removeFavourite/{recipeId}")
+    public ResponseEntity<String> removeSavedRecipe(@PathVariable String recipeId) {
+
+        String foodieId = SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getName();
 
-        foodieService.removeSavedRecipe(username, recipeId);
-
-        return ResponseEntity.noContent().build();
+        foodieService.removeSavedRecipe(foodieId, recipeId);
+        return ResponseEntity.ok("Recipe has been succesfully removed from favourites");
     }
 }
