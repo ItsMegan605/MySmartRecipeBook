@@ -11,6 +11,8 @@ import it.unipi.MySmartRecipeBook.repository.ChefRepository;
 import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import it.unipi.MySmartRecipeBook.utils.RecipeConvertions;
+import it.unipi.MySmartRecipeBook.utils.ChefConvertions;
+
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -22,12 +24,14 @@ import java.util.List;
 public class AdminService {
 
     private final RecipeConvertions recipeConvertions;
+    private final ChefConvertions chefConvertions;
     private final ChefRepository chefRepository;
     private final AdminRepository adminRepository;
     private final RecipeMongoRepository recipeRepository;
     public AdminService(RecipeConvertions recipeConvertions, ChefRepository chefRepository,
-                        AdminRepository adminRepository, RecipeMongoRepository recipeRepository) {
+                        AdminRepository adminRepository, RecipeMongoRepository recipeRepository, ChefConvertions chefConvertions) {
         this.recipeConvertions = recipeConvertions;
+        this.chefConvertions = chefConvertions;
         this.chefRepository = chefRepository;
         this.adminRepository = adminRepository;
         this.recipeRepository = recipeRepository;
@@ -187,4 +191,60 @@ public class AdminService {
         adminRepository.save(admin);
         chefRepository.save(chef);
     }
+
+    public void approveChef(String chefId) {
+        /* Get the admin information from the logged user */
+        UserPrincipal logged_admin = (UserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        Admin admin = adminRepository.findById(logged_admin.getId())
+                .orElseThrow(() -> new RuntimeException("Admin not found"));
+
+        List<Chef> chefToApprove = admin.getChefToApprove();
+        Chef chef = null;
+        //control if the chef we are approving is in the list
+        for ( Chef newChef :  chefToApprove ) {
+            if( newChef.getId().equals(chefId)) {
+                System.out.println("Controllo chef in corso");
+                chefToApprove.remove(newChef);
+                chef = newChef;
+                break;
+            }
+
+        }
+        if (chef == null) {
+            throw new RuntimeException("There are no chefs to approve");
+        }
+
+        chefRepository.save(chef);
+    }
+
+    public void declineChef (String chefId) {
+        UserPrincipal logged_admin = (UserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        Admin admin = adminRepository.findById(logged_admin.getId())
+                .orElseThrow(() -> new RuntimeException("Admin not found"));
+
+        List<Chef> chefToApprove = admin.getChefToApprove();
+        Chef chef = null;
+        //control if the chef we are approving is in the list
+        for ( Chef newChef :  chefToApprove ) {
+            if( newChef.getId().equals(chefId)) {
+                System.out.println("Controllo chef in corso");
+                chefToApprove.remove(newChef);
+                chef = newChef;
+                break;
+            }
+
+        }
+        if (chef == null) {
+            throw new RuntimeException("There are no chefs to approve");
+        }
+    }
+
 }
+
+

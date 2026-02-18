@@ -30,5 +30,10 @@ public class AdminController {
         return ResponseEntity.ok("Recipe succesfully discarded");
     }
 
+    @PostMapping("/approveChef/{id}")
+    public ResponseEntity<String> approveChef(@PathVariable("id") String chefId) {
+        adminService.approveChef(chefId);
+        return ResponseEntity.ok("Chef succesfully added");
+    }
 }
 
