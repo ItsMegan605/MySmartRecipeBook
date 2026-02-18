@@ -33,7 +33,13 @@ public class AdminController {
     @PostMapping("/approveChef/{id}")
     public ResponseEntity<String> approveChef(@PathVariable("id") String chefId) {
         adminService.approveChef(chefId);
-        return ResponseEntity.ok("Chef succesfully added");
+        return ResponseEntity.ok("Chef succesfully added by admin");
+    }
+
+    @PostMapping("/discardChef/{id}")
+    public ResponseEntity<String> Cdiscardhef(@PathVariable("id") String chefId) {
+        adminService.declineChef(chefId);
+        return ResponseEntity.ok("Chef declined by admin");
     }
 }
 
