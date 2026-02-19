@@ -4,8 +4,10 @@ import it.unipi.MySmartRecipeBook.dto.LoginRequestDTO;
 import it.unipi.MySmartRecipeBook.dto.JwtResponseDTO;
 import it.unipi.MySmartRecipeBook.dto.CreateChefDTO;
 import it.unipi.MySmartRecipeBook.dto.foodie.FoodieDTO;
+import it.unipi.MySmartRecipeBook.model.Admin;
 import it.unipi.MySmartRecipeBook.model.Chef;
 import it.unipi.MySmartRecipeBook.model.Foodie;
+import it.unipi.MySmartRecipeBook.repository.AdminRepository;
 import it.unipi.MySmartRecipeBook.repository.ChefRepository;
 import it.unipi.MySmartRecipeBook.repository.FoodieRepository;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
@@ -18,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Date;
 
 @Service
@@ -28,18 +31,20 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
+    private final AdminRepository adminRepository;
 
     public AuthService(ChefRepository chefRepository,
                        FoodieRepository foodieRepository,
                        PasswordEncoder passwordEncoder,
                        AuthenticationManager authenticationManager,
-                       JwtUtils jwtUtils) {
+                       JwtUtils jwtUtils, AdminRepository adminRepository) {
 
         this.chefRepository = chefRepository;
         this.foodieRepository = foodieRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtUtils = jwtUtils;
+        this.adminRepository = adminRepository;
     }
 
     //REGISTER CHEF
@@ -60,7 +65,13 @@ public class AuthService {
         chef.setBirthdate(dto.getBirthdate());
         chef.setRegistrationDate(LocalDate.now());
 
-        chefRepository.save(chef);
+        Admin admin = adminRepository.findByUsername("admin");
+
+        if (admin.getChefToApprove() == null) {
+            admin.setChefToApprove(new ArrayList<>());
+        }
+        admin.getChefToApprove().add(chef);
+        adminRepository.save(admin);
     }
 
     //REGISTER FOODIE

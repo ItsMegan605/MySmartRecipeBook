@@ -38,5 +38,7 @@ public class Chef extends RegisteredUser {
 
     @Field("tot_saves")
     private Integer totalSaves = 0;
+
+
 }
 

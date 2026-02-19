@@ -7,4 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AdminRepository extends MongoRepository<Admin, String> {
     Admin findByUsername(String username);
+
+    String username(String username);
 }
