@@ -33,12 +33,10 @@ public class Chef extends RegisteredUser {
     @Field("recipe_to_confirm")
     private List<ChefRecipe> recipesToConfirm;
 
-    @Field("old_recipes")
-    private List<ChefRecipeSummary> oldRecipes;
-
     @Field("tot_saves")
     private Integer totalSaves = 0;
 
-
+    @Field("tot_recipes")
+    private Integer totalRecipes = 0;
 }
 

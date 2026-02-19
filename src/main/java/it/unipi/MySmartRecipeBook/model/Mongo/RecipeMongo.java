@@ -1,51 +1,32 @@
 package it.unipi.MySmartRecipeBook.model.Mongo;
 
-import it.unipi.MySmartRecipeBook.model.ReducedChef;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
-
-import java.time.LocalDateTime;
-import java.util.List;
-
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+
 @Document(collection = "recipes")
-public class RecipeMongo {
 
-    @Id
-    private String id;
+@CompoundIndexes({
+        // Indice per filtrare per Chef E ordinare per Data (veloce per la "Vetrina")
+        @CompoundIndex(name = "chefDate", def = "{'chef_id': 1, 'creation_date': -1}"),
 
-    private String title;
+        // Indice per filtrare per Chef E ordinare per Like (veloce per "Most Liked")
+        @CompoundIndex(name = "chefPopularity", def = "{'chef_id': 1, 'num_saves': -1}")
+})
 
-    @Field("presentation")
-    private String presentation;
+public class RecipeMongo extends BaseRecipe{
 
-    private String category;
-
-    @Field("prep_Time")
-    private String prepTime;
-
-    private String preparation;
-    private String difficulty;
-
-    @Field("image_url")
-    private String imageURL;
-
-    @Field("chef")
-    private ReducedChef chef;
-    private List<Ingredient> ingredients;
-
-    @Field("creation_date")
-    private LocalDateTime creationDate;
-
+    @Field("num_saves")
+    private Integer numSaves = 0;
 }

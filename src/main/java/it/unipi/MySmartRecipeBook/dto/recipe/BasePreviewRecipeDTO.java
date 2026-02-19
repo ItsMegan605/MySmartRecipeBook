@@ -21,7 +21,5 @@ public abstract class BasePreviewRecipeDTO {
     @JsonProperty("image_URL")
     private String imageURL;
 
-    private String presentation;
-
 }
 

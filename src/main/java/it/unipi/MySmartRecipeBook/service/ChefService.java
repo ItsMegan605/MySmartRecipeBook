@@ -8,7 +8,6 @@ import it.unipi.MySmartRecipeBook.model.Admin;
 import it.unipi.MySmartRecipeBook.model.Chef;
 import it.unipi.MySmartRecipeBook.model.Mongo.AdminRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipe;
-import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipeSummary;
 import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
 import it.unipi.MySmartRecipeBook.model.ReducedChef;
 import it.unipi.MySmartRecipeBook.repository.AdminRepository;
@@ -17,11 +16,11 @@ import it.unipi.MySmartRecipeBook.repository.ChefRepository;
 import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import it.unipi.MySmartRecipeBook.utils.ChefConvertions;
-import it.unipi.MySmartRecipeBook.utils.RecipeConvertions;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -30,21 +29,27 @@ import java.util.List;
 @Service
 public class ChefService {
 
+    @Value("${app.recipe.pag-size-chef:5}")
+    private Integer pageSizeChef;
+
+    private static final List<String> VALID_FILTER = List.of(
+        "date",
+        "popularity"
+    );
+
     private final ChefRepository chefRepository;
     private final PasswordEncoder passwordEncoder;
     private final ChefConvertions chefConvertions;
     private final AdminRepository adminRepository;
     private final RecipeMongoRepository recipeMongoRepository;
-    private final RecipeConvertions recipeConvertions;
 
     public ChefService(ChefRepository chefRepository, ChefConvertions chefConvertions,
-                       PasswordEncoder passwordEncoder, AdminRepository adminRepository, RecipeMongoRepository recipeMongoRepository, RecipeConvertions recipeConvertions) {
+                       PasswordEncoder passwordEncoder, AdminRepository adminRepository, RecipeMongoRepository recipeMongoRepository) {
         this.chefRepository = chefRepository;
         this.chefConvertions = chefConvertions;
         this.passwordEncoder = passwordEncoder;
         this.adminRepository = adminRepository;
         this.recipeMongoRepository = recipeMongoRepository;
-        this.recipeConvertions = recipeConvertions;
     }
 
 
@@ -116,6 +121,7 @@ public class ChefService {
             admin.setRecipesToApprove(new ArrayList<>());
         }
 
+        /* We want to show first the recipes that have been pending for the longest time */
         admin.getRecipesToApprove().add(savedRecipe);
         adminRepository.save(admin);
 
@@ -134,6 +140,7 @@ public class ChefService {
             chef.setRecipesToConfirm(new ArrayList<>());
         }
 
+        /* We want to show first the recipes that have been pending for the longest time */
         chef.getRecipesToConfirm().add(chefRecipe);
         chefRepository.save(chef);
 
@@ -186,45 +193,125 @@ public class ChefService {
             throw new RuntimeException("No recipes found");
         }
 
-        boolean recipeFound = false;
-
-
-        /* We check if the recipe we want to delete is in the newRecipes and, if needed, we move an old recipe to the
-        NewRecipe list */
         for (ChefRecipe recipe : newRecipes) {
             if (recipe.getId().equals(recipeId)) {
                 newRecipes.remove(recipe);
-                recipeFound = true;
 
-                List<ChefRecipeSummary> oldRecipes = chef.getOldRecipes();
-                if(oldRecipes != null) {
+                Pageable pageable = PageRequest.of(0, pageSizeChef, Sort.by("creationDate").descending());
+                Slice<RecipeMongo> matchSlice = recipeMongoRepository.findByChefMongoId(chef1.getId(), pageable);
+                List<RecipeMongo> matchRecipes = matchSlice.getContent();
 
-                    String oldRecipeId = oldRecipes.get(0).getMongoId();
-                    RecipeMongo oldRecipe = recipeMongoRepository.findById(oldRecipeId)
-                            .orElseThrow(() -> new RuntimeException("Recipe not found"));
-
-                    ChefRecipe recipeToInsert = recipeConvertions.entityToChefRecipe(oldRecipe);
-                    newRecipes.add(recipeToInsert);
-                    chef.getOldRecipes().remove(chef.getOldRecipes().get(0));
-                }
+                List<ChefRecipe> recipesToSave = chefConvertions.MongoListToChefList(matchRecipes);
+                chef.setNewRecipes(recipesToSave);
+                chef.setTotalRecipes(chef.getTotalRecipes() - 1);
+                chefRepository.save(chef);
                 break;
             }
         }
 
-        /* If we don't have already found the recipe we are interested in, we check in the oldRecipe list */
-        if (!recipeFound) {
-            List<ChefRecipeSummary> oldRecipes = chef.getOldRecipes();
-            for (ChefRecipeSummary recipe : oldRecipes) {
-                if (recipe.getMongoId().equals(recipeId)) {
-                    oldRecipes.remove(recipe);
-                    break;
-                }
-            }
-        }
-
-        chefRepository.save(chef);
         recipeMongoRepository.deleteById(recipeId);
 
         /* Attenzione ... dobbiamo fare la rimozione su neo4j in differita */
     }
+
+
+    // @Transactional
+    public void removeRecipe(String recipeId) {
+
+        UserPrincipal chef1 = (UserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        Chef chef = chefRepository.findById(chef1.getId())
+                .orElseThrow(() -> new RuntimeException("Chef not found"));
+
+        boolean recipeFound = false;
+
+        if(chef.getRecipesToConfirm() == null){
+            throw new RuntimeException("No recipes waiting to be confirmed");
+        }
+
+        for(ChefRecipe recipe : chef.getRecipesToConfirm()){
+            if(recipe.getId().equals(recipeId)){
+
+                recipeFound = true;
+                chef.getRecipesToConfirm().remove(recipe);
+                chefRepository.save(chef);
+                break;
+            }
+        }
+
+        if(!recipeFound){
+            throw new RuntimeException("Recipe not found");
+        }
+        else {
+
+            Admin admin = adminRepository.findByUsername("admin");
+            if(admin == null){
+                throw new RuntimeException("Admin not found");
+            }
+
+            if(admin.getRecipesToApprove() == null){
+                throw new RuntimeException("No recipes waiting to be approved");
+            }
+
+            for(AdminRecipe adminRecipe : admin.getRecipesToApprove()){
+                if (adminRecipe.getId().equals(recipeId)){
+                    admin.getRecipesToApprove().remove(adminRecipe);
+                    adminRepository.save(admin);
+                    return;
+                }
+            }
+        }
+    }
+
+
+
+    /*------------------- Show recipe --------------------*/
+    // @Transactional
+    public Slice<ChefPreviewRecipeDTO> showRecipes(String filter, Integer pageNumber) {
+
+        UserPrincipal chef1 = (UserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        Chef chef = chefRepository.findById(chef1.getId())
+                .orElseThrow(() -> new RuntimeException("Chef not found"));
+
+        if(pageNumber <= 0 || !VALID_FILTER.contains(filter)){
+            throw new RuntimeException("Invalid parameters");
+        }
+
+
+        Pageable pageable = null;
+        if(filter.equals("date")){
+            if(pageNumber == 1){
+
+                if (chef.getNewRecipes() == null || chef.getNewRecipes().isEmpty()) {
+                    return new SliceImpl<>(new ArrayList<>(), PageRequest.of(pageNumber - 1, pageSizeChef), false);
+                }
+
+                List<ChefPreviewRecipeDTO> content = chefConvertions.ChefListToSummaryList(chef.getNewRecipes());
+                pageable = PageRequest.of(pageNumber - 1, pageSizeChef);
+                boolean hasNext = (chef.getTotalRecipes() > pageSizeChef) ? true : false;
+
+                return  new SliceImpl<>(content, pageable, hasNext);
+            }
+            else{
+                pageable = PageRequest.of(pageNumber - 1, pageSizeChef,
+                        Sort.by("creationDate").descending());
+            }
+        }
+        else if(filter.equals("popularity")){
+            pageable = PageRequest.of(pageNumber - 1, pageSizeChef,
+                    Sort.by("numSaves").descending());
+        }
+
+        Slice<RecipeMongo> recipesPage = recipeMongoRepository.findByChefMongoId(chef.getId(), pageable);
+        List<ChefPreviewRecipeDTO> content = chefConvertions.MongoListToChefPreview(recipesPage.getContent());
+        boolean hasNext = (chef.getTotalRecipes() > pageSizeChef*pageNumber) ? true : false;
+
+        return  new SliceImpl<>(content, pageable, hasNext);
+    }
+
 }

@@ -1,15 +1,20 @@
 package it.unipi.MySmartRecipeBook.controller;
 
+import it.unipi.MySmartRecipeBook.dto.foodie.FoodieDTO;
 import it.unipi.MySmartRecipeBook.dto.foodie.StandardFoodieDTO;
 import it.unipi.MySmartRecipeBook.dto.foodie.UpdateFoodieDTO;
+import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import it.unipi.MySmartRecipeBook.service.FoodieService;
 
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/foodies")
@@ -79,5 +84,19 @@ public class FoodieController {
 
         foodieService.removeSavedRecipe(foodieId, recipeId);
         return ResponseEntity.ok("Recipe has been succesfully removed from favourites");
+    }
+
+
+    /*------------ Order favourites recipes by filter -------------*/
+    @GetMapping("/getRecipe/{category}/{numPage}")
+    public ResponseEntity<Slice<UserPreviewRecipeDTO>> getRecipeByCategory (@PathVariable String category,
+                                                                            @PathVariable Integer numPage) {
+
+        String foodieId = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+
+        Slice<UserPreviewRecipeDTO> recipeList = foodieService.getRecipeByCategory(foodieId, category, numPage);
+        return ResponseEntity.ok(recipeList);
     }
 }

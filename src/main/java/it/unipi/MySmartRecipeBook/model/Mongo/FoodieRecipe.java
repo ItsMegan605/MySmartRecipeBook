@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class FoodieRecipe extends RecipeMongo {
+public class FoodieRecipe extends BaseRecipe {
 
     @Field("saving_date")
     private LocalDate savingDate;

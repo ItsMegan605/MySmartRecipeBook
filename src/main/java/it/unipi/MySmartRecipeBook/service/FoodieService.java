@@ -2,6 +2,7 @@ package it.unipi.MySmartRecipeBook.service;
 
 import it.unipi.MySmartRecipeBook.dto.foodie.StandardFoodieDTO;
 import it.unipi.MySmartRecipeBook.dto.foodie.UpdateFoodieDTO;
+import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Chef;
 import it.unipi.MySmartRecipeBook.model.Foodie;
 import it.unipi.MySmartRecipeBook.model.Mongo.*;
@@ -11,13 +12,55 @@ import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.utils.UsersConvertions;
 
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class FoodieService {
+
+
+    private static final List<String> VALID_CATEGORIES = List.of(
+            "vegan",
+            "dairy-free",
+            "egg-free",
+            "gluten-free",
+            "main-course",
+            "second-course",
+            "dessert"
+    );
+
+    private static final List<String> VALID_FILTERS = List.of(
+            "vegan",
+            "dairy-free",
+            "egg-free",
+            "gluten-free",
+            "main-course",
+            "second-course",
+            "dessert",
+            "saving-date",
+            "easy",
+            "very hard",
+            "hard",
+            "average",
+            "very easy"
+    );
+
+    private static final List<String> VALID_DIFFICULTIES = List.of(
+
+            "very easy",
+            "easy",
+            "very hard",
+            "hard",
+            "average"
+    );
+
+    @Value("${app.recipe.pag-size-foodie:5}")
+    private Integer pageSizeFoodie;
 
     private final FoodieRepository foodieRepository;
     private final ChefRepository chefRepository;
@@ -129,7 +172,7 @@ public class FoodieService {
             foodie.setNewSavedRecipes(new ArrayList<>());
         }
 
-        /* Il the NewSavedRecipes list is already full we have to move the oldest recipe of the list in the OldSavedRecipe
+        /* If the NewSavedRecipes list is already full we have to move the oldest recipe of the list in the OldSavedRecipe
         list and then we insert the new recipe in the NewSavedRecipe */
         if(foodie.getNewSavedRecipes().size() == 5){
 
@@ -137,55 +180,44 @@ public class FoodieService {
                 foodie.setOldSavedRecipes(new ArrayList<>());
             }
 
-            FoodieRecipe oldestRecipe = foodie.getNewSavedRecipes().remove(0);
+            int index = foodie.getNewSavedRecipes().size() - 1;
+            FoodieRecipe oldestRecipe = foodie.getNewSavedRecipes().remove(index);
             FoodieRecipeSummary reduced_old = usersConvertions.entityToReducedRecipe(oldestRecipe);
-            foodie.getOldSavedRecipes().add(reduced_old);
+
+            /* We insert the element on the head of the list, in order to implement the FIFO policy */
+            foodie.getOldSavedRecipes().add(0, reduced_old);
         }
 
-        foodie.getNewSavedRecipes().add(fullRecipe);
+        foodie.getNewSavedRecipes().add(0, fullRecipe);
         foodieRepository.save(foodie);
 
-        /* We have to increment two different counters, both in the chef collection:
-            - the one that keep trace of the number of saves for the specific recipe
-            - the global counter that keep trace of the total number of saves for a specific chef */
-        String chefId = fullRecipe.getChef().getMongoId();
-        updateChefCounters(chefId, recipeId);
+        recipe.setNumSaves(recipe.getNumSaves() + 1);
+        recipeRepository.save(recipe);
+
+        /* Si potrebbe fare che il secondo aggiornamento si fa con basso carico */
+        // updateChefCounters(recipe.getChef().getMongoId(), recipe.getId(), 1);
     }
 
 
     // @Transactional
-    private void updateChefCounters(String chefId, String recipeId){
+    private void updateChefCounters(String chefId, String recipeId, Integer increment) {
 
         Chef chef = chefRepository.findById(chefId)
                 .orElseThrow(() -> new RuntimeException("Chef not found"));
 
-        boolean recipeFound = false;
         if(chef.getNewRecipes() == null){
             throw new RuntimeException("Recipe not found for the specified chef");
         }
 
         for (ChefRecipe recipe : chef.getNewRecipes()) {
             if (recipe.getId().equals(recipeId)){
-                recipe.setNumSaves(recipe.getNumSaves() + 1);
-                recipeFound = true;
+                recipe.setNumSaves(recipe.getNumSaves() + increment);
                 break;
             }
         }
 
-        if (!recipeFound && chef.getOldRecipes() != null){
-            for (ChefRecipeSummary recipe : chef.getOldRecipes()) {
-                if (recipe.getMongoId().equals(recipeId)){
-                    recipe.setNumSaves(recipe.getNumSaves() + 1);
-                    recipeFound = true;
-                    break;
-                }
-            }
-        }
-
-        if(recipeFound){
-            chef.setTotalSaves(chef.getTotalSaves() + 1);
-            chefRepository.save(chef);
-        }
+        chef.setTotalSaves(chef.getTotalSaves() + increment);
+        chefRepository.save(chef);
     }
 
 
@@ -213,7 +245,7 @@ public class FoodieService {
                     FoodieRecipe recipeToMove = usersConvertions.entityToFoodieEntity(oldRecipe);
                     foodie.getNewSavedRecipes().add(recipeToMove);
 
-                    foodie.getOldSavedRecipes().remove(foodie.getOldSavedRecipes().get(0));
+                    foodie.getOldSavedRecipes().remove(0);
                 }
                 foodieRepository.save(foodie);
                 break;
@@ -230,7 +262,74 @@ public class FoodieService {
             }
         }
 
-        /* Il fatto che devono essere decrementati i counter si può fare in un secondo momento? */
+        RecipeMongo recipeToUpdate = recipeRepository.findById(recipeId).orElseThrow(() -> new RuntimeException("Recipe not found"));
+        recipeToUpdate.setNumSaves(recipeToUpdate.getNumSaves() - 1);
+        recipeRepository.save(recipeToUpdate);
+
+        /* Si potrebbe fare che il secondo aggiornamento si fa con basso carico */
+        // updateChefCounters(recipe.getChef().getMongoId(), recipe.getId(), -1);
+    }
+
+
+    public Slice<UserPreviewRecipeDTO> getRecipeByCategory(String foodieId, String category, Integer numPage) {
+
+        Foodie foodie = foodieRepository.findById(foodieId)
+                .orElseThrow(() -> new RuntimeException("Foodie not found"));
+
+        if(foodie.getNewSavedRecipes() == null){
+            throw new RuntimeException("Recipe not found for the specified foodie");
+        }
+
+        if(numPage <= 0 || !VALID_FILTERS.contains(category)){
+            throw new RuntimeException("Invalid parameters");
+        }
+
+        List<FoodieRecipeSummary> reducedRecipes = usersConvertions.foodieListToSummaryList(foodie.getNewSavedRecipes());
+        if(numPage == 1 && category.equals("date")){
+            Pageable pageable = PageRequest.of(numPage - 1, pageSizeFoodie, Sort.by("savingDate").descending() );
+            boolean hasNext = (foodie.getOldSavedRecipes() == null) ? false : true;
+
+            List<UserPreviewRecipeDTO> content = usersConvertions.foodieSummaryToUserPreview(reducedRecipes);
+            return  new SliceImpl<>(content, pageable, hasNext);
+        }
+
+        List<FoodieRecipeSummary> allRecipes = new ArrayList<>(reducedRecipes);
+        if(foodie.getOldSavedRecipes() != null){
+            allRecipes.addAll(foodie.getOldSavedRecipes());
+        }
+
+        List<FoodieRecipeSummary> recipesPreview = new ArrayList<>();
+        if(VALID_CATEGORIES.contains(category)){
+            for(FoodieRecipeSummary recipe : allRecipes){
+                if(recipe.getCategory().equals(category)){
+                    recipesPreview.add(recipe);
+                }
+            }
+        }
+        else if(VALID_DIFFICULTIES.contains(category)){
+            for(FoodieRecipeSummary recipe : allRecipes){
+                if(recipe.getDifficulty().equals(category)){
+                    recipesPreview.add(recipe);
+                }
+            }
+        }
+        else if (category.equals("date")) {
+            recipesPreview.addAll(allRecipes);
+        }
+
+        Integer start = (numPage - 1) * pageSizeFoodie;
+        if(start > recipesPreview.size()){
+            throw new RuntimeException("Invalid page number");
+        }
+
+        Integer end = Math.min(start + pageSizeFoodie, recipesPreview.size());
+
+        boolean hasNext = recipesPreview.size() > numPage*pageSizeFoodie;
+        List<FoodieRecipeSummary> recipes = recipesPreview.subList(start, end);
+
+        Pageable pageable = PageRequest.of(numPage-1, pageSizeFoodie, Sort.by("savingDate").descending());
+        List<UserPreviewRecipeDTO> content = usersConvertions.foodieSummaryToUserPreview(recipes);
+        return  new SliceImpl<>(content, pageable, hasNext);
 
     }
 

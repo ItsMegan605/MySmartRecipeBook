@@ -37,7 +37,7 @@ public class AdminController {
     }
 
     @PostMapping("/discardChef/{id}")
-    public ResponseEntity<String> Cdiscardhef(@PathVariable("id") String chefId) {
+    public ResponseEntity<String> discardChef(@PathVariable("id") String chefId) {
         adminService.declineChef(chefId);
         return ResponseEntity.ok("Chef declined by admin");
     }

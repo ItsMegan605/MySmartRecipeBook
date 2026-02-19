@@ -2,6 +2,7 @@ package it.unipi.MySmartRecipeBook.utils;
 
 import it.unipi.MySmartRecipeBook.dto.foodie.StandardFoodieDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.BaseRecipeDTO;
+import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Foodie;
 import it.unipi.MySmartRecipeBook.model.Mongo.FoodieRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
@@ -9,6 +10,8 @@ import it.unipi.MySmartRecipeBook.model.Mongo.FoodieRecipeSummary;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class UsersConvertions {
@@ -73,7 +76,7 @@ public class UsersConvertions {
         return recipe;
     }
 
-    public FoodieRecipeSummary foodieToFoodieSummary (FoodieRecipe recipe) {
+    private FoodieRecipeSummary foodieToFoodieSummary (FoodieRecipe recipe) {
 
         FoodieRecipeSummary recipeSummary = new FoodieRecipeSummary();
         recipeSummary.setId(recipe.getId());
@@ -84,5 +87,31 @@ public class UsersConvertions {
         recipeSummary.setSavingDate(recipe.getSavingDate());
 
         return recipeSummary;
+    }
+
+    public List<FoodieRecipeSummary> foodieListToSummaryList(List<FoodieRecipe> fullRecipes) {
+
+        List<FoodieRecipeSummary> recipes = new ArrayList<>();
+        for(FoodieRecipe recipe: fullRecipes) {
+
+            FoodieRecipeSummary recipeSummary = foodieToFoodieSummary(recipe);
+            recipes.add(recipeSummary);
+        }
+        return recipes;
+    }
+
+    public List<UserPreviewRecipeDTO> foodieSummaryToUserPreview (List<FoodieRecipeSummary> fullRecipes) {
+
+        List<UserPreviewRecipeDTO> recipes = new ArrayList<>();
+
+        for(FoodieRecipeSummary recipe: fullRecipes) {
+            UserPreviewRecipeDTO userPreviewRecipeDTO = new UserPreviewRecipeDTO();
+            userPreviewRecipeDTO.setId(recipe.getId());
+            userPreviewRecipeDTO.setTitle(recipe.getTitle());
+            userPreviewRecipeDTO.setImageURL(recipe.getImageURL());
+            recipes.add(userPreviewRecipeDTO);
+        }
+
+        return recipes;
     }
 }

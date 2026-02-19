@@ -36,7 +36,7 @@ public class RecipeService {
     @Value("${app.recipe.pag-size-home:10}")
     private Integer pageSizeHome;
 
-    @Value("${app.recipe.pag-size-chef:10}")
+    @Value("${app.recipe.pag-size-chef:5}")
     private Integer pageSizeChef;
 
 
@@ -44,6 +44,7 @@ public class RecipeService {
             "vegan",
             "dairy-free",
             "gluten-free",
+            "egg-free",
             "main-course",
             "second-course",
             "dessert"

@@ -24,14 +24,13 @@ import java.util.List;
 public class AdminService {
 
     private final RecipeConvertions recipeConvertions;
-    private final ChefConvertions chefConvertions;
     private final ChefRepository chefRepository;
     private final AdminRepository adminRepository;
     private final RecipeMongoRepository recipeRepository;
+
     public AdminService(RecipeConvertions recipeConvertions, ChefRepository chefRepository,
-                        AdminRepository adminRepository, RecipeMongoRepository recipeRepository, ChefConvertions chefConvertions) {
+                        AdminRepository adminRepository, RecipeMongoRepository recipeRepository) {
         this.recipeConvertions = recipeConvertions;
-        this.chefConvertions = chefConvertions;
         this.chefRepository = chefRepository;
         this.adminRepository = adminRepository;
         this.recipeRepository = recipeRepository;
@@ -117,19 +116,13 @@ public class AdminService {
             chef.setNewRecipes(new ArrayList<>());
         }
         else if (chef.getNewRecipes().size() == 5) {
-
-            if(chef.getOldRecipes() == null){
-                chef.setOldRecipes(new ArrayList<>());
-            }
-
-            ChefRecipe oldestRecipe = chef.getNewRecipes().remove(0);
-            ChefRecipeSummary reduced_old = recipeConvertions.entityToReducedRecipe(oldestRecipe);
-            chef.getOldRecipes().add(reduced_old);
+            chef.getNewRecipes().remove(4);
         }
 
         ChefRecipe full_recipe = recipeConvertions.adminToChefRecipe(recipe);
         full_recipe.setId(mongoId);
-        chef.getNewRecipes().add(full_recipe);
+        chef.getNewRecipes().add(0, full_recipe);
+        chef.setTotalRecipes(chef.getTotalRecipes() + 1);
         chefRepository.save(chef);
     }
 

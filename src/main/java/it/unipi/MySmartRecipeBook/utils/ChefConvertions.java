@@ -5,7 +5,12 @@ import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Chef;
 import it.unipi.MySmartRecipeBook.model.Mongo.AdminRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipe;
+import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class ChefConvertions {
@@ -58,11 +63,68 @@ public class ChefConvertions {
         been inserted in the recipes collection yet */
         recipeDTO.setId(recipe.getId());
         recipeDTO.setTitle(recipe.getTitle());
-        recipeDTO.setPresentation(recipe.getPresentation());
         recipeDTO.setImageURL(recipe.getImageURL());
         recipeDTO.setCreationDate(recipe.getCreationDate().toLocalDate());
 
         return recipeDTO;
     }
 
+    public List<ChefRecipe> MongoListToChefList(List<RecipeMongo> recipesToConvert) {
+
+        List<ChefRecipe> chefRecipes = new ArrayList<>();
+
+        for(RecipeMongo recipeMongo : recipesToConvert){
+            ChefRecipe recipe = new ChefRecipe();
+
+            recipe.setId(recipeMongo.getId());
+            recipe.setTitle(recipeMongo.getTitle());
+            recipe.setPresentation(recipeMongo.getPresentation());
+            recipe.setCategory(recipeMongo.getCategory());
+            recipe.setPrepTime(recipeMongo.getPrepTime());
+            recipe.setPreparation(recipeMongo.getPreparation());
+            recipe.setDifficulty(recipeMongo.getDifficulty());
+            recipe.setImageURL(recipeMongo.getImageURL());
+            recipe.setIngredients(recipeMongo.getIngredients());
+            recipe.setCreationDate(recipeMongo.getCreationDate());
+            recipe.setNumSaves(recipe.getNumSaves());
+
+            chefRecipes.add(recipe);
+        }
+
+        return chefRecipes;
+    }
+
+
+    public List<ChefPreviewRecipeDTO> ChefListToSummaryList(List<ChefRecipe> recipesList) {
+
+        List<ChefPreviewRecipeDTO> chefPreviewList = new ArrayList<>();
+        for(ChefRecipe recipe : recipesList){
+            ChefPreviewRecipeDTO recipeDTO = new ChefPreviewRecipeDTO();
+
+            recipeDTO.setId(recipe.getId());
+            recipeDTO.setTitle(recipe.getTitle());
+            recipeDTO.setImageURL(recipe.getImageURL());
+            recipeDTO.setCreationDate(recipe.getCreationDate().toLocalDate());
+            chefPreviewList.add(recipeDTO);
+        }
+
+        return  chefPreviewList;
+    }
+
+    public List<ChefPreviewRecipeDTO> MongoListToChefPreview(List<RecipeMongo> recipesToConvert) {
+
+        List<ChefPreviewRecipeDTO> chefRecipes = new ArrayList<>();
+
+        for(RecipeMongo recipeMongo : recipesToConvert){
+            ChefPreviewRecipeDTO recipe = new ChefPreviewRecipeDTO();
+
+            recipe.setId(recipeMongo.getId());
+            recipe.setTitle(recipeMongo.getTitle());
+            recipe.setImageURL(recipeMongo.getImageURL());
+            recipe.setCreationDate(recipeMongo.getCreationDate().toLocalDate());
+            chefRecipes.add(recipe);
+        }
+
+        return chefRecipes;
+    }
 }

@@ -33,9 +33,7 @@ public class RecipeConvertions {
         UserPreviewRecipeDTO recipeDTO = new UserPreviewRecipeDTO();
         recipeDTO.setId(recipe.getId());
         recipeDTO.setTitle(recipe.getTitle());
-        recipeDTO.setPresentation(recipe.getPresentation());
         recipeDTO.setImageURL(recipe.getImageURL());
-        //recipeDTO.setChefName(recipe.getChefName());
 
         return recipeDTO;
     }
@@ -45,7 +43,6 @@ public class RecipeConvertions {
         ChefPreviewRecipeDTO recipeDTO = new ChefPreviewRecipeDTO();
         recipeDTO.setId(recipe.getId());
         recipeDTO.setTitle(recipe.getTitle());
-        recipeDTO.setPresentation(recipe.getPresentation());
         recipeDTO.setImageURL(recipe.getImageURL());
         recipeDTO.setCreationDate(recipe.getCreationDate().toLocalDate());
 
