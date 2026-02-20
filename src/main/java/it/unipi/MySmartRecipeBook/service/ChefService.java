@@ -121,6 +121,12 @@ public class ChefService {
             admin.setRecipesToApprove(new ArrayList<>());
         }
 
+        for(AdminRecipe recipe : admin.getRecipesToApprove()){
+            if(recipe.getTitle().equals(dto.getTitle())){
+                throw new RuntimeException("Recipe already waiting to be approved");
+            }
+        }
+
         /* We want to show first the recipes that have been pending for the longest time */
         admin.getRecipesToApprove().add(savedRecipe);
         adminRepository.save(admin);

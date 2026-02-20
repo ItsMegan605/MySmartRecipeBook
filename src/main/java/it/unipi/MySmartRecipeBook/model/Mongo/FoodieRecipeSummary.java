@@ -28,4 +28,8 @@ public class FoodieRecipeSummary {
 
     @Field("saving_date")
     private LocalDate savingDate;
+
+    // Ci serve nel momento in cui dobbiamo andare a decrementare il contatore delle ricette di quello chef salvate
+    @Field("chef_id")
+    private String chefId;
 }

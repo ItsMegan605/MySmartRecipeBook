@@ -1,11 +1,14 @@
 package it.unipi.MySmartRecipeBook.service;
 
+import it.unipi.MySmartRecipeBook.dto.InfoToDeleteDTO;
 import it.unipi.MySmartRecipeBook.dto.foodie.StandardFoodieDTO;
 import it.unipi.MySmartRecipeBook.dto.foodie.UpdateFoodieDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Chef;
 import it.unipi.MySmartRecipeBook.model.Foodie;
 import it.unipi.MySmartRecipeBook.model.Mongo.*;
+import it.unipi.MySmartRecipeBook.model.Recipe;
+import it.unipi.MySmartRecipeBook.model.enums.Task;
 import it.unipi.MySmartRecipeBook.repository.ChefRepository;
 import it.unipi.MySmartRecipeBook.repository.FoodieRepository;
 import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
@@ -19,6 +22,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class FoodieService {
@@ -58,6 +63,7 @@ public class FoodieService {
             "hard",
             "average"
     );
+    private final LowLoadManager lowLoadManager;
 
     @Value("${app.recipe.pag-size-foodie:5}")
     private Integer pageSizeFoodie;
@@ -70,12 +76,13 @@ public class FoodieService {
 
     public FoodieService(FoodieRepository foodieRepository, RecipeMongoRepository recipeRepository,
                          PasswordEncoder passwordEncoder, UsersConvertions usersConvertions,
-                         ChefRepository chefRepository) {
+                         ChefRepository chefRepository, LowLoadManager lowLoadManager) {
         this.foodieRepository = foodieRepository;
         this.recipeRepository = recipeRepository;
         this.passwordEncoder = passwordEncoder;
         this.usersConvertions = usersConvertions;
         this.chefRepository = chefRepository;
+        this.lowLoadManager = lowLoadManager;
     }
 
 
@@ -134,6 +141,28 @@ public class FoodieService {
         Foodie foodie = foodieRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Foodie not found"));
 
+        List<String> recipesId = new ArrayList<>();
+        List<String> chefsId = new ArrayList<>();
+
+        if(foodie.getNewSavedRecipes() != null){
+            for(FoodieRecipe recipe: foodie.getNewSavedRecipes()){
+                recipesId.add(recipe.getId());
+                chefsId.add(recipe.getChef().getMongoId());
+            }
+        }
+
+        if(foodie.getOldSavedRecipes() != null){
+            for(FoodieRecipeSummary recipe: foodie.getOldSavedRecipes()){
+                recipesId.add(recipe.getId());
+                chefsId.add(recipe.getChefId());
+            }
+        }
+
+        Map<String, Long> chefDecrements = chefsId.stream()
+                .collect(Collectors.groupingBy(id -> id, Collectors.counting()));
+
+        InfoToDeleteDTO infoFoodie = new InfoToDeleteDTO(recipesId, chefDecrements);
+        lowLoadManager.addTask(Task.TaskType.SET_COUNTERS_FOODIE_DELETE, infoFoodie);
         foodieRepository.delete(foodie);
     }
 

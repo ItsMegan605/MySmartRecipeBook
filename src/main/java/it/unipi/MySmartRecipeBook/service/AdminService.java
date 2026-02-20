@@ -93,6 +93,10 @@ public class AdminService {
 
     private void addToChefRecipes(AdminRecipe recipe, String mongoId) {
 
+        if(recipeRepository.findByTitle(recipe.getTitle())){
+            throw new RuntimeException("Recipe already exists");
+        }
+
         String chefId = recipe.getChef().getMongoId();
         Chef chef = chefRepository.findById(chefId)
                 .orElseThrow(() -> new RuntimeException("Chef not found"));
