@@ -2,9 +2,14 @@ package it.unipi.MySmartRecipeBook.service;
 
 import it.unipi.MySmartRecipeBook.dto.InfoToDeleteDTO;
 import it.unipi.MySmartRecipeBook.event.TaskToDo;
+import it.unipi.MySmartRecipeBook.model.Foodie;
+import it.unipi.MySmartRecipeBook.model.Mongo.FoodieRecipe;
+import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
 import it.unipi.MySmartRecipeBook.model.enums.Task;
 import it.unipi.MySmartRecipeBook.repository.ChefRepository;
+import it.unipi.MySmartRecipeBook.repository.FoodieRepository;
 import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
+import it.unipi.MySmartRecipeBook.utils.UsersConvertions;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -23,10 +28,15 @@ public class LowLoadManager {
     private final Queue<TaskToDo> taskQueue = new ConcurrentLinkedQueue<>();
     private final RecipeMongoRepository recipeMongoRepository;
     private final ChefRepository chefRepository;
+    private final FoodieRepository foodieRepository;
+    private final UsersConvertions usersConvertions;
 
-    public LowLoadManager(RecipeMongoRepository recipeMongoRepository, ChefRepository chefRepository) {
+    public LowLoadManager(RecipeMongoRepository recipeMongoRepository, ChefRepository chefRepository,
+                          FoodieRepository foodieRepository, UsersConvertions usersConvertions) {
         this.recipeMongoRepository = recipeMongoRepository;
         this.chefRepository = chefRepository;
+        this.foodieRepository = foodieRepository;
+        this.usersConvertions = usersConvertions;
     }
 
     public void addTask (Task.TaskType type, String recipeId, String chefId){
@@ -70,25 +80,33 @@ public class LowLoadManager {
 
     private void executeTask(TaskToDo task){
 
-        switch (task.getType()){
-            case SET_COUNTERS_FOODIE_DELETE:
-                decrementSavesCounters(task);
-                break;
+        try{
+            switch (task.getType()){
+                case SET_COUNTERS_FOODIE_DELETE:
+                    decrementSavesCounters(task);
+                    break;
 
-            case SET_COUNTERS_ADD_FAVOURITE:
-                break;
+                case SET_COUNTERS_ADD_FAVOURITE:
+                    updateChefCounters(task, 1);
+                    break;
 
-            case SET_COUNTERS_REMOVE_FAVOURITE:
-                break;
+                case SET_COUNTERS_REMOVE_FAVOURITE:
+                    updateChefCounters(task, -1);
+                    break;
 
-            case CREATE_RECIPE_NEO4J:
-                break;
+                case CREATE_RECIPE_NEO4J:
+                    break;
 
-            case DELETE_CHEF_RECIPE:
-                break;
+                case DELETE_CHEF_RECIPE:
+                    deleteChefRecipes(task.getChefId());
+                    break;
 
-            default:
-                System.out.println("Invalid task type");
+                default:
+                    System.out.println("Invalid task type");
+            }
+        }
+        catch (Exception e){
+            System.err.println("Error occurred while executing the task");
         }
     }
 
@@ -98,15 +116,70 @@ public class LowLoadManager {
         List<String> recipesId = task.getInfoToDelete().getRecipeIds();
         Map<String, Long> chefDecrements = task.getInfoToDelete().getChefDecrements();
 
-        for(String recipeId : recipesId){
-            recipeMongoRepository.updateSavesCounter(recipeId, -1);
+        if(recipesId != null) {
+            for (String recipeId : recipesId) {
+                recipeMongoRepository.updateSavesCounter(recipeId, -1);
+            }
         }
 
-        for (Map.Entry<String, Long> element : chefDecrements.entrySet()) {
-            String chefId = element.getKey();
-            int savesToRemove = element.getValue().intValue();
+        if(chefDecrements != null) {
+            for (Map.Entry<String, Long> element : chefDecrements.entrySet()) {
+                String chefId = element.getKey();
+                int savesToRemove = element.getValue().intValue();
 
-            chefRepository.updateTotalSaves(chefId, -savesToRemove);
+                chefRepository.updateTotalSaves(chefId, -savesToRemove);
+            }
         }
+    }
+
+    private void updateChefCounters(TaskToDo task, Integer increment) {
+
+        /* Aggiorno il numero totale di ricette salvate dello chef */
+        chefRepository.updateTotalSaves(task.getChefId(), increment);
+
+        /* Se la ricette è tra le ultime 5 dello chef aggiorno la copia embedded */
+        chefRepository.updateChefCounters(task.getChefId(), task.getRecipeId(), increment);
+
+        /* Aggiorno il numero totale di saves nella collezione delle recipes */
+        recipeMongoRepository.updateSavesCounter(task.getRecipeId(), increment);
+    }
+
+    /* In questa funzione c'è la Risk Acceptancec */
+    private void deleteChefRecipes(String chefId){
+
+        /* Pulizia su mongo delle ricette salvate dei foodie */
+        List<Foodie> foodieList = foodieRepository.findFoodiesWithChefRecipes(chefId);
+
+        for(Foodie foodie : foodieList) {
+
+            /* In questo caso non possiamo usare la struttura con il for o ci verrebbe dato errore se eliminiamo un
+            elemento e continuiamo a scorrere la lista */
+
+            if (foodie.getNewSavedRecipes() != null) {
+                foodie.getNewSavedRecipes().removeIf(r -> r.getChef().getId().equals(chefId));
+            }
+            if (foodie.getOldSavedRecipes() != null) {
+                foodie.getOldSavedRecipes().removeIf(r -> r.getId().equals(chefId));
+            }
+
+            while(foodie.getNewSavedRecipes().size() < 5){
+                String recipeId = foodie.getOldSavedRecipes().get(0).getId();
+                foodie.getOldSavedRecipes().remove(foodie.getOldSavedRecipes().get(0));
+
+                RecipeMongo recipe = recipeMongoRepository.findById(recipeId).
+                        orElseThrow(() -> new RuntimeException("Recipe not found"));
+
+                FoodieRecipe recipeToMove = usersConvertions.entityToFoodieEntity(recipe);
+                foodie.getNewSavedRecipes().add(recipeToMove);
+            }
+        }
+
+        if(!foodieList.isEmpty()){
+            foodieRepository.saveAll(foodieList);
+        }
+
+        /* Pulizia su Neo4j - da decidere se implementarla con il nodo oppure con l'indice secondario */
+
+        /* Pulizia su Redis - non viene fatta quando sbattiamo sulla ricetta che non c'è più facciamo l'eliminazione */
     }
 }

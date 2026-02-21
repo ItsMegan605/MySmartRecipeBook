@@ -63,25 +63,23 @@ public class FoodieService {
             "hard",
             "average"
     );
-    private final LowLoadManager lowLoadManager;
 
     @Value("${app.recipe.pag-size-foodie:5}")
     private Integer pageSizeFoodie;
 
     private final FoodieRepository foodieRepository;
-    private final ChefRepository chefRepository;
     private final RecipeMongoRepository recipeRepository;
     private final PasswordEncoder passwordEncoder;
     private final UsersConvertions usersConvertions;
+    private final LowLoadManager lowLoadManager;
 
     public FoodieService(FoodieRepository foodieRepository, RecipeMongoRepository recipeRepository,
                          PasswordEncoder passwordEncoder, UsersConvertions usersConvertions,
-                         ChefRepository chefRepository, LowLoadManager lowLoadManager) {
+                         LowLoadManager lowLoadManager) {
         this.foodieRepository = foodieRepository;
         this.recipeRepository = recipeRepository;
         this.passwordEncoder = passwordEncoder;
         this.usersConvertions = usersConvertions;
-        this.chefRepository = chefRepository;
         this.lowLoadManager = lowLoadManager;
     }
 
@@ -147,14 +145,14 @@ public class FoodieService {
         if(foodie.getNewSavedRecipes() != null){
             for(FoodieRecipe recipe: foodie.getNewSavedRecipes()){
                 recipesId.add(recipe.getId());
-                chefsId.add(recipe.getChef().getMongoId());
+                chefsId.add(recipe.getChef().getId());
             }
         }
 
         if(foodie.getOldSavedRecipes() != null){
             for(FoodieRecipeSummary recipe: foodie.getOldSavedRecipes()){
                 recipesId.add(recipe.getId());
-                chefsId.add(recipe.getChefId());
+                chefsId.add(recipe.getId());
             }
         }
 
@@ -163,6 +161,7 @@ public class FoodieService {
 
         InfoToDeleteDTO infoFoodie = new InfoToDeleteDTO(recipesId, chefDecrements);
         lowLoadManager.addTask(Task.TaskType.SET_COUNTERS_FOODIE_DELETE, infoFoodie);
+
         foodieRepository.delete(foodie);
     }
 
@@ -220,34 +219,9 @@ public class FoodieService {
         foodie.getNewSavedRecipes().add(0, fullRecipe);
         foodieRepository.save(foodie);
 
-        recipe.setNumSaves(recipe.getNumSaves() + 1);
-        recipeRepository.save(recipe);
-
-        /* Si potrebbe fare che il secondo aggiornamento si fa con basso carico */
-        // updateChefCounters(recipe.getChef().getMongoId(), recipe.getId(), 1);
+        lowLoadManager.addTask(Task.TaskType.SET_COUNTERS_ADD_FAVOURITE, recipeId, recipe.getChef().getId());
     }
 
-
-    // @Transactional
-    private void updateChefCounters(String chefId, String recipeId, Integer increment) {
-
-        Chef chef = chefRepository.findById(chefId)
-                .orElseThrow(() -> new RuntimeException("Chef not found"));
-
-        if(chef.getNewRecipes() == null){
-            throw new RuntimeException("Recipe not found for the specified chef");
-        }
-
-        for (ChefRecipe recipe : chef.getNewRecipes()) {
-            if (recipe.getId().equals(recipeId)){
-                recipe.setNumSaves(recipe.getNumSaves() + increment);
-                break;
-            }
-        }
-
-        chef.setTotalSaves(chef.getTotalSaves() + increment);
-        chefRepository.save(chef);
-    }
 
 
     public void removeSavedRecipe(String foodieId, String recipeId) {
@@ -259,10 +233,10 @@ public class FoodieService {
             throw new RuntimeException("Recipe not found for the specified foodie");
         }
 
-        FoodieRecipe recipeRemoved = null;
+        String targetChefId = null;
         for (FoodieRecipe recipe : foodie.getNewSavedRecipes()) {
             if(recipe.getId().equals(recipeId)){
-                recipeRemoved = recipe;
+                targetChefId = recipe.getChef().getId();
                 foodie.getNewSavedRecipes().remove(recipe);
 
                 if(foodie.getOldSavedRecipes() != null){
@@ -281,9 +255,10 @@ public class FoodieService {
             }
         }
 
-        if(recipeRemoved == null &&  foodie.getOldSavedRecipes() != null){
+        if(targetChefId == null &&  foodie.getOldSavedRecipes() != null){
             for (FoodieRecipeSummary recipe : foodie.getOldSavedRecipes()) {
                 if (recipe.getId().equals(recipeId)){
+                    targetChefId = recipe.getChefId();
                     foodie.getOldSavedRecipes().remove(recipe);
                     foodieRepository.save(foodie);
                     break;
@@ -291,12 +266,11 @@ public class FoodieService {
             }
         }
 
-        RecipeMongo recipeToUpdate = recipeRepository.findById(recipeId).orElseThrow(() -> new RuntimeException("Recipe not found"));
-        recipeToUpdate.setNumSaves(recipeToUpdate.getNumSaves() - 1);
-        recipeRepository.save(recipeToUpdate);
+        if(targetChefId == null){
+            throw new RuntimeException("Recipe not found among foodie's favourites");
+        }
 
-        /* Si potrebbe fare che il secondo aggiornamento si fa con basso carico */
-        // updateChefCounters(recipe.getChef().getMongoId(), recipe.getId(), -1);
+        lowLoadManager.addTask(Task.TaskType.SET_COUNTERS_REMOVE_FAVOURITE, recipeId, targetChefId);
     }
 
 

@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field; // Importante
 import java.util.Date;
@@ -16,7 +18,13 @@ import java.util.ArrayList;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "users")
+
+@CompoundIndexes({
+        @CompoundIndex(name = "new_saved_chef_idx", def = "{'new_saved.chef.chef_id': 1}"),
+        @CompoundIndex(name = "old_saved_chef_idx", def = "{'old_saved.chef_id': 1}")
+})
+
+@Document(collection = "foodies")
 public class Foodie extends RegisteredUser {
 
     @Field("registration_date")

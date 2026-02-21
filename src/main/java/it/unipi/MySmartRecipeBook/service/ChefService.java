@@ -10,6 +10,7 @@ import it.unipi.MySmartRecipeBook.model.Mongo.AdminRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
 import it.unipi.MySmartRecipeBook.model.ReducedChef;
+import it.unipi.MySmartRecipeBook.model.enums.Task;
 import it.unipi.MySmartRecipeBook.repository.AdminRepository;
 import it.unipi.MySmartRecipeBook.repository.ChefRepository;
 
@@ -42,14 +43,17 @@ public class ChefService {
     private final ChefConvertions chefConvertions;
     private final AdminRepository adminRepository;
     private final RecipeMongoRepository recipeMongoRepository;
+    private final LowLoadManager lowLoadManager;
 
     public ChefService(ChefRepository chefRepository, ChefConvertions chefConvertions,
-                       PasswordEncoder passwordEncoder, AdminRepository adminRepository, RecipeMongoRepository recipeMongoRepository) {
+                       PasswordEncoder passwordEncoder, AdminRepository adminRepository,
+                       RecipeMongoRepository recipeMongoRepository, LowLoadManager lowLoadManager) {
         this.chefRepository = chefRepository;
         this.chefConvertions = chefConvertions;
         this.passwordEncoder = passwordEncoder;
         this.adminRepository = adminRepository;
         this.recipeMongoRepository = recipeMongoRepository;
+        this.lowLoadManager = lowLoadManager;
     }
 
 
@@ -99,7 +103,13 @@ public class ChefService {
         Chef chef = chefRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Chef not found"));
 
+        String chefId = chef.getId();
+
+        recipeMongoRepository.deleteAllByChefId(chefId);
         chefRepository.delete(chef);
+
+        lowLoadManager.addTask(Task.TaskType.DELETE_CHEF_RECIPE, chefId);
+
     }
 
 
@@ -172,7 +182,7 @@ public class ChefService {
         UserPrincipal chef1 = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getPrincipal();
-        chef.setMongoId(chef1.getId());
+        chef.setId(chef1.getId());
         chef.setName(chef1.getName());
         chef.setSurname(chef1.getSurname());
 
@@ -204,7 +214,7 @@ public class ChefService {
                 newRecipes.remove(recipe);
 
                 Pageable pageable = PageRequest.of(0, pageSizeChef, Sort.by("creationDate").descending());
-                Slice<RecipeMongo> matchSlice = recipeMongoRepository.findByChefMongoId(chef1.getId(), pageable);
+                Slice<RecipeMongo> matchSlice = recipeMongoRepository.findByChefId(chef1.getId(), pageable);
                 List<RecipeMongo> matchRecipes = matchSlice.getContent();
 
                 List<ChefRecipe> recipesToSave = chefConvertions.MongoListToChefList(matchRecipes);
@@ -313,7 +323,7 @@ public class ChefService {
                     Sort.by("numSaves").descending());
         }
 
-        Slice<RecipeMongo> recipesPage = recipeMongoRepository.findByChefMongoId(chef.getId(), pageable);
+        Slice<RecipeMongo> recipesPage = recipeMongoRepository.findByChefId(chef.getId(), pageable);
         List<ChefPreviewRecipeDTO> content = chefConvertions.MongoListToChefPreview(recipesPage.getContent());
         boolean hasNext = (chef.getTotalRecipes() > pageSizeChef*pageNumber) ? true : false;
 

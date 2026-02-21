@@ -18,11 +18,13 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
 
     Slice<RecipeMongo> findByCategory(String category, Pageable pageable);
 
-    Slice<RecipeMongo> findByChefMongoId(String chefId, Pageable pageable);
-
-    boolean findByTitle(String id);
+    Slice<RecipeMongo> findByChefId(String chefId, Pageable pageable);
 
     @Query("{ '_id' : ?0 }")
     @Update("{ '$inc' : { 'numSaves' : ?1 } }")
     void updateSavesCounter(String recipeId, int i);
+
+    void deleteAllByChefId(String chefId);
+
+    boolean existsByTitle(String title);
 }

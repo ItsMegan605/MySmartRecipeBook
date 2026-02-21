@@ -13,6 +13,7 @@ import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import it.unipi.MySmartRecipeBook.utils.RecipeConvertions;
 import it.unipi.MySmartRecipeBook.utils.ChefConvertions;
 
+import jakarta.transaction.Transactional;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -39,7 +40,7 @@ public class AdminService {
 
     /*------------------- Approve a pending recipe  --------------------*/
 
-    //@Transactional
+    @Transactional
     public void saveRecipe(String recipeId) {
 
         /* Get the admin information from the logged user */
@@ -83,7 +84,7 @@ public class AdminService {
         String mongoId = saved_recipe.getId();
 
         addToChefRecipes(recipeApproved, mongoId);
-        adminRepository.save(admin);
+        adminRepository.removeRecipeFromApprovals(recipeApproved.getId());
 
 
     }
@@ -93,18 +94,22 @@ public class AdminService {
 
     private void addToChefRecipes(AdminRecipe recipe, String mongoId) {
 
-        if(recipeRepository.findByTitle(recipe.getTitle())){
+        if(recipeRepository.existsByTitle(recipe.getTitle())){
             throw new RuntimeException("Recipe already exists");
         }
 
-        String chefId = recipe.getChef().getMongoId();
-        Chef chef = chefRepository.findById(chefId)
-                .orElseThrow(() -> new RuntimeException("Chef not found"));
+        String chefId = recipe.getChef().getId();
+
+        if(!chefRepository.existsById(chefId)){
+            throw new RuntimeException("Chef not found");
+        }
 
 
         /* In questo caso non c'è nessun controllo sul fatto che la ricetta effettivamente fosse presente tra quelle da confermare*/
         /* We remove the recipe from the list of the ones to confirm */
-        List<ChefRecipe> recipesToConfirm = chef.getRecipesToConfirm();
+
+        // PRIMA PARTE VERSIONE NON ATOMICA
+       /* List<ChefRecipe> recipesToConfirm = chef.getRecipesToConfirm();
 
         for (ChefRecipe singleRecipe : recipesToConfirm){
             if(singleRecipe.getId().equals(recipe.getId())){
@@ -114,20 +119,25 @@ public class AdminService {
         }
 
         /* Inserts the approved recipe into the 'newRecipes' list, maintaining the order by creation date.
-        If the list reaches capacity, the oldest recipe is moved to the 'oldRecipes' list. */
+        If the list reaches capacity, the oldest recipe is moved to the 'oldRecipes' list.
 
         if(chef.getNewRecipes() == null){
             chef.setNewRecipes(new ArrayList<>());
         }
         else if (chef.getNewRecipes().size() == 5) {
             chef.getNewRecipes().remove(4);
-        }
+        }*/
 
         ChefRecipe full_recipe = recipeConvertions.adminToChefRecipe(recipe);
         full_recipe.setId(mongoId);
-        chef.getNewRecipes().add(0, full_recipe);
+
+        // VERSIONE ATOMICA SE SI POSSONO USARE QUELLE TRECENTO RIGHE NELLA REPOSITORY
+        chefRepository.approveRecipe(chefId, recipe.getId(), full_recipe);
+
+        // SECONDA PARTE VERSIONE NON ATOMICA
+        /*chef.getNewRecipes().add(0, full_recipe);
         chef.setTotalRecipes(chef.getTotalRecipes() + 1);
-        chefRepository.save(chef);
+        chefRepository.save(chef);*/
     }
 
     /*
@@ -150,6 +160,7 @@ public class AdminService {
 
 
         /* Delete the indicated recipe from the admin list of recipes waiting to be approved */
+
         List<AdminRecipe> recipesToApprove = admin.getRecipesToApprove();
 
         if(recipesToApprove == null){
@@ -159,7 +170,7 @@ public class AdminService {
         String chefId = null;
         for(AdminRecipe recipe : recipesToApprove){
             if(recipe.getId().equals(recipeId)){
-                chefId = recipe.getChef().getMongoId();
+                chefId = recipe.getChef().getId();
                 recipesToApprove.remove(recipe);
                 break;
             }
@@ -170,12 +181,13 @@ public class AdminService {
             throw new RuntimeException("Recipe not found");
         }
 
-        Chef chef = chefRepository.findById(chefId)
+        // VERSIONE VECCHIA DEL CODICE
+        /*Chef chef = chefRepository.findById(recipe.getChef().getId())
                 .orElseThrow(() -> new RuntimeException("Chef not found"));
 
 
-        /* In questo caso non c'è nessun controllo sul fatto che la ricetta effettivamente fosse presente tra quelle da confermare*/
-        /* We remove the recipe from the list of the ones to confirm */
+        /* In questo caso non c'è nessun controllo sul fatto che la ricetta effettivamente fosse presente tra quelle da confermare
+        /* We remove the recipe from the list of the ones to confirm
         List<ChefRecipe> recipesToConfirm = chef.getRecipesToConfirm();
 
         for (ChefRecipe singleRecipe : recipesToConfirm){
@@ -186,7 +198,11 @@ public class AdminService {
         }
 
         adminRepository.save(admin);
-        chefRepository.save(chef);
+        chefRepository.save(chef);*/
+
+        chefRepository.removeRecipeFromWaiting(chefId, recipeId);
+        adminRepository.removeRecipeFromApprovals(recipeId);
+
     }
 
     public void approveChef(String chefId) {

@@ -13,8 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 public class ReducedChef {
 
-    @Field("mongo_id")
-    private String mongoId;
+    private String id;
     private String name;
     private String surname;
 }
