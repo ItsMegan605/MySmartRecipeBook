@@ -1,4 +1,4 @@
-package it.unipi.MySmartRecipeBook.dto.foodie;
+package it.unipi.MySmartRecipeBook.dto.users;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -14,7 +14,7 @@ import java.time.LocalDate;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class FoodieDTO {
+public class RegistedUserDTO {
 
     @NotBlank
     private String username;
@@ -29,9 +29,10 @@ public class FoodieDTO {
     @NotBlank
     private String email;
 
+    @NotBlank
+    private String password;
+
     @Past
     private LocalDate birthdate;
 
-    @NotBlank
-    private String password;
 }

@@ -1,8 +1,7 @@
 package it.unipi.MySmartRecipeBook.controller;
 
-import it.unipi.MySmartRecipeBook.dto.foodie.FoodieDTO;
-import it.unipi.MySmartRecipeBook.dto.foodie.StandardFoodieDTO;
-import it.unipi.MySmartRecipeBook.dto.foodie.UpdateFoodieDTO;
+import it.unipi.MySmartRecipeBook.dto.users.RegistedUserInfoDTO;
+import it.unipi.MySmartRecipeBook.dto.users.UpdateFoodieDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import it.unipi.MySmartRecipeBook.service.FoodieService;
@@ -13,8 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/foodies")
@@ -30,7 +27,7 @@ public class FoodieController {
     /*--------------- Retrieve foodie's informations ----------------*/
 
     @GetMapping("/info")
-    public ResponseEntity<StandardFoodieDTO> getInfo(){
+    public ResponseEntity<RegistedUserInfoDTO> getInfo(){
 
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         return ResponseEntity.ok(foodieService.getByUsername(username));
@@ -40,7 +37,7 @@ public class FoodieController {
     /*--------------- Change foodie's informations ----------------*/
 
     @PatchMapping("/changeInfo")
-    public ResponseEntity<StandardFoodieDTO> changeInfo (@RequestBody @Valid UpdateFoodieDTO updates){
+    public ResponseEntity<RegistedUserInfoDTO> changeInfo (@RequestBody @Valid UpdateFoodieDTO updates){
 
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         return ResponseEntity.ok(foodieService.updateFoodie(username, updates));

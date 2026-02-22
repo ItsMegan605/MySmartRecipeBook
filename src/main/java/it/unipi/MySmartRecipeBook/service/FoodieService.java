@@ -1,20 +1,16 @@
 package it.unipi.MySmartRecipeBook.service;
 
 import it.unipi.MySmartRecipeBook.dto.InfoToDeleteDTO;
-import it.unipi.MySmartRecipeBook.dto.foodie.StandardFoodieDTO;
-import it.unipi.MySmartRecipeBook.dto.foodie.UpdateFoodieDTO;
+import it.unipi.MySmartRecipeBook.dto.users.RegistedUserInfoDTO;
+import it.unipi.MySmartRecipeBook.dto.users.UpdateFoodieDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
-import it.unipi.MySmartRecipeBook.model.Chef;
 import it.unipi.MySmartRecipeBook.model.Foodie;
 import it.unipi.MySmartRecipeBook.model.Mongo.*;
-import it.unipi.MySmartRecipeBook.model.Recipe;
 import it.unipi.MySmartRecipeBook.model.enums.Task;
-import it.unipi.MySmartRecipeBook.repository.ChefRepository;
 import it.unipi.MySmartRecipeBook.repository.FoodieRepository;
 import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.utils.UsersConvertions;
 
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -86,7 +82,7 @@ public class FoodieService {
 
     /*--------------- Retrieve foodie's informations ----------------*/
 
-    public StandardFoodieDTO getByUsername(String username) {
+    public RegistedUserInfoDTO getByUsername(String username) {
 
         Foodie foodie = foodieRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Foodie not found"));
@@ -106,7 +102,7 @@ public class FoodieService {
 
      We don't allow a foodie to change his/her username for security reasons */
 
-    public StandardFoodieDTO updateFoodie(String username, UpdateFoodieDTO dto) {
+    public RegistedUserInfoDTO updateFoodie(String username, UpdateFoodieDTO dto) {
 
         Foodie foodie = foodieRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Foodie not found"));

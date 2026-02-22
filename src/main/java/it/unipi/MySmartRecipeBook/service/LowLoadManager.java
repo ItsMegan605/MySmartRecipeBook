@@ -1,14 +1,17 @@
 package it.unipi.MySmartRecipeBook.service;
 
 import it.unipi.MySmartRecipeBook.dto.InfoToDeleteDTO;
+import it.unipi.MySmartRecipeBook.dto.recipe.GraphRecipeDTO;
 import it.unipi.MySmartRecipeBook.event.TaskToDo;
 import it.unipi.MySmartRecipeBook.model.Foodie;
 import it.unipi.MySmartRecipeBook.model.Mongo.FoodieRecipe;
+import it.unipi.MySmartRecipeBook.model.Mongo.Ingredient;
 import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
 import it.unipi.MySmartRecipeBook.model.enums.Task;
 import it.unipi.MySmartRecipeBook.repository.ChefRepository;
 import it.unipi.MySmartRecipeBook.repository.FoodieRepository;
 import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
+import it.unipi.MySmartRecipeBook.repository.RecipeNeo4jRepository;
 import it.unipi.MySmartRecipeBook.utils.UsersConvertions;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -16,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.lang.management.ManagementFactory;
 import com.sun.management.OperatingSystemMXBean;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -30,13 +34,16 @@ public class LowLoadManager {
     private final ChefRepository chefRepository;
     private final FoodieRepository foodieRepository;
     private final UsersConvertions usersConvertions;
+    private final RecipeNeo4jRepository recipeNeo4jRepository;
 
     public LowLoadManager(RecipeMongoRepository recipeMongoRepository, ChefRepository chefRepository,
-                          FoodieRepository foodieRepository, UsersConvertions usersConvertions) {
+                          FoodieRepository foodieRepository, UsersConvertions usersConvertions,
+                          RecipeNeo4jRepository recipeNeo4jRepository) {
         this.recipeMongoRepository = recipeMongoRepository;
         this.chefRepository = chefRepository;
         this.foodieRepository = foodieRepository;
         this.usersConvertions = usersConvertions;
+        this.recipeNeo4jRepository = recipeNeo4jRepository;
     }
 
     public void addTask (Task.TaskType type, String recipeId, String chefId){
@@ -53,6 +60,12 @@ public class LowLoadManager {
 
     public void addTask (Task.TaskType type, String recipeId){
         TaskToDo task = new TaskToDo(type, recipeId);
+        taskQueue.add(task);
+        System.out.println("Task succesfully added to the queue");
+    }
+
+    public void addTask (Task.TaskType type, GraphRecipeDTO recipe){
+        TaskToDo task = new TaskToDo(type, recipe);
         taskQueue.add(task);
         System.out.println("Task succesfully added to the queue");
     }
@@ -95,6 +108,7 @@ public class LowLoadManager {
                     break;
 
                 case CREATE_RECIPE_NEO4J:
+                    createNeo4jRecipe(task);
                     break;
 
                 case DELETE_CHEF_RECIPE:
@@ -108,6 +122,25 @@ public class LowLoadManager {
         catch (Exception e){
             System.err.println("Error occurred while executing the task");
         }
+    }
+
+    private void createNeo4jRecipe(TaskToDo task) {
+
+        List<String> ingredientNames = new ArrayList<>();
+        List<Ingredient> ingredients = task.getRecipe().getIngredients();
+
+        for(Ingredient ingredient : ingredients){
+            ingredientNames.add(ingredient.getName());
+        }
+
+        /* In questo caso abbiamo messo lo chef come elemento, dobbiamo vedere se farlo, invece, come nodo */
+        recipeNeo4jRepository.createRecipe(
+                task.getRecipe().getId(),
+                task.getRecipe().getTitle(),
+                task.getRecipe().getChefId(),
+                ingredientNames
+        );
+
     }
 
 

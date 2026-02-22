@@ -2,8 +2,7 @@ package it.unipi.MySmartRecipeBook.controller;
 
 import it.unipi.MySmartRecipeBook.dto.LoginRequestDTO;
 import it.unipi.MySmartRecipeBook.dto.JwtResponseDTO;
-import it.unipi.MySmartRecipeBook.dto.CreateChefDTO;
-import it.unipi.MySmartRecipeBook.dto.foodie.FoodieDTO;
+import it.unipi.MySmartRecipeBook.dto.users.RegistedUserDTO;
 import it.unipi.MySmartRecipeBook.service.AuthService;
 
 import org.springframework.http.ResponseEntity;
@@ -21,8 +20,7 @@ public class AuthController {
 
     //Register Chef
     @PostMapping("/register/chef")
-    public ResponseEntity<?> registerChef(
-            @RequestBody CreateChefDTO dto) {
+    public ResponseEntity<String> registerChef (@RequestBody RegistedUserDTO dto){
 
         authService.registerChef(dto);
         return ResponseEntity.ok("Chef registered successfully");
@@ -30,8 +28,7 @@ public class AuthController {
 
     //Register Foodie
     @PostMapping("/register/foodie")
-    public ResponseEntity<?> registerFoodie(
-            @RequestBody FoodieDTO dto) {
+    public ResponseEntity<String> registerFoodie (@RequestBody RegistedUserDTO dto){
 
         authService.registerFoodie(dto);
         return ResponseEntity.ok("Foodie registered successfully");
@@ -39,11 +36,8 @@ public class AuthController {
 
     //Login
     @PostMapping("/login")
-    public ResponseEntity<JwtResponseDTO> login(
-            @RequestBody LoginRequestDTO request) {
+    public ResponseEntity<JwtResponseDTO> login (@RequestBody LoginRequestDTO request){
 
-        return ResponseEntity.ok(
-                authService.authenticateUser(request)
-        );
+        return ResponseEntity.ok(authService.authenticateUser(request));
     }
 }

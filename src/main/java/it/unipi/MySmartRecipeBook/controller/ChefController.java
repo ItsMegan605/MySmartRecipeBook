@@ -1,7 +1,7 @@
 package it.unipi.MySmartRecipeBook.controller;
 
-import it.unipi.MySmartRecipeBook.dto.ChefInfoDTO;
-import it.unipi.MySmartRecipeBook.dto.UpdateChefDTO;
+import it.unipi.MySmartRecipeBook.dto.users.RegistedUserInfoDTO;
+import it.unipi.MySmartRecipeBook.dto.users.UpdateChefDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.CreateRecipeDTO;
 import it.unipi.MySmartRecipeBook.service.ChefService;
@@ -29,7 +29,7 @@ public class ChefController {
     /*--------------- Retrieve chef's informations ----------------*/
 
     @GetMapping("/info")
-    public ResponseEntity<ChefInfoDTO> getInformations() {
+    public ResponseEntity<RegistedUserInfoDTO> getInformations() {
 
         String username = SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -42,7 +42,7 @@ public class ChefController {
     /*--------------- Change chef's informations ----------------*/
 
     @PostMapping("/changeInfo")
-    public ResponseEntity<ChefInfoDTO> updateInformation (@Valid @RequestBody UpdateChefDTO dto){
+    public ResponseEntity<RegistedUserInfoDTO> updateInformation (@Valid @RequestBody UpdateChefDTO dto){
 
         String username = SecurityContextHolder.getContext()
                 .getAuthentication()

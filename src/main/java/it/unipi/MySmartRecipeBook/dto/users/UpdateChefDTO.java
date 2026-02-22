@@ -1,4 +1,4 @@
-package it.unipi.MySmartRecipeBook.dto;
+package it.unipi.MySmartRecipeBook.dto.users;
 
 import jakarta.validation.constraints.Email;
 import lombok.Getter;
@@ -22,8 +22,6 @@ public class UpdateChefDTO {
      We don't allow chefs to change their username
      */
 
-    private String name;
-    private String surname;
     private String password;
 
     @Email

@@ -1,12 +1,11 @@
 package it.unipi.MySmartRecipeBook.utils;
 
-import it.unipi.MySmartRecipeBook.dto.ChefInfoDTO;
+import it.unipi.MySmartRecipeBook.dto.users.RegistedUserInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Chef;
-import it.unipi.MySmartRecipeBook.model.Mongo.AdminRecipe;
+import it.unipi.MySmartRecipeBook.model.Mongo.BaseRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
-import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -17,9 +16,9 @@ public class ChefConvertions {
 
     /* Function to create a ChefInfoDTO from a Chef entity */
 
-    public ChefInfoDTO chefToChefInfo(Chef chef){
+    public RegistedUserInfoDTO chefToChefInfo(Chef chef){
 
-        return new ChefInfoDTO(
+        return new RegistedUserInfoDTO(
                 chef.getUsername(),
                 chef.getName(),
                 chef.getSurname(),
@@ -34,7 +33,7 @@ public class ChefConvertions {
     In addition, we remove all the informations about the chef that would have been redundant.
     */
 
-    public ChefRecipe adminToChefRecipe (AdminRecipe recipe){
+    public ChefRecipe recipeToChefRecipe (BaseRecipe recipe){
 
         ChefRecipe full_recipe = new ChefRecipe();
         full_recipe.setId(recipe.getId());
@@ -55,7 +54,7 @@ public class ChefConvertions {
 
     /* Function to create a ChefPreviewRecipeDTO from an AdminRecipe*/
 
-    public ChefPreviewRecipeDTO adminToChefDTO (AdminRecipe recipe){
+    public ChefPreviewRecipeDTO adminToChefDTO (BaseRecipe recipe){
 
         ChefPreviewRecipeDTO recipeDTO = new ChefPreviewRecipeDTO();
 

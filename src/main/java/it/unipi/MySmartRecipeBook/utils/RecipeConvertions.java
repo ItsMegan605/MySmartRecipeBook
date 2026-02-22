@@ -1,9 +1,10 @@
 package it.unipi.MySmartRecipeBook.utils;
 
 import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
-import it.unipi.MySmartRecipeBook.dto.recipe.StandardRecipeDTO;
+import it.unipi.MySmartRecipeBook.dto.recipe.GraphRecipeDTO;
+import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
-import it.unipi.MySmartRecipeBook.model.Mongo.AdminRecipe;
+import it.unipi.MySmartRecipeBook.model.Mongo.BaseRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipeSummary;
 import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
@@ -12,9 +13,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class RecipeConvertions {
 
-    public StandardRecipeDTO EntityToDto (RecipeMongo recipe){
+    public ShowRecipeDTO EntityToDto (RecipeMongo recipe){
 
-        StandardRecipeDTO standardRecipeDTO = new StandardRecipeDTO();
+        ShowRecipeDTO standardRecipeDTO = new ShowRecipeDTO();
         standardRecipeDTO.setTitle(recipe.getTitle());
         standardRecipeDTO.setPresentation(recipe.getPresentation());
         standardRecipeDTO.setCategory(recipe.getCategory());
@@ -81,7 +82,8 @@ public class RecipeConvertions {
         return full_recipe;
     }
 
-    public ChefRecipe adminToChefRecipe (AdminRecipe recipe){
+
+    public ChefRecipe recipeToChefRecipe (RecipeMongo recipe){
 
         ChefRecipe full_recipe = new ChefRecipe();
         full_recipe.setId(recipe.getId());
@@ -99,7 +101,9 @@ public class RecipeConvertions {
         return full_recipe;
     }
 
-    public RecipeMongo adminToMongoRecipe (AdminRecipe recipe){
+    // Quando l'admin approva una ricetta e deve essere inserita nel DB, dobbiamo trasformarla in una recipeMongo,
+    // aggiungendo il campo numSaves inizializzato a 0
+    public RecipeMongo baseToMongoRecipe(BaseRecipe recipe){
 
         RecipeMongo full_recipe = new RecipeMongo();
         full_recipe.setTitle(recipe.getTitle());
@@ -109,9 +113,10 @@ public class RecipeConvertions {
         full_recipe.setPreparation(recipe.getPreparation());
         full_recipe.setDifficulty(recipe.getDifficulty());
         full_recipe.setImageURL(recipe.getImageURL());
+        full_recipe.setChef(recipe.getChef());
         full_recipe.setIngredients(recipe.getIngredients());
         full_recipe.setCreationDate(recipe.getCreationDate());
-        full_recipe.setChef(recipe.getChef());
+        full_recipe.setNumSaves(0);
 
         return full_recipe;
     }
@@ -130,5 +135,17 @@ public class RecipeConvertions {
         recipe.setCreationDate(recipeMongo.getCreationDate());
         recipe.setNumSaves(0);
         return recipe;
+    }
+
+    public GraphRecipeDTO MongoToNeo4jRecipe(RecipeMongo recipe){
+
+        GraphRecipeDTO recipeNeo4j = new GraphRecipeDTO();
+        recipeNeo4j.setId(recipe.getId());
+        recipeNeo4j.setTitle(recipe.getTitle());
+        recipeNeo4j.setIngredients(recipe.getIngredients());
+        recipeNeo4j.setChefId(recipe.getChef().getId());
+        recipeNeo4j.setImgURL(recipe.getImageURL());
+
+        return recipeNeo4j;
     }
 }

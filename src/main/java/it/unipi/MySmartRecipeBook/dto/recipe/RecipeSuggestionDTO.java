@@ -10,6 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RecipeSuggestionDTO implements Serializable {
+
     private String id;
     private String title;
     private String imageURL;

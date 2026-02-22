@@ -1,6 +1,7 @@
 package it.unipi.MySmartRecipeBook.event;
 
 import it.unipi.MySmartRecipeBook.dto.InfoToDeleteDTO;
+import it.unipi.MySmartRecipeBook.dto.recipe.GraphRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.enums.Task;
 import lombok.Getter;
 
@@ -11,6 +12,8 @@ public class TaskToDo {
     private final String recipeId;
     private final String chefId;
     private final InfoToDeleteDTO infoToDelete;
+    private final GraphRecipeDTO recipe;
+
 
 
     public TaskToDo(Task.TaskType type, InfoToDeleteDTO infoToDelete) {
@@ -18,6 +21,7 @@ public class TaskToDo {
         this.recipeId = null;
         this.chefId = null;
         this.infoToDelete = infoToDelete;
+        this.recipe = null;
     }
 
     public TaskToDo(Task.TaskType type, String recipeId, String chefId) {
@@ -25,6 +29,7 @@ public class TaskToDo {
         this.recipeId = recipeId;
         this.chefId = chefId;
         this.infoToDelete = null;
+        this.recipe = null;
     }
 
     public TaskToDo(Task.TaskType type, String recipeId) {
@@ -32,5 +37,14 @@ public class TaskToDo {
         this.recipeId = recipeId;
         this.chefId = null;
         this.infoToDelete = null;
+        this.recipe = null;
+    }
+
+    public TaskToDo(Task.TaskType type, GraphRecipeDTO recipe) {
+        this.type = type;
+        this.recipeId = null;
+        this.chefId = null;
+        this.infoToDelete = null;
+        this.recipe = recipe;
     }
 }

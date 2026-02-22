@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 
-public class ChefPreviewRecipeDTO extends BasePreviewRecipeDTO  {
+public class ChefPreviewRecipeDTO extends PreviewRecipeDTO {
 
     @JsonProperty("creation_date")
     private LocalDate creationDate;

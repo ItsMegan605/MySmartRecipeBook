@@ -1,26 +1,17 @@
 package it.unipi.MySmartRecipeBook.service;
 
-import it.unipi.MySmartRecipeBook.dto.recipe.StandardRecipeDTO;
-import it.unipi.MySmartRecipeBook.model.Admin;
-import it.unipi.MySmartRecipeBook.model.Chef;
+import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Mongo.*;
-import it.unipi.MySmartRecipeBook.repository.AdminRepository;
-import it.unipi.MySmartRecipeBook.repository.ChefRepository;
 import org.springframework.beans.factory.annotation.Value;
 import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
-import it.unipi.MySmartRecipeBook.dto.recipe.CreateRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.utils.RecipeConvertions;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import it.unipi.MySmartRecipeBook.security.UserPrincipal;
-import it.unipi.MySmartRecipeBook.model.ReducedChef;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,7 +50,7 @@ public class RecipeService {
     }
 
 
-    public StandardRecipeDTO getRecipeById(String id){
+    public ShowRecipeDTO getRecipeById(String id){
 
         RecipeMongo full_recipe = recipeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Recipe not found"));

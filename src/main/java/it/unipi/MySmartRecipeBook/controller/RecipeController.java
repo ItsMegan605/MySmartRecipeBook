@@ -1,11 +1,9 @@
 package it.unipi.MySmartRecipeBook.controller;
 import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
-import it.unipi.MySmartRecipeBook.dto.recipe.CreateRecipeDTO;
-import it.unipi.MySmartRecipeBook.dto.recipe.StandardRecipeDTO;
+import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.service.RecipeService;
 
-import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,9 +22,9 @@ public class RecipeController {
 
     /* When we click on a recipe preview all the details must be shown*/
     @GetMapping("/{id}")
-    public ResponseEntity<StandardRecipeDTO> getRecipe (@PathVariable String id) {
+    public ResponseEntity<ShowRecipeDTO> getRecipe (@PathVariable String id) {
 
-        StandardRecipeDTO standardRecipeDTO = recipeService.getRecipeById(id);
+        ShowRecipeDTO standardRecipeDTO = recipeService.getRecipeById(id);
         return ResponseEntity.ok(standardRecipeDTO);
     }
 

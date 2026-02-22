@@ -12,7 +12,7 @@ import java.util.List;
 @Getter
 @Setter
 
-public abstract class BaseRecipe {
+public class BaseRecipe {
 
     @Id
     private String id;

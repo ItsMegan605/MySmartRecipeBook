@@ -28,5 +28,5 @@ import org.springframework.data.mongodb.core.mapping.Field;
 public class RecipeMongo extends BaseRecipe{
 
     @Field("num_saves")
-    private Integer numSaves = 0;
+    private Integer numSaves;
 }

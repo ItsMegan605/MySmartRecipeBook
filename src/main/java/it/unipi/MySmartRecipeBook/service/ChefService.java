@@ -1,12 +1,12 @@
 package it.unipi.MySmartRecipeBook.service;
 
-import it.unipi.MySmartRecipeBook.dto.ChefInfoDTO;
-import it.unipi.MySmartRecipeBook.dto.UpdateChefDTO;
+import it.unipi.MySmartRecipeBook.dto.users.RegistedUserInfoDTO;
+import it.unipi.MySmartRecipeBook.dto.users.UpdateChefDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.CreateRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Admin;
 import it.unipi.MySmartRecipeBook.model.Chef;
-import it.unipi.MySmartRecipeBook.model.Mongo.AdminRecipe;
+import it.unipi.MySmartRecipeBook.model.Mongo.BaseRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
 import it.unipi.MySmartRecipeBook.model.ReducedChef;
@@ -59,7 +59,7 @@ public class ChefService {
 
     /*--------------- Retrieve chef's informations ----------------*/
 
-    public ChefInfoDTO getByUsername(String username) {
+    public RegistedUserInfoDTO getByUsername(String username) {
 
         Chef chef = chefRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Chef not found"));
@@ -77,7 +77,7 @@ public class ChefService {
 
      We don't allow a foodie to change his/her username, name and surname for security reasons */
 
-    public ChefInfoDTO updateChef(String username, UpdateChefDTO dto) {
+    public RegistedUserInfoDTO updateChef(String username, UpdateChefDTO dto) {
 
         Chef chef = chefRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Chef not found"));
@@ -125,13 +125,13 @@ public class ChefService {
             throw new RuntimeException("Admin not found");
         }
 
-        AdminRecipe savedRecipe = createAdminRecipe(dto);
+        BaseRecipe savedRecipe = createAdminRecipe(dto);
 
         if(admin.getRecipesToApprove() == null){
             admin.setRecipesToApprove(new ArrayList<>());
         }
 
-        for(AdminRecipe recipe : admin.getRecipesToApprove()){
+        for(BaseRecipe recipe : admin.getRecipesToApprove()){
             if(recipe.getTitle().equals(dto.getTitle())){
                 throw new RuntimeException("Recipe already waiting to be approved");
             }
@@ -150,7 +150,7 @@ public class ChefService {
         Chef chef = chefRepository.findById(chef1.getId())
                 .orElseThrow(() -> new RuntimeException("Chef not found"));
 
-        ChefRecipe chefRecipe = chefConvertions.adminToChefRecipe(savedRecipe);
+        ChefRecipe chefRecipe = chefConvertions.recipeToChefRecipe(savedRecipe);
 
         if(chef.getRecipesToConfirm() == null){
             chef.setRecipesToConfirm(new ArrayList<>());
@@ -164,9 +164,9 @@ public class ChefService {
 
     }
 
-    private AdminRecipe createAdminRecipe (CreateRecipeDTO dto){
+    private BaseRecipe createAdminRecipe (CreateRecipeDTO dto){
 
-        AdminRecipe recipe = new AdminRecipe();
+        BaseRecipe recipe = new BaseRecipe();
         recipe.setId(java.util.UUID.randomUUID().toString());
         recipe.setTitle(dto.getTitle());
         recipe.setCategory(dto.getCategory());
@@ -271,7 +271,7 @@ public class ChefService {
                 throw new RuntimeException("No recipes waiting to be approved");
             }
 
-            for(AdminRecipe adminRecipe : admin.getRecipesToApprove()){
+            for(BaseRecipe adminRecipe : admin.getRecipesToApprove()){
                 if (adminRecipe.getId().equals(recipeId)){
                     admin.getRecipesToApprove().remove(adminRecipe);
                     adminRepository.save(admin);

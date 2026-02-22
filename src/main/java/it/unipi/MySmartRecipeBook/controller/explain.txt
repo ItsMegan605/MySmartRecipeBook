@@ -1,8 +1,0 @@
-e' quello che interagisce con il cliente e quindi con il frontend o api
-
-Riceve la richiesta
-controlla se il formato è corretto
-chiama il metodo del service
-porta la risposta e il suo status code
-
-NON fa logica e non accede ai DB

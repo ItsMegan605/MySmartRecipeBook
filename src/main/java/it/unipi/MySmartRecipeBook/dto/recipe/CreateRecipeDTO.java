@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateRecipeDTO extends BaseRecipeDTO{
+public class CreateRecipeDTO extends RecipeDTO {
 
     @JsonProperty("creation_date")
     private LocalDateTime creationDate;

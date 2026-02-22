@@ -22,4 +22,11 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Stri
             "ORDER BY matchCount DESC")
 
     List<RecipeSuggestionDTO> findRecipesByIngredients(List<String> myIngredients);
+
+
+    @Query("CREATE (r:Recipe {id: $recipeId, title: $title, chefId: $chefId}) " +
+            "WITH r " +
+            "MATCH (i:Ingredient) WHERE i.name IN $ingredients " +
+            "CREATE (r)<-[:USED_IN]-(i)")
+    void createRecipe(String recipeId, String title, String chefId, List<String> ingredients);
 }
