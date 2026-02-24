@@ -35,7 +35,7 @@ public class BaseRecipe {
 
     @Field("chef")
     private ReducedChef chef;
-    private List<Ingredient> ingredients;
+    private List<RecipeIngredient> ingredients;
 
     @Field("creation_date")
     private LocalDateTime creationDate;

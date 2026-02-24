@@ -1,4 +1,4 @@
-package it.unipi.MySmartRecipeBook.model.enums;
+/*package it.unipi.MySmartRecipeBook.utils.enums;
 
 public class Ingredients {
 
@@ -269,4 +269,4 @@ public class Ingredients {
             return false;
         }
     }
-}
+}*/

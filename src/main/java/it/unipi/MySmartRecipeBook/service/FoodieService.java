@@ -1,12 +1,13 @@
 package it.unipi.MySmartRecipeBook.service;
 
+import static it.unipi.MySmartRecipeBook.utils.enums.Categories.*;
 import it.unipi.MySmartRecipeBook.dto.InfoToDeleteDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegistedUserInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.users.UpdateFoodieDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Foodie;
 import it.unipi.MySmartRecipeBook.model.Mongo.*;
-import it.unipi.MySmartRecipeBook.model.enums.Task;
+import it.unipi.MySmartRecipeBook.utils.enums.Task;
 import it.unipi.MySmartRecipeBook.repository.FoodieRepository;
 import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.utils.FoodieUtilityFunctions;
@@ -23,42 +24,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class FoodieService {
-
-
-    private static final List<String> VALID_CATEGORIES = List.of(
-            "vegan",
-            "dairy-free",
-            "egg-free",
-            "gluten-free",
-            "main-course",
-            "second-course",
-            "dessert"
-    );
-
-    private static final List<String> VALID_FILTERS = List.of(
-            "vegan",
-            "dairy-free",
-            "egg-free",
-            "gluten-free",
-            "main-course",
-            "second-course",
-            "dessert",
-            "saving-date",
-            "easy",
-            "very hard",
-            "hard",
-            "average",
-            "very easy"
-    );
-
-    private static final List<String> VALID_DIFFICULTIES = List.of(
-
-            "very easy",
-            "easy",
-            "very hard",
-            "hard",
-            "average"
-    );
 
     @Value("${app.recipe.pag-size-foodie:5}")
     private Integer pageSizeFoodie;
@@ -362,7 +327,7 @@ public class FoodieService {
             throw new RuntimeException("Recipe not found for the specified foodie");
         }
 
-        if(numPage <= 0 || !VALID_FILTERS.contains(category)){
+        if(numPage <= 0 || !FOODIE_FILTERS.contains(category)){
             throw new RuntimeException("Invalid parameters");
         }
 
@@ -381,14 +346,14 @@ public class FoodieService {
         }
 
         List<FoodieRecipeSummary> recipesPreview = new ArrayList<>();
-        if(VALID_CATEGORIES.contains(category)){
+        if(CATEGORIES.contains(category)){
             for(FoodieRecipeSummary recipe : allRecipes){
                 if(recipe.getCategory().equals(category)){
                     recipesPreview.add(recipe);
                 }
             }
         }
-        else if(VALID_DIFFICULTIES.contains(category)){
+        else if(DIFFICULTIES.contains(category)){
             for(FoodieRecipeSummary recipe : allRecipes){
                 if(recipe.getDifficulty().equals(category)){
                     recipesPreview.add(recipe);

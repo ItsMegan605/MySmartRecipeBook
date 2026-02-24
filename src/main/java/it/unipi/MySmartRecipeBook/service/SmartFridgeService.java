@@ -5,12 +5,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.unipi.MySmartRecipeBook.dto.recipe.RecipeSuggestionDTO;
 import it.unipi.MySmartRecipeBook.model.Redis.SmartFridge;
-import it.unipi.MySmartRecipeBook.model.enums.Ingredients;
 import it.unipi.MySmartRecipeBook.repository.FoodieRepository;
-import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.repository.RecipeNeo4jRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.JedisCluster;
 
@@ -22,18 +18,19 @@ import java.util.List;
 @Service
 public class SmartFridgeService {
 
-    @Autowired
+
     private JedisCluster jedisCluster;
-
-    @Autowired
     private FoodieRepository foodieRepository;
-
-    @Autowired
     private RecipeNeo4jRepository recipeNeo4jRepository;
+    private IngredientService ingredientService;
 
-    @Autowired
-    private RecipeMongoRepository recipeMongoRepository;
-
+    public SmartFridgeService(JedisCluster jedisCluster, FoodieRepository foodieRepository,
+                              RecipeNeo4jRepository recipeNeo4jRepository, IngredientService ingredientService){
+        this.jedisCluster = jedisCluster;
+        this.foodieRepository = foodieRepository;
+        this.recipeNeo4jRepository = recipeNeo4jRepository;
+        this.ingredientService = ingredientService;
+    }
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private static final String REDIS_FRIDGE_PREFIX = "smartFridge:items:";
@@ -64,7 +61,7 @@ public class SmartFridgeService {
     }
 
     public SmartFridge addItem(String username, String ingredient) {
-        if (!Ingredients.IngredientName.isValid(ingredient)) {
+        if (!ingredientService.isValidIngredient(ingredient)) {
             throw new IllegalArgumentException("The ingredient: " + ingredient + " is not allowed!");
         }
         if (!foodieRepository.existsById(username)) {

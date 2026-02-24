@@ -2,23 +2,26 @@ package it.unipi.MySmartRecipeBook.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.unipi.MySmartRecipeBook.model.Mongo.Ingredient;
 import it.unipi.MySmartRecipeBook.model.Redis.ShoppingList;
 import it.unipi.MySmartRecipeBook.repository.FoodieRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.JedisCluster;
-import it.unipi.MySmartRecipeBook.model.enums.Ingredients;
+
 
 
 @Service
 public class ShoppingListService {
 
-    @Autowired
     private JedisCluster jedisCluster; // Utilizzo diretto del cluster
-    @Autowired
     private FoodieRepository foodieRepository; // Repository per MongoDB
+    private IngredientService ingredientService;
+
+    public ShoppingListService(JedisCluster jedisCluster, FoodieRepository foodieRepository,
+                               IngredientService ingredientService) {
+        this.jedisCluster = jedisCluster;
+        this.foodieRepository = foodieRepository;
+        this.ingredientService = ingredientService;
+    }
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private static final String REDIS_KEY_PREFIX = "shoppingList:";
@@ -47,7 +50,7 @@ public class ShoppingListService {
 
 
     public ShoppingList addIngredient(String username, String ingredient) {
-        if (!Ingredients.IngredientName.isValid(ingredient)) {
+        if (!ingredientService.isValidIngredient(ingredient)) {
             throw new IllegalArgumentException("The ingredient: " + ingredient + " is not allowed!");
         }
         if (!foodieRepository.existsById(username)) {

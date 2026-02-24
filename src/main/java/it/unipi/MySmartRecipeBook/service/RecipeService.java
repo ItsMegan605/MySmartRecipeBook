@@ -2,11 +2,11 @@ package it.unipi.MySmartRecipeBook.service;
 
 import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Mongo.*;
+import it.unipi.MySmartRecipeBook.utils.RecipeUtilityFunctions;
 import org.springframework.beans.factory.annotation.Value;
 import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
-import it.unipi.MySmartRecipeBook.utils.RecipeConvertions;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -43,8 +43,8 @@ public class RecipeService {
 
 
     private final RecipeMongoRepository recipeRepository;
-    private final RecipeConvertions convertions;
-    public RecipeService(RecipeMongoRepository recipeRepository, RecipeConvertions convertions) {
+    private final RecipeUtilityFunctions convertions;
+    public RecipeService(RecipeMongoRepository recipeRepository, RecipeUtilityFunctions convertions) {
         this.recipeRepository = recipeRepository;
         this.convertions = convertions;
     }

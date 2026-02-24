@@ -36,7 +36,7 @@ public class ChefRecipe {
     @Field("image_url")
     private String imageURL;
 
-    private List<Ingredient> ingredients;
+    private List<RecipeIngredient> ingredients;
 
     @Field("creation_date")
     private LocalDateTime creationDate;

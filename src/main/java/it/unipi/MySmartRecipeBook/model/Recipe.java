@@ -2,7 +2,6 @@ package it.unipi.MySmartRecipeBook.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import it.unipi.MySmartRecipeBook.model.Mongo.Ingredient;
 
 public class Recipe {
 /*

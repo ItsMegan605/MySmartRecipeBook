@@ -2,7 +2,7 @@ package it.unipi.MySmartRecipeBook.event;
 
 import it.unipi.MySmartRecipeBook.dto.InfoToDeleteDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.GraphRecipeDTO;
-import it.unipi.MySmartRecipeBook.model.enums.Task;
+import it.unipi.MySmartRecipeBook.utils.enums.Task;
 import lombok.Getter;
 
 @Getter

@@ -1,5 +1,6 @@
 package it.unipi.MySmartRecipeBook.service;
 
+import static it.unipi.MySmartRecipeBook.utils.enums.Categories.*;
 import it.unipi.MySmartRecipeBook.dto.users.RegistedUserInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.users.UpdateChefDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
@@ -9,7 +10,7 @@ import it.unipi.MySmartRecipeBook.model.Chef;
 import it.unipi.MySmartRecipeBook.model.Mongo.BaseRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
-import it.unipi.MySmartRecipeBook.model.enums.Task;
+import it.unipi.MySmartRecipeBook.utils.enums.Task;
 import it.unipi.MySmartRecipeBook.repository.AdminRepository;
 import it.unipi.MySmartRecipeBook.repository.ChefRepository;
 
@@ -33,10 +34,6 @@ public class ChefService {
     @Value("${app.recipe.pag-size-chef:5}")
     private Integer pageSizeChef;
 
-    private static final List<String> VALID_FILTER = List.of(
-        "date",
-        "popularity"
-    );
 
     private final ChefRepository chefRepository;
     private final PasswordEncoder passwordEncoder;
@@ -333,7 +330,7 @@ public class ChefService {
         Chef chef = chefRepository.findById(authChef.getId())
                 .orElseThrow(() -> new RuntimeException("Chef not found"));
 
-        if(pageNumber <= 0 || !VALID_FILTER.contains(filter)){
+        if(pageNumber <= 0 || !CHEF_FILTERS.contains(filter)){
             throw new RuntimeException("Invalid parameters");
         }
 

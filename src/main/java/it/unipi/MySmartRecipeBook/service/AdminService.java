@@ -4,12 +4,12 @@ import it.unipi.MySmartRecipeBook.dto.recipe.GraphRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Admin;
 import it.unipi.MySmartRecipeBook.model.Chef;
 import it.unipi.MySmartRecipeBook.model.Mongo.*;
-import it.unipi.MySmartRecipeBook.model.enums.Task;
+import it.unipi.MySmartRecipeBook.utils.RecipeUtilityFunctions;
+import it.unipi.MySmartRecipeBook.utils.enums.Task;
 import it.unipi.MySmartRecipeBook.repository.AdminRepository;
 import it.unipi.MySmartRecipeBook.repository.ChefRepository;
 import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
-import it.unipi.MySmartRecipeBook.utils.RecipeConvertions;
 
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,13 +20,13 @@ import java.util.List;
 @Service
 public class AdminService {
 
-    private final RecipeConvertions recipeConvertions;
+    private final RecipeUtilityFunctions recipeConvertions;
     private final ChefRepository chefRepository;
     private final AdminRepository adminRepository;
     private final RecipeMongoRepository recipeRepository;
     private final LowLoadManager lowLoadManager;
 
-    public AdminService(RecipeConvertions recipeConvertions, ChefRepository chefRepository,
+    public AdminService(RecipeUtilityFunctions recipeConvertions, ChefRepository chefRepository,
                         AdminRepository adminRepository, RecipeMongoRepository recipeRepository,
                         LowLoadManager lowLoadManager) {
         this.recipeConvertions = recipeConvertions;

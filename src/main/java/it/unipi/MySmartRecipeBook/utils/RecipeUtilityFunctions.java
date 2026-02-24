@@ -10,7 +10,7 @@ import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
 import org.springframework.stereotype.Component;
 
 @Component
-public class RecipeConvertions {
+public class RecipeUtilityFunctions {
 
     public ShowRecipeDTO EntityToDto (RecipeMongo recipe){
 
