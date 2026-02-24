@@ -12,7 +12,7 @@ import it.unipi.MySmartRecipeBook.repository.ChefRepository;
 import it.unipi.MySmartRecipeBook.repository.FoodieRepository;
 import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.repository.RecipeNeo4jRepository;
-import it.unipi.MySmartRecipeBook.utils.UsersConvertions;
+import it.unipi.MySmartRecipeBook.utils.FoodieUtilityFunctions;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -33,11 +33,11 @@ public class LowLoadManager {
     private final RecipeMongoRepository recipeMongoRepository;
     private final ChefRepository chefRepository;
     private final FoodieRepository foodieRepository;
-    private final UsersConvertions usersConvertions;
+    private final FoodieUtilityFunctions usersConvertions;
     private final RecipeNeo4jRepository recipeNeo4jRepository;
 
     public LowLoadManager(RecipeMongoRepository recipeMongoRepository, ChefRepository chefRepository,
-                          FoodieRepository foodieRepository, UsersConvertions usersConvertions,
+                          FoodieRepository foodieRepository, FoodieUtilityFunctions usersConvertions,
                           RecipeNeo4jRepository recipeNeo4jRepository) {
         this.recipeMongoRepository = recipeMongoRepository;
         this.chefRepository = chefRepository;
@@ -113,6 +113,10 @@ public class LowLoadManager {
 
                 case DELETE_CHEF_RECIPE:
                     deleteChefRecipes(task.getChefId());
+                    break;
+
+                case DELETE_RECIPE:
+                    deleteRecipe(task.getRecipeId(), task.getChefId());
                     break;
 
                 default:
@@ -214,5 +218,12 @@ public class LowLoadManager {
         /* Pulizia su Neo4j - da decidere se implementarla con il nodo oppure con l'indice secondario */
 
         /* Pulizia su Redis - non viene fatta quando sbattiamo sulla ricetta che non c'è più facciamo l'eliminazione */
+    }
+
+    private void deleteRecipe(String recipeId, String chefId){
+
+        foodieRepository.deleteRecipeFromFoodies(chefId, recipeId);
+        recipeNeo4jRepository.deleteRecipeById(recipeId);
+
     }
 }

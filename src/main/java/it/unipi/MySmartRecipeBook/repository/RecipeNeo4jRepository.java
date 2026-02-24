@@ -29,4 +29,7 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Stri
             "MATCH (i:Ingredient) WHERE i.name IN $ingredients " +
             "CREATE (r)<-[:USED_IN]-(i)")
     void createRecipe(String recipeId, String title, String chefId, List<String> ingredients);
+
+    @Query("MATCH (r:Recipe {id: $recipeId}) DETACH DELETE r")
+    void deleteRecipeById(String recipeId);
 }

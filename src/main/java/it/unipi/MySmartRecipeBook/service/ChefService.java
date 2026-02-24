@@ -9,21 +9,21 @@ import it.unipi.MySmartRecipeBook.model.Chef;
 import it.unipi.MySmartRecipeBook.model.Mongo.BaseRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
-import it.unipi.MySmartRecipeBook.model.ReducedChef;
 import it.unipi.MySmartRecipeBook.model.enums.Task;
 import it.unipi.MySmartRecipeBook.repository.AdminRepository;
 import it.unipi.MySmartRecipeBook.repository.ChefRepository;
 
 import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
-import it.unipi.MySmartRecipeBook.utils.ChefConvertions;
+import it.unipi.MySmartRecipeBook.utils.ChefUtilityFunctions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,12 +40,12 @@ public class ChefService {
 
     private final ChefRepository chefRepository;
     private final PasswordEncoder passwordEncoder;
-    private final ChefConvertions chefConvertions;
+    private final ChefUtilityFunctions chefConvertions;
     private final AdminRepository adminRepository;
     private final RecipeMongoRepository recipeMongoRepository;
     private final LowLoadManager lowLoadManager;
 
-    public ChefService(ChefRepository chefRepository, ChefConvertions chefConvertions,
+    public ChefService(ChefRepository chefRepository, ChefUtilityFunctions chefConvertions,
                        PasswordEncoder passwordEncoder, AdminRepository adminRepository,
                        RecipeMongoRepository recipeMongoRepository, LowLoadManager lowLoadManager) {
         this.chefRepository = chefRepository;
@@ -77,10 +77,15 @@ public class ChefService {
 
      We don't allow a foodie to change his/her username, name and surname for security reasons */
 
-    public RegistedUserInfoDTO updateChef(String username, UpdateChefDTO dto) {
+    public RegistedUserInfoDTO updateChef(UpdateChefDTO dto) {
 
-        Chef chef = chefRepository.findByUsername(username)
+        UserPrincipal authChef = (UserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        Chef chef = chefRepository.findById(authChef.getId())
                 .orElseThrow(() -> new RuntimeException("Chef not found"));
+
 
         if (dto.getEmail() != null)
             chef.setEmail(dto.getEmail());
@@ -91,23 +96,99 @@ public class ChefService {
         if (dto.getBirthdate() != null)
             chef.setBirthdate(dto.getBirthdate());
 
+        // Salviamo l'entità modificata nella collezione
         chefRepository.save(chef);
+
+        // Ritorniamo le informazioni aggiornate che verranno mostrate nell'area personale
         return chefConvertions.chefToChefInfo(chef);
     }
 
+    /*
+    * // ... altri campi ...
+    private final MongoTemplate mongoTemplate;
+
+    // Aggiungilo al costruttore
+    public ChefService(ChefRepository chefRepository,
+                       ChefUtilityFunctions chefConvertions,
+                       PasswordEncoder passwordEncoder,
+                       AdminRepository adminRepository,
+                       RecipeMongoRepository recipeMongoRepository,
+                       LowLoadManager lowLoadManager,
+                       MongoTemplate mongoTemplate) { // <--- ECCOLO
+        // ...
+        this.mongoTemplate = mongoTemplate;
+    }
+
+    public RegistedUserInfoDTO updateChef(UpdateChefDTO dto) {
+
+        UserPrincipal authChef = (UserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        // 1. Creiamo la condizione: "Cerca lo chef con questo ID"
+        Query query = new Query(Criteria.where("_id").is(authChef.getId()));
+
+        // 2. Creiamo l'oggetto di aggiornamento (Update)
+        Update update = new Update();
+        boolean isModified = false;
+
+        // 3. Aggiungiamo al "pacchetto" solo i campi che sono presenti nel DTO
+        if (dto.getEmail() != null) {
+            update.set("email", dto.getEmail()); // Corrisponde all'operatore $set di Mongo
+            isModified = true;
+        }
+
+        if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
+            // ATTENZIONE: Criptiamo la password PRIMA di metterla nella query
+            update.set("password", passwordEncoder.encode(dto.getPassword()));
+            isModified = true;
+        }
+
+        if (dto.getBirthdate() != null) {
+            update.set("birthdate", dto.getBirthdate());
+            isModified = true;
+        }
+
+        // 4. Eseguiamo la query atomica SOLO se c'è qualcosa da cambiare
+        Chef updatedChef;
+        if (isModified) {
+            // findAndModify è l'operazione magica:
+            // - Cerca il documento
+            // - Applica le modifiche ($set)
+            // - Restituisce il documento NUOVO (grazie a returnNew(true))
+            // Tutto in un singolo colpo atomico sul DB.
+            updatedChef = mongoTemplate.findAndModify(
+                    query,
+                    update,
+                    new FindAndModifyOptions().returnNew(true), // Importante: vogliamo i dati aggiornati
+                    Chef.class
+            );
+        } else {
+            // Se il DTO era vuoto, ricarichiamo semplicemente lo chef attuale
+            updatedChef = chefRepository.findById(authChef.getId())
+                    .orElseThrow(() -> new RuntimeException("Chef not found"));
+        }
+
+        return chefConvertions.chefToChefInfo(updatedChef);
+    }*/
 
     /*----------------- Delete chef's profile ----------------*/
 
-    public void deleteChef(String username) {
+    @Transactional
+    public void deleteChef(String chefId) {
 
-        Chef chef = chefRepository.findByUsername(username)
+        Chef chef = chefRepository.findById(chefId)
                 .orElseThrow(() -> new RuntimeException("Chef not found"));
 
-        String chefId = chef.getId();
-
+        // Vengono eliminate tutte le ricette di quello chef (è stato definito un indice sullo chef - compound o
+        // semplice non mi ricordo) dalla collection "recipes"
         recipeMongoRepository.deleteAllByChefId(chefId);
+
+        // Viene eliminato lo chef dalla collection degli chef
         chefRepository.delete(chef);
 
+        // Viene aggiunto un task alla coda degli eventi che dovranno essere gestiti successivamente: in particolare
+        // la rimozione delle ricette dello chef dai preferiti degli utenti e viene rimossa la ricetta da neo4j
         lowLoadManager.addTask(Task.TaskType.DELETE_CHEF_RECIPE, chefId);
 
     }
@@ -115,7 +196,7 @@ public class ChefService {
 
     /*------------------- Add new recipe --------------------*/
 
-    // @Transaction
+    @Transactional
     public ChefPreviewRecipeDTO createRecipe(CreateRecipeDTO dto) {
 
         /* We add the entire recipe to the admin list of recipes waiting to be approved */
@@ -125,75 +206,43 @@ public class ChefService {
             throw new RuntimeException("Admin not found");
         }
 
-        BaseRecipe savedRecipe = createAdminRecipe(dto);
+        // A partire dal DTO creiamo un'istanza dell'entità BaseRecipe per poterla salvare embedded dentro il documento
+        // dell'admin
+        BaseRecipe savedRecipe = chefConvertions.createBaseRecipe(dto);
 
-        if(admin.getRecipesToApprove() == null){
-            admin.setRecipesToApprove(new ArrayList<>());
-        }
-
-        for(BaseRecipe recipe : admin.getRecipesToApprove()){
-            if(recipe.getTitle().equals(dto.getTitle())){
-                throw new RuntimeException("Recipe already waiting to be approved");
+        // Controlliamo che la ricetta non sia già stata inserita tra quella in attesa di approvazione
+        if(admin.getRecipesToApprove() != null){
+            for(BaseRecipe recipe : admin.getRecipesToApprove()){
+                if(recipe.getTitle().equals(dto.getTitle())){
+                    throw new RuntimeException("Recipe already waiting to be approved");
+                }
             }
         }
 
-        /* We want to show first the recipes that have been pending for the longest time */
-        admin.getRecipesToApprove().add(savedRecipe);
-        adminRepository.save(admin);
+        // Aggiungiamo la ricetta a quelle in attesa di approvazione dell'admin
+        adminRepository.addRecipeFromApprovals(admin.getId(), savedRecipe);
 
-
-        /* We add the entire recipe to the chef list of recipes waiting to be approved by the admin*/
-        UserPrincipal chef1 = (UserPrincipal) SecurityContextHolder.getContext()
+        UserPrincipal authChef = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getPrincipal();
 
-        Chef chef = chefRepository.findById(chef1.getId())
+        Chef chef = chefRepository.findById(authChef.getId())
                 .orElseThrow(() -> new RuntimeException("Chef not found"));
 
+        // Dobbiamo convertire la ricetta nel formato in cui viene salvata all'interno della collezione degli chef (con
+        // il campo numSaves inzializzato a 0
         ChefRecipe chefRecipe = chefConvertions.recipeToChefRecipe(savedRecipe);
+        chefRepository.addRecipeToWaiting(chef.getId(), chefRecipe);
 
-        if(chef.getRecipesToConfirm() == null){
-            chef.setRecipesToConfirm(new ArrayList<>());
-        }
+        // Allo chef viene mostrata un'anteprima della ricetta inserita nella sezione "in attesa di approvazione"
+        return chefConvertions.baseToChefDTO(savedRecipe);
 
-        /* We want to show first the recipes that have been pending for the longest time */
-        chef.getRecipesToConfirm().add(chefRecipe);
-        chefRepository.save(chef);
-
-        return chefConvertions.adminToChefDTO(savedRecipe);
-
-    }
-
-    private BaseRecipe createAdminRecipe (CreateRecipeDTO dto){
-
-        BaseRecipe recipe = new BaseRecipe();
-        recipe.setId(java.util.UUID.randomUUID().toString());
-        recipe.setTitle(dto.getTitle());
-        recipe.setCategory(dto.getCategory());
-        recipe.setPreparation(dto.getPreparation());
-        recipe.setPrepTime(dto.getPrepTime());
-        recipe.setDifficulty(dto.getDifficulty());
-        recipe.setPresentation(dto.getPresentation());
-        recipe.setImageURL(dto.getImageURL());
-        recipe.setIngredients(dto.getIngredients());
-        recipe.setCreationDate(LocalDateTime.now());
-
-        ReducedChef chef = new ReducedChef();
-        UserPrincipal chef1 = (UserPrincipal) SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getPrincipal();
-        chef.setId(chef1.getId());
-        chef.setName(chef1.getName());
-        chef.setSurname(chef1.getSurname());
-
-        recipe.setChef(chef);
-
-        return recipe;
     }
 
 
     /*--------------- Delete a recipe  ----------------*/
 
+    @Transactional
     public void deleteRecipe(String recipeId) {
 
         UserPrincipal chef1 = (UserPrincipal) SecurityContextHolder.getContext()
@@ -209,9 +258,12 @@ public class ChefService {
             throw new RuntimeException("No recipes found");
         }
 
+        // Rimuoviamo la ricetta dalla collezione "recipes" da Mongo
+        recipeMongoRepository.deleteById(recipeId);
+
+        // Questa parte non è atomica ma per renderla tale dobbiamo necessariamente usare version o lock
         for (ChefRecipe recipe : newRecipes) {
             if (recipe.getId().equals(recipeId)) {
-                newRecipes.remove(recipe);
 
                 Pageable pageable = PageRequest.of(0, pageSizeChef, Sort.by("creationDate").descending());
                 Slice<RecipeMongo> matchSlice = recipeMongoRepository.findByChefId(chef1.getId(), pageable);
@@ -225,13 +277,13 @@ public class ChefService {
             }
         }
 
-        recipeMongoRepository.deleteById(recipeId);
-
-        /* Attenzione ... dobbiamo fare la rimozione su neo4j in differita */
+        lowLoadManager.addTask(Task.TaskType.DELETE_RECIPE, recipeId, chef.getId());
     }
 
 
-    // @Transactional
+    /*---------- Remove a recipe from the list of recipes waiting to be confirmed ------------*/
+
+    @Transactional
     public void removeRecipe(String recipeId) {
 
         UserPrincipal chef1 = (UserPrincipal) SecurityContextHolder.getContext()
@@ -241,26 +293,19 @@ public class ChefService {
         Chef chef = chefRepository.findById(chef1.getId())
                 .orElseThrow(() -> new RuntimeException("Chef not found"));
 
-        boolean recipeFound = false;
-
+        // Controlliamo che lo chef abbia delle ricette che sono in attesa di essere confermate
         if(chef.getRecipesToConfirm() == null){
             throw new RuntimeException("No recipes waiting to be confirmed");
         }
 
-        for(ChefRecipe recipe : chef.getRecipesToConfirm()){
-            if(recipe.getId().equals(recipeId)){
 
-                recipeFound = true;
-                chef.getRecipesToConfirm().remove(recipe);
-                chefRepository.save(chef);
-                break;
-            }
-        }
+        // Troviamo la ricetta da rimuovere tra quelle in attesa di conferma
+        boolean recipeFound = chefRepository.removeRecipeFromWaiting(chef.getId(), recipeId) > 0;
 
-        if(!recipeFound){
-            throw new RuntimeException("Recipe not found");
-        }
-        else {
+
+
+        // Se la ricetta è stata trovata va rimossa anche dalla lista delle ricette in attesa di conferma dell'admin
+        if(recipeFound){
 
             Admin admin = adminRepository.findByUsername("admin");
             if(admin == null){
@@ -271,27 +316,21 @@ public class ChefService {
                 throw new RuntimeException("No recipes waiting to be approved");
             }
 
-            for(BaseRecipe adminRecipe : admin.getRecipesToApprove()){
-                if (adminRecipe.getId().equals(recipeId)){
-                    admin.getRecipesToApprove().remove(adminRecipe);
-                    adminRepository.save(admin);
-                    return;
-                }
-            }
+            adminRepository.removeRecipeFromApprovals(admin.getId(), recipeId);
         }
     }
 
 
 
     /*------------------- Show recipe --------------------*/
-    // @Transactional
-    public Slice<ChefPreviewRecipeDTO> showRecipes(String filter, Integer pageNumber) {
+    @Transactional
+    public Slice<ChefPreviewRecipeDTO> showRecipes (String filter, Integer pageNumber){
 
-        UserPrincipal chef1 = (UserPrincipal) SecurityContextHolder.getContext()
+        UserPrincipal authChef = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getPrincipal();
 
-        Chef chef = chefRepository.findById(chef1.getId())
+        Chef chef = chefRepository.findById(authChef.getId())
                 .orElseThrow(() -> new RuntimeException("Chef not found"));
 
         if(pageNumber <= 0 || !VALID_FILTER.contains(filter)){
@@ -301,6 +340,9 @@ public class ChefService {
 
         Pageable pageable = null;
         if(filter.equals("date")){
+
+            // Se richiediamo la prima pagina ordinata per data (quella che viene mostrata di default) non è necessario
+            // fare un altro accesso al DB, abbiamo già tutte le informazioni memorizzate dentro il documento dello chef
             if(pageNumber == 1){
 
                 if (chef.getNewRecipes() == null || chef.getNewRecipes().isEmpty()) {
@@ -313,6 +355,9 @@ public class ChefService {
 
                 return  new SliceImpl<>(content, pageable, hasNext);
             }
+
+            // Se la pagina non è la prima o il filtro non è quello per data, dobbiamo accedere direttamente al DB, che
+            // sfrutta l'indice secondario definito sull'id dello chef della collection "recipes"
             else{
                 pageable = PageRequest.of(pageNumber - 1, pageSizeChef,
                         Sort.by("creationDate").descending());
@@ -322,7 +367,11 @@ public class ChefService {
             pageable = PageRequest.of(pageNumber - 1, pageSizeChef,
                     Sort.by("numSaves").descending());
         }
+        else{
+            throw new RuntimeException("Invalid filter");
+        }
 
+        // Recuperiamo le ricette di interesse (le convertiamo nel formato ridotto dell'anteprima)
         Slice<RecipeMongo> recipesPage = recipeMongoRepository.findByChefId(chef.getId(), pageable);
         List<ChefPreviewRecipeDTO> content = chefConvertions.MongoListToChefPreview(recipesPage.getContent());
         boolean hasNext = (chef.getTotalRecipes() > pageSizeChef*pageNumber) ? true : false;

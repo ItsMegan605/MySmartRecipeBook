@@ -1,20 +1,55 @@
 package it.unipi.MySmartRecipeBook.utils;
 
+import it.unipi.MySmartRecipeBook.dto.recipe.CreateRecipeDTO;
+import it.unipi.MySmartRecipeBook.dto.users.RegistedUserDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegistedUserInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Chef;
 import it.unipi.MySmartRecipeBook.model.Mongo.BaseRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
+import it.unipi.MySmartRecipeBook.model.ReducedChef;
+import it.unipi.MySmartRecipeBook.security.UserPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class ChefConvertions {
+public class ChefUtilityFunctions {
 
-    /* Function to create a ChefInfoDTO from a Chef entity */
+    private final PasswordEncoder passwordEncoder;
+
+    public ChefUtilityFunctions(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
+
+
+    // Nel momento in cui un utente compila il form per la registrazione, affinchè possa essere effettivamente registrato
+    // dobbiamo criptare la password e aggiungere la data di registrazione
+    public Chef createChefEntity (RegistedUserDTO dto){
+
+        Chef chef = new Chef();
+        chef.setUsername(dto.getUsername());
+        chef.setName(dto.getName());
+        chef.setSurname(dto.getSurname());
+
+        chef.setEmail(dto.getEmail());
+        chef.setPassword(passwordEncoder.encode(dto.getPassword()));
+
+        chef.setBirthdate(dto.getBirthdate());
+        chef.setRegistrationDate(LocalDate.now());
+
+        return chef;
+    }
+
+
+    // Prendiamo le informazioni da mostrare nell'area personale dello chef a partire dall'entità Chef in MongoDB
+    // (in particolare non mostriamo la password per questioni di sicurezza)
 
     public RegistedUserInfoDTO chefToChefInfo(Chef chef){
 
@@ -27,8 +62,37 @@ public class ChefConvertions {
         );
     }
 
+    // Ricetta che viene creata nel momento in cui uno chef fa submit del form compilato con tutte le informazioni
+    // necessarie per l'inserimento di una ricetta
+    public BaseRecipe createBaseRecipe (CreateRecipeDTO dto){
 
-    /* Function to create a ChefRecipe from an AdmiRecipe. To be more specific, we have an
+        BaseRecipe recipe = new BaseRecipe();
+        recipe.setId(java.util.UUID.randomUUID().toString());
+        recipe.setTitle(dto.getTitle());
+        recipe.setCategory(dto.getCategory());
+        recipe.setPreparation(dto.getPreparation());
+        recipe.setPrepTime(dto.getPrepTime());
+        recipe.setDifficulty(dto.getDifficulty());
+        recipe.setPresentation(dto.getPresentation());
+        recipe.setImageURL(dto.getImageURL());
+        recipe.setIngredients(dto.getIngredients());
+        recipe.setCreationDate(LocalDateTime.now());
+
+        ReducedChef chef = new ReducedChef();
+        UserPrincipal chef1 = (UserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+        chef.setId(chef1.getId());
+        chef.setName(chef1.getName());
+        chef.setSurname(chef1.getSurname());
+
+        recipe.setChef(chef);
+
+        return recipe;
+    }
+
+
+    /* Function to create a ChefRecipe from a BaseRecipe. To be more specific, we have an
     additional field "NumSaves" that counts how many foodies has saved that specific recipe.
     In addition, we remove all the informations about the chef that would have been redundant.
     */
@@ -54,7 +118,7 @@ public class ChefConvertions {
 
     /* Function to create a ChefPreviewRecipeDTO from an AdminRecipe*/
 
-    public ChefPreviewRecipeDTO adminToChefDTO (BaseRecipe recipe){
+    public ChefPreviewRecipeDTO baseToChefDTO(BaseRecipe recipe){
 
         ChefPreviewRecipeDTO recipeDTO = new ChefPreviewRecipeDTO();
 
@@ -126,4 +190,13 @@ public class ChefConvertions {
 
         return chefRecipes;
     }
+
+    public boolean chefAlreadyInserted(Chef targetChef, Chef chef) {
+
+        return  targetChef.getName().equals(chef.getName()) &&
+                targetChef.getSurname().equals(chef.getSurname()) &&
+                targetChef.getBirthdate().equals(chef.getBirthdate());
+    }
+
+
 }

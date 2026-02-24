@@ -12,6 +12,8 @@ import it.unipi.MySmartRecipeBook.repository.FoodieRepository;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import it.unipi.MySmartRecipeBook.security.jwt.JwtUtils;
 
+import it.unipi.MySmartRecipeBook.utils.ChefUtilityFunctions;
+import it.unipi.MySmartRecipeBook.utils.FoodieUtilityFunctions;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,91 +29,87 @@ public class AuthService {
 
     private final ChefRepository chefRepository;
     private final FoodieRepository foodieRepository;
-    private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
     private final AdminRepository adminRepository;
+    private final ChefUtilityFunctions chefUtils;
+    private final FoodieUtilityFunctions foodieUtils;
 
-    public AuthService(ChefRepository chefRepository,
-                       FoodieRepository foodieRepository,
-                       PasswordEncoder passwordEncoder,
-                       AuthenticationManager authenticationManager,
-                       JwtUtils jwtUtils, AdminRepository adminRepository) {
+    public AuthService(ChefRepository chefRepository, FoodieRepository foodieRepository,
+                       AuthenticationManager authenticationManager, JwtUtils jwtUtils,
+                       AdminRepository adminRepository, ChefUtilityFunctions chefUtils,
+                       FoodieUtilityFunctions foodieUtils) {
 
         this.chefRepository = chefRepository;
         this.foodieRepository = foodieRepository;
-        this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtUtils = jwtUtils;
         this.adminRepository = adminRepository;
+        this.chefUtils = chefUtils;
+        this.foodieUtils = foodieUtils;
     }
 
-    //REGISTER CHEF
-    public void registerChef(RegistedUserDTO dto) {
 
-        if (chefRepository.existsByUsername(dto.getUsername())
-                || foodieRepository.existsByUsername(dto.getUsername())) {
+    /* ------------------- Register a new chef ----------------------- */
+
+    public void registerChef(RegistedUserDTO chefDTO) {
+
+        // Controllo se lo username già esiste (sia nella collezione chefs che in quella foodies)
+        if (chefRepository.existsByUsername(chefDTO.getUsername())
+                || foodieRepository.existsByUsername(chefDTO.getUsername())) {
             throw new RuntimeException("Username already taken");
         }
 
-        Chef chef = new Chef();
-        chef.setUsername(dto.getUsername());
-        chef.setEmail(dto.getEmail());
-        chef.setPassword(passwordEncoder.encode(dto.getPassword()));
-
-        chef.setName(dto.getName());
-        chef.setSurname(dto.getSurname());
-        chef.setBirthdate(dto.getBirthdate());
-        chef.setRegistrationDate(LocalDate.now());
+        // Viene creata l'entità chef
+        Chef chef = chefUtils.createChefEntity(chefDTO);
 
         Admin admin = adminRepository.findByUsername("admin");
 
-        if (admin.getChefToApprove() == null) {
-            admin.setChefToApprove(new ArrayList<>());
+        // Controlliamo che tra le richieste in attesa di essere approvate non ci sia un duplicato (controlliamo nome,
+        // cognome e data di nascita dello chef che si vuole registrare)
+        if(admin.getChefToApprove()!=null) {
+            for (Chef targetChef : admin.getChefToApprove()) {
+                if (chefUtils.chefAlreadyInserted(targetChef, chef)) {
+                    throw new RuntimeException("Request already sent");
+                }
+            }
         }
-        admin.getChefToApprove().add(chef);
-        adminRepository.save(admin);
+
+        // Aggiungiamo lo chef alla lista degli chef in attesa di approvazione da parte dell'admin
+        adminRepository.addChefToApprovals(admin.getId(), chef);
     }
 
-    //REGISTER FOODIE
-    public void registerFoodie(RegistedUserDTO dto) {
 
-        if (chefRepository.existsByUsername(dto.getUsername())
-                || foodieRepository.existsByUsername(dto.getUsername())) {
+
+    /* ------------------- Register a new foodie ----------------------- */
+
+    public void registerFoodie(RegistedUserDTO foodieDTO) {
+
+        // Controllo se lo username già esiste (sia nella collezione chefs che in quella foodies) - lo username è
+        // univoco in entrambe le collezioni
+        if (chefRepository.existsByUsername(foodieDTO.getUsername())
+                || foodieRepository.existsByUsername(foodieDTO.getUsername())) {
             throw new RuntimeException("Username already taken");
         }
 
-        Foodie foodie = new Foodie();
-        foodie.setUsername(dto.getUsername());
-        foodie.setEmail(dto.getEmail());
-        foodie.setPassword(passwordEncoder.encode(dto.getPassword()));
-
-        foodie.setName(dto.getName());
-        foodie.setSurname(dto.getSurname());
-        foodie.setBirthdate(dto.getBirthdate());
-        foodie.setRegistrationDate(new Date());
-
-
+        // Viene creata l'entità foodie e viene aggiunta alla collection foodies
+        Foodie foodie = foodieUtils.createFoodieEntity(foodieDTO);
         foodieRepository.save(foodie);
     }
 
-    //LOGIN
+
+    /* ------------------- Login ----------------------- */
+
     public JwtResponseDTO authenticateUser(LoginRequestDTO request) {
 
-        Authentication authentication =
-                authenticationManager.authenticate(
-                        new UsernamePasswordAuthenticationToken(
-                                request.getUsername(),
-                                request.getPassword()
-                        )
-                );
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken (request.getUsername(), request.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String jwt = jwtUtils.generateJwtToken(authentication);
 
-        UserPrincipal userPrincipal =
-                (UserPrincipal) authentication.getPrincipal();
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
 
         return new JwtResponseDTO(
                 jwt,

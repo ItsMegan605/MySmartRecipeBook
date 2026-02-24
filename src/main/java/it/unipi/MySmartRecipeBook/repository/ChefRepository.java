@@ -34,6 +34,12 @@ public interface ChefRepository extends MongoRepository<Chef, String> {
 
     @Query("{ '_id': ?0 }")
     @Update("{ '$pull': { 'recipesToConfirm': { 'id': ?1 } } }")
-    void removeRecipeFromWaiting(String chefId, String recipeId);
+    Integer removeRecipeFromWaiting(String chefId, String recipeId);
+
+    @Query("{ '_id': ?0 }")
+    @Update("{ '$push': { 'recipesToConfirm': { 'id': ?1 } } }")
+    void addRecipeToWaiting(String chefId, ChefRecipe recipe);
+
+
 }
 

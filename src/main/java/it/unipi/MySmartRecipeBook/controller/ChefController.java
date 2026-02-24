@@ -48,7 +48,7 @@ public class ChefController {
                 .getAuthentication()
                 .getName();
 
-        return ResponseEntity.ok(chefService.updateChef(username, dto));
+        return ResponseEntity.ok(chefService.updateChef(dto));
     }
 
 

@@ -6,6 +6,7 @@ public class Task {
         SET_COUNTERS_ADD_FAVOURITE,
         SET_COUNTERS_REMOVE_FAVOURITE,
         CREATE_RECIPE_NEO4J,
-        DELETE_CHEF_RECIPE
+        DELETE_CHEF_RECIPE,
+        DELETE_RECIPE
     }
 }

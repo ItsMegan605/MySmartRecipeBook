@@ -1,5 +1,6 @@
 package it.unipi.MySmartRecipeBook.utils;
 
+import it.unipi.MySmartRecipeBook.dto.users.RegistedUserDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegistedUserInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.RecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
@@ -7,14 +8,39 @@ import it.unipi.MySmartRecipeBook.model.Foodie;
 import it.unipi.MySmartRecipeBook.model.Mongo.FoodieRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
 import it.unipi.MySmartRecipeBook.model.Mongo.FoodieRecipeSummary;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Component
-public class UsersConvertions {
+public class FoodieUtilityFunctions {
+
+    private final PasswordEncoder passwordEncoder;
+
+    public FoodieUtilityFunctions(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
+
+
+    public Foodie createFoodieEntity (RegistedUserDTO foodieDTO){
+
+        Foodie foodie = new Foodie();
+        foodie.setUsername(foodieDTO.getUsername());
+        foodie.setEmail(foodieDTO.getEmail());
+        foodie.setPassword(passwordEncoder.encode(foodieDTO.getPassword()));
+
+        foodie.setName(foodieDTO.getName());
+        foodie.setSurname(foodieDTO.getSurname());
+        foodie.setBirthdate(foodieDTO.getBirthdate());
+        foodie.setRegistrationDate(new Date());
+
+        return foodie;
+    }
+
 
     public RegistedUserInfoDTO entityToFoodieDTO (Foodie foodie) {
 
@@ -27,23 +53,6 @@ public class UsersConvertions {
         );
     }
 
-    public FoodieRecipe dtoToFoodieRecipe (RecipeDTO recipeDTO) {
-
-        FoodieRecipe recipeMongo = new FoodieRecipe();
-        recipeMongo.setId(recipeDTO.getMongoId());
-        recipeMongo.setTitle(recipeDTO.getTitle());
-        recipeMongo.setImageURL(recipeDTO.getImageURL());
-        recipeMongo.setCategory(recipeDTO.getCategory());
-        recipeMongo.setDifficulty(recipeDTO.getDifficulty());
-        recipeMongo.setPrepTime(recipeDTO.getPrepTime());
-        recipeMongo.setPresentation(recipeDTO.getPresentation());
-        recipeMongo.setIngredients(recipeDTO.getIngredients());
-        recipeMongo.setPreparation(recipeDTO.getPreparation());
-        //recipeMongo.setChef(recipeDTO.getChefName());
-        recipeMongo.setSavingDate(LocalDate.now());
-
-        return recipeMongo;
-    }
 
     public FoodieRecipeSummary entityToReducedRecipe (FoodieRecipe recipeMongo) {
 
