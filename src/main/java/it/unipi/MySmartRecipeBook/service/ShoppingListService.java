@@ -79,6 +79,7 @@ public class ShoppingListService {
 
         String key = REDIS_APP_NAMESPACE + REDIS_KEY_PREFIX + authFoodie.getUsername();
 
+
         // Metodo di aggiunta univoco, degli elementi alla lista - controllo se ci sono ingredienti sennò mi rispsparmio
         // la connessione a Redis
         if (!ingredients.isEmpty()) {

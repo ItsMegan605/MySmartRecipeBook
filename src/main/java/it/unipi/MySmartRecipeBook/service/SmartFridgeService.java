@@ -3,10 +3,13 @@ package it.unipi.MySmartRecipeBook.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.unipi.MySmartRecipeBook.dto.IngredientsListDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.RecipeSuggestionDTO;
 import it.unipi.MySmartRecipeBook.model.Redis.SmartFridge;
 import it.unipi.MySmartRecipeBook.repository.FoodieRepository;
 import it.unipi.MySmartRecipeBook.repository.RecipeNeo4jRepository;
+import it.unipi.MySmartRecipeBook.security.UserPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.JedisCluster;
 
@@ -14,6 +17,7 @@ import redis.clients.jedis.JedisCluster;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class SmartFridgeService {
@@ -33,23 +37,31 @@ public class SmartFridgeService {
     }
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+    public static final String REDIS_APP_NAMESPACE = "MySmartRecipeBook";
     private static final String REDIS_FRIDGE_PREFIX = "smartFridge:items:";
     private static final String REDIS_RECIPES_PREFIX = "smartFridge:suggestions:";
 
 
+    public IngredientsListDTO getSmartFridge() {
 
-    public SmartFridge getSmartFridge(String username) {
-        String json = jedisCluster.get(REDIS_FRIDGE_PREFIX + username);
-        if (json != null) {
-            try {
-                return objectMapper.readValue(json, SmartFridge.class);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-        }
-        return new SmartFridge(username);
+        UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        return returnSmartFridge(authFoodie.getUsername());
     }
 
+    private IngredientsListDTO returnSmartFridge(String username) {
+
+        String key = REDIS_APP_NAMESPACE + REDIS_FRIDGE_PREFIX + username;
+
+        Set<String> ingredients = jedisCluster.smembers(key);
+        IngredientsListDTO ingredientsListDTO = new IngredientsListDTO();
+        ingredientsListDTO.setIngredients(ingredients);
+
+        return ingredientsListDTO;
+    }
+/*
     public void saveSmartFridge(SmartFridge list) {
         try {
             String json = objectMapper.writeValueAsString(list);
@@ -59,21 +71,58 @@ public class SmartFridgeService {
             e.printStackTrace();
         }
     }
+    */
 
-    public SmartFridge addItem(String username, String ingredient) {
-        if (!ingredientService.isValidIngredient(ingredient)) {
-            throw new IllegalArgumentException("The ingredient: " + ingredient + " is not allowed!");
-        }
-        if (!foodieRepository.existsById(username)) {
-            throw new RuntimeException("User not found");
-        }
+    /*--------------- Add ingredients to foodie shopping list  ----------------*/
 
-        SmartFridge list = getSmartFridge(username);
-        list.addIngredient(ingredient);
-        saveSmartFridge(list);
-        jedisCluster.del(REDIS_RECIPES_PREFIX + username);
-        return list;
+    public IngredientsListDTO addIngredients(List<String> ingredients) {
+
+        UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        if(ingredients == null) {
+            throw new RuntimeException("No ingredients inserted");
+        }
+        ingredients.removeIf(ingredient -> !ingredientService.isValidIngredient(ingredient));
+        // In questo modo tutti gli ingredienti vengono sempre inseriti in minuscolo
+        ingredients.replaceAll(String::toLowerCase);
+
+        String key = REDIS_APP_NAMESPACE + REDIS_FRIDGE_PREFIX + authFoodie.getUsername();
+
+
+        // Metodo di aggiunta univoco, degli elementi alla lista - controllo se ci sono ingredienti sennò mi rispsparmio
+        // la connessione a Redis
+        if (!ingredients.isEmpty()) {
+            jedisCluster.sadd(key, ingredients.toArray(new String[0]));
+            jedisCluster.del(REDIS_RECIPES_PREFIX + authFoodie.getUsername());
+        }
+        else{
+            System.out.println("No ingredients inserted");
+        }
+        return returnSmartFridge(authFoodie.getUsername());
     }
+
+
+    /*--------------- Remove ingredient from foodie shopping list  ----------------*/
+
+    public IngredientsListDTO removeIngredient(String ingredient) {
+
+        UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+
+        if(ingredientService.isValidIngredient(ingredient.toLowerCase())) {
+            String key = REDIS_APP_NAMESPACE + REDIS_FRIDGE_PREFIX + authFoodie.getUsername();
+            jedisCluster.srem(key, ingredient.toLowerCase());
+            updateCacheAfterRemoval(authFoodie.getUsername(), ingredient.toLowerCase());
+        }
+
+        return getSmartFridge();
+    }
+
+
 
     public List<RecipeSuggestionDTO> getRecommendations(String username) {
         String cacheKey = REDIS_RECIPES_PREFIX + username;
@@ -87,14 +136,15 @@ public class SmartFridgeService {
             }
         }
         //if the recipe is not already in the cache check if there are the matched 3 ingredients
-        SmartFridge fridge = getSmartFridge(username);
-        List<String> ingredients = fridge.getIngredients();
+        IngredientsListDTO ingredientsListDTO = getSmartFridge();
+        Set<String> ingredientsSet = ingredientsListDTO.getIngredients();
 
-        if (ingredients.size() < 3) {
+        if (ingredientsSet == null || ingredientsSet.size() < 3) {
             return new ArrayList<>();
         }
 
         //and we check in neo4j
+        List<String> ingredients = new ArrayList<>(ingredientsSet);
         List<RecipeSuggestionDTO> suggestions = recipeNeo4jRepository.findRecipesByIngredients(ingredients);
 
         //we get the suggestion and cache it
@@ -109,16 +159,6 @@ public class SmartFridgeService {
         return suggestions;
     }
 
-    public SmartFridge removeItem(String username, String ingredient) {
-        if (!foodieRepository.existsById(username)) {
-            throw new RuntimeException("User not found");
-        }
-        SmartFridge list = getSmartFridge(username);
-        list.removeIngredient(ingredient);
-        saveSmartFridge(list);
-        updateCacheAfterRemoval(username, ingredient);
-        return list;
-    }
 
     private void updateCacheAfterRemoval(String username, String removedIngredient) {
         String cacheKey = REDIS_RECIPES_PREFIX + username;

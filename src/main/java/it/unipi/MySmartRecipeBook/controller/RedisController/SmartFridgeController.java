@@ -1,9 +1,11 @@
 package it.unipi.MySmartRecipeBook.controller.RedisController;
 
+import it.unipi.MySmartRecipeBook.dto.IngredientsListDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.RecipeSuggestionDTO;
 import it.unipi.MySmartRecipeBook.model.Neo4j.RecipeNeo4j;
 import it.unipi.MySmartRecipeBook.model.Redis.SmartFridge;
 import it.unipi.MySmartRecipeBook.repository.RecipeNeo4jRepository;
+import it.unipi.MySmartRecipeBook.service.IngredientService;
 import it.unipi.MySmartRecipeBook.service.RecipeMatchService;
 import it.unipi.MySmartRecipeBook.service.SmartFridgeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,42 +20,33 @@ import java.util.List;
 @RequestMapping("/api/fridge")
 public class SmartFridgeController {
 
-    @Autowired
-    private SmartFridgeService smartFridgeService;
 
-    @Autowired
+    private SmartFridgeService smartFridgeService;
     private RecipeNeo4jRepository recipeNeo4jRepository;
 
+    //aggiunto costruttore
+    public SmartFridgeController(SmartFridgeService smartFridgeService, RecipeNeo4jRepository recipeNeo4jRepository) {
+        this.smartFridgeService = smartFridgeService;
+        this.recipeNeo4jRepository = recipeNeo4jRepository;
+    }
+
+    @GetMapping("/get")
+    public ResponseEntity<IngredientsListDTO> getList() {
+
+        IngredientsListDTO ingredientsListDTO = smartFridgeService.getSmartFridge();
+        return ResponseEntity.ok(ingredientsListDTO);
+    }
+
     @PostMapping("/add")
-    public ResponseEntity<?> addIngredient(@RequestBody String ingredient) {
-        try {
-            String username = SecurityContextHolder.getContext().getAuthentication().getName();
-            SmartFridge list = smartFridgeService.addItem(username, ingredient);
-            return ResponseEntity.ok(list);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(404).body(e.getMessage());
-        }
+    public ResponseEntity<?> addIngredient(@RequestBody List<String> ingredients) {
+        IngredientsListDTO ingredientsListDTO = smartFridgeService.addIngredients(ingredients);
+        return ResponseEntity.ok().body(ingredientsListDTO);
     }
 
     @PostMapping("/remove")
-    public ResponseEntity<?> removeIngredient(@RequestBody String ingredient) {
-        try {
-            String username = SecurityContextHolder.getContext().getAuthentication().getName();
-            SmartFridge list = smartFridgeService.removeItem(username, ingredient);
-            return ResponseEntity.ok(list);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(404).body(e.getMessage());
-        }
-    }
-
-    @GetMapping
-    public ResponseEntity<SmartFridge> getList() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return ResponseEntity.ok(smartFridgeService.getSmartFridge(username));
+    public ResponseEntity<?> removeIngredient(@RequestBody String ingredient ) {
+        IngredientsListDTO ingredientsListDTO = smartFridgeService.removeIngredient(ingredient);
+        return ResponseEntity.ok(ingredientsListDTO);
     }
 
     @GetMapping("/recommendations")
