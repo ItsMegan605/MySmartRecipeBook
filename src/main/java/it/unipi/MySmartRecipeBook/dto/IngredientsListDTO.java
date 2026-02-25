@@ -14,5 +14,4 @@ import java.util.Set;
 
 public class IngredientsListDTO {
     private Set<String> ingredients;
-
 }

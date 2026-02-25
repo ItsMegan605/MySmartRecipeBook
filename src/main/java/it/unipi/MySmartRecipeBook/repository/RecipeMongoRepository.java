@@ -31,4 +31,6 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
     boolean existsByTitle(String title);
 
     Integer countByChefId(String chefId);
+
+    Long deleteRecipeById(String id);
 }

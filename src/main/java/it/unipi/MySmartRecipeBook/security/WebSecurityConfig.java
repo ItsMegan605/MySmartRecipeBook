@@ -52,6 +52,7 @@ public class WebSecurityConfig {
                         // PUBBLICO
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/recipes/**").permitAll()
+                        .requestMatchers("/error").permitAll()
 
                         // CHEF - gestione ricette
                         .requestMatchers(HttpMethod.POST, "/api/recipes/**").hasRole("CHEF")

@@ -19,12 +19,14 @@ import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import it.unipi.MySmartRecipeBook.utils.ChefUtilityFunctions;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.*;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -196,6 +198,7 @@ public class ChefService {
     /*--------------- Delete a recipe  ----------------*/
 
     @Transactional
+    @Retryable(retryFor = OptimisticLockingFailureException.class, maxAttempts = 3)
     public void deleteRecipe(String recipeId) {
 
         UserPrincipal chef1 = (UserPrincipal) SecurityContextHolder.getContext()
@@ -212,7 +215,9 @@ public class ChefService {
         }
 
         // Rimuoviamo la ricetta dalla collezione "recipes" da Mongo
-        recipeMongoRepository.deleteById(recipeId);
+        if(recipeMongoRepository.deleteRecipeById(recipeId) == 0){
+            throw new RuntimeException("Recipe not found");
+        }
 
         // Questa parte non è atomica ma per renderla tale dobbiamo necessariamente usare version o lock
         for (ChefRecipe recipe : newRecipes) {
@@ -224,11 +229,11 @@ public class ChefService {
 
                 List<ChefRecipe> recipesToSave = chefConvertions.MongoListToChefList(matchRecipes);
                 chef.setNewRecipes(recipesToSave);
-                chef.setTotalRecipes(chef.getTotalRecipes() - 1);
-                chefRepository.save(chef);
                 break;
             }
         }
+        chef.setTotalRecipes(chef.getTotalRecipes() - 1);
+        chefRepository.save(chef);
 
         lowLoadManager.addTask(Task.TaskType.DELETE_RECIPE, recipeId, chef.getId());
     }

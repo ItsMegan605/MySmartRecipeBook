@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -35,4 +36,7 @@ public class Foodie extends RegisteredUser {
 
     @Field("old_saved")
     private List<FoodieRecipeSummary> oldSavedRecipes;
+
+    @Version
+    private long version;
 }

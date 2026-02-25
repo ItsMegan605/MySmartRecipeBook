@@ -8,6 +8,7 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -38,5 +39,8 @@ public class Chef extends RegisteredUser {
 
     @Field("tot_recipes")
     private Integer totalRecipes = 0;
+
+    @Version
+    private long version;
 }
 

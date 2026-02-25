@@ -14,15 +14,18 @@ import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.utils.FoodieUtilityFunctions;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.*;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -119,6 +122,7 @@ public class FoodieService {
 
     /*----------------- Delete foodie's Profile ------------------*/
 
+    @Transactional
     public void deleteFoodie(){
 
         UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
@@ -156,7 +160,9 @@ public class FoodieService {
 
 
     /*------------ Add a recipe to foodie's favourites  -------------*/
-    // DA MODIFICARE CON L'UTILIZZO DI VERSION
+
+    @Transactional
+    @Retryable(retryFor = OptimisticLockingFailureException.class, maxAttempts = 3)
     public void saveRecipe(String foodieId, String recipeId) {
 
         Foodie foodie = foodieRepository.findById(foodieId)
@@ -216,6 +222,8 @@ public class FoodieService {
     /*------------ Remove a recipe from foodie's favourites  -------------*/
     // VA FATTA PER FORZA CON VERSIONE PERCHè SE USIAMO LA LISTA "AGGIORNATA", NEL MENTRE POTREBBE ESSERCI STATO UN ALTRO
     // THREAD CHE HA MODIFICATO I PREFERITI E ANDIAMO A SOVRASCRIVERLA
+    @Transactional
+    @Retryable(retryFor = OptimisticLockingFailureException.class, maxAttempts = 3)
     public void removeSavedRecipe(String recipeId) {
 
         UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
@@ -268,83 +276,6 @@ public class FoodieService {
 
         lowLoadManager.addTask(Task.TaskType.SET_COUNTERS_REMOVE_FAVOURITE, recipeId, targetChefId);
     }
-
-    /* @Service
-public class FoodieService {
-
-    // ... repository e costruttore ...
-
-    @Retryable(retryFor = OptimisticLockingFailureException.class, maxAttempts = 3)
-    @Transactional
-    public void removeSavedRecipe(String foodieId, String recipeId) {
-
-        Foodie foodie = foodieRepository.findById(foodieId)
-                .orElseThrow(() -> new RuntimeException("Foodie not found"));
-
-        boolean removedFromNew = false;
-        String targetChefId = null;
-
-        // --- FASE 1: Rimozione da NEW Saved Recipes ---
-        if (foodie.getNewSavedRecipes() != null) {
-            // Usiamo un iteratore per evitare ConcurrentModificationException
-            var iterator = foodie.getNewSavedRecipes().iterator();
-            while (iterator.hasNext()) {
-                FoodieRecipe recipe = iterator.next();
-                if (recipe.getId().equals(recipeId)) {
-                    targetChefId = recipe.getChef().getId();
-                    iterator.remove(); // Rimozione sicura
-                    removedFromNew = true;
-                    break;
-                }
-            }
-        }
-
-        // --- FASE 2: Promozione da OLD a NEW (se necessario) ---
-        // Se abbiamo tolto da NEW, si è liberato un posto. Riempiamolo prendendo dalla OLD.
-        if (removedFromNew && foodie.getOldSavedRecipes() != null && !foodie.getOldSavedRecipes().isEmpty()) {
-
-            // Prendiamo il primo elemento della lista OLD (il più recente dei vecchi)
-            FoodieRecipeSummary oldSummary = foodie.getOldSavedRecipes().get(0);
-
-            // Dobbiamo recuperare la ricetta COMPLETA dal DB per metterla in NEW
-            RecipeMongo fullOldRecipe = recipeRepository.findById(oldSummary.getId())
-                    .orElseThrow(() -> new RuntimeException("Old recipe data not found"));
-
-            FoodieRecipe recipeToPromote = usersConvertions.entityToFoodieEntity(fullOldRecipe);
-
-            // Aggiungiamo in coda alla lista NEW (o dove preferisci per ordine cronologico)
-            foodie.getNewSavedRecipes().add(recipeToPromote);
-
-            // Rimuoviamo dalla lista OLD
-            foodie.getOldSavedRecipes().remove(0);
-        }
-
-        // --- FASE 3: Rimozione da OLD Saved Recipes (se non era in NEW) ---
-        if (!removedFromNew && foodie.getOldSavedRecipes() != null) {
-            var iterator = foodie.getOldSavedRecipes().iterator();
-            while (iterator.hasNext()) {
-                FoodieRecipeSummary recipe = iterator.next();
-                if (recipe.getId().equals(recipeId)) {
-                    targetChefId = recipe.getChefId();
-                    iterator.remove();
-                    break;
-                }
-            }
-        }
-
-        if (targetChefId == null) {
-            throw new RuntimeException("Recipe not found among favourites");
-        }
-
-        // --- FASE 4: Salvataggio Atomico (grazie a @Version) ---
-        // Qui salviamo tutto in un colpo solo. Se qualcun altro ha modificato il foodie nel frattempo,
-        // @Version lancerà l'eccezione e @Retryable farà ripartire il metodo da capo.
-        foodieRepository.save(foodie);
-
-        // Task Asincrono
-        lowLoadManager.addTask(Task.TaskType.SET_COUNTERS_REMOVE_FAVOURITE, recipeId, targetChefId);
-    }
-}*/
 
 
     /*------------ Show foodie's favourites recipes -------------*/

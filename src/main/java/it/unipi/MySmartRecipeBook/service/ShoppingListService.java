@@ -6,8 +6,10 @@ import it.unipi.MySmartRecipeBook.dto.IngredientsListDTO;
 
 import it.unipi.MySmartRecipeBook.repository.FoodieRepository;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import redis.clients.jedis.JedisCluster;
 
 import java.util.List;
@@ -25,7 +27,7 @@ public class ShoppingListService {
         this.ingredientService = ingredientService;
     }
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+
     public static final String REDIS_APP_NAMESPACE = "MySmartRecipeBook";
     private static final String REDIS_KEY_PREFIX = "shoppingList:user:";
 
@@ -49,17 +51,6 @@ public class ShoppingListService {
 
         return ingredientsListDTO;
     }
-/*
-    public void saveShoppingList(ShoppingList list) {
-        try {
-            String json = objectMapper.writeValueAsString(list);
-            // JedisCluster gestisce internamente il pool e la connessione
-            jedisCluster.set(REDIS_KEY_PREFIX + list.getId(), json);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-    }
-*/
 
 
     /*--------------- Add ingredients to foodie shopping list  ----------------*/
@@ -71,8 +62,9 @@ public class ShoppingListService {
                 .getPrincipal();
 
         if(ingredients == null) {
-            throw new RuntimeException("No ingredients inserted");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No ingredient inserted");
         }
+
         ingredients.removeIf(ingredient -> !ingredientService.isValidIngredient(ingredient));
         // In questo modo tutti gli ingredienti vengono sempre inseriti in minuscolo
         ingredients.replaceAll(String::toLowerCase);
@@ -82,11 +74,12 @@ public class ShoppingListService {
 
         // Metodo di aggiunta univoco, degli elementi alla lista - controllo se ci sono ingredienti sennò mi rispsparmio
         // la connessione a Redis
+
         if (!ingredients.isEmpty()) {
             jedisCluster.sadd(key, ingredients.toArray(new String[0]));
         }
         else{
-            System.out.println("No ingredients inserted");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No valid ingredient inserted");
         }
 
         return returnShoppingList(authFoodie.getUsername());
