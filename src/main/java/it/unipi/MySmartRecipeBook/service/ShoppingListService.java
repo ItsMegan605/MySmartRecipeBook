@@ -74,6 +74,8 @@ public class ShoppingListService {
             throw new RuntimeException("No ingredients inserted");
         }
         ingredients.removeIf(ingredient -> !ingredientService.isValidIngredient(ingredient));
+        // In questo modo tutti gli ingredienti vengono sempre inseriti in minuscolo
+        ingredients.replaceAll(String::toLowerCase);
 
         String key = REDIS_APP_NAMESPACE + REDIS_KEY_PREFIX + authFoodie.getUsername();
 
@@ -81,6 +83,9 @@ public class ShoppingListService {
         // la connessione a Redis
         if (!ingredients.isEmpty()) {
             jedisCluster.sadd(key, ingredients.toArray(new String[0]));
+        }
+        else{
+            System.out.println("No ingredients inserted");
         }
 
         return returnShoppingList(authFoodie.getUsername());
@@ -95,14 +100,13 @@ public class ShoppingListService {
                 .getAuthentication()
                 .getPrincipal();
 
-        IngredientsListDTO list = returnShoppingList(authFoodie.getUsername());
 
-        if(ingredientService.isValidIngredient(ingredient)) {
+        if(ingredientService.isValidIngredient(ingredient.toLowerCase())) {
             String key = REDIS_APP_NAMESPACE + REDIS_KEY_PREFIX + authFoodie.getUsername();
-            jedisCluster.srem(key, ingredient);
+            jedisCluster.srem(key, ingredient.toLowerCase());
         }
 
-        return list;
+        return returnShoppingList(authFoodie.getUsername());
     }
 
 }
