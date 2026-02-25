@@ -7,6 +7,7 @@ import it.unipi.MySmartRecipeBook.dto.users.UpdateFoodieDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Foodie;
 import it.unipi.MySmartRecipeBook.model.Mongo.*;
+import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import it.unipi.MySmartRecipeBook.utils.enums.Task;
 import it.unipi.MySmartRecipeBook.repository.FoodieRepository;
 import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
@@ -14,6 +15,12 @@ import it.unipi.MySmartRecipeBook.utils.FoodieUtilityFunctions;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.*;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -33,23 +40,29 @@ public class FoodieService {
     private final PasswordEncoder passwordEncoder;
     private final FoodieUtilityFunctions usersConvertions;
     private final LowLoadManager lowLoadManager;
+    private final MongoTemplate mongoTemplate;
 
     public FoodieService(FoodieRepository foodieRepository, RecipeMongoRepository recipeRepository,
                          PasswordEncoder passwordEncoder, FoodieUtilityFunctions usersConvertions,
-                         LowLoadManager lowLoadManager) {
+                         LowLoadManager lowLoadManager, MongoTemplate mongoTemplate) {
         this.foodieRepository = foodieRepository;
         this.recipeRepository = recipeRepository;
         this.passwordEncoder = passwordEncoder;
         this.usersConvertions = usersConvertions;
         this.lowLoadManager = lowLoadManager;
+        this.mongoTemplate = mongoTemplate;
     }
 
 
     /*--------------- Retrieve foodie's informations ----------------*/
 
-    public RegistedUserInfoDTO getByUsername(String username) {
+    public RegistedUserInfoDTO getById() {
 
-        Foodie foodie = foodieRepository.findByUsername(username)
+        UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        Foodie foodie = foodieRepository.findByUsername(authFoodie.getId())
                 .orElseThrow(() -> new RuntimeException("Foodie not found"));
 
         return usersConvertions.entityToFoodieDTO(foodie);
@@ -67,38 +80,52 @@ public class FoodieService {
 
      We don't allow a foodie to change his/her username for security reasons */
 
-    // Da modificare come lo chef se si può usare MongoTemplate perchè in questo momeno non è atomico
-    public RegistedUserInfoDTO updateFoodie(String username, UpdateFoodieDTO dto) {
+    public RegistedUserInfoDTO updateFoodie(UpdateFoodieDTO dto) {
 
-        Foodie foodie = foodieRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Foodie not found"));
+        UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
 
+        if(!foodieRepository.existsById(authFoodie.getId())){
+            throw new RuntimeException("Foodie not found");
+        }
+
+        Query query = new Query(Criteria.where("id").is(authFoodie.getId()));
+
+        Update update = new Update();
         if (dto.getName() != null)
-            foodie.setName(dto.getName());
+            update.set("name", dto.getName());
 
         if (dto.getSurname() != null)
-            foodie.setSurname(dto.getSurname());
+            update.set("surname", dto.getSurname());
 
         if (dto.getEmail() != null)
-            foodie.setEmail(dto.getEmail());
+            update.set("email", dto.getEmail());
 
         /* Supponiamo che se si è loggato può cambiare la password senza fare ulteriori controlli? */
         if (dto.getPassword() != null && !dto.getPassword().isBlank())
-            foodie.setPassword(passwordEncoder.encode(dto.getPassword()));
+            update.set("password", passwordEncoder.encode(dto.getPassword()));
 
         if (dto.getBirthdate() != null)
-            foodie.setBirthdate(dto.getBirthdate());
+            update.set("birthdate", dto.getBirthdate());
 
-        foodieRepository.save(foodie);
+        FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
+        Foodie foodie = mongoTemplate.findAndModify(query, update, options, Foodie.class);
+
+        // Ritorniamo le informazioni aggiornate che verranno mostrate nell'area personale
         return usersConvertions.entityToFoodieDTO(foodie);
     }
 
 
     /*----------------- Delete foodie's Profile ------------------*/
 
-    public void deleteFoodie(String username){
+    public void deleteFoodie(){
 
-        Foodie foodie = foodieRepository.findByUsername(username)
+        UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        Foodie foodie = foodieRepository.findById(authFoodie.getId())
                 .orElseThrow(() -> new RuntimeException("Foodie not found"));
 
         List<String> recipesId = new ArrayList<>();
@@ -189,9 +216,13 @@ public class FoodieService {
     /*------------ Remove a recipe from foodie's favourites  -------------*/
     // VA FATTA PER FORZA CON VERSIONE PERCHè SE USIAMO LA LISTA "AGGIORNATA", NEL MENTRE POTREBBE ESSERCI STATO UN ALTRO
     // THREAD CHE HA MODIFICATO I PREFERITI E ANDIAMO A SOVRASCRIVERLA
-    public void removeSavedRecipe(String foodieId, String recipeId) {
+    public void removeSavedRecipe(String recipeId) {
 
-        Foodie foodie = foodieRepository.findById(foodieId)
+        UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        Foodie foodie = foodieRepository.findById(authFoodie.getId())
                 .orElseThrow(() -> new RuntimeException("Foodie not found"));
 
         if(foodie.getNewSavedRecipes() ==  null){
@@ -318,9 +349,13 @@ public class FoodieService {
 
     /*------------ Show foodie's favourites recipes -------------*/
 
-    public Slice<UserPreviewRecipeDTO> getRecipeByCategory(String foodieId, String category, int numPage) {
+    public Slice<UserPreviewRecipeDTO> getRecipeByCategory(String category, int numPage) {
 
-        Foodie foodie = foodieRepository.findById(foodieId)
+        UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        Foodie foodie = foodieRepository.findById(authFoodie.getId())
                 .orElseThrow(() -> new RuntimeException("Foodie not found"));
 
         if(foodie.getNewSavedRecipes() == null){

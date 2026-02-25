@@ -2,7 +2,6 @@ package it.unipi.MySmartRecipeBook.utils;
 
 import it.unipi.MySmartRecipeBook.dto.users.RegistedUserDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegistedUserInfoDTO;
-import it.unipi.MySmartRecipeBook.dto.recipe.RecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Foodie;
 import it.unipi.MySmartRecipeBook.model.Mongo.FoodieRecipe;

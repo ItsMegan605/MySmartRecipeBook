@@ -13,6 +13,7 @@ import java.util.Optional;
 public interface ChefRepository extends MongoRepository<Chef, String> {
     Optional<Chef> findByUsername(String username);
 
+    boolean existsById(String id);
     boolean existsByUsername(String username);
 
     @Query("{ '_id' : ?0 }")

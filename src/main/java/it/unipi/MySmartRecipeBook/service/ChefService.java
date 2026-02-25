@@ -20,6 +20,11 @@ import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import it.unipi.MySmartRecipeBook.utils.ChefUtilityFunctions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.*;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -43,11 +48,12 @@ public class ChefService {
     private final RecipeMongoRepository recipeMongoRepository;
     private final LowLoadManager lowLoadManager;
     private final IngredientService ingredientService;
+    private final MongoTemplate mongoTemplate;
 
     public ChefService(ChefRepository chefRepository, ChefUtilityFunctions chefConvertions,
                        PasswordEncoder passwordEncoder, AdminRepository adminRepository,
                        RecipeMongoRepository recipeMongoRepository, LowLoadManager lowLoadManager,
-                       IngredientService ingredientService) {
+                       IngredientService ingredientService, MongoTemplate mongoTemplate) {
         this.chefRepository = chefRepository;
         this.chefConvertions = chefConvertions;
         this.passwordEncoder = passwordEncoder;
@@ -55,6 +61,7 @@ public class ChefService {
         this.recipeMongoRepository = recipeMongoRepository;
         this.lowLoadManager = lowLoadManager;
         this.ingredientService = ingredientService;
+        this.mongoTemplate = mongoTemplate;
     }
 
 
@@ -84,94 +91,30 @@ public class ChefService {
                 .getAuthentication()
                 .getPrincipal();
 
-        Chef chef = chefRepository.findById(authChef.getId())
-                .orElseThrow(() -> new RuntimeException("Chef not found"));
+        if(!chefRepository.existsById(authChef.getId())){
+            throw new RuntimeException("Chef not found");
+        }
 
+        // Vado a modificare solo le informazioni personali, il resto lo lascio invariato
+        Query query = new Query(Criteria.where("id").is(authChef.getId()));
 
+        Update update = new Update();
         if (dto.getEmail() != null)
-            chef.setEmail(dto.getEmail());
+            update.set("email", dto.getEmail());
 
         if (dto.getPassword() != null && !dto.getPassword().isBlank())
-            chef.setPassword(passwordEncoder.encode(dto.getPassword()));
+            update.set("password", passwordEncoder.encode(dto.getPassword()));
 
         if (dto.getBirthdate() != null)
-            chef.setBirthdate(dto.getBirthdate());
+            update.set("birthdate", dto.getBirthdate());
 
-        // Salviamo l'entità modificata nella collezione
-        chefRepository.save(chef);
+        FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
+        Chef chef = mongoTemplate.findAndModify(query, update, options, Chef.class);
 
         // Ritorniamo le informazioni aggiornate che verranno mostrate nell'area personale
         return chefConvertions.chefToChefInfo(chef);
     }
 
-    /*
-    * // ... altri campi ...
-    private final MongoTemplate mongoTemplate;
-
-    // Aggiungilo al costruttore
-    public ChefService(ChefRepository chefRepository,
-                       ChefUtilityFunctions chefConvertions,
-                       PasswordEncoder passwordEncoder,
-                       AdminRepository adminRepository,
-                       RecipeMongoRepository recipeMongoRepository,
-                       LowLoadManager lowLoadManager,
-                       MongoTemplate mongoTemplate) { // <--- ECCOLO
-        // ...
-        this.mongoTemplate = mongoTemplate;
-    }
-
-    public RegistedUserInfoDTO updateChef(UpdateChefDTO dto) {
-
-        UserPrincipal authChef = (UserPrincipal) SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getPrincipal();
-
-        // 1. Creiamo la condizione: "Cerca lo chef con questo ID"
-        Query query = new Query(Criteria.where("_id").is(authChef.getId()));
-
-        // 2. Creiamo l'oggetto di aggiornamento (Update)
-        Update update = new Update();
-        boolean isModified = false;
-
-        // 3. Aggiungiamo al "pacchetto" solo i campi che sono presenti nel DTO
-        if (dto.getEmail() != null) {
-            update.set("email", dto.getEmail()); // Corrisponde all'operatore $set di Mongo
-            isModified = true;
-        }
-
-        if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
-            // ATTENZIONE: Criptiamo la password PRIMA di metterla nella query
-            update.set("password", passwordEncoder.encode(dto.getPassword()));
-            isModified = true;
-        }
-
-        if (dto.getBirthdate() != null) {
-            update.set("birthdate", dto.getBirthdate());
-            isModified = true;
-        }
-
-        // 4. Eseguiamo la query atomica SOLO se c'è qualcosa da cambiare
-        Chef updatedChef;
-        if (isModified) {
-            // findAndModify è l'operazione magica:
-            // - Cerca il documento
-            // - Applica le modifiche ($set)
-            // - Restituisce il documento NUOVO (grazie a returnNew(true))
-            // Tutto in un singolo colpo atomico sul DB.
-            updatedChef = mongoTemplate.findAndModify(
-                    query,
-                    update,
-                    new FindAndModifyOptions().returnNew(true), // Importante: vogliamo i dati aggiornati
-                    Chef.class
-            );
-        } else {
-            // Se il DTO era vuoto, ricarichiamo semplicemente lo chef attuale
-            updatedChef = chefRepository.findById(authChef.getId())
-                    .orElseThrow(() -> new RuntimeException("Chef not found"));
-        }
-
-        return chefConvertions.chefToChefInfo(updatedChef);
-    }*/
 
     /*----------------- Delete chef's profile ----------------*/
 

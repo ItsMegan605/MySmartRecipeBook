@@ -16,6 +16,7 @@ public interface FoodieRepository extends MongoRepository<Foodie, String> {
     Optional<Foodie> findByUsername(String username);
     Optional<Foodie> findById(String id);
 
+    boolean existsById(String id);
     boolean existsByUsername(String username);
 
     @Query("{ '$or': [ { 'new_saved.chef.chef_id': ?0 }, { 'old_saved.chef_id': ?0 } ] }")

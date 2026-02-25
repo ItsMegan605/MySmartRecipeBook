@@ -29,8 +29,7 @@ public class FoodieController {
     @GetMapping("/info")
     public ResponseEntity<RegistedUserInfoDTO> getInfo(){
 
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return ResponseEntity.ok(foodieService.getByUsername(username));
+        return ResponseEntity.ok(foodieService.getById());
     }
 
 
@@ -39,8 +38,7 @@ public class FoodieController {
     @PatchMapping("/changeInfo")
     public ResponseEntity<RegistedUserInfoDTO> changeInfo (@RequestBody @Valid UpdateFoodieDTO updates){
 
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return ResponseEntity.ok(foodieService.updateFoodie(username, updates));
+        return ResponseEntity.ok(foodieService.updateFoodie(updates));
     }
 
 
@@ -49,8 +47,7 @@ public class FoodieController {
     @DeleteMapping("/deleteProfile")
     public ResponseEntity<String> deleteProfile() {
 
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        foodieService.deleteFoodie(username);
+        foodieService.deleteFoodie();
         return ResponseEntity.ok("Foodie has been succesfully deleted");
     }
 
@@ -60,12 +57,11 @@ public class FoodieController {
     @PostMapping("/addFavourite/{recipeId}")
     public ResponseEntity<String> saveRecipe (@PathVariable String recipeId) {
 
-        UserPrincipal foodie = (UserPrincipal) SecurityContextHolder.getContext()
+        UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getPrincipal();
-        String foodieID = foodie.getId();
 
-        foodieService.saveRecipe(foodieID, recipeId);
+        foodieService.saveRecipe(authFoodie.getId(), recipeId);
         return ResponseEntity.ok("Recipe has been succesfully add to favourites");
     }
 
@@ -75,11 +71,7 @@ public class FoodieController {
     @DeleteMapping("/removeFavourite/{recipeId}")
     public ResponseEntity<String> removeSavedRecipe(@PathVariable String recipeId) {
 
-        String foodieId = SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getName();
-
-        foodieService.removeSavedRecipe(foodieId, recipeId);
+        foodieService.removeSavedRecipe(recipeId);
         return ResponseEntity.ok("Recipe has been succesfully removed from favourites");
     }
 
@@ -88,12 +80,7 @@ public class FoodieController {
     @GetMapping("/getRecipe/{category}/{numPage}")
     public ResponseEntity<Slice<UserPreviewRecipeDTO>> getRecipeByCategory (@PathVariable String category,
                                                                             @PathVariable int numPage) {
-
-        String foodieId = SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getName();
-
-        Slice<UserPreviewRecipeDTO> recipeList = foodieService.getRecipeByCategory(foodieId, category, numPage);
+        Slice<UserPreviewRecipeDTO> recipeList = foodieService.getRecipeByCategory(category, numPage);
         return ResponseEntity.ok(recipeList);
     }
 }
