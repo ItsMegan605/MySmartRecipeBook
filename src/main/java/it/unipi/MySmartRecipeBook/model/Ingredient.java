@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 @Getter
 @Setter
@@ -14,8 +15,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document("ingredients")
 public class Ingredient {
 
-    // Per ora ho messo che l'id coincide con il nome perchè deve essere univoco, però possiamo decidere diversamente
     @Id
-    String name;
+    private String id;
+
+    @Field("nome") // Questo deve coincidere con la chiave JSON del documento
+    private String name;
 }
 

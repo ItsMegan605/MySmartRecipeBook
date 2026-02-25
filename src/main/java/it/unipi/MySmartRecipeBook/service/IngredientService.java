@@ -27,7 +27,7 @@ public class IngredientService {
 
         List<Ingredient> ingredients = ingredientRepository.findAll();
         for(Ingredient ingredient : ingredients){
-            allowedIngredients.add(ingredient.getName());
+            allowedIngredients.add(ingredient.getName().toLowerCase());
         }
     }
 

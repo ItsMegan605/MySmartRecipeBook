@@ -1,10 +1,9 @@
 package it.unipi.MySmartRecipeBook.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.unipi.MySmartRecipeBook.dto.IngredientsListDTO;
 
-import it.unipi.MySmartRecipeBook.model.Redis.ShoppingList;
+
 import it.unipi.MySmartRecipeBook.repository.FoodieRepository;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,13 +18,10 @@ import java.util.Set;
 public class ShoppingListService {
 
     private JedisCluster jedisCluster; // Utilizzo diretto del cluster
-    private FoodieRepository foodieRepository; // Repository per MongoDB
     private IngredientService ingredientService;
 
-    public ShoppingListService(JedisCluster jedisCluster, FoodieRepository foodieRepository,
-                               IngredientService ingredientService) {
+    public ShoppingListService(JedisCluster jedisCluster, IngredientService ingredientService) {
         this.jedisCluster = jedisCluster;
-        this.foodieRepository = foodieRepository;
         this.ingredientService = ingredientService;
     }
 
