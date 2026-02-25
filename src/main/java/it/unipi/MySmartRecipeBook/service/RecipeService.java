@@ -19,16 +19,16 @@ import java.util.List;
 public class RecipeService {
 
     @Value("${app.recipe.pag-size-title:5}")
-    private Integer pageSizeTitle;
+    private int pageSizeTitle;
 
     @Value("${app.recipe.pag-size-category:10}")
-    private Integer pageSizeCategory;
+    private int pageSizeCategory;
 
     @Value("${app.recipe.pag-size-home:10}")
-    private Integer pageSizeHome;
+    private int pageSizeHome;
 
     @Value("${app.recipe.pag-size-chef:5}")
-    private Integer pageSizeChef;
+    private int pageSizeChef;
 
 
     private static final List<String> VALID_CATEGORIES = List.of(
@@ -66,7 +66,7 @@ public class RecipeService {
         /* Manca l'eliminazione da Neo4j e bisogna vedere se anche da Redis*/
     }
 
-    public List<UserPreviewRecipeDTO> getRecipeByTitle(String title, Integer pageNumber){
+    public List<UserPreviewRecipeDTO> getRecipeByTitle(String title, int pageNumber){
 
         if(pageNumber <= 0){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid page number");
@@ -86,7 +86,7 @@ public class RecipeService {
         return recipes;
     }
 
-    public List<UserPreviewRecipeDTO> getNewestRecipe (Integer pageNumber){
+    public List<UserPreviewRecipeDTO> getNewestRecipe (int pageNumber){
 
         if(pageNumber <= 0){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid page number");
@@ -103,7 +103,7 @@ public class RecipeService {
         return recipe_list;
     }
 
-    public List<UserPreviewRecipeDTO> getByCategory (Integer pageNumber, String filter){
+    public List<UserPreviewRecipeDTO> getByCategory (int pageNumber, String filter){
 
         if(pageNumber <= 0 || !VALID_CATEGORIES.contains(filter)){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid parameters");
@@ -122,7 +122,7 @@ public class RecipeService {
     }
 
     /* Per ora sono stati ordinati per data ma andrebbero ordinate per popolarità*/
-    public List<ChefPreviewRecipeDTO> getChefRecipePage(Integer pageNumber, String chefName){
+    public List<ChefPreviewRecipeDTO> getChefRecipePage(int pageNumber, String chefName){
 
         if(pageNumber <= 0){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid parameters");

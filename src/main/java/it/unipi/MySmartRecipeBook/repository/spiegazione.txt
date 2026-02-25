@@ -1,8 +1,0 @@
-La repository fa da "magazziniere" quindi può accede al db
-- ci comunica direttamente, sa fare le basiche CRUD operaziton
-- find, save, update, delete
-
-- noi per esempio abbiamo una repository per ogni elemento che ocmunica con un certo DB
-- per esempio la repository di mongo comunica con mongo e basta e così via
-
-Questo per creare ordine

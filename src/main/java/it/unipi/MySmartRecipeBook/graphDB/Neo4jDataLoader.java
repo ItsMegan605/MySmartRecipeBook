@@ -147,7 +147,7 @@ public class Neo4jDataLoader {
                     if (count % 50 == 0) System.out.println("    Processed " + count + " recipes...");
                 }
             }
-            System.out.println("    Done! Total recipes imported: " + count);
+            System.out.println("Done! Total recipes imported: " + count);
 
         } catch (Exception e) {
             System.err.println("Critical Error in loadRecipesAndConnect: " + e.getMessage());

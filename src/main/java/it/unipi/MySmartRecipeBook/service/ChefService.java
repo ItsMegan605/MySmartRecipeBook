@@ -9,6 +9,7 @@ import it.unipi.MySmartRecipeBook.model.Admin;
 import it.unipi.MySmartRecipeBook.model.Chef;
 import it.unipi.MySmartRecipeBook.model.Mongo.BaseRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipe;
+import it.unipi.MySmartRecipeBook.model.Mongo.RecipeIngredient;
 import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
 import it.unipi.MySmartRecipeBook.utils.enums.Task;
 import it.unipi.MySmartRecipeBook.repository.AdminRepository;
@@ -32,7 +33,7 @@ import java.util.List;
 public class ChefService {
 
     @Value("${app.recipe.pag-size-chef:5}")
-    private Integer pageSizeChef;
+    private int pageSizeChef;
 
 
     private final ChefRepository chefRepository;
@@ -41,16 +42,19 @@ public class ChefService {
     private final AdminRepository adminRepository;
     private final RecipeMongoRepository recipeMongoRepository;
     private final LowLoadManager lowLoadManager;
+    private final IngredientService ingredientService;
 
     public ChefService(ChefRepository chefRepository, ChefUtilityFunctions chefConvertions,
                        PasswordEncoder passwordEncoder, AdminRepository adminRepository,
-                       RecipeMongoRepository recipeMongoRepository, LowLoadManager lowLoadManager) {
+                       RecipeMongoRepository recipeMongoRepository, LowLoadManager lowLoadManager,
+                       IngredientService ingredientService) {
         this.chefRepository = chefRepository;
         this.chefConvertions = chefConvertions;
         this.passwordEncoder = passwordEncoder;
         this.adminRepository = adminRepository;
         this.recipeMongoRepository = recipeMongoRepository;
         this.lowLoadManager = lowLoadManager;
+        this.ingredientService = ingredientService;
     }
 
 
@@ -196,6 +200,15 @@ public class ChefService {
     @Transactional
     public ChefPreviewRecipeDTO createRecipe(CreateRecipeDTO dto) {
 
+        // Controlliamo che gli ingredienti siano presenti nel formato richiesto
+        List<RecipeIngredient> ingredients = dto.getIngredients();
+        for(RecipeIngredient ingredient : ingredients) {
+            String ingredientName = ingredient.getName();
+            if(!ingredientService.isValidIngredient(ingredientName)){
+                throw new RuntimeException("'" + ingredientName + "': invalid ingredient");
+            }
+        }
+
         /* We add the entire recipe to the admin list of recipes waiting to be approved */
         Admin admin = adminRepository.findByUsername("admin");
 
@@ -321,7 +334,7 @@ public class ChefService {
 
     /*------------------- Show recipe --------------------*/
     @Transactional
-    public Slice<ChefPreviewRecipeDTO> showRecipes (String filter, Integer pageNumber){
+    public Slice<ChefPreviewRecipeDTO> showRecipes (String filter, int pageNumber){
 
         UserPrincipal authChef = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()

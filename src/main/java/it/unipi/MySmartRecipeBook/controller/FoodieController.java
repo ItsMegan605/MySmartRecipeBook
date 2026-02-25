@@ -87,7 +87,7 @@ public class FoodieController {
     /*------------ Order favourites recipes by filter -------------*/
     @GetMapping("/getRecipe/{category}/{numPage}")
     public ResponseEntity<Slice<UserPreviewRecipeDTO>> getRecipeByCategory (@PathVariable String category,
-                                                                            @PathVariable Integer numPage) {
+                                                                            @PathVariable int numPage) {
 
         String foodieId = SecurityContextHolder.getContext()
                 .getAuthentication()

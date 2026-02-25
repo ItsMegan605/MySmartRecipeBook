@@ -24,4 +24,5 @@ public interface FoodieRepository extends MongoRepository<Foodie, String> {
     @Query("{ '$or': [ { 'new_saved.chef.chef_id': ?0 }, { 'old_saved.chef_id': ?0 } ] }")
     @Update("{ '$pull': { 'new_saved': { '_id': ?1 }, 'old_saved': { '_id': ?1 } } }")
     void deleteRecipeFromFoodies(String chefId, String recipeId);
+
 }

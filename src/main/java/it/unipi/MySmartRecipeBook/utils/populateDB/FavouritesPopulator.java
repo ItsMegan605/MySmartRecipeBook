@@ -7,15 +7,16 @@ import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.service.FoodieService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-
+@Order(1)
 @Component
-public class MongoPopulator implements CommandLineRunner {
+public class FavouritesPopulator implements CommandLineRunner {
 
     @Value("${app.recipe.do-population:false}")
     private boolean doPopulation;
@@ -25,8 +26,8 @@ public class MongoPopulator implements CommandLineRunner {
     private final FoodieService foodieService;
 
 
-    public MongoPopulator(RecipeMongoRepository recipeRepository, FoodieRepository foodieRepository,
-                          FoodieService foodieService) {
+    public FavouritesPopulator(RecipeMongoRepository recipeRepository, FoodieRepository foodieRepository,
+                               FoodieService foodieService) {
         this.recipeRepository = recipeRepository;
         this.foodieRepository = foodieRepository;
         this.foodieService = foodieService;
@@ -44,20 +45,16 @@ public class MongoPopulator implements CommandLineRunner {
         List<RecipeMongo> recipes = recipeRepository.findAll();
         List<Foodie> foodies = foodieRepository.findAll();
 
-        if(recipes == null || foodies == null){
-            throw new RuntimeException("Recipes or Foodies not found");
-        }
-
         Random random = new Random();
         for(Foodie foodie : foodies){
 
             // Scelgo un numero casuale di ricette da salvare tra i preferiti
-            Integer numRecipes = random.nextInt(200);
+            int numRecipes = random.nextInt(200);
 
             // Mescolo le ricette o prenderei sempre le stesse in ordine
             Collections.shuffle(recipes);
 
-            Integer addedRecipes = 0;
+            int addedRecipes = 0;
 
             for(RecipeMongo recipe : recipes){
 

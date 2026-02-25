@@ -2,11 +2,17 @@ package it.unipi.MySmartRecipeBook.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.unipi.MySmartRecipeBook.dto.IngredientsListDTO;
+
 import it.unipi.MySmartRecipeBook.model.Redis.ShoppingList;
 import it.unipi.MySmartRecipeBook.repository.FoodieRepository;
+import it.unipi.MySmartRecipeBook.security.UserPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.JedisCluster;
 
+import java.util.List;
+import java.util.Set;
 
 
 @Service
@@ -24,8 +30,30 @@ public class ShoppingListService {
     }
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private static final String REDIS_KEY_PREFIX = "shoppingList:";
+    public static final String REDIS_APP_NAMESPACE = "MySmartRecipeBook";
+    private static final String REDIS_KEY_PREFIX = "shoppingList:user:";
 
+
+    public IngredientsListDTO getShoppingList() {
+
+        UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        return returnShoppingList(authFoodie.getUsername());
+    }
+
+    private IngredientsListDTO returnShoppingList(String username) {
+
+        String key = REDIS_APP_NAMESPACE + REDIS_KEY_PREFIX + username;
+
+        Set<String> ingredients = jedisCluster.smembers(key);
+        IngredientsListDTO ingredientsListDTO = new IngredientsListDTO();
+        ingredientsListDTO.setIngredients(ingredients);
+
+        return ingredientsListDTO;
+    }
+/*
     public void saveShoppingList(ShoppingList list) {
         try {
             String json = objectMapper.writeValueAsString(list);
@@ -35,41 +63,49 @@ public class ShoppingListService {
             e.printStackTrace();
         }
     }
+*/
 
-    public ShoppingList getShoppingList(String username) {
-        String json = jedisCluster.get(REDIS_KEY_PREFIX + username);
-        if (json != null) {
-            try {
-                return objectMapper.readValue(json, ShoppingList.class);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
+
+    /*--------------- Add ingredients to foodie shopping list  ----------------*/
+
+    public IngredientsListDTO addIngredients(List<String> ingredients) {
+
+        UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        if(ingredients == null) {
+            throw new RuntimeException("No ingredients inserted");
         }
-        return new ShoppingList(username);
+        ingredients.removeIf(ingredient -> !ingredientService.isValidIngredient(ingredient));
+
+        String key = REDIS_APP_NAMESPACE + REDIS_KEY_PREFIX + authFoodie.getUsername();
+
+        // Metodo di aggiunta univoco, degli elementi alla lista - controllo se ci sono ingredienti sennò mi rispsparmio
+        // la connessione a Redis
+        if (!ingredients.isEmpty()) {
+            jedisCluster.sadd(key, ingredients.toArray(new String[0]));
+        }
+
+        return returnShoppingList(authFoodie.getUsername());
     }
 
 
-    public ShoppingList addIngredient(String username, String ingredient) {
-        if (!ingredientService.isValidIngredient(ingredient)) {
-            throw new IllegalArgumentException("The ingredient: " + ingredient + " is not allowed!");
-        }
-        if (!foodieRepository.existsById(username)) {
-            throw new RuntimeException("User not found");
-        }
-        ShoppingList list = getShoppingList(username);
-        list.addItem(ingredient);
-        saveShoppingList(list);
-        return list;
-    }
+    /*--------------- Remove ingredient from foodie shopping list  ----------------*/
 
-    public ShoppingList removeIngredient(String username, String ingredient) {
-        if (!foodieRepository.existsById(username)) {
-            throw new RuntimeException("User not found");
+    public IngredientsListDTO removeIngredient(String ingredient) {
+
+        UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        IngredientsListDTO list = returnShoppingList(authFoodie.getUsername());
+
+        if(ingredientService.isValidIngredient(ingredient)) {
+            String key = REDIS_APP_NAMESPACE + REDIS_KEY_PREFIX + authFoodie.getUsername();
+            jedisCluster.srem(key, ingredient);
         }
-        ShoppingList list = getShoppingList(username);
-        list.removeItem(ingredient); //chiamo la funzione che rimuove con case sensitive a regola
-        //è la funzione del model
-        saveShoppingList(list);
+
         return list;
     }
 

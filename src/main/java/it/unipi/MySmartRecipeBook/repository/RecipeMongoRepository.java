@@ -8,6 +8,8 @@ import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.Update;
 import org.springframework.stereotype.Repository;
 
+import javax.swing.*;
+
 
 @Repository
 public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, String> {
@@ -27,4 +29,6 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
     void deleteAllByChefId(String chefId);
 
     boolean existsByTitle(String title);
+
+    Integer countByChefId(String chefId);
 }

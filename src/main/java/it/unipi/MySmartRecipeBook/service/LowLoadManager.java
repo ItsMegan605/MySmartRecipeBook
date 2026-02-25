@@ -82,7 +82,7 @@ public class LowLoadManager {
 
         if(cpuLoad < 0.3){
 
-            Integer processedTasks = 0;
+            int processedTasks = 0;
             while(processedTasks < 10 && !taskQueue.isEmpty()){
                 TaskToDo task = taskQueue.poll();
                 executeTask(task);
@@ -169,7 +169,7 @@ public class LowLoadManager {
         }
     }
 
-    private void updateChefCounters(TaskToDo task, Integer increment) {
+    private void updateChefCounters(TaskToDo task, int increment) {
 
         /* Aggiorno il numero totale di ricette salvate dello chef */
         chefRepository.updateTotalSaves(task.getChefId(), increment);

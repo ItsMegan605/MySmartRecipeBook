@@ -39,14 +39,14 @@ public class RecipeController {
     /* Function to search a recipe by title in the home page (the research will be done searching sub-strings).
     Five recipes at the time will be shown */
     @GetMapping("/search")
-    public ResponseEntity<List<UserPreviewRecipeDTO>> getRecipeByTitle(@RequestParam String title, @RequestParam(defaultValue = "1") Integer pageNumber){
+    public ResponseEntity<List<UserPreviewRecipeDTO>> getRecipeByTitle(@RequestParam String title, @RequestParam(defaultValue = "1") int pageNumber){
 
         List<UserPreviewRecipeDTO> recipes_list = recipeService.getRecipeByTitle(title, pageNumber);
         return ResponseEntity.ok(recipes_list);
     }
 
     @GetMapping("/homeRecipe")
-    public ResponseEntity<List<UserPreviewRecipeDTO>> getHomeRecipe (@RequestParam(defaultValue = "1") Integer pageNumber){
+    public ResponseEntity<List<UserPreviewRecipeDTO>> getHomeRecipe (@RequestParam(defaultValue = "1") int pageNumber){
 
         List<UserPreviewRecipeDTO> recipe_list = recipeService.getNewestRecipe(pageNumber);
         return ResponseEntity.ok(recipe_list);
@@ -54,14 +54,14 @@ public class RecipeController {
 
     /* Function to order the user saved recipes by specifing a category */
     @GetMapping("/category")
-    public ResponseEntity<List<UserPreviewRecipeDTO>> getRecipeByCategory (@RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam String category){
+    public ResponseEntity<List<UserPreviewRecipeDTO>> getRecipeByCategory (@RequestParam(defaultValue = "1") int pageNumber, @RequestParam String category){
 
         List<UserPreviewRecipeDTO> recipe_list = recipeService.getByCategory(pageNumber, category);
         return ResponseEntity.ok(recipe_list);
     }
 
     @GetMapping("/chef")
-    public ResponseEntity<List<ChefPreviewRecipeDTO>> getChefRecipes (@RequestParam(defaultValue = "1") Integer pageNumber, @RequestParam String chefName){
+    public ResponseEntity<List<ChefPreviewRecipeDTO>> getChefRecipes (@RequestParam(defaultValue = "1") int pageNumber, @RequestParam String chefName){
 
         List<ChefPreviewRecipeDTO> recipe_list = recipeService.getChefRecipePage(pageNumber, chefName);
         return ResponseEntity.ok(recipe_list);

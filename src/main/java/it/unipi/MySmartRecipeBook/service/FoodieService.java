@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 public class FoodieService {
 
     @Value("${app.recipe.pag-size-foodie:5}")
-    private Integer pageSizeFoodie;
+    private int pageSizeFoodie;
 
     private final FoodieRepository foodieRepository;
     private final RecipeMongoRepository recipeRepository;
@@ -318,7 +318,7 @@ public class FoodieService {
 
     /*------------ Show foodie's favourites recipes -------------*/
 
-    public Slice<UserPreviewRecipeDTO> getRecipeByCategory(String foodieId, String category, Integer numPage) {
+    public Slice<UserPreviewRecipeDTO> getRecipeByCategory(String foodieId, String category, int numPage) {
 
         Foodie foodie = foodieRepository.findById(foodieId)
                 .orElseThrow(() -> new RuntimeException("Foodie not found"));
@@ -364,12 +364,12 @@ public class FoodieService {
             recipesPreview.addAll(allRecipes);
         }
 
-        Integer start = (numPage - 1) * pageSizeFoodie;
+        int start = (numPage - 1) * pageSizeFoodie;
         if(start > recipesPreview.size()){
             throw new RuntimeException("Invalid page number");
         }
 
-        Integer end = Math.min(start + pageSizeFoodie, recipesPreview.size());
+        int end = Math.min(start + pageSizeFoodie, recipesPreview.size());
 
         boolean hasNext = recipesPreview.size() > numPage*pageSizeFoodie;
         List<FoodieRecipeSummary> recipes = recipesPreview.subList(start, end);
