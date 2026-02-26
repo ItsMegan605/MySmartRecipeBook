@@ -1,5 +1,6 @@
 package it.unipi.MySmartRecipeBook.model.Mongo;
 
+import it.unipi.MySmartRecipeBook.model.Ingredient;
 import it.unipi.MySmartRecipeBook.model.ReducedChef;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,7 +36,7 @@ public class BaseRecipe {
 
     @Field("chef")
     private ReducedChef chef;
-    private List<RecipeIngredient> ingredients;
+    private List<Ingredient> ingredients;
 
     @Field("creation_date")
     private LocalDateTime creationDate;

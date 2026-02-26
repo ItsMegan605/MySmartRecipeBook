@@ -7,6 +7,7 @@ import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.CreateRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Admin;
 import it.unipi.MySmartRecipeBook.model.Chef;
+import it.unipi.MySmartRecipeBook.model.Ingredient;
 import it.unipi.MySmartRecipeBook.model.Mongo.*;
 import it.unipi.MySmartRecipeBook.utils.enums.Task;
 import it.unipi.MySmartRecipeBook.repository.AdminRepository;
@@ -143,8 +144,8 @@ public class ChefService {
     public ChefPreviewRecipeDTO createRecipe(CreateRecipeDTO dto) {
 
         // Controlliamo che gli ingredienti siano presenti nel formato richiesto
-        List<RecipeIngredient> ingredients = dto.getIngredients();
-        for(RecipeIngredient ingredient : ingredients) {
+        List<Ingredient> ingredients = dto.getIngredients();
+        for(Ingredient ingredient : ingredients) {
             String ingredientName = ingredient.getName();
             if(!ingredientService.isValidIngredient(ingredientName)){
                 throw new RuntimeException("'" + ingredientName + "': invalid ingredient");

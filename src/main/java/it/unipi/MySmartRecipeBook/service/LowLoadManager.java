@@ -4,9 +4,7 @@ import it.unipi.MySmartRecipeBook.dto.InfoToDeleteDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.GraphRecipeDTO;
 import it.unipi.MySmartRecipeBook.event.TaskToDo;
 import it.unipi.MySmartRecipeBook.model.Foodie;
-import it.unipi.MySmartRecipeBook.model.Mongo.FoodieRecipe;
-import it.unipi.MySmartRecipeBook.model.Mongo.RecipeIngredient;
-import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
+import it.unipi.MySmartRecipeBook.model.Ingredient;
 import it.unipi.MySmartRecipeBook.utils.enums.Task;
 import it.unipi.MySmartRecipeBook.repository.ChefRepository;
 import it.unipi.MySmartRecipeBook.repository.FoodieRepository;
@@ -131,9 +129,9 @@ public class LowLoadManager {
     private void createNeo4jRecipe(TaskToDo task) {
 
         List<String> ingredientNames = new ArrayList<>();
-        List<RecipeIngredient> ingredients = task.getRecipe().getIngredients();
+        List<Ingredient> ingredients = task.getRecipe().getIngredients();
 
-        for(RecipeIngredient ingredient : ingredients){
+        for(Ingredient ingredient : ingredients){
             ingredientNames.add(ingredient.getName());
         }
 

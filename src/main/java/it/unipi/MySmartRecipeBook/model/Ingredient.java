@@ -18,7 +18,7 @@ public class Ingredient {
     @Id
     private String id;
 
-    @Field("nome") // Questo deve coincidere con la chiave JSON del documento
+    @Field("name") // Questo deve coincidere con la chiave JSON del documento
     private String name;
 }
 

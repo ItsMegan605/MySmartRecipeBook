@@ -1,7 +1,7 @@
 package it.unipi.MySmartRecipeBook.dto.recipe;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import it.unipi.MySmartRecipeBook.model.Mongo.RecipeIngredient;
+import it.unipi.MySmartRecipeBook.model.Ingredient;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,5 +25,5 @@ public class GraphRecipeDTO {
     @JsonProperty("image_url")
     String imgURL;
 
-    List<RecipeIngredient> ingredients;
+    List<Ingredient> ingredients;
 }
