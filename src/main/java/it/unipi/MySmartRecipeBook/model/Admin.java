@@ -18,10 +18,10 @@ import java.util.List;
 @Document(collection = "chefs")
 public class Admin extends RegisteredUser {
 
-    @Field("recipe_to_approve")
+    @Field("recipes_to_approve")
     private List<BaseRecipe> recipesToApprove;
 
-    @Field("chef_to_approve")
-    private List<Chef> chefToApprove;
+    @Field("chefs_to_approve")
+    private List<Chef> chefsToApprove;
 
 }

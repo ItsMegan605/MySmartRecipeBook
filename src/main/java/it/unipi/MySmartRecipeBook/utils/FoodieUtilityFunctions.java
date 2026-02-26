@@ -53,7 +53,7 @@ public class FoodieUtilityFunctions {
     }
 
 
-    public FoodieRecipeSummary entityToReducedRecipe (FoodieRecipe recipeMongo) {
+    public FoodieRecipeSummary entityToReducedRecipe (RecipeMongo recipeMongo) {
 
         FoodieRecipeSummary recipe = new FoodieRecipeSummary();
         recipe.setId(recipeMongo.getId());
@@ -61,7 +61,7 @@ public class FoodieUtilityFunctions {
         recipe.setImageURL(recipeMongo.getImageURL());
         recipe.setCategory(recipeMongo.getCategory());
         recipe.setDifficulty(recipeMongo.getDifficulty());
-        recipe.setSavingDate(recipeMongo.getSavingDate());
+        recipe.setSavingDate(LocalDate.now());
 
         return  recipe;
     }

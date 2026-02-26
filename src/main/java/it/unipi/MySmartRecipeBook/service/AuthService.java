@@ -67,8 +67,8 @@ public class AuthService {
 
         // Controlliamo che tra le richieste in attesa di essere approvate non ci sia un duplicato (controlliamo nome,
         // cognome e data di nascita dello chef che si vuole registrare)
-        if(admin.getChefToApprove()!=null) {
-            for (Chef targetChef : admin.getChefToApprove()) {
+        if(admin.getChefsToApprove()!=null) {
+            for (Chef targetChef : admin.getChefsToApprove()) {
                 if (chefUtils.chefAlreadyInserted(targetChef, chef)) {
                     throw new RuntimeException("Request already sent");
                 }

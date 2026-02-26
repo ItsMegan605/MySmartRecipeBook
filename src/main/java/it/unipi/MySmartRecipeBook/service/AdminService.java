@@ -167,7 +167,7 @@ public class AdminService {
         Admin admin = adminRepository.findById(logged_admin.getId())
                 .orElseThrow(() -> new RuntimeException("Admin not found"));
 
-        List<Chef> chefToApprove = admin.getChefToApprove();
+        List<Chef> chefToApprove = admin.getChefsToApprove();
         if(chefToApprove == null){
             throw new RuntimeException("No chef has to be approved");
         }
@@ -203,7 +203,7 @@ public class AdminService {
         Admin admin = adminRepository.findById(logged_admin.getId())
                 .orElseThrow(() -> new RuntimeException("Admin not found"));
 
-        List<Chef> chefToApprove = admin.getChefToApprove();
+        List<Chef> chefToApprove = admin.getChefsToApprove();
         if(chefToApprove == null){
             throw new RuntimeException("No chef has to be approved");
         }

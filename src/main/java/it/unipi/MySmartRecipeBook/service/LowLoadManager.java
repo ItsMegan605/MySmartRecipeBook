@@ -192,22 +192,8 @@ public class LowLoadManager {
             /* In questo caso non possiamo usare la struttura con il for o ci verrebbe dato errore se eliminiamo un
             elemento e continuiamo a scorrere la lista */
 
-            if (foodie.getNewSavedRecipes() != null) {
-                foodie.getNewSavedRecipes().removeIf(r -> r.getChef().getId().equals(chefId));
-            }
-            if (foodie.getOldSavedRecipes() != null) {
-                foodie.getOldSavedRecipes().removeIf(r -> r.getId().equals(chefId));
-            }
-
-            while(foodie.getNewSavedRecipes().size() < 5){
-                String recipeId = foodie.getOldSavedRecipes().get(0).getId();
-                foodie.getOldSavedRecipes().remove(foodie.getOldSavedRecipes().get(0));
-
-                RecipeMongo recipe = recipeMongoRepository.findById(recipeId).
-                        orElseThrow(() -> new RuntimeException("Recipe not found"));
-
-                FoodieRecipe recipeToMove = usersConvertions.entityToFoodieEntity(recipe);
-                foodie.getNewSavedRecipes().add(recipeToMove);
+            if (foodie.getSavedRecipes() != null) {
+                foodie.getSavedRecipes().removeIf(r -> r.getChef().getId().equals(chefId));
             }
         }
 

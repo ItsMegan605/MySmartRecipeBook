@@ -21,11 +21,13 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.http.HttpStatus;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -135,17 +137,10 @@ public class FoodieService {
         List<String> recipesId = new ArrayList<>();
         List<String> chefsId = new ArrayList<>();
 
-        if(foodie.getNewSavedRecipes() != null){
-            for(FoodieRecipe recipe: foodie.getNewSavedRecipes()){
+        if(foodie.getSavedRecipes() != null){
+            for(FoodieRecipeSummary recipe: foodie.getSavedRecipes()){
                 recipesId.add(recipe.getId());
                 chefsId.add(recipe.getChef().getId());
-            }
-        }
-
-        if(foodie.getOldSavedRecipes() != null){
-            for(FoodieRecipeSummary recipe: foodie.getOldSavedRecipes()){
-                recipesId.add(recipe.getId());
-                chefsId.add(recipe.getId());
             }
         }
 
@@ -162,26 +157,10 @@ public class FoodieService {
     /*------------ Add a recipe to foodie's favourites  -------------*/
 
     @Transactional
-    @Retryable(retryFor = OptimisticLockingFailureException.class, maxAttempts = 3)
     public void saveRecipe(String foodieId, String recipeId) {
 
-        Foodie foodie = foodieRepository.findById(foodieId)
-                .orElseThrow(() -> new RuntimeException("Foodie not found"));
-
-        if(foodie.getNewSavedRecipes() != null) {
-            //check if the recipe has already been saved in the last recipes
-            for (FoodieRecipe recipe : foodie.getNewSavedRecipes()) {
-                if (recipe.getId().equals(recipeId))
-                    throw new RuntimeException("Recipe already saved");
-            }
-        }
-
-        if(foodie.getOldSavedRecipes() != null) {
-            //check if the recipe has already been saved in the old recipes
-            for (FoodieRecipeSummary recipe : foodie.getOldSavedRecipes()) {
-                if (recipe.getId().equals(recipeId))
-                    throw new RuntimeException("Recipe already saved");
-            }
+        if(!foodieRepository.existsById(foodieId)){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No valid foodie");
         }
 
         /* We retrieve all the recipe informations from the recipe collection*/
@@ -189,32 +168,9 @@ public class FoodieService {
                 .orElseThrow(() -> new RuntimeException("Recipe to save not found"));
 
         // All'interno di questa entità viene memorizzata la data di salvataggio
-        FoodieRecipe fullRecipe = usersConvertions.entityToFoodieEntity(recipe);
+        FoodieRecipeSummary fullRecipe = usersConvertions.entityToReducedRecipe(recipe);
 
-        /* If it is the first save, we have to create the NewSavedRecipes list */
-        if (foodie.getNewSavedRecipes() == null) {
-            foodie.setNewSavedRecipes(new ArrayList<>());
-        }
-
-        /* If the NewSavedRecipes list is already full we have to move the oldest recipe of the list in the OldSavedRecipe
-        list and then we insert the new recipe in the NewSavedRecipe */
-        if(foodie.getNewSavedRecipes().size() == 5){
-
-            if (foodie.getOldSavedRecipes() == null) {
-                foodie.setOldSavedRecipes(new ArrayList<>());
-            }
-
-            int index = foodie.getNewSavedRecipes().size() - 1;
-            FoodieRecipe oldestRecipe = foodie.getNewSavedRecipes().remove(index);
-            FoodieRecipeSummary reduced_old = usersConvertions.entityToReducedRecipe(oldestRecipe);
-
-            /* We insert the element on the head of the list, in order to implement the FIFO policy */
-            foodie.getOldSavedRecipes().add(0, reduced_old);
-        }
-
-        foodie.getNewSavedRecipes().add(0, fullRecipe);
-        foodieRepository.save(foodie);
-
+        foodieRepository.addRecipeToFavourites(foodieId, recipeId, fullRecipe);
         lowLoadManager.addTask(Task.TaskType.SET_COUNTERS_ADD_FAVOURITE, recipeId, recipe.getChef().getId());
     }
 
@@ -233,48 +189,22 @@ public class FoodieService {
         Foodie foodie = foodieRepository.findById(authFoodie.getId())
                 .orElseThrow(() -> new RuntimeException("Foodie not found"));
 
-        if(foodie.getNewSavedRecipes() ==  null){
+        if(foodie.getSavedRecipes() ==  null){
             throw new RuntimeException("Recipe not found for the specified foodie");
         }
 
-        String targetChefId = null;
-        for (FoodieRecipe recipe : foodie.getNewSavedRecipes()) {
+       String targetChefId = null;
+        for (FoodieRecipeSummary recipe : foodie.getSavedRecipes()) {
             if(recipe.getId().equals(recipeId)){
                 targetChefId = recipe.getChef().getId();
-                foodie.getNewSavedRecipes().remove(recipe);
-
-                if(foodie.getOldSavedRecipes() != null){
-
-                    String oldRecipeId = foodie.getOldSavedRecipes().get(0).getId();
-                    RecipeMongo oldRecipe =  recipeRepository.findById(oldRecipeId)
-                            .orElseThrow(() -> new RuntimeException("Recipe not found"));
-
-                    FoodieRecipe recipeToMove = usersConvertions.entityToFoodieEntity(oldRecipe);
-                    foodie.getNewSavedRecipes().add(recipeToMove);
-
-                    foodie.getOldSavedRecipes().remove(0);
-                }
-                foodieRepository.save(foodie);
+                foodieRepository.removeRecipeFromFavourites(foodie.getId(), recipeId);
                 break;
             }
         }
 
-        if(targetChefId == null &&  foodie.getOldSavedRecipes() != null){
-            for (FoodieRecipeSummary recipe : foodie.getOldSavedRecipes()) {
-                if (recipe.getId().equals(recipeId)){
-                    targetChefId = recipe.getChefId();
-                    foodie.getOldSavedRecipes().remove(recipe);
-                    foodieRepository.save(foodie);
-                    break;
-                }
-            }
+        if(targetChefId != null){
+            lowLoadManager.addTask(Task.TaskType.SET_COUNTERS_REMOVE_FAVOURITE, recipeId, targetChefId);
         }
-
-        if(targetChefId == null){
-            throw new RuntimeException("Recipe not found among foodie's favourites");
-        }
-
-        lowLoadManager.addTask(Task.TaskType.SET_COUNTERS_REMOVE_FAVOURITE, recipeId, targetChefId);
     }
 
 
@@ -289,7 +219,7 @@ public class FoodieService {
         Foodie foodie = foodieRepository.findById(authFoodie.getId())
                 .orElseThrow(() -> new RuntimeException("Foodie not found"));
 
-        if(foodie.getNewSavedRecipes() == null){
+        if(foodie.getSavedRecipes() == null){
             throw new RuntimeException("Recipe not found for the specified foodie");
         }
 
@@ -297,37 +227,31 @@ public class FoodieService {
             throw new RuntimeException("Invalid parameters");
         }
 
-        List<FoodieRecipeSummary> reducedRecipes = usersConvertions.foodieListToSummaryList(foodie.getNewSavedRecipes());
         if(numPage == 1 && category.equals("date")){
             Pageable pageable = PageRequest.of(numPage - 1, pageSizeFoodie, Sort.by("savingDate").descending() );
-            boolean hasNext = (foodie.getOldSavedRecipes() == null) ? false : true;
+            boolean hasNext = (foodie.getSavedRecipes().size() < 5) ? false : true;
 
-            List<UserPreviewRecipeDTO> content = usersConvertions.foodieSummaryToUserPreview(reducedRecipes);
+            List<UserPreviewRecipeDTO> content = usersConvertions.foodieSummaryToUserPreview(foodie.getSavedRecipes());
             return  new SliceImpl<>(content, pageable, hasNext);
-        }
-
-        List<FoodieRecipeSummary> allRecipes = new ArrayList<>(reducedRecipes);
-        if(foodie.getOldSavedRecipes() != null){
-            allRecipes.addAll(foodie.getOldSavedRecipes());
         }
 
         List<FoodieRecipeSummary> recipesPreview = new ArrayList<>();
         if(CATEGORIES.contains(category)){
-            for(FoodieRecipeSummary recipe : allRecipes){
+            for(FoodieRecipeSummary recipe : foodie.getSavedRecipes()){
                 if(recipe.getCategory().equals(category)){
                     recipesPreview.add(recipe);
                 }
             }
         }
         else if(DIFFICULTIES.contains(category)){
-            for(FoodieRecipeSummary recipe : allRecipes){
+            for(FoodieRecipeSummary recipe : foodie.getSavedRecipes()){
                 if(recipe.getDifficulty().equals(category)){
                     recipesPreview.add(recipe);
                 }
             }
         }
         else if (category.equals("date")) {
-            recipesPreview.addAll(allRecipes);
+            recipesPreview.addAll(foodie.getSavedRecipes());
         }
 
         int start = (numPage - 1) * pageSizeFoodie;

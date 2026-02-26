@@ -17,30 +17,29 @@ public interface ChefRepository extends MongoRepository<Chef, String> {
     boolean existsByUsername(String username);
 
     @Query("{ '_id' : ?0 }")
-    @Update("{ '$inc' : { 'totalSaves' : ?1 } }")
+    @Update("{ '$inc' : { 'tot_saves' : ?1 } }")
     void updateTotalSaves(String chefId, int amount);
 
-    @Query("{ '_id' : ?0, 'newRecipes._id' : ?1 }")
-    @Update("{ '$inc' : { 'newRecipes.$.numSaves' : ?2 } }")
+    @Query("{ '_id' : ?0, 'new_recipes.id' : ?1 }")
+    @Update("{ '$inc' : { 'new_recipes.$.num_saves' : ?2 } }")
     void updateChefCounters(String chefId, String recipeId, int increment);
 
     @Query("{ '_id': ?0 }")
     @Update("{ " +
-            "  '$pull': { 'recipesToConfirm': { 'id': ?1 } }, " +
-            "  '$inc': { 'totalRecipes': 1 }, " +
-            "  '$push': { 'newRecipes': { '$each': [ ?2 ], '$position': 0, '$slice': 5 } } " +
+            "  '$pull': { 'recipes_to_confirm': { 'id': ?1 } }, " +
+            "  '$inc': { 'tot_recipes': 1 }, " +
+            "  '$push': { 'new_recipes': { '$each': [ ?2 ], '$position': 0, '$slice': 5 } } " +
             "}")
     void approveRecipe(String chefId, String recipeToConfirmId, ChefRecipe newRecipe);
 
 
     @Query("{ '_id': ?0 }")
-    @Update("{ '$pull': { 'recipesToConfirm': { 'id': ?1 } } }")
+    @Update("{ '$pull': { 'recipes_to_confirm': { 'id': ?1 } } }")
     Integer removeRecipeFromWaiting(String chefId, String recipeId);
 
     @Query("{ '_id': ?0 }")
-    @Update("{ '$push': { 'recipesToConfirm': { 'id': ?1 } } }")
+    @Update("{ '$push': { 'recipes_to_confirm': ?1 } }")
     void addRecipeToWaiting(String chefId, ChefRecipe recipe);
-
 
 }
 

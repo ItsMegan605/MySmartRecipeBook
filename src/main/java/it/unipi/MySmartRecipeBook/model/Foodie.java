@@ -1,6 +1,5 @@
 package it.unipi.MySmartRecipeBook.model;
 
-import it.unipi.MySmartRecipeBook.model.Mongo.FoodieRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.FoodieRecipeSummary;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,8 +20,7 @@ import java.util.ArrayList;
 @AllArgsConstructor
 
 @CompoundIndexes({
-        @CompoundIndex(name = "new_saved_idx", def = "{'new_saved.chef.id': 1}"),
-        @CompoundIndex(name = "old_saved_idx", def = "{'old_saved.id': 1}")
+        @CompoundIndex(name = "saved_idx", def = "{'saved_recipes.chef.id': 1}")
 })
 
 @Document(collection = "users")
@@ -31,11 +29,8 @@ public class Foodie extends RegisteredUser {
     @Field("registration_date")
     private Date registrationDate;
 
-    @Field("new_saved")
-    private List<FoodieRecipe> newSavedRecipes;
-
-    @Field("old_saved")
-    private List<FoodieRecipeSummary> oldSavedRecipes;
+    @Field("saved_recipes")
+    private List<FoodieRecipeSummary> savedRecipes;
 
     @Version
     private long version;
