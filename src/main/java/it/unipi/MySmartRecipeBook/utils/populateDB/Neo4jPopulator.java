@@ -1,5 +1,5 @@
 package it.unipi.MySmartRecipeBook.utils.populateDB;
-
+/*
 import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
 import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.utils.RecipeUtilityFunctions;
@@ -39,8 +39,8 @@ public class Neo4jPopulator implements CommandLineRunner {
         List<RecipeMongo> listRecipes = recipeRepository.findAll();
 
         for(RecipeMongo recipe : listRecipes){
-
-
+            neo4jRepository.createRecipe(recipe.getId(), recipe.getTitle(), recipe.getChef().getId(), recipe.getIngredients());
         }
     }
 }
+*/

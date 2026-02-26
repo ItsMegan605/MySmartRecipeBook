@@ -90,7 +90,7 @@ public class AdminService {
 
         // 4_ Inserire l'evento "inserimento ricetta in Neo4j" nella coda degli eventi che verranno gestiti quando
         // l'utilizzazione della CPU è sotto il 30%
-        GraphRecipeDTO graphRecipe = recipeConvertions.MongoToNeo4jRecipe(savedRecipe);
+        GraphRecipeDTO graphRecipe = recipeConvertions.MongoToNeo4jGraph(savedRecipe);
         lowLoadManager.addTask(Task.TaskType.CREATE_RECIPE_NEO4J, graphRecipe);
 
     }

@@ -7,6 +7,7 @@ import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Mongo.BaseRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
+import it.unipi.MySmartRecipeBook.model.Neo4j.RecipeNeo4j;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -88,7 +89,7 @@ public class RecipeUtilityFunctions {
         return full_recipe;
     }
 
-    public GraphRecipeDTO MongoToNeo4jRecipe(RecipeMongo recipe){
+    public GraphRecipeDTO MongoToNeo4jGraph(RecipeMongo recipe){
 
         GraphRecipeDTO recipeNeo4j = new GraphRecipeDTO();
         recipeNeo4j.setId(recipe.getId());
@@ -96,6 +97,17 @@ public class RecipeUtilityFunctions {
         recipeNeo4j.setIngredients(recipe.getIngredients());
         recipeNeo4j.setChefId(recipe.getChef().getId());
         recipeNeo4j.setImgURL(recipe.getImageURL());
+
+        return recipeNeo4j;
+    }
+
+    public RecipeNeo4j MongoToNeo4jRecipe(RecipeMongo recipe){
+
+        RecipeNeo4j recipeNeo4j = new RecipeNeo4j();
+        recipeNeo4j.setId(recipe.getId());
+        recipeNeo4j.setTitle(recipe.getTitle());
+        recipeNeo4j.setIngredients(recipe.getIngredients());
+
 
         return recipeNeo4j;
     }

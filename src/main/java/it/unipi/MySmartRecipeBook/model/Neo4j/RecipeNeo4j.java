@@ -1,5 +1,7 @@
 package it.unipi.MySmartRecipeBook.model.Neo4j;
 
+import it.unipi.MySmartRecipeBook.model.Ingredient;
+import it.unipi.MySmartRecipeBook.model.Mongo.RecipeIngredient;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
@@ -20,5 +22,5 @@ public class RecipeNeo4j {
     private String imageURL;
 
     @Relationship(type = "USED_IN", direction = Relationship.Direction.INCOMING)
-    private List<IngredientsNeo4j> ingredients;
+    private List<RecipeIngredient> ingredients;
 }
