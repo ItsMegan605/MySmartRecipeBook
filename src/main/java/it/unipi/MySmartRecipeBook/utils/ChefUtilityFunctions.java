@@ -7,6 +7,7 @@ import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Chef;
 import it.unipi.MySmartRecipeBook.model.Mongo.BaseRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipe;
+import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipeSummary;
 import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
 import it.unipi.MySmartRecipeBook.model.ReducedChef;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
@@ -132,22 +133,16 @@ public class ChefUtilityFunctions {
         return recipeDTO;
     }
 
-    public List<ChefRecipe> MongoListToChefList(List<RecipeMongo> recipesToConvert) {
+    public List<ChefRecipeSummary> MongoListToChefListSummary(List<RecipeMongo> recipesToConvert) {
 
-        List<ChefRecipe> chefRecipes = new ArrayList<>();
+        List<ChefRecipeSummary> chefRecipes = new ArrayList<>();
 
         for(RecipeMongo recipeMongo : recipesToConvert){
-            ChefRecipe recipe = new ChefRecipe();
+            ChefRecipeSummary recipe = new ChefRecipeSummary();
 
             recipe.setId(recipeMongo.getId());
             recipe.setTitle(recipeMongo.getTitle());
-            recipe.setPresentation(recipeMongo.getPresentation());
-            recipe.setCategory(recipeMongo.getCategory());
-            recipe.setPrepTime(recipeMongo.getPrepTime());
-            recipe.setPreparation(recipeMongo.getPreparation());
-            recipe.setDifficulty(recipeMongo.getDifficulty());
             recipe.setImageURL(recipeMongo.getImageURL());
-            recipe.setIngredients(recipeMongo.getIngredients());
             recipe.setCreationDate(recipeMongo.getCreationDate());
             recipe.setNumSaves(recipe.getNumSaves());
 
@@ -158,16 +153,18 @@ public class ChefUtilityFunctions {
     }
 
 
-    public List<ChefPreviewRecipeDTO> ChefListToSummaryList(List<ChefRecipe> recipesList) {
+    public List<ChefPreviewRecipeDTO> ChefListToSummaryList(List<ChefRecipeSummary> recipesList) {
 
         List<ChefPreviewRecipeDTO> chefPreviewList = new ArrayList<>();
-        for(ChefRecipe recipe : recipesList){
+        for(ChefRecipeSummary recipe : recipesList){
             ChefPreviewRecipeDTO recipeDTO = new ChefPreviewRecipeDTO();
 
             recipeDTO.setId(recipe.getId());
             recipeDTO.setTitle(recipe.getTitle());
             recipeDTO.setImageURL(recipe.getImageURL());
             recipeDTO.setCreationDate(recipe.getCreationDate().toLocalDate());
+            recipeDTO.setNumSaves(recipe.getNumSaves());
+
             chefPreviewList.add(recipeDTO);
         }
 

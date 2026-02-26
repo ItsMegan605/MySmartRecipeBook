@@ -19,4 +19,7 @@ public class ChefPreviewRecipeDTO extends PreviewRecipeDTO {
 
     @JsonProperty("creation_date")
     private LocalDate creationDate;
+
+    @JsonProperty("num_saves")
+    private int numSaves;
 }

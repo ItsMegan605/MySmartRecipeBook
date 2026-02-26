@@ -16,8 +16,8 @@ import java.time.LocalDateTime;
 
 public class ChefRecipeSummary {
 
-    @Field("mongo_id")
-    private String mongoId;
+    @Field("id")
+    private String id;
 
     private String title;
 

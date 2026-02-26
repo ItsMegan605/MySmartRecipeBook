@@ -7,10 +7,7 @@ import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.CreateRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Admin;
 import it.unipi.MySmartRecipeBook.model.Chef;
-import it.unipi.MySmartRecipeBook.model.Mongo.BaseRecipe;
-import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipe;
-import it.unipi.MySmartRecipeBook.model.Mongo.RecipeIngredient;
-import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
+import it.unipi.MySmartRecipeBook.model.Mongo.*;
 import it.unipi.MySmartRecipeBook.utils.enums.Task;
 import it.unipi.MySmartRecipeBook.repository.AdminRepository;
 import it.unipi.MySmartRecipeBook.repository.ChefRepository;
@@ -208,7 +205,7 @@ public class ChefService {
         Chef chef = chefRepository.findById(chef1.getId())
                 .orElseThrow(() -> new RuntimeException("Chef not found"));
 
-        List<ChefRecipe> newRecipes = chef.getNewRecipes();
+        List<ChefRecipeSummary> newRecipes = chef.getNewRecipes();
 
         if (newRecipes == null) {
             throw new RuntimeException("No recipes found");
@@ -220,14 +217,14 @@ public class ChefService {
         }
 
         // Questa parte non è atomica ma per renderla tale dobbiamo necessariamente usare version o lock
-        for (ChefRecipe recipe : newRecipes) {
+        for (ChefRecipeSummary recipe : newRecipes) {
             if (recipe.getId().equals(recipeId)) {
 
                 Pageable pageable = PageRequest.of(0, pageSizeChef, Sort.by("creationDate").descending());
                 Slice<RecipeMongo> matchSlice = recipeMongoRepository.findByChefId(chef1.getId(), pageable);
                 List<RecipeMongo> matchRecipes = matchSlice.getContent();
 
-                List<ChefRecipe> recipesToSave = chefConvertions.MongoListToChefList(matchRecipes);
+                List<ChefRecipeSummary> recipesToSave = chefConvertions.MongoListToChefListSummary(matchRecipes);
                 chef.setNewRecipes(recipesToSave);
                 break;
             }

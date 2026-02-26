@@ -29,7 +29,7 @@ public class Chef extends RegisteredUser {
     private LocalDate registrationDate;
 
     @Field("new_recipes")
-    private List<ChefRecipe> newRecipes;
+    private List<ChefRecipeSummary> newRecipes;
 
     @Field("recipe_to_confirm")
     private List<ChefRecipe> recipesToConfirm;

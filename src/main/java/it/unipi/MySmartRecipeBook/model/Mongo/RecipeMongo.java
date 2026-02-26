@@ -19,10 +19,10 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 @CompoundIndexes({
         // Indice per filtrare per Chef E ordinare per Data (veloce per la "Vetrina")
-        @CompoundIndex(name = "chefDate", def = "{'chef_id': 1, 'creation_date': -1}"),
+        @CompoundIndex(name = "chefDate_idx", def = "{'chef.id': 1, 'creation_date': -1}"),
 
         // Indice per filtrare per Chef E ordinare per Like (veloce per "Most Liked")
-        @CompoundIndex(name = "chefPopularity", def = "{'chef_id': 1, 'num_saves': -1}")
+        @CompoundIndex(name = "chefPopularity_idx", def = "{'chef.id': 1, 'num_saves': -1}")
 })
 
 public class RecipeMongo extends BaseRecipe{

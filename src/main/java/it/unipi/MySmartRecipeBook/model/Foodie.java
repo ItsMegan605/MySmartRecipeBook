@@ -21,8 +21,8 @@ import java.util.ArrayList;
 @AllArgsConstructor
 
 @CompoundIndexes({
-        @CompoundIndex(name = "new_saved_idx", def = "{'new_saved.chef.chef_id': 1}"),
-        @CompoundIndex(name = "old_saved_idx", def = "{'old_saved.chef_id': 1}")
+        @CompoundIndex(name = "new_saved_idx", def = "{'new_saved.chef.id': 1}"),
+        @CompoundIndex(name = "old_saved_idx", def = "{'old_saved.id': 1}")
 })
 
 @Document(collection = "users")

@@ -2,6 +2,7 @@ package it.unipi.MySmartRecipeBook.utils.populateDB;
 
 import it.unipi.MySmartRecipeBook.model.Chef;
 import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipe;
+import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipeSummary;
 import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
 import it.unipi.MySmartRecipeBook.repository.ChefRepository;
 import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
@@ -51,7 +52,7 @@ public class ChefPopulator implements CommandLineRunner{
             Pageable pageable = PageRequest.of(0, 5, Sort.by("creationDate").descending());
             Slice<RecipeMongo> sliceMatchedRecipes = recipeRepository.findByChefId(chef.getId(), pageable);
             List<RecipeMongo> recipesList = sliceMatchedRecipes.getContent();
-            List<ChefRecipe> recipes = chefUtils.MongoListToChefList(recipesList);
+            List<ChefRecipeSummary> recipes = chefUtils.MongoListToChefListSummary(recipesList);
 
             chef.setNewRecipes(recipes);
             chefRepository.save(chef);
