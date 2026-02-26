@@ -23,7 +23,7 @@ import java.util.ArrayList;
         @CompoundIndex(name = "saved_idx", def = "{'saved_recipes.chef.id': 1}")
 })
 
-@Document(collection = "users")
+@Document(collection = "foodies")
 public class Foodie extends RegisteredUser {
 
     @Field("registration_date")

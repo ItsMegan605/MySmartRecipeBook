@@ -172,7 +172,7 @@ public class ChefService {
         }
 
         // Aggiungiamo la ricetta a quelle in attesa di approvazione dell'admin
-        adminRepository.addRecipeFromApprovals(admin.getId(), savedRecipe);
+        adminRepository.addRecipeToApprovals(admin.getId(), savedRecipe);
 
         UserPrincipal authChef = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()

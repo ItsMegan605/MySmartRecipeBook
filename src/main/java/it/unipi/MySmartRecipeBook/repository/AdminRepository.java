@@ -13,19 +13,19 @@ public interface AdminRepository extends MongoRepository<Admin, String> {
     Admin findByUsername(String username);
 
     @Query("{ '_id': ?0 }")
-    @Update("{ '$push': { 'recipesToApprove': { 'id': ?1 } } }")
-    void addRecipeFromApprovals(String adminId, BaseRecipe recipe);
+    @Update("{ '$push': { 'recipes_to_approve': ?1 } }")
+    void addRecipeToApprovals(String adminId, BaseRecipe recipe);
 
     @Query("{ '_id': ?0 }")
-    @Update("{ '$pull': { 'recipesToApprove': { 'id': ?1 } } }")
+    @Update("{ '$pull': { 'recipes_to_approve': { 'id': ?1 } } }")
     void removeRecipeFromApprovals(String adminId, String recipeId);
 
     @Query("{ '_id': ?0 }")
-    @Update("{ '$pull': { 'chefToApprove': { 'id': ?1 } } }")
+    @Update("{ '$pull': { 'chefs_to_approve': { 'id': ?1 } } }")
     void removeChefFromApprovals(String adminId, String chefId);
 
 
     @Query("{ '_id': ?0 }")
-    @Update("{ '$push': { 'chefToApprove': { 'id': ?1 } } }")
+    @Update("{ '$push': { 'chefs_to_approve': ?1 } }")
     void addChefToApprovals(String adminId, Chef chef);
 }
