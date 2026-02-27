@@ -1,5 +1,6 @@
 package it.unipi.MySmartRecipeBook.repository;
 import it.unipi.MySmartRecipeBook.dto.recipe.RecipeSuggestionDTO;
+import it.unipi.MySmartRecipeBook.model.Ingredient;
 import it.unipi.MySmartRecipeBook.model.Neo4j.RecipeNeo4j;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
@@ -22,6 +23,9 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Stri
             "ORDER BY matchCount DESC")
 
     List<RecipeSuggestionDTO> findRecipesByIngredients(List<String> myIngredients);
+
+    @Query("CREATE (i:Ingredient {id: $ingredient.id, name: $ingredient.name})")
+    void insertIngredient(Ingredient ingredient);
 
 
     @Query("CREATE (r:Recipe {id: $recipeId, title: $title, chefId: $chefId}) " +

@@ -1,18 +1,17 @@
 package it.unipi.MySmartRecipeBook.utils.populateDB;
 
 import it.unipi.MySmartRecipeBook.model.Foodie;
+import it.unipi.MySmartRecipeBook.model.Mongo.FoodieRecipeSummary;
 import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
 import it.unipi.MySmartRecipeBook.repository.FoodieRepository;
 import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
-import it.unipi.MySmartRecipeBook.service.FoodieService;
+import it.unipi.MySmartRecipeBook.utils.FoodieUtilityFunctions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 @Order(1)
 @Component
@@ -23,18 +22,20 @@ public class FavouritesPopulator implements CommandLineRunner {
 
     private final RecipeMongoRepository recipeRepository;
     private final FoodieRepository foodieRepository;
-    private final FoodieService foodieService;
+    private final FoodieUtilityFunctions foodieUtils;
 
 
     public FavouritesPopulator(RecipeMongoRepository recipeRepository, FoodieRepository foodieRepository,
-                               FoodieService foodieService) {
+                               FoodieUtilityFunctions foodieUtils) {
         this.recipeRepository = recipeRepository;
         this.foodieRepository = foodieRepository;
-        this.foodieService = foodieService;
+        this.foodieUtils = foodieUtils;
     }
 
+
+    // Devo salvare le ricette preferite (in numero compreso tra 0 e 200) per ciascun foodie
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args){
 
         if(!doPopulation){
             return;
@@ -45,34 +46,47 @@ public class FavouritesPopulator implements CommandLineRunner {
         List<RecipeMongo> recipes = recipeRepository.findAll();
         List<Foodie> foodies = foodieRepository.findAll();
 
+        if(recipes.isEmpty() || foodies.isEmpty()){
+            return;
+        }
+
+        int bound = recipes.size() < 200 ?  recipes.size() : 200;
         Random random = new Random();
         for(Foodie foodie : foodies){
 
             // Scelgo un numero casuale di ricette da salvare tra i preferiti
-            int numRecipes = random.nextInt(200);
+            int numRecipes = random.nextInt(bound);
 
             // Mescolo le ricette o prenderei sempre le stesse in ordine
-            Collections.shuffle(recipes);
 
             int addedRecipes = 0;
 
-            for(RecipeMongo recipe : recipes){
+            Set<Integer> chosenIndices = new HashSet<>();
+            List<FoodieRecipeSummary> foodieRecipes = new ArrayList<>();
+            List<String> recipesId = new ArrayList<>();
 
-                // Controlliamo se abbiamo raggiunto il numero di ricette che dobbiamo aggiungere per quall'utente
-                if(addedRecipes >= numRecipes){
-                    break;
-                }
+            // Fino a quando non abbiamo raggiunto il numero di preferiti che abbiamo casualmente estratto
+            while(addedRecipes < numRecipes){
 
-                try{
-                    foodieService.saveRecipe(foodie.getId(), recipe.getId());
+                // estraggo un numero casuale da 0 al numero di ricette
+                int randomIndex = random.nextInt(recipes.size());
+
+                // se quell'indice non è ancora uscito faccio tutte le operazioni del caso
+                if(chosenIndices.add(randomIndex)) {
+
+                    RecipeMongo recipe = recipes.get(randomIndex);
+                    FoodieRecipeSummary fullRecipe = foodieUtils.entityToReducedRecipe(recipe);
+                    foodieRecipes.add(fullRecipe);
+                    recipesId.add(recipe.getId());
+
+                    /* Aggiorno il numero totale di saves nella collezione delle recipes */
+                    recipeRepository.updateSavesCounter(recipe.getId(), 1);
+
                     addedRecipes++;
                 }
-                catch(Exception e){
-                    // Non facciamo nulla, semplicemente proviamo con la ricetta successiva
-                    System.out.println("Failed while saving recipe " + recipe.getTitle() + " (id: " + recipe.getId() + ")");
-                }
-            }
 
+            }
+            foodieRepository.addRecipesToFavourites(foodie.getId(), recipesId, foodieRecipes);
             System.out.println("Foodie '" + foodie.getUsername() + "' population completed");
         }
 

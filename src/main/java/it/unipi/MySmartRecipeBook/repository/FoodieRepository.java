@@ -34,4 +34,8 @@ public interface FoodieRepository extends MongoRepository<Foodie, String> {
     @Query("{ '_id': ?0}")
     @Update("{ '$pull': { 'saved_recipes': { 'id': ?1} }}")
     long removeRecipeFromFavourites(String foodieId, String recipeId);
+
+    @Query("{ '_id': ?0, 'saved_recipes.id': { '$nin': ?1 } }")
+    @Update("{ '$push': { 'saved_recipes': { '$each': ?2 , '$position': 0 } } }")
+    long addRecipesToFavourites(String foodieId, List<String> recipesId, List<FoodieRecipeSummary> recipes);
 }

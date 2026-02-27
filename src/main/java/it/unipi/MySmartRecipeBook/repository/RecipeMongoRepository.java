@@ -30,7 +30,8 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
 
     boolean existsByTitle(String title);
 
-    Integer countByChefId(String chefId);
+    @Query(value = "{ 'chef.id': ?0 }", count = true)
+    int countByChefId(String chefId);
 
     Long deleteRecipeById(String id);
 }

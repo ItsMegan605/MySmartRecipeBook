@@ -3,10 +3,13 @@ package it.unipi.MySmartRecipeBook.repository;
 
 import it.unipi.MySmartRecipeBook.model.Chef;
 import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipe;
+import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipeSummary;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.Update;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -41,5 +44,8 @@ public interface ChefRepository extends MongoRepository<Chef, String> {
     @Update("{ '$push': { 'recipes_to_confirm': ?1 } }")
     void addRecipeToWaiting(String chefId, ChefRecipe recipe);
 
+    @Query("{ '_id': ?0 }")
+    @Update("{ '$set': { 'tot_recipes': ?1, 'new_recipes': ?2 } }")
+    void addChefNewSaved(String chefId, int totalRecipes, List<ChefRecipeSummary> newRecipes);
 }
 

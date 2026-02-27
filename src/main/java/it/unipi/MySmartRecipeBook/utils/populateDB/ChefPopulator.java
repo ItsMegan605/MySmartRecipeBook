@@ -37,26 +37,27 @@ public class ChefPopulator implements CommandLineRunner{
     }
 
     @Override
-    public  void run(String... args) throws Exception {
+    public  void run(String... args){
         if(!doChefRecipes){
             return;
         }
 
+        System.out.println("Starting Chef population");
         List<Chef> chefs = chefRepository.findAll();
 
         for(Chef chef : chefs){
 
             int totalRecipes = recipeRepository.countByChefId(chef.getId());
-            chef.setTotalRecipes(totalRecipes);
-
-            Pageable pageable = PageRequest.of(0, 5, Sort.by("creationDate").descending());
+            System.out.println("Ricette totali: " + totalRecipes);
+            Pageable pageable = PageRequest.of(0, 5, Sort.by("creation_date").descending());
             Slice<RecipeMongo> sliceMatchedRecipes = recipeRepository.findByChefId(chef.getId(), pageable);
             List<RecipeMongo> recipesList = sliceMatchedRecipes.getContent();
             List<ChefRecipeSummary> recipes = chefUtils.MongoListToChefListSummary(recipesList);
 
-            chef.setNewRecipes(recipes);
-            chefRepository.save(chef);
-
+            chefRepository.addChefNewSaved(chef.getId(), totalRecipes,  recipes);
+            System.out.println("Finished Chef " + chef.getUsername() + " population");
         }
+
+        System.out.println("Finished Chefs population");
     }
 }

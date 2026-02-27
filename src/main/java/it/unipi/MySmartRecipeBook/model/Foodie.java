@@ -32,6 +32,4 @@ public class Foodie extends RegisteredUser {
     @Field("saved_recipes")
     private List<FoodieRecipeSummary> savedRecipes;
 
-    @Version
-    private long version;
 }
