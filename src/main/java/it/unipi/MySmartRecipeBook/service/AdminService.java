@@ -1,9 +1,11 @@
 package it.unipi.MySmartRecipeBook.service;
 
+import it.unipi.MySmartRecipeBook.dto.AnalyticsDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.GraphRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Admin;
 import it.unipi.MySmartRecipeBook.model.Chef;
 import it.unipi.MySmartRecipeBook.model.Mongo.*;
+import it.unipi.MySmartRecipeBook.repository.FoodieRepository;
 import it.unipi.MySmartRecipeBook.utils.RecipeUtilityFunctions;
 import it.unipi.MySmartRecipeBook.utils.enums.Task;
 import it.unipi.MySmartRecipeBook.repository.AdminRepository;
@@ -25,15 +27,17 @@ public class AdminService {
     private final AdminRepository adminRepository;
     private final RecipeMongoRepository recipeRepository;
     private final LowLoadManager lowLoadManager;
+    private final FoodieRepository foodieRepository;
 
     public AdminService(RecipeUtilityFunctions recipeConvertions, ChefRepository chefRepository,
                         AdminRepository adminRepository, RecipeMongoRepository recipeRepository,
-                        LowLoadManager lowLoadManager) {
+                        LowLoadManager lowLoadManager, FoodieRepository foodieRepository) {
         this.recipeConvertions = recipeConvertions;
         this.chefRepository = chefRepository;
         this.adminRepository = adminRepository;
         this.recipeRepository = recipeRepository;
         this.lowLoadManager = lowLoadManager;
+        this.foodieRepository = foodieRepository;
     }
 
 
@@ -222,6 +226,14 @@ public class AdminService {
 
         adminRepository.removeChefFromApprovals(admin.getId(), chefId);
     }
+
+
+    /* counting of the monthly foodies */
+    public List<AnalyticsDTO> getMonthlyFoodies () {
+        return foodieRepository.getMonthlyFoodiesStats();
+    }
+
+
 
 }
 
