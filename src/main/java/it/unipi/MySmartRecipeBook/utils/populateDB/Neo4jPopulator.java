@@ -44,9 +44,10 @@ public class Neo4jPopulator implements CommandLineRunner {
         // Pulisco tutto prima di farlo ripartire
         neo4jRepository.deleteAll();
 
+        System.out.println("Starting Neo4j population");
         List<Ingredient> ingredients = ingredientRepository.findAll();
         for(Ingredient ingredient : ingredients){
-            neo4jRepository.insertIngredient(ingredient);
+            neo4jRepository.insertIngredient(ingredient.getId(), ingredient.getName());
         }
 
         List<RecipeMongo> listRecipes = recipeRepository.findAll();
@@ -57,6 +58,8 @@ public class Neo4jPopulator implements CommandLineRunner {
                 ingredientsName.add(ingredient.getName());
             }
             neo4jRepository.createRecipe(recipe.getId(), recipe.getTitle(), recipe.getChef().getId(), ingredientsName);
+            System.out.println("Recipe " + recipe.getId() + " has been created");
         }
+        System.out.println("Finished Neo4j population");
     }
 }

@@ -24,14 +24,14 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Stri
 
     List<RecipeSuggestionDTO> findRecipesByIngredients(List<String> myIngredients);
 
-    @Query("CREATE (i:Ingredient {id: $ingredient.id, name: $ingredient.name})")
-    void insertIngredient(Ingredient ingredient);
-
+    @Query("CREATE (i:Ingredient {id: $id, name: $name})")
+    void insertIngredient(String id, String name);
 
     @Query("CREATE (r:Recipe {id: $recipeId, title: $title, chefId: $chefId}) " +
             "WITH r " +
-            "MATCH (i:Ingredient) WHERE i.name IN $ingredients " +
-            "CREATE (r)<-[:USED_IN]-(i)")
+            "UNWIND $ingredients AS ingName " +
+            "MATCH (i:Ingredient) WHERE toLower(trim(i.name)) = toLower(trim(ingName)) " +
+            "MERGE (r)<-[:USED_IN]-(i)")
     void createRecipe(String recipeId, String title, String chefId, List<String> ingredients);
 
     @Query("MATCH (r:Recipe {id: $recipeId}) DETACH DELETE r")

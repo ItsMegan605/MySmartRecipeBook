@@ -13,7 +13,7 @@ import org.springframework.data.redis.core.index.Indexed;
 @AllArgsConstructor
 
 public class ReducedChef {
-
+    @Field("id")
     private String id;
     private String name;
     private String surname;
