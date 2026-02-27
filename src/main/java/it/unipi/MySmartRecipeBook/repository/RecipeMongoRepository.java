@@ -16,11 +16,11 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
 
     Slice<RecipeMongo> findByTitleContainingIgnoreCase(String titleFragment, Pageable pageable);
 
-    Slice<RecipeMongo> findByChefName(String chefName, Pageable pageable);
+    Slice<RecipeMongo> findByChef_Name(String chefName, Pageable pageable);
 
     Slice<RecipeMongo> findByCategory(String category, Pageable pageable);
 
-    Slice<RecipeMongo> findByChefId(String chefId, Pageable pageable);
+    Slice<RecipeMongo> findByChef_Id(String chefId, Pageable pageable);
 
     @Query("{ '_id' : ?0 }")
     @Update("{ '$inc' : { 'numSaves' : ?1 } }")
@@ -30,8 +30,8 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
 
     boolean existsByTitle(String title);
 
-    @Query(value = "{ 'chef.id': ?0 }", count = true)
-    int countByChefId(String chefId);
+    //@Query(value = "{ 'chef.id' : ?0 }", count = true)
+    int countByChef_Id(String chefId);
 
     Long deleteRecipeById(String id);
 }

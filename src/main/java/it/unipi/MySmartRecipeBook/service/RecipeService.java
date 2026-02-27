@@ -129,7 +129,7 @@ public class RecipeService {
         }
 
         Pageable pageable = PageRequest.of(--pageNumber, pageSizeChef, Sort.by("totalSaves").descending());
-        Slice<RecipeMongo> matching_recipes = recipeRepository.findByChefName(chefName, pageable);
+        Slice<RecipeMongo> matching_recipes = recipeRepository.findByChef_Name(chefName, pageable);
 
         if (matching_recipes.isEmpty()){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found");

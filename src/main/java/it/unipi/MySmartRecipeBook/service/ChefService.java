@@ -222,7 +222,7 @@ public class ChefService {
             if (recipe.getId().equals(recipeId)) {
 
                 Pageable pageable = PageRequest.of(0, pageSizeChef, Sort.by("creationDate").descending());
-                Slice<RecipeMongo> matchSlice = recipeMongoRepository.findByChefId(chef1.getId(), pageable);
+                Slice<RecipeMongo> matchSlice = recipeMongoRepository.findByChef_Id(chef1.getId(), pageable);
                 List<RecipeMongo> matchRecipes = matchSlice.getContent();
 
                 List<ChefRecipeSummary> recipesToSave = chefConvertions.MongoListToChefListSummary(matchRecipes);
@@ -328,7 +328,7 @@ public class ChefService {
         }
 
         // Recuperiamo le ricette di interesse (le convertiamo nel formato ridotto dell'anteprima)
-        Slice<RecipeMongo> recipesPage = recipeMongoRepository.findByChefId(chef.getId(), pageable);
+        Slice<RecipeMongo> recipesPage = recipeMongoRepository.findByChef_Id(chef.getId(), pageable);
         List<ChefPreviewRecipeDTO> content = chefConvertions.MongoListToChefPreview(recipesPage.getContent());
         boolean hasNext = (chef.getTotalRecipes() > pageSizeChef*pageNumber) ? true : false;
 
