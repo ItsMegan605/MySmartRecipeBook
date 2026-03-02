@@ -5,6 +5,7 @@ import it.unipi.MySmartRecipeBook.dto.JwtResponseDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegistedUserDTO;
 import it.unipi.MySmartRecipeBook.service.AuthService;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +21,7 @@ public class AuthController {
 
     //Register Chef
     @PostMapping("/register/chef")
-    public ResponseEntity<String> registerChef (@RequestBody RegistedUserDTO dto){
+    public ResponseEntity<String> registerChef (@Valid @RequestBody RegistedUserDTO dto){
 
         authService.registerChef(dto);
         return ResponseEntity.ok("Chef registered successfully");
@@ -28,7 +29,7 @@ public class AuthController {
 
     //Register Foodie
     @PostMapping("/register/foodie")
-    public ResponseEntity<String> registerFoodie (@RequestBody RegistedUserDTO dto){
+    public ResponseEntity<String> registerFoodie (@Valid @RequestBody RegistedUserDTO dto){
 
         authService.registerFoodie(dto);
         return ResponseEntity.ok("Foodie registered successfully");
@@ -36,7 +37,7 @@ public class AuthController {
 
     //Login
     @PostMapping("/login")
-    public ResponseEntity<JwtResponseDTO> login (@RequestBody LoginRequestDTO request){
+    public ResponseEntity<JwtResponseDTO> login (@Valid @RequestBody LoginRequestDTO request){
 
         return ResponseEntity.ok(authService.authenticateUser(request));
     }

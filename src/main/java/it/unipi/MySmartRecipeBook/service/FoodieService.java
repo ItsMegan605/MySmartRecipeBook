@@ -26,6 +26,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
@@ -66,7 +67,7 @@ public class FoodieService {
                 .getAuthentication()
                 .getPrincipal();
 
-        Foodie foodie = foodieRepository.findByUsername(authFoodie.getId())
+        Foodie foodie = foodieRepository.findById(authFoodie.getId())
                 .orElseThrow(() -> new RuntimeException("Foodie not found"));
 
         return usersConvertions.entityToFoodieDTO(foodie);
@@ -103,15 +104,17 @@ public class FoodieService {
         if (dto.getSurname() != null)
             update.set("surname", dto.getSurname());
 
-        if (dto.getEmail() != null)
+        if (dto.getEmail() != null && StringUtils.hasText(dto.getEmail()))
             update.set("email", dto.getEmail());
 
         /* Supponiamo che se si è loggato può cambiare la password senza fare ulteriori controlli? */
-        if (dto.getPassword() != null && !dto.getPassword().isBlank())
+        if (dto.getPassword() != null && StringUtils.hasText(dto.getPassword()))
             update.set("password", passwordEncoder.encode(dto.getPassword()));
 
         if (dto.getBirthdate() != null)
             update.set("birthdate", dto.getBirthdate());
+
+        // c'è da fare il controllo che abbia almeno 10 anni
 
         FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
         Foodie foodie = mongoTemplate.findAndModify(query, update, options, Foodie.class);

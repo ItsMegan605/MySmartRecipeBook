@@ -19,10 +19,7 @@ public class UserPrincipal implements UserDetails {
     private String surname;
     private Collection<? extends GrantedAuthority> authorities;
 
-    public UserPrincipal(String id,
-                         String name,
-                         String surname,
-                         String password,
+    public UserPrincipal(String id, String name, String surname, String password,
                          Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.name = name;
@@ -38,9 +35,7 @@ public class UserPrincipal implements UserDetails {
                 chef.getName(),
                 chef.getSurname(),
                 chef.getPassword(),
-                Collections.singletonList(
-                        new SimpleGrantedAuthority("ROLE_CHEF")
-                )
+                Collections.singletonList (new SimpleGrantedAuthority("ROLE_CHEF"))
         );
     }
 
@@ -51,11 +46,10 @@ public class UserPrincipal implements UserDetails {
                 foodie.getName(),
                 foodie.getSurname(),
                 foodie.getPassword(),
-                Collections.singletonList(
-                        new SimpleGrantedAuthority("ROLE_FOODIE")
-                )
+                Collections.singletonList (new SimpleGrantedAuthority("ROLE_FOODIE"))
         );
     }
+
     //ADMIN (senza campo role nel DB)
     public static UserPrincipal buildAdmin(Chef admin) {
         return new UserPrincipal(
@@ -63,9 +57,7 @@ public class UserPrincipal implements UserDetails {
                 null,
                 null,
                 admin.getPassword(),
-                Collections.singletonList(
-                        new SimpleGrantedAuthority("ROLE_ADMIN")
-                )
+                Collections.singletonList (new SimpleGrantedAuthority("ROLE_ADMIN"))
         );
     }
 

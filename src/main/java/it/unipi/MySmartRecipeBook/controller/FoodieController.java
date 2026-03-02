@@ -36,7 +36,7 @@ public class FoodieController {
     /*--------------- Change foodie's informations ----------------*/
 
     @PatchMapping("/changeInfo")
-    public ResponseEntity<RegistedUserInfoDTO> changeInfo (@RequestBody @Valid UpdateFoodieDTO updates){
+    public ResponseEntity<RegistedUserInfoDTO> changeInfo (@RequestBody UpdateFoodieDTO updates){
 
         return ResponseEntity.ok(foodieService.updateFoodie(updates));
     }

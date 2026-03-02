@@ -25,7 +25,7 @@ public class BaseRecipe {
 
     private String category;
 
-    @Field("prep_Time")
+    @Field("prep_time")
     private String prepTime;
 
     private String preparation;
