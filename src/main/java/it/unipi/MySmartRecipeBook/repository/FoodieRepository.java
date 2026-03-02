@@ -1,10 +1,14 @@
 
 package it.unipi.MySmartRecipeBook.repository;
 
+import it.unipi.MySmartRecipeBook.dto.AnalyticsDTO;
 import it.unipi.MySmartRecipeBook.model.Foodie;
 import it.unipi.MySmartRecipeBook.model.Mongo.FoodieRecipeSummary;
+import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
+
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.mongodb.repository.Update;
@@ -38,4 +42,10 @@ public interface FoodieRepository extends MongoRepository<Foodie, String> {
     @Query("{ '_id': ?0, 'saved_recipes.id': { '$nin': ?1 } }")
     @Update("{ '$push': { 'saved_recipes': { '$each': ?2 , '$position': 0 } } }")
     long addRecipesToFavourites(String foodieId, List<String> recipesId, List<FoodieRecipeSummary> recipes);
+
+    @Aggregation(pipeline = {
+            "{ $group: { _id: { $dateToString: { format: '%Y-%m', date: '$registration_date' } }, number: { $sum: 1 } } }",
+            "{ $sort: { '_id': -1 } }"
+    })
+    List<AnalyticsDTO> getMonthlyFoodiesStats();
 }
