@@ -1,6 +1,7 @@
 package it.unipi.MySmartRecipeBook.service;
 
-import it.unipi.MySmartRecipeBook.dto.AnalyticsDTO;
+import it.unipi.MySmartRecipeBook.dto.MonthAnalyticsDTO;
+import it.unipi.MySmartRecipeBook.dto.YearAnalyticsDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.GraphRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Admin;
 import it.unipi.MySmartRecipeBook.model.Chef;
@@ -229,11 +230,9 @@ public class AdminService {
 
 
     /* counting of the monthly foodies */
-    public List<AnalyticsDTO> getMonthlyFoodies () {
+    public List<YearAnalyticsDTO> getMonthlyFoodies () {
         return foodieRepository.getMonthlyFoodiesStats();
     }
-
-
 
 }
 

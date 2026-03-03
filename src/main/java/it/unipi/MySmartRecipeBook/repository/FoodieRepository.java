@@ -1,14 +1,14 @@
 
 package it.unipi.MySmartRecipeBook.repository;
 
-import it.unipi.MySmartRecipeBook.dto.AnalyticsDTO;
+import it.unipi.MySmartRecipeBook.dto.MonthAnalyticsDTO;
+import it.unipi.MySmartRecipeBook.dto.YearAnalyticsDTO;
 import it.unipi.MySmartRecipeBook.model.Foodie;
 import it.unipi.MySmartRecipeBook.model.Mongo.FoodieRecipeSummary;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.mongodb.repository.Update;
@@ -44,8 +44,35 @@ public interface FoodieRepository extends MongoRepository<Foodie, String> {
     long addRecipesToFavourites(String foodieId, List<String> recipesId, List<FoodieRecipeSummary> recipes);
 
     @Aggregation(pipeline = {
-            "{ $group: { _id: { $dateToString: { format: '%Y-%m', date: '$registration_date' } }, number: { $sum: 1 } } }",
-            "{ $sort: { '_id': -1 } }"
+            "{ $group: { " + //group by year
+                    "        _id: { $dateToString: { format: '%Y-%m', date: '$registration_date' } }, " +
+                    "        year: { $first: { $dateToString: { format: '%Y', date: '$registration_date' } } }, " +
+                    "        number: { $sum: 1 } " +
+                    "} }",
+
+            "{ $sort: { 'year': -1, 'number': -1 } }", //ordering
+            "{ $group: { " +
+                    "        _id: '$year', " +
+                    "        totalRegisteredFoodies: { $sum: '$number' }, " +
+                    "        topMonths: { $push: { _id: '$_id', totalFoodies: '$number' } } " +
+                    "} }",
+
+            "{ $project: { " + //organization as we want it
+                    "        _id: 1, " +
+                    "        totalRegisteredFoodies: 1, " +
+                    "        monthAnalyticsDTOList: { " +
+                    "            $map: { " +
+                    "                input: { $range: [0, { $size: '$topMonths' }] }, " +
+                    "                as: 'idx', " +
+                    "                in: { " +
+                    "                    _id: { $arrayElemAt: ['$topMonths._id', '$$idx'] }, " +
+                    "                    position: { $add: ['$$idx', 1] }, " +
+                    "                    totalFoodies: { $arrayElemAt: ['$topMonths.totalFoodies', '$$idx'] } " +
+                    "                } " +
+                    "            } " +
+                    "        } " +
+                    "} }"
     })
-    List<AnalyticsDTO> getMonthlyFoodiesStats();
+    List<YearAnalyticsDTO> getMonthlyFoodiesStats();
+
 }
