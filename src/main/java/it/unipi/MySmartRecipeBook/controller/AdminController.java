@@ -1,6 +1,7 @@
 package it.unipi.MySmartRecipeBook.controller;
 
 import it.unipi.MySmartRecipeBook.dto.MonthAnalyticsDTO;
+import it.unipi.MySmartRecipeBook.dto.TrendAnalyticsDTO;
 import it.unipi.MySmartRecipeBook.dto.YearAnalyticsDTO;
 import it.unipi.MySmartRecipeBook.service.AdminService;;
 import org.springframework.http.ResponseEntity;
@@ -50,6 +51,11 @@ public class AdminController {
     public ResponseEntity<List<YearAnalyticsDTO>> getMonthlyFoodies() {
         List<YearAnalyticsDTO> stats = adminService.getMonthlyFoodies();
         return ResponseEntity.ok(stats);
+    }
+
+    @GetMapping("/categoryTrends")
+    public ResponseEntity<List<TrendAnalyticsDTO>> getCategoryTrends() {
+        return ResponseEntity.ok(adminService.getCategoryTrends());
     }
 }
 

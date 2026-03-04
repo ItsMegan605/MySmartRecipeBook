@@ -16,6 +16,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import it.unipi.MySmartRecipeBook.dto.TrendAnalyticsDTO;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -240,6 +242,32 @@ public class AdminService {
         return foodieRepository.getMonthlyFoodiesStats();
     }
 
+    /*------------------- Emerging vs Declining Categories (Analytics) --------------------*/
+
+    public List<TrendAnalyticsDTO> getCategoryTrends() {
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime oneYearAgo = now.minusYears(1);
+        LocalDateTime twoYearsAgo = now.minusYears(2);
+
+        List<TrendAnalyticsDTO> results =
+                recipeRepository.findCategoryTrend(oneYearAgo, twoYearsAgo);
+
+        for (TrendAnalyticsDTO dto : results) {
+
+            if (dto.getPreviousCount() == 0 && dto.getRecentCount() > 0) {
+                dto.setTrendType("NEW");
+            } else if (dto.getGrowthRate() != null && dto.getGrowthRate() > 0) {
+                dto.setTrendType("EMERGING");
+            } else if (dto.getGrowthRate() != null && dto.getGrowthRate() < 0) {
+                dto.setTrendType("DECLINING");
+            } else {
+                dto.setTrendType("STABLE");
+            }
+        }
+
+        return results;
+    }
 }
 
 
