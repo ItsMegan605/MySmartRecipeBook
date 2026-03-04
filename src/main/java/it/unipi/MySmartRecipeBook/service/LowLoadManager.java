@@ -10,7 +10,6 @@ import it.unipi.MySmartRecipeBook.repository.ChefRepository;
 import it.unipi.MySmartRecipeBook.repository.FoodieRepository;
 import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.repository.RecipeNeo4jRepository;
-import it.unipi.MySmartRecipeBook.utils.FoodieUtilityFunctions;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -31,16 +30,13 @@ public class LowLoadManager {
     private final RecipeMongoRepository recipeMongoRepository;
     private final ChefRepository chefRepository;
     private final FoodieRepository foodieRepository;
-    private final FoodieUtilityFunctions usersConvertions;
     private final RecipeNeo4jRepository recipeNeo4jRepository;
 
     public LowLoadManager(RecipeMongoRepository recipeMongoRepository, ChefRepository chefRepository,
-                          FoodieRepository foodieRepository, FoodieUtilityFunctions usersConvertions,
-                          RecipeNeo4jRepository recipeNeo4jRepository) {
+                          FoodieRepository foodieRepository, RecipeNeo4jRepository recipeNeo4jRepository) {
         this.recipeMongoRepository = recipeMongoRepository;
         this.chefRepository = chefRepository;
         this.foodieRepository = foodieRepository;
-        this.usersConvertions = usersConvertions;
         this.recipeNeo4jRepository = recipeNeo4jRepository;
     }
 
@@ -135,10 +131,10 @@ public class LowLoadManager {
             ingredientNames.add(ingredient.getName());
         }
 
-        /* In questo caso abbiamo messo lo chef come elemento, dobbiamo vedere se farlo, invece, come nodo */
         recipeNeo4jRepository.createRecipe(
                 task.getRecipe().getId(),
                 task.getRecipe().getTitle(),
+                task.getRecipe().getImgURL(),
                 task.getRecipe().getChefId(),
                 ingredientNames
         );
@@ -199,7 +195,8 @@ public class LowLoadManager {
             foodieRepository.saveAll(foodieList);
         }
 
-        /* Pulizia su Neo4j - da decidere se implementarla con il nodo oppure con l'indice secondario */
+        /* Pulizia su Neo4j*/
+        recipeNeo4jRepository.deleteChef(chefId);
 
         /* Pulizia su Redis - non viene fatta quando sbattiamo sulla ricetta che non c'è più facciamo l'eliminazione */
     }

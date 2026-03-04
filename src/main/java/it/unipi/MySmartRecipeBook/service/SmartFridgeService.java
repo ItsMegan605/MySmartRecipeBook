@@ -61,17 +61,6 @@ public class SmartFridgeService {
 
         return ingredientsListDTO;
     }
-/*
-    public void saveSmartFridge(SmartFridge list) {
-        try {
-            String json = objectMapper.writeValueAsString(list);
-            // JedisCluster gestisce internamente il pool e la connessione
-            jedisCluster.set(REDIS_FRIDGE_PREFIX + list.getId(), json);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-    }
-    */
 
     /*--------------- Add ingredients to foodie shopping list  ----------------*/
 

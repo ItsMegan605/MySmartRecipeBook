@@ -11,7 +11,6 @@ public class MonthAnalyticsDTO {
 
     @Field("_id")
     private String month;
-    private int position;
 
     @JsonProperty("Total of new monthly Foodies")
     private int totalFoodies;

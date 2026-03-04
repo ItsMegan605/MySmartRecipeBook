@@ -44,34 +44,20 @@ public interface FoodieRepository extends MongoRepository<Foodie, String> {
     long addRecipesToFavourites(String foodieId, List<String> recipesId, List<FoodieRecipeSummary> recipes);
 
     @Aggregation(pipeline = {
-            "{ $group: { " + //group by year
+            "{ $group: { " + // raggruppo per mese
                     "        _id: { $dateToString: { format: '%Y-%m', date: '$registration_date' } }, " +
                     "        year: { $first: { $dateToString: { format: '%Y', date: '$registration_date' } } }, " +
                     "        number: { $sum: 1 } " +
                     "} }",
 
-            "{ $sort: { 'year': -1, 'number': -1 } }", //ordering
-            "{ $group: { " +
+            "{ $sort: { 'year': -1, 'number': -1 } }", // ordino (questo ordine verrà mantenuto nel push successivo)
+
+            "{ $group: { " + // raggruppo per anno
                     "        _id: '$year', " +
                     "        totalRegisteredFoodies: { $sum: '$number' }, " +
-                    "        topMonths: { $push: { _id: '$_id', totalFoodies: '$number' } } " +
+                    "        monthAnalyticsDTOList: { $push: { _id: '$_id', totalFoodies: '$number' } } " + // <-- Faccio il push diretto qui!
                     "} }",
-
-            "{ $project: { " + //organization as we want it
-                    "        _id: 1, " +
-                    "        totalRegisteredFoodies: 1, " +
-                    "        monthAnalyticsDTOList: { " +
-                    "            $map: { " +
-                    "                input: { $range: [0, { $size: '$topMonths' }] }, " +
-                    "                as: 'idx', " +
-                    "                in: { " +
-                    "                    _id: { $arrayElemAt: ['$topMonths._id', '$$idx'] }, " +
-                    "                    position: { $add: ['$$idx', 1] }, " +
-                    "                    totalFoodies: { $arrayElemAt: ['$topMonths.totalFoodies', '$$idx'] } " +
-                    "                } " +
-                    "            } " +
-                    "        } " +
-                    "} }"
+            "{$sort :  {'year' :  -1}}"
     })
     List<YearAnalyticsDTO> getMonthlyFoodiesStats();
 

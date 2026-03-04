@@ -1,7 +1,9 @@
 package it.unipi.MySmartRecipeBook.utils.populateDB;
 
+import it.unipi.MySmartRecipeBook.model.Chef;
 import it.unipi.MySmartRecipeBook.model.Ingredient;
 import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
+import it.unipi.MySmartRecipeBook.repository.ChefRepository;
 import it.unipi.MySmartRecipeBook.repository.IngredientRepository;
 import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.repository.RecipeNeo4jRepository;
@@ -18,6 +20,7 @@ import java.util.List;
 @Component
 public class Neo4jPopulator implements CommandLineRunner {
 
+    private final ChefRepository chefRepository;
     @Value("${app.recipe.do-neo4j-population:false}")
     private boolean doNeo4jPopulation;
 
@@ -27,11 +30,12 @@ public class Neo4jPopulator implements CommandLineRunner {
     public final IngredientRepository ingredientRepository;
 
     public Neo4jPopulator(RecipeMongoRepository recipeRepository, RecipeNeo4jRepository neo4jRepository,
-                          RecipeUtilityFunctions recipeUtils, IngredientRepository ingredientRepository) {
+                          RecipeUtilityFunctions recipeUtils, IngredientRepository ingredientRepository, ChefRepository chefRepository) {
         this.recipeRepository = recipeRepository;
         this.neo4jRepository = neo4jRepository;
         this.recipeUtils = recipeUtils;
         this.ingredientRepository = ingredientRepository;
+        this.chefRepository = chefRepository;
     }
 
     @Override
@@ -50,6 +54,11 @@ public class Neo4jPopulator implements CommandLineRunner {
             neo4jRepository.insertIngredient(ingredient.getId(), ingredient.getName());
         }
 
+        List<Chef> chefs = chefRepository.findAll();
+        for(Chef chef : chefs){
+            neo4jRepository.insertChef(chef.getId(), chef.getName(), chef.getSurname());
+        }
+
         List<RecipeMongo> listRecipes = recipeRepository.findAll();
 
         for(RecipeMongo recipe : listRecipes){
@@ -57,7 +66,7 @@ public class Neo4jPopulator implements CommandLineRunner {
             for(Ingredient ingredient : recipe.getIngredients()){
                 ingredientsName.add(ingredient.getName());
             }
-            neo4jRepository.createRecipe(recipe.getId(), recipe.getTitle(), recipe.getChef().getId(), ingredientsName);
+            neo4jRepository.createRecipe(recipe.getId(), recipe.getTitle(), recipe.getImageURL(), recipe.getChef().getId(), ingredientsName);
             System.out.println("Recipe " + recipe.getId() + " has been created");
         }
         System.out.println("Finished Neo4j population");

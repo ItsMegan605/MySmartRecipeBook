@@ -1,6 +1,6 @@
 package it.unipi.MySmartRecipeBook.repository;
 import it.unipi.MySmartRecipeBook.dto.recipe.RecipeSuggestionDTO;
-import it.unipi.MySmartRecipeBook.model.Ingredient;
+import it.unipi.MySmartRecipeBook.model.Neo4j.ChefNeo4j;
 import it.unipi.MySmartRecipeBook.model.Neo4j.RecipeNeo4j;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
@@ -15,9 +15,11 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Stri
             "WHERE i.name IN $myIngredients " +
             "WITH r, count(i) AS matchCount, collect(i.name) AS matchedIngredients " +
             "WHERE matchCount >= 3 " +
+            "MATCH (r)-[:WRITTEN_BY]->(c:Chef) " +
             "RETURN r.id AS id, " +
             "       r.title AS title, " +
             "       r.imageURL AS imageURL, " +
+            "       c { .name, .surname } AS chef, " +
             "       matchCount, " +
             "       matchedIngredients " +
             "ORDER BY matchCount DESC")
@@ -27,13 +29,30 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Stri
     @Query("CREATE (i:Ingredient {id: $id, name: $name})")
     void insertIngredient(String id, String name);
 
-    @Query("CREATE (r:Recipe {id: $recipeId, title: $title, chefId: $chefId}) " +
+    // entrambi i sensi delle relazioni così facciamo presto sia a trovare lo chef a partire dalla ricetta che
+    // eliminare tutte le ricette di uno chef
+    @Query("MERGE (c:Chef {id: $chefId}) " +
+            "CREATE (r:Recipe {id: $recipeId, title: $title, imageURL: $imageURL}) " +
+            "MERGE (c)<-[:WRITTEN_BY]-(r) " +
+            "MERGE (c)-[:WROTE]->(r) " +
             "WITH r " +
             "UNWIND $ingredients AS ingName " +
             "MATCH (i:Ingredient) WHERE toLower(trim(i.name)) = toLower(trim(ingName)) " +
             "MERGE (r)<-[:USED_IN]-(i)")
-    void createRecipe(String recipeId, String title, String chefId, List<String> ingredients);
+    void createRecipe(String recipeId, String title, String imageURL, String chefId, List<String> ingredients);
 
     @Query("MATCH (r:Recipe {id: $recipeId}) DETACH DELETE r")
     void deleteRecipeById(String recipeId);
+
+    @Query("MATCH (c:Chef {id: $chefId}) " +
+            // Usiamo OPTIONAL MATCH nel caso in cui lo chef non abbia ancora scritto nessuna ricetta
+            "OPTIONAL MATCH (c)-[:WROTE]->(r:Recipe) " +
+            // DETACH DELETE distrugge i nodi e TUTTE le relazioni ad essi collegate
+            "DETACH DELETE c, r")
+    void deleteChef(String chefId);
+
+    @Query("MERGE (c:Chef {id: $chefId}) " +
+            "SET c.name = $chefName, c.surname = $chefSurname")
+    void insertChef(String chefId, String chefName, String chefSurname);
+
 }

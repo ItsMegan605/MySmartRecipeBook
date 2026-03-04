@@ -6,12 +6,10 @@ import it.unipi.MySmartRecipeBook.dto.recipe.GraphRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Admin;
 import it.unipi.MySmartRecipeBook.model.Chef;
 import it.unipi.MySmartRecipeBook.model.Mongo.*;
-import it.unipi.MySmartRecipeBook.repository.FoodieRepository;
+import it.unipi.MySmartRecipeBook.model.Neo4j.ChefNeo4j;
+import it.unipi.MySmartRecipeBook.repository.*;
 import it.unipi.MySmartRecipeBook.utils.RecipeUtilityFunctions;
 import it.unipi.MySmartRecipeBook.utils.enums.Task;
-import it.unipi.MySmartRecipeBook.repository.AdminRepository;
-import it.unipi.MySmartRecipeBook.repository.ChefRepository;
-import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 
 import jakarta.transaction.Transactional;
@@ -29,16 +27,18 @@ public class AdminService {
     private final RecipeMongoRepository recipeRepository;
     private final LowLoadManager lowLoadManager;
     private final FoodieRepository foodieRepository;
+    private final ChefNeo4jRepository chefNeo4jRepository;
 
     public AdminService(RecipeUtilityFunctions recipeConvertions, ChefRepository chefRepository,
                         AdminRepository adminRepository, RecipeMongoRepository recipeRepository,
-                        LowLoadManager lowLoadManager, FoodieRepository foodieRepository) {
+                        LowLoadManager lowLoadManager, FoodieRepository foodieRepository, ChefNeo4jRepository chefNeo4jRepository) {
         this.recipeConvertions = recipeConvertions;
         this.chefRepository = chefRepository;
         this.adminRepository = adminRepository;
         this.recipeRepository = recipeRepository;
         this.lowLoadManager = lowLoadManager;
         this.foodieRepository = foodieRepository;
+        this.chefNeo4jRepository = chefNeo4jRepository;
     }
 
 
@@ -194,6 +194,12 @@ public class AdminService {
 
         // Rimozione dello chef dalla lista di quelli in attesa di approvazione
         adminRepository.removeChefFromApprovals(admin.getId(), chefId);
+
+        ChefNeo4j chefNeo4j = new ChefNeo4j();
+        chefNeo4j.setId(chefId);
+        chefNeo4j.setName(chef.getName());
+        chefNeo4j.setSurname(chef.getSurname());
+        chefNeo4jRepository.save(chefNeo4j);
     }
 
 
