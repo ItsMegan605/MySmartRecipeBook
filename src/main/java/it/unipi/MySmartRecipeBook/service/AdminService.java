@@ -7,7 +7,9 @@ import it.unipi.MySmartRecipeBook.model.Admin;
 import it.unipi.MySmartRecipeBook.model.Chef;
 import it.unipi.MySmartRecipeBook.model.Mongo.*;
 import it.unipi.MySmartRecipeBook.model.Neo4j.ChefNeo4j;
+import it.unipi.MySmartRecipeBook.model.PendingChef;
 import it.unipi.MySmartRecipeBook.repository.*;
+import it.unipi.MySmartRecipeBook.utils.ChefUtilityFunctions;
 import it.unipi.MySmartRecipeBook.utils.RecipeUtilityFunctions;
 import it.unipi.MySmartRecipeBook.utils.enums.Task;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
@@ -30,10 +32,11 @@ public class AdminService {
     private final LowLoadManager lowLoadManager;
     private final FoodieRepository foodieRepository;
     private final ChefNeo4jRepository chefNeo4jRepository;
+    private final ChefUtilityFunctions chefUtilityFunctions;
 
     public AdminService(RecipeUtilityFunctions recipeConvertions, ChefRepository chefRepository,
                         AdminRepository adminRepository, RecipeMongoRepository recipeRepository,
-                        LowLoadManager lowLoadManager, FoodieRepository foodieRepository, ChefNeo4jRepository chefNeo4jRepository) {
+                        LowLoadManager lowLoadManager, FoodieRepository foodieRepository, ChefNeo4jRepository chefNeo4jRepository, ChefUtilityFunctions chefUtilityFunctions) {
         this.recipeConvertions = recipeConvertions;
         this.chefRepository = chefRepository;
         this.adminRepository = adminRepository;
@@ -41,6 +44,7 @@ public class AdminService {
         this.lowLoadManager = lowLoadManager;
         this.foodieRepository = foodieRepository;
         this.chefNeo4jRepository = chefNeo4jRepository;
+        this.chefUtilityFunctions = chefUtilityFunctions;
     }
 
 
@@ -174,13 +178,13 @@ public class AdminService {
         Admin admin = adminRepository.findById(logged_admin.getId())
                 .orElseThrow(() -> new RuntimeException("Admin not found"));
 
-        List<Chef> chefToApprove = admin.getChefsToApprove();
+        List<PendingChef> chefToApprove = admin.getChefsToApprove();
         if(chefToApprove == null){
             throw new RuntimeException("No chef has to be approved");
         }
 
-        Chef chef = null;
-        for (Chef approvedChef :  chefToApprove) {
+        PendingChef chef = null;
+        for (PendingChef approvedChef :  chefToApprove) {
             if(approvedChef.getId().equals(chefId)) {
                 chef = approvedChef;
                 break;
@@ -191,8 +195,9 @@ public class AdminService {
             throw new RuntimeException("Chef to approve not found");
         }
 
+        Chef chefMongo = chefUtilityFunctions.pendingChefToChef(chef);
         // Salvataggio del nuovo chef nella collection "chefs"
-        chefRepository.save(chef);
+        chefRepository.save(chefMongo);
 
         // Rimozione dello chef dalla lista di quelli in attesa di approvazione
         adminRepository.removeChefFromApprovals(admin.getId(), chefId);
@@ -216,13 +221,13 @@ public class AdminService {
         Admin admin = adminRepository.findById(logged_admin.getId())
                 .orElseThrow(() -> new RuntimeException("Admin not found"));
 
-        List<Chef> chefToApprove = admin.getChefsToApprove();
+        List<PendingChef> chefToApprove = admin.getChefsToApprove();
         if(chefToApprove == null){
             throw new RuntimeException("No chef has to be approved");
         }
 
-        Chef chef = null;
-        for ( Chef newChef :  chefToApprove ) {
+        PendingChef chef = null;
+        for ( PendingChef newChef :  chefToApprove ) {
             if( newChef.getId().equals(chefId)) {
                 chef = newChef;
                 break;

@@ -21,10 +21,12 @@ public class RecipeController {
 
 
     /* When we click on a recipe preview all the details must be shown*/
-    @GetMapping("/{id}")
-    public ResponseEntity<ShowRecipeDTO> getRecipe (@PathVariable String id) {
+    // Quando clicco su una ricetta dello smartFridge - attenzione mettere che è un metodo che si può
+    // fare solo se si è autenticati
+    @GetMapping("/{id}/{fridge}")
+    public ResponseEntity<ShowRecipeDTO> getRecipe (@PathVariable String id, @PathVariable Boolean fridge) {
 
-        ShowRecipeDTO standardRecipeDTO = recipeService.getRecipeById(id);
+        ShowRecipeDTO standardRecipeDTO = recipeService.getRecipeById(id, fridge);
         return ResponseEntity.ok(standardRecipeDTO);
     }
 

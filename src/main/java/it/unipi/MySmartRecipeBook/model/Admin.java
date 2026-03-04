@@ -22,6 +22,6 @@ public class Admin extends RegisteredUser {
     private List<BaseRecipe> recipesToApprove;
 
     @Field("chefs_to_approve")
-    private List<Chef> chefsToApprove;
+    private List<PendingChef> chefsToApprove;
 
 }

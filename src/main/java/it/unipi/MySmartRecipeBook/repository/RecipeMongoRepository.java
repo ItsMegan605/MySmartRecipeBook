@@ -65,4 +65,13 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
             "{ $project: { totalCount: 0 } }"
     })
     List<TrendAnalyticsDTO> findCategoryTrend(LocalDateTime recentDate, LocalDateTime previousDate);
+
+
+    @Aggregation(pipeline = {
+
+            "{ '$match': { 'chef.id': ?0 } }",
+            "{ '$group': { '_id': null, 'total': { '$sum': '$num_saves' } } }",
+            "{ '$project': { '_id': 0, 'total': 1 } }"
+    })
+    Integer getTotalSaves(String chefId);
 }

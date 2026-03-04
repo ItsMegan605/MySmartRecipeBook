@@ -3,6 +3,7 @@ package it.unipi.MySmartRecipeBook.repository;
 import it.unipi.MySmartRecipeBook.model.Admin;
 import it.unipi.MySmartRecipeBook.model.Chef;
 import it.unipi.MySmartRecipeBook.model.Mongo.BaseRecipe;
+import it.unipi.MySmartRecipeBook.model.PendingChef;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.Update;
@@ -27,5 +28,5 @@ public interface AdminRepository extends MongoRepository<Admin, String> {
 
     @Query("{ '_id': ?0 }")
     @Update("{ '$push': { 'chefs_to_approve': ?1 } }")
-    void addChefToApprovals(String adminId, Chef chef);
+    void addChefToApprovals(String adminId, PendingChef chef);
 }

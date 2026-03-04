@@ -14,6 +14,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
+import static it.unipi.MySmartRecipeBook.utils.enums.Categories.CATEGORIES;
 
 @Service
 public class RecipeService {
@@ -31,17 +34,6 @@ public class RecipeService {
     private int pageSizeChef;
 
 
-    private static final List<String> VALID_CATEGORIES = List.of(
-            "vegan",
-            "dairy-free",
-            "gluten-free",
-            "egg-free",
-            "main-course",
-            "second-course",
-            "dessert"
-    );
-
-
     private final RecipeMongoRepository recipeRepository;
     private final RecipeUtilityFunctions convertions;
     public RecipeService(RecipeMongoRepository recipeRepository, RecipeUtilityFunctions convertions) {
@@ -50,12 +42,18 @@ public class RecipeService {
     }
 
 
-    public ShowRecipeDTO getRecipeById(String id){
+    public ShowRecipeDTO getRecipeById(String id, boolean fridge){
 
-        RecipeMongo full_recipe = recipeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Recipe not found"));
+        Optional<RecipeMongo> full_recipe = recipeRepository.findById(id);
 
-        return convertions.EntityToDto(full_recipe);
+        if(full_recipe.isEmpty()){
+            if(fridge){
+                // devo toglierlo dalla cache di redis
+            }
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Recipe not found");
+        }
+
+        return convertions.EntityToDto(full_recipe.get());
     }
 
     public void deleteRecipe(String recipeId) {
@@ -105,7 +103,7 @@ public class RecipeService {
 
     public List<UserPreviewRecipeDTO> getByCategory (int pageNumber, String filter){
 
-        if(pageNumber <= 0 || !VALID_CATEGORIES.contains(filter)){
+        if(pageNumber <= 0 || !CATEGORIES.contains(filter)){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid parameters");
         }
 

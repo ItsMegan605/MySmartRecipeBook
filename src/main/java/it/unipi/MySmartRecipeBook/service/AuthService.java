@@ -6,6 +6,7 @@ import it.unipi.MySmartRecipeBook.dto.users.RegistedUserDTO;
 import it.unipi.MySmartRecipeBook.model.Admin;
 import it.unipi.MySmartRecipeBook.model.Chef;
 import it.unipi.MySmartRecipeBook.model.Foodie;
+import it.unipi.MySmartRecipeBook.model.PendingChef;
 import it.unipi.MySmartRecipeBook.repository.AdminRepository;
 import it.unipi.MySmartRecipeBook.repository.ChefRepository;
 import it.unipi.MySmartRecipeBook.repository.FoodieRepository;
@@ -61,14 +62,14 @@ public class AuthService {
         }
 
         // Viene creata l'entità chef
-        Chef chef = chefUtils.createChefEntity(chefDTO);
+        PendingChef chef = chefUtils.createChefEntity(chefDTO);
 
         Admin admin = adminRepository.findByUsername("admin");
 
         // Controlliamo che tra le richieste in attesa di essere approvate non ci sia un duplicato (controlliamo nome,
         // cognome e data di nascita dello chef che si vuole registrare)
         if(admin.getChefsToApprove()!=null) {
-            for (Chef targetChef : admin.getChefsToApprove()) {
+            for (PendingChef targetChef : admin.getChefsToApprove()) {
                 if (chefUtils.chefAlreadyInserted(targetChef, chef)) {
                     throw new RuntimeException("Request already sent");
                 }

@@ -56,6 +56,9 @@ public class Neo4jPopulator implements CommandLineRunner {
 
         List<Chef> chefs = chefRepository.findAll();
         for(Chef chef : chefs){
+            if(chef.getUsername().equals("admin")){
+                continue;
+            }
             neo4jRepository.insertChef(chef.getId(), chef.getName(), chef.getSurname());
         }
 

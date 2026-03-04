@@ -46,7 +46,9 @@ public class ChefPopulator implements CommandLineRunner{
         List<Chef> chefs = chefRepository.findAll();
 
         for(Chef chef : chefs){
-
+            if(chef.getUsername().equals("admin")){
+                continue;
+            }
             int totalRecipes = recipeRepository.countByChef(chef.getId());
 
             Pageable pageable = PageRequest.of(0, 5, Sort.by("creation_date").descending());
@@ -54,7 +56,8 @@ public class ChefPopulator implements CommandLineRunner{
             List<RecipeMongo> recipesList = sliceMatchedRecipes.getContent();
             List<ChefRecipeSummary> recipes = chefUtils.MongoListToChefListSummary(recipesList);
 
-            chefRepository.addChefNewSaved(chef.getId(), totalRecipes,  recipes);
+            Integer totSaves = recipeRepository.getTotalSaves(chef.getId());
+            chefRepository.addChefNewSaved(chef.getId(), totalRecipes, totSaves, recipes);
             System.out.println("Finished Chef " + chef.getUsername() + " population");
         }
 

@@ -9,6 +9,7 @@ import it.unipi.MySmartRecipeBook.model.Mongo.BaseRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipeSummary;
 import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
+import it.unipi.MySmartRecipeBook.model.PendingChef;
 import it.unipi.MySmartRecipeBook.model.ReducedChef;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,9 +33,9 @@ public class ChefUtilityFunctions {
 
     // Nel momento in cui un utente compila il form per la registrazione, affinchè possa essere effettivamente registrato
     // dobbiamo criptare la password e aggiungere la data di registrazione
-    public Chef createChefEntity (RegistedUserDTO dto){
+    public PendingChef createChefEntity (RegistedUserDTO dto){
 
-        Chef chef = new Chef();
+        PendingChef chef = new PendingChef();
         chef.setUsername(dto.getUsername());
         chef.setName(dto.getName());
         chef.setSurname(dto.getSurname());
@@ -188,12 +189,22 @@ public class ChefUtilityFunctions {
         return chefRecipes;
     }
 
-    public boolean chefAlreadyInserted(Chef targetChef, Chef chef) {
+    public boolean chefAlreadyInserted(PendingChef targetChef, PendingChef chef) {
 
         return  targetChef.getName().equals(chef.getName()) &&
                 targetChef.getSurname().equals(chef.getSurname()) &&
                 targetChef.getBirthdate().equals(chef.getBirthdate());
     }
 
+    public Chef pendingChefToChef (PendingChef chef){
 
+        Chef chefMongo = new Chef();
+        chefMongo.setId(chef.getId());
+        chefMongo.setUsername(chef.getUsername());
+        chefMongo.setPassword(chef.getPassword());
+        chefMongo.setName(chef.getName());
+        chefMongo.setSurname(chef.getSurname());
+        chefMongo.setBirthdate(chef.getBirthdate());
+        return chefMongo;
+    }
 }

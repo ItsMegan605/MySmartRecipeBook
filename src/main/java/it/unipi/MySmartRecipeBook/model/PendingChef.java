@@ -1,26 +1,25 @@
-
 package it.unipi.MySmartRecipeBook.model;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDate;
-import jakarta.validation.constraints.*;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class RegisteredUser {
+public class PendingChef {
 
-    @Id
     private String id;
 
-    @Indexed(unique = true)
     @NotBlank(message = "Username is required")
     @Size(max = 20)
     private String username;
@@ -42,5 +41,7 @@ public abstract class RegisteredUser {
 
     @Past(message = "Birthdate must be in the past")
     private LocalDate birthdate;
+    @Field("reg_date")
+    @Past
+    private LocalDate registrationDate;
 }
-

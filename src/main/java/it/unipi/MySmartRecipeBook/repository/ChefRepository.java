@@ -45,7 +45,7 @@ public interface ChefRepository extends MongoRepository<Chef, String> {
     void addRecipeToWaiting(String chefId, ChefRecipe recipe);
 
     @Query("{ '_id': ?0 }")
-    @Update("{ '$set': { 'tot_recipes': ?1, 'new_recipes': ?2 } }")
-    void addChefNewSaved(String chefId, int totalRecipes, List<ChefRecipeSummary> newRecipes);
+    @Update("{ '$set': { 'tot_recipes': ?1, 'tot_saves': ?2, 'new_recipes': ?3 } }")
+    void addChefNewSaved(String chefId, int totalRecipes, int totSaves, List<ChefRecipeSummary> newRecipes);
 }
 
