@@ -1,6 +1,7 @@
 package it.unipi.MySmartRecipeBook.controller;
 
 import it.unipi.MySmartRecipeBook.dto.MonthAnalyticsDTO;
+import it.unipi.MySmartRecipeBook.dto.PopularIngredientsDTO;
 import it.unipi.MySmartRecipeBook.dto.TrendAnalyticsDTO;
 import it.unipi.MySmartRecipeBook.dto.YearAnalyticsDTO;
 import it.unipi.MySmartRecipeBook.service.AdminService;;
@@ -51,6 +52,12 @@ public class AdminController {
     public ResponseEntity<List<YearAnalyticsDTO>> getMonthlyFoodies() {
         List<YearAnalyticsDTO> stats = adminService.getMonthlyFoodies();
         return ResponseEntity.ok(stats);
+    }
+
+    @GetMapping("/popularIngredients")
+    public ResponseEntity<List<PopularIngredientsDTO>> getPopularIngredients() {
+        List<PopularIngredientsDTO> ingredients = adminService.getPopularIngredients();
+        return ResponseEntity.ok(ingredients);
     }
 
     @GetMapping("/categoryTrends")

@@ -1,7 +1,7 @@
 package it.unipi.MySmartRecipeBook.service;
 
-import it.unipi.MySmartRecipeBook.dto.MonthAnalyticsDTO;
 import it.unipi.MySmartRecipeBook.dto.YearAnalyticsDTO;
+import it.unipi.MySmartRecipeBook.dto.PopularIngredientsDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.GraphRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Admin;
 import it.unipi.MySmartRecipeBook.model.Chef;
@@ -273,6 +273,11 @@ public class AdminService {
 
         return results;
     }
+
+    public List<PopularIngredientsDTO> getPopularIngredients() {
+        return chefNeo4jRepository.getPopularIngredientsStats();
+    }
+
 }
 
 
