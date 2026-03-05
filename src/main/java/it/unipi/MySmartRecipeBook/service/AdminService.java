@@ -1,5 +1,6 @@
 package it.unipi.MySmartRecipeBook.service;
 
+import it.unipi.MySmartRecipeBook.dto.UsedIngredientsDTO;
 import it.unipi.MySmartRecipeBook.dto.YearAnalyticsDTO;
 import it.unipi.MySmartRecipeBook.dto.PopularIngredientsDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.GraphRecipeDTO;
@@ -20,10 +21,23 @@ import org.springframework.stereotype.Service;
 
 import it.unipi.MySmartRecipeBook.dto.TrendAnalyticsDTO;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
 public class AdminService {
+
+    /* filtro per gliingredienti degli chef */
+
+    private static final List<String> COMMON_INGREDIENTS = Arrays.asList( //funzione suggerita da geminiperchè non sapevo come mapparlo
+            "salt", "water", "pepper", "baking soda",
+            "baking powder", "olive oil", "oil"
+    );
+
+    private static final List<String> RARE_INGREDIENTS = Arrays.asList (
+            "anchovies" //ci ho messo la prima cosa che mi è venuta in mente, non so se serve averla
+    );
+
 
     private final RecipeUtilityFunctions recipeConvertions;
     private final ChefRepository chefRepository;
@@ -33,10 +47,11 @@ public class AdminService {
     private final FoodieRepository foodieRepository;
     private final ChefNeo4jRepository chefNeo4jRepository;
     private final ChefUtilityFunctions chefUtilityFunctions;
+    private final RecipeNeo4jRepository recipeNeo4jRepository;
 
     public AdminService(RecipeUtilityFunctions recipeConvertions, ChefRepository chefRepository,
                         AdminRepository adminRepository, RecipeMongoRepository recipeRepository,
-                        LowLoadManager lowLoadManager, FoodieRepository foodieRepository, ChefNeo4jRepository chefNeo4jRepository, ChefUtilityFunctions chefUtilityFunctions) {
+                        LowLoadManager lowLoadManager, FoodieRepository foodieRepository, ChefNeo4jRepository chefNeo4jRepository, ChefUtilityFunctions chefUtilityFunctions, RecipeNeo4jRepository recipeNeo4jRepository) {
         this.recipeConvertions = recipeConvertions;
         this.chefRepository = chefRepository;
         this.adminRepository = adminRepository;
@@ -45,8 +60,8 @@ public class AdminService {
         this.foodieRepository = foodieRepository;
         this.chefNeo4jRepository = chefNeo4jRepository;
         this.chefUtilityFunctions = chefUtilityFunctions;
+        this.recipeNeo4jRepository = recipeNeo4jRepository;
     }
-
 
     /*------------------- Approve a pending recipe  --------------------*/
 
@@ -65,25 +80,25 @@ public class AdminService {
         // ha l'id indicato
         List<BaseRecipe> recipesToApprove = admin.getRecipesToApprove();
 
-        if(recipesToApprove == null){
+        if (recipesToApprove == null) {
             throw new RuntimeException("No recipe has to be approved");
         }
 
         BaseRecipe recipeApproved = null;
-        for(BaseRecipe recipe : recipesToApprove){
-            if(recipe.getId().equals(recipeId)){
+        for (BaseRecipe recipe : recipesToApprove) {
+            if (recipe.getId().equals(recipeId)) {
                 recipeApproved = recipe;
                 break;
             }
         }
 
-        if(recipeApproved == null){
+        if (recipeApproved == null) {
             throw new RuntimeException("Recipe not found among the ones that have to be approved");
         }
 
 
         // Non vogliamo inserire una nuova ricetta che ha lo stesso titolo di un'altra
-        if(recipeRepository.existsByTitle(recipeApproved.getTitle())){
+        if (recipeRepository.existsByTitle(recipeApproved.getTitle())) {
             throw new RuntimeException("Recipe already exists");
         }
 
@@ -112,7 +127,7 @@ public class AdminService {
         // Controllo esistenza chef
         String chefId = recipe.getChef().getId();
 
-        if(!chefRepository.existsById(chefId)){
+        if (!chefRepository.existsById(chefId)) {
             throw new RuntimeException("Chef not found");
         }
 
@@ -141,20 +156,20 @@ public class AdminService {
         // Prendiamo la lista delle ricette in attesa di approvazione
         List<BaseRecipe> recipesToApprove = admin.getRecipesToApprove();
 
-        if(recipesToApprove == null){
+        if (recipesToApprove == null) {
             throw new RuntimeException("No recipe has to be approved");
         }
 
         String chefId = null;
-        for(BaseRecipe recipe : recipesToApprove){
-            if(recipe.getId().equals(recipeId)){
+        for (BaseRecipe recipe : recipesToApprove) {
+            if (recipe.getId().equals(recipeId)) {
                 chefId = recipe.getChef().getId();
                 break;
             }
         }
 
         // Delete the indicated recipe from the chef list of recipes waiting to be confirmed
-        if(chefId == null){
+        if (chefId == null) {
             throw new RuntimeException("Recipe not found among the ones that have to be approved");
         }
 
@@ -179,13 +194,13 @@ public class AdminService {
                 .orElseThrow(() -> new RuntimeException("Admin not found"));
 
         List<PendingChef> chefToApprove = admin.getChefsToApprove();
-        if(chefToApprove == null){
+        if (chefToApprove == null) {
             throw new RuntimeException("No chef has to be approved");
         }
 
         PendingChef chef = null;
-        for (PendingChef approvedChef :  chefToApprove) {
-            if(approvedChef.getId().equals(chefId)) {
+        for (PendingChef approvedChef : chefToApprove) {
+            if (approvedChef.getId().equals(chefId)) {
                 chef = approvedChef;
                 break;
             }
@@ -212,7 +227,7 @@ public class AdminService {
 
     /*------------------- Discard a pending chef registration request  --------------------*/
 
-    public void declineChef (String chefId) {
+    public void declineChef(String chefId) {
 
         UserPrincipal logged_admin = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -222,13 +237,13 @@ public class AdminService {
                 .orElseThrow(() -> new RuntimeException("Admin not found"));
 
         List<PendingChef> chefToApprove = admin.getChefsToApprove();
-        if(chefToApprove == null){
+        if (chefToApprove == null) {
             throw new RuntimeException("No chef has to be approved");
         }
 
         PendingChef chef = null;
-        for ( PendingChef newChef :  chefToApprove ) {
-            if( newChef.getId().equals(chefId)) {
+        for (PendingChef newChef : chefToApprove) {
+            if (newChef.getId().equals(chefId)) {
                 chef = newChef;
                 break;
             }
@@ -243,7 +258,7 @@ public class AdminService {
 
 
     /* counting of the monthly foodies */
-    public List<YearAnalyticsDTO> getMonthlyFoodies () {
+    public List<YearAnalyticsDTO> getMonthlyFoodies() {
         return foodieRepository.getMonthlyFoodiesStats();
     }
 
@@ -275,9 +290,12 @@ public class AdminService {
     }
 
     public List<PopularIngredientsDTO> getPopularIngredients() {
-        return chefNeo4jRepository.getPopularIngredientsStats();
+        return chefNeo4jRepository.getPopularIngredientsStats(COMMON_INGREDIENTS);
     }
 
+    public List<UsedIngredientsDTO> getLeastUsedIngredients() {
+        return recipeNeo4jRepository.getCommonIngredients(RARE_INGREDIENTS);
+    }
 }
 
 

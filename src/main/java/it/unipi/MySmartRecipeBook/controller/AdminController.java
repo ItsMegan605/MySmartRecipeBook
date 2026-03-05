@@ -1,10 +1,7 @@
 package it.unipi.MySmartRecipeBook.controller;
 
-import it.unipi.MySmartRecipeBook.dto.MonthAnalyticsDTO;
-import it.unipi.MySmartRecipeBook.dto.PopularIngredientsDTO;
-import it.unipi.MySmartRecipeBook.dto.TrendAnalyticsDTO;
-import it.unipi.MySmartRecipeBook.dto.YearAnalyticsDTO;
-import it.unipi.MySmartRecipeBook.service.AdminService;;
+import it.unipi.MySmartRecipeBook.dto.*;
+import it.unipi.MySmartRecipeBook.service.AdminService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -63,6 +60,12 @@ public class AdminController {
     @GetMapping("/categoryTrends")
     public ResponseEntity<List<TrendAnalyticsDTO>> getCategoryTrends() {
         return ResponseEntity.ok(adminService.getCategoryTrends());
+    }
+
+    @GetMapping("/leastUsedIngredients")
+    public ResponseEntity<List<UsedIngredientsDTO>> getLeastUsedIngredients() {
+        List<UsedIngredientsDTO> rareIngredients = adminService.getLeastUsedIngredients();
+        return ResponseEntity.ok(rareIngredients);
     }
 }
 

@@ -1,4 +1,6 @@
 package it.unipi.MySmartRecipeBook.repository;
+import it.unipi.MySmartRecipeBook.dto.PopularIngredientsDTO;
+import it.unipi.MySmartRecipeBook.dto.UsedIngredientsDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.RecipeSuggestionDTO;
 import it.unipi.MySmartRecipeBook.model.Neo4j.ChefNeo4j;
 import it.unipi.MySmartRecipeBook.model.Neo4j.RecipeNeo4j;
@@ -10,7 +12,7 @@ import java.util.List;
 
 @Repository
 public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, String> {
-
+//match dello smart fridge
     @Query("MATCH (i:Ingredient)-[:USED_IN]->(r:Recipe) " +
             "WHERE i.name IN $myIngredients " +
             "WITH r, count(i) AS matchCount, collect(i.name) AS matchedIngredients " +
@@ -23,7 +25,6 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Stri
             "       matchCount, " +
             "       matchedIngredients " +
             "ORDER BY matchCount DESC")
-
     List<RecipeSuggestionDTO> findRecipesByIngredients(List<String> myIngredients);
 
     @Query("CREATE (i:Ingredient {id: $id, name: $name})")
@@ -54,5 +55,14 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Stri
     @Query("MERGE (c:Chef {id: $chefId}) " +
             "SET c.name = $chefName, c.surname = $chefSurname")
     void insertChef(String chefId, String chefName, String chefSurname);
+
+
+    //query per richiedere 5 ingredienti meno popolari si piò aggiungere anche i 5 più popolari in caso
+    @Query("MATCH (i:Ingredient)-[:USED_IN]->(r:Recipe) " +
+            "WHERE NOT toLower(i.name) IN $commonIngredients " +
+            "RETURN i.name AS ingredientName, count(r) AS usageCount " +
+            "ORDER BY usageCount ASC " +
+            "LIMIT 5")
+    List<UsedIngredientsDTO> getCommonIngredients(List<String> commonIngredients);
 
 }

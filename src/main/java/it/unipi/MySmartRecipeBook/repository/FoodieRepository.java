@@ -55,7 +55,7 @@ public interface FoodieRepository extends MongoRepository<Foodie, String> {
             "{ $group: { " + // raggruppo per anno
                     "        _id: '$year', " +
                     "        totalRegisteredFoodies: { $sum: '$number' }, " +
-                    "        monthAnalyticsDTOList: { $push: { _id: '$_id', totalFoodies: '$number' } } " + // <-- Faccio il push diretto qui!
+                    "        monthAnalyticsDTOList: { $push: { _id: '$_id', totalFoodies: '$number' } } " +
                     "} }",
             "{$sort :  {'year' :  -1}}"
     })

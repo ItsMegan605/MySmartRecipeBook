@@ -1,5 +1,8 @@
 package it.unipi.MySmartRecipeBook.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import it.unipi.MySmartRecipeBook.dto.recipe.RecipeSuggestionDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Mongo.*;
 import it.unipi.MySmartRecipeBook.utils.RecipeUtilityFunctions;
@@ -9,8 +12,10 @@ import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import redis.clients.jedis.JedisCluster;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,19 +41,46 @@ public class RecipeService {
 
     private final RecipeMongoRepository recipeRepository;
     private final RecipeUtilityFunctions convertions;
-    public RecipeService(RecipeMongoRepository recipeRepository, RecipeUtilityFunctions convertions) {
+    private final JedisCluster jedisCluster;
+    private final ObjectMapper objectMapper;
+    public RecipeService(RecipeMongoRepository recipeRepository, RecipeUtilityFunctions convertions,  JedisCluster jedisCluster, ObjectMapper objectMapper) {
         this.recipeRepository = recipeRepository;
         this.convertions = convertions;
+        this.jedisCluster = jedisCluster;
+        this.objectMapper = objectMapper;
     }
 
 
     public ShowRecipeDTO getRecipeById(String id, boolean fridge){
 
         Optional<RecipeMongo> full_recipe = recipeRepository.findById(id);
-
+    // TODO: controllare CAP
         if(full_recipe.isEmpty()){
+            //remove from redis cache the sinle recipe
             if(fridge){
-                // devo toglierlo dalla cache di redis
+                try {
+                    //recuper utente e il suo frigo
+                    String foodie = SecurityContextHolder.getContext().getAuthentication().getName(); //TODO: check
+                    String fridgeKey = "smartFridge:suggestions:" + foodie;
+                    String suggestedRecipes = jedisCluster.get(fridgeKey); //funzione del cluster di jedis per avere il json
+
+                    if( suggestedRecipes != null) { //converto da json in oggetto java con object mapper
+                        List<RecipeSuggestionDTO> cachedRecipes = objectMapper.readValue(suggestedRecipes, new TypeReference<List<RecipeSuggestionDTO>>(){});
+                       Boolean removedRecipe = cachedRecipes.removeIf(recipe -> recipe.getId().equals(id));
+
+                       if(removedRecipe) {
+                           if(cachedRecipes.isEmpty()){
+                               throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Recipe not found");
+                           } else  {
+                               jedisCluster.set(fridgeKey, objectMapper.writeValueAsString(cachedRecipes));
+                           }
+                       }
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
             }
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Recipe not found");
         }
