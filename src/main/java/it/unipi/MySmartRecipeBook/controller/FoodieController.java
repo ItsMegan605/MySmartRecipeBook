@@ -12,6 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import it.unipi.MySmartRecipeBook.dto.ChefRankAnalyticsDTO;
+import it.unipi.MySmartRecipeBook.service.ChefService;
+
 
 import java.util.List;
 
@@ -21,9 +24,11 @@ import java.util.List;
 public class FoodieController {
 
     private final FoodieService foodieService;
+    private final ChefService chefService;
 
-    public FoodieController(FoodieService foodieService) {
+    public FoodieController(FoodieService foodieService, ChefService chefService) {
         this.foodieService = foodieService;
+        this.chefService = chefService;
     }
 
     /*--------------- Retrieve foodie's informations ----------------*/
@@ -85,5 +90,16 @@ public class FoodieController {
         Slice<UserPreviewRecipeDTO> recipeList = foodieService.getRecipeByCategory(category, numPage);
         return ResponseEntity.ok(recipeList);
     }
+
+    /* --------- Bayesian Chef Ranking visible to Foodies -------- */
+
+    @GetMapping("/chefsRanking")
+    public ResponseEntity<java.util.List<ChefRankAnalyticsDTO>> getChefRanking() {
+
+        return ResponseEntity.ok(
+                chefService.getChefRankingForFoodie()
+        );
+    }
+
 
 }
