@@ -7,6 +7,7 @@ import it.unipi.MySmartRecipeBook.dto.users.UpdateFoodieDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Foodie;
 import it.unipi.MySmartRecipeBook.model.Mongo.*;
+import it.unipi.MySmartRecipeBook.repository.ChefNeo4jRepository;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import it.unipi.MySmartRecipeBook.utils.enums.Task;
 import it.unipi.MySmartRecipeBook.repository.FoodieRepository;
@@ -90,7 +91,7 @@ public class FoodieService {
                 .getAuthentication()
                 .getPrincipal();
 
-        if(!foodieRepository.existsById(authFoodie.getId())){
+        if (!foodieRepository.existsById(authFoodie.getId())) {
             throw new RuntimeException("Foodie not found");
         }
 
@@ -126,7 +127,7 @@ public class FoodieService {
     /*----------------- Delete foodie's Profile ------------------*/
 
     @Transactional
-    public void deleteFoodie(){
+    public void deleteFoodie() {
 
         UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -138,8 +139,8 @@ public class FoodieService {
         List<String> recipesId = new ArrayList<>();
         List<String> chefsId = new ArrayList<>();
 
-        if(foodie.getSavedRecipes() != null){
-            for(FoodieRecipeSummary recipe: foodie.getSavedRecipes()){
+        if (foodie.getSavedRecipes() != null) {
+            for (FoodieRecipeSummary recipe : foodie.getSavedRecipes()) {
                 recipesId.add(recipe.getId());
                 chefsId.add(recipe.getChef().getId());
             }
@@ -160,7 +161,7 @@ public class FoodieService {
     @Transactional
     public void saveRecipe(String foodieId, String recipeId) {
 
-        if(!foodieRepository.existsById(foodieId)){
+        if (!foodieRepository.existsById(foodieId)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No valid foodie");
         }
 
@@ -189,20 +190,20 @@ public class FoodieService {
         Foodie foodie = foodieRepository.findById(authFoodie.getId())
                 .orElseThrow(() -> new RuntimeException("Foodie not found"));
 
-        if(foodie.getSavedRecipes() ==  null){
+        if (foodie.getSavedRecipes() == null) {
             throw new RuntimeException("Recipe not found for the specified foodie");
         }
 
-       String targetChefId = null;
+        String targetChefId = null;
         for (FoodieRecipeSummary recipe : foodie.getSavedRecipes()) {
-            if(recipe.getId().equals(recipeId)){
+            if (recipe.getId().equals(recipeId)) {
                 targetChefId = recipe.getChef().getId();
                 foodieRepository.removeRecipeFromFavourites(foodie.getId(), recipeId);
                 break;
             }
         }
 
-        if(targetChefId != null){
+        if (targetChefId != null) {
             lowLoadManager.addTask(Task.TaskType.SET_COUNTERS_REMOVE_FAVOURITE, recipeId, targetChefId);
         }
     }
@@ -219,55 +220,52 @@ public class FoodieService {
         Foodie foodie = foodieRepository.findById(authFoodie.getId())
                 .orElseThrow(() -> new RuntimeException("Foodie not found"));
 
-        if(foodie.getSavedRecipes() == null){
+        if (foodie.getSavedRecipes() == null) {
             throw new RuntimeException("Recipe not found for the specified foodie");
         }
 
-        if(numPage <= 0 || !FOODIE_FILTERS.contains(category)){
+        if (numPage <= 0 || !FOODIE_FILTERS.contains(category)) {
             throw new RuntimeException("Invalid parameters");
         }
 
-        if(numPage == 1 && category.equals("date")){
-            Pageable pageable = PageRequest.of(numPage - 1, pageSizeFoodie, Sort.by("savingDate").descending() );
+        if (numPage == 1 && category.equals("date")) {
+            Pageable pageable = PageRequest.of(numPage - 1, pageSizeFoodie, Sort.by("savingDate").descending());
             boolean hasNext = (foodie.getSavedRecipes().size() < 5) ? false : true;
 
             List<UserPreviewRecipeDTO> content = usersConvertions.foodieSummaryToUserPreview(foodie.getSavedRecipes());
-            return  new SliceImpl<>(content, pageable, hasNext);
+            return new SliceImpl<>(content, pageable, hasNext);
         }
 
         List<FoodieRecipeSummary> recipesPreview = new ArrayList<>();
-        if(CATEGORIES.contains(category)){
-            for(FoodieRecipeSummary recipe : foodie.getSavedRecipes()){
-                if(recipe.getCategory().equals(category)){
+        if (CATEGORIES.contains(category)) {
+            for (FoodieRecipeSummary recipe : foodie.getSavedRecipes()) {
+                if (recipe.getCategory().equals(category)) {
                     recipesPreview.add(recipe);
                 }
             }
-        }
-        else if(DIFFICULTIES.contains(category)){
-            for(FoodieRecipeSummary recipe : foodie.getSavedRecipes()){
-                if(recipe.getDifficulty().equals(category)){
+        } else if (DIFFICULTIES.contains(category)) {
+            for (FoodieRecipeSummary recipe : foodie.getSavedRecipes()) {
+                if (recipe.getDifficulty().equals(category)) {
                     recipesPreview.add(recipe);
                 }
             }
-        }
-        else if (category.equals("date")) {
+        } else if (category.equals("date")) {
             recipesPreview.addAll(foodie.getSavedRecipes());
         }
 
         int start = (numPage - 1) * pageSizeFoodie;
-        if(start > recipesPreview.size()){
+        if (start > recipesPreview.size()) {
             throw new RuntimeException("Invalid page number");
         }
 
         int end = Math.min(start + pageSizeFoodie, recipesPreview.size());
 
-        boolean hasNext = recipesPreview.size() > numPage*pageSizeFoodie;
+        boolean hasNext = recipesPreview.size() > numPage * pageSizeFoodie;
         List<FoodieRecipeSummary> recipes = recipesPreview.subList(start, end);
 
-        Pageable pageable = PageRequest.of(numPage-1, pageSizeFoodie, Sort.by("savingDate").descending());
+        Pageable pageable = PageRequest.of(numPage - 1, pageSizeFoodie, Sort.by("savingDate").descending());
         List<UserPreviewRecipeDTO> content = usersConvertions.foodieSummaryToUserPreview(recipes);
-        return  new SliceImpl<>(content, pageable, hasNext);
+        return new SliceImpl<>(content, pageable, hasNext);
 
     }
-
 }

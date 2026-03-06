@@ -2,6 +2,7 @@ package it.unipi.MySmartRecipeBook.service;
 
 import static it.unipi.MySmartRecipeBook.utils.enums.Categories.*;
 import it.unipi.MySmartRecipeBook.dto.users.RegistedUserInfoDTO;
+import it.unipi.MySmartRecipeBook.dto.users.TopChefDTO;
 import it.unipi.MySmartRecipeBook.dto.users.UpdateChefDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.CreateRecipeDTO;
@@ -9,6 +10,8 @@ import it.unipi.MySmartRecipeBook.model.Admin;
 import it.unipi.MySmartRecipeBook.model.Chef;
 import it.unipi.MySmartRecipeBook.model.Ingredient;
 import it.unipi.MySmartRecipeBook.model.Mongo.*;
+import it.unipi.MySmartRecipeBook.repository.ChefNeo4jRepository;
+import it.unipi.MySmartRecipeBook.utils.enums.Categories;
 import it.unipi.MySmartRecipeBook.utils.enums.Task;
 import it.unipi.MySmartRecipeBook.repository.AdminRepository;
 import it.unipi.MySmartRecipeBook.repository.ChefRepository;
@@ -33,15 +36,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import it.unipi.MySmartRecipeBook.utils.enums.Categories.*;
 
 @Service
 public class ChefService {
+
 
     @Value("${app.recipe.pag-size-chef:5}")
     private int pageSizeChef;
 
 
     private final ChefRepository chefRepository;
+    private final ChefNeo4jRepository chefNeo4jRepository;
     private final PasswordEncoder passwordEncoder;
     private final ChefUtilityFunctions chefConvertions;
     private final AdminRepository adminRepository;
@@ -53,7 +59,7 @@ public class ChefService {
     public ChefService(ChefRepository chefRepository, ChefUtilityFunctions chefConvertions,
                        PasswordEncoder passwordEncoder, AdminRepository adminRepository,
                        RecipeMongoRepository recipeMongoRepository, LowLoadManager lowLoadManager,
-                       IngredientService ingredientService, MongoTemplate mongoTemplate) {
+                       IngredientService ingredientService, MongoTemplate mongoTemplate, ChefNeo4jRepository chefNeo4jRepository) {
         this.chefRepository = chefRepository;
         this.chefConvertions = chefConvertions;
         this.passwordEncoder = passwordEncoder;
@@ -62,7 +68,10 @@ public class ChefService {
         this.lowLoadManager = lowLoadManager;
         this.ingredientService = ingredientService;
         this.mongoTemplate = mongoTemplate;
+        this.chefNeo4jRepository = chefNeo4jRepository;
     }
+
+
 
 
     /*--------------- Retrieve chef's informations ----------------*/
@@ -335,4 +344,9 @@ public class ChefService {
         return  new SliceImpl<>(content, pageable, hasNext);
     }
 
+    /* Get top 3 chefs per category */
+
+    public List<TopChefDTO> getTopChef() {
+        return chefNeo4jRepository.findTop3ChefsByCategory(CATEGORIES);
+    }
 }

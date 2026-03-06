@@ -1,6 +1,8 @@
 package it.unipi.MySmartRecipeBook.controller;
 
+import it.unipi.MySmartRecipeBook.dto.users.ChefInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegistedUserInfoDTO;
+import it.unipi.MySmartRecipeBook.dto.users.TopChefDTO;
 import it.unipi.MySmartRecipeBook.dto.users.UpdateChefDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.CreateRecipeDTO;
@@ -12,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
@@ -101,8 +105,15 @@ public class ChefController {
     @GetMapping("/show/{filter}/{page}")
     public ResponseEntity<Slice<ChefPreviewRecipeDTO>> showRecipe (@PathVariable("filter") String filter,
                                                                    @PathVariable("page") int page){
-
         Slice<ChefPreviewRecipeDTO> recipeList = chefService.showRecipes(filter, page);
         return ResponseEntity.ok(recipeList);
+    }
+
+    /* Show top 3 chefs per Category */
+
+    @GetMapping("/getTopChef")
+    public ResponseEntity<List<TopChefDTO>> getTopChef() {
+        List<TopChefDTO> topChefs = chefService.getTopChef();
+        return ResponseEntity.ok(topChefs);
     }
 }
