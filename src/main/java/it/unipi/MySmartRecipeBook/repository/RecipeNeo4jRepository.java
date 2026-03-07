@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, String> {
+public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long> {
 //match dello smart fridge
     @Query("MATCH (i:Ingredient)-[:USED_IN]->(r:Recipe) " +
             "WHERE i.name IN $myIngredients " +

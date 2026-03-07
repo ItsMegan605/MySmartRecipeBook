@@ -9,6 +9,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class TopChefDTO extends ChefInfoDTO {
+public class TopChefDTO{
+    String name;
+    String surname;
     String category;
 }

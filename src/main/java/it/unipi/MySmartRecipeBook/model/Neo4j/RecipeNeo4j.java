@@ -1,6 +1,5 @@
 package it.unipi.MySmartRecipeBook.model.Neo4j;
 
-import it.unipi.MySmartRecipeBook.dto.users.ChefInfoDTO;
 import it.unipi.MySmartRecipeBook.model.Ingredient;
 import org.springframework.data.neo4j.core.schema.*;
 import lombok.Data;
@@ -12,7 +11,7 @@ import java.util.List;
 @Node("Recipe")
 public class RecipeNeo4j {
     @Id @GeneratedValue
-    private String neo4jId;
+    private Long neo4jId;
 
     @Property("mongo_id")
     private String mongoId; // Rimosso @GeneratedValue

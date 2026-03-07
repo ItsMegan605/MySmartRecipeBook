@@ -6,8 +6,8 @@ public class Categories {
 
     // Static perchè così sono globali
     public static final List<String> CATEGORIES = List.of(
-            "vegan", "dairy-free", "egg-free", "gluten-free",
-            "main-course", "second-course", "dessert"
+            "Vegan", "Dairy-free", "Egg-free", "Gluten-free",
+            "Main courses", "Second courses", "Desserts"
     );
 
     public static final List<String> DIFFICULTIES = List.of(
