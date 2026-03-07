@@ -110,8 +110,7 @@ public class AuthService {
         return new JwtResponseDTO(
                 jwt,
                 userPrincipal.getId(),
-                userPrincipal.getName(),
-                userPrincipal.getSurname(),
+                authentication.getName(),
                 userPrincipal.getAuthorities()
         );
     }

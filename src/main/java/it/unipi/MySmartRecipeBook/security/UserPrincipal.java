@@ -15,15 +15,13 @@ public class UserPrincipal implements UserDetails {
 
     private String password;
     private String id;
-    private String name;
-    private String surname;
+    private String username;
     private Collection<? extends GrantedAuthority> authorities;
 
-    public UserPrincipal(String id, String name, String surname, String password,
+    public UserPrincipal(String id, String username, String password,
                          Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
-        this.name = name;
-        this.surname = surname;
+        this.username = username;
         this.password = password;
         this.authorities = authorities;
     }
@@ -32,8 +30,7 @@ public class UserPrincipal implements UserDetails {
     public static UserPrincipal buildChef(Chef chef) {
         return new UserPrincipal(
                 chef.getId(),
-                chef.getName(),
-                chef.getSurname(),
+                chef.getUsername(),
                 chef.getPassword(),
                 Collections.singletonList (new SimpleGrantedAuthority("ROLE_CHEF"))
         );
@@ -43,8 +40,7 @@ public class UserPrincipal implements UserDetails {
     public static UserPrincipal buildFoodie(Foodie foodie) {
         return new UserPrincipal(
                 foodie.getId(),
-                foodie.getName(),
-                foodie.getSurname(),
+                foodie.getUsername(),
                 foodie.getPassword(),
                 Collections.singletonList (new SimpleGrantedAuthority("ROLE_FOODIE"))
         );
@@ -54,8 +50,7 @@ public class UserPrincipal implements UserDetails {
     public static UserPrincipal buildAdmin(Chef admin) {
         return new UserPrincipal(
                 admin.getId(),
-                null,
-                null,
+                admin.getUsername(),
                 admin.getPassword(),
                 Collections.singletonList (new SimpleGrantedAuthority("ROLE_ADMIN"))
         );
@@ -71,15 +66,14 @@ public class UserPrincipal implements UserDetails {
         return password;
     }
 
-    public String getName() { return name; }
-
-    public String getSurname() { return surname; }
-
-    public String getId() { return id;}
+    public String getId() {
+        return id;
+    }
 
     @Override
-    public String getUsername() {return id; }
-
+    public String getUsername() {
+        return username;
+    }
     @Override public boolean isAccountNonExpired() {
         return true;
     }

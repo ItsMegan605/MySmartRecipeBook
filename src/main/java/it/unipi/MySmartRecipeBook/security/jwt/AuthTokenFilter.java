@@ -35,8 +35,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             if (jwtUtils.validateJwtToken(jwt)) {
 
                 String id = jwtUtils.getIdFromJwtToken(jwt);
-                String name = jwtUtils.getNameFromJwtToken(jwt);
-                String surname = jwtUtils.getSurnameFromJwtToken(jwt);
+                String username = jwtUtils.getUsernameFromJwtToken(jwt);
 
                 List<String> roles = jwtUtils.getRolesFromJwtToken(jwt);
 
@@ -47,12 +46,10 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 // Creo un UserPrincipal SENZA query al DB
                 UserPrincipal userPrincipal = new UserPrincipal(
                         id,
-                        name,
-                        surname,
-                        null, // password non serve nelle request
+                        username,
+                        null,
                         authorities
                 );
-
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
                                 userPrincipal,

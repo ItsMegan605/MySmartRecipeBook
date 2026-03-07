@@ -8,8 +8,7 @@ import lombok.Getter;
 public class JwtResponseDTO {
     private String token;
     private String id;
-    private String name;
-    private String surname;
+    private String username;
     private Object roles;
 
 }

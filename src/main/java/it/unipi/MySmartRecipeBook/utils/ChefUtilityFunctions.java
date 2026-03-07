@@ -85,9 +85,7 @@ public class ChefUtilityFunctions {
                 .getAuthentication()
                 .getPrincipal();
         chef.setId(chef1.getId());
-        chef.setName(chef1.getName());
-        chef.setSurname(chef1.getSurname());
-
+        //tolti getname e getsurname
         recipe.setChef(chef);
 
         return recipe;

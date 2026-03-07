@@ -25,11 +25,11 @@ public class JwtUtils {
     }
 
     public String generateJwtToken(Authentication authentication) {
+
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
 
         String id = userPrincipal.getId();
-        String name = userPrincipal.getName();
-        String surname = userPrincipal.getSurname();
+        String username = authentication.getName();
 
         var roles = authentication.getAuthorities()
                 .stream()
@@ -37,9 +37,8 @@ public class JwtUtils {
                 .collect(Collectors.toList());
 
         return Jwts.builder()
-                .setSubject(id) // <-- sub = ID
-                .claim("name", name)
-                .claim("surname", surname)
+                .setSubject(id)
+                .claim("username", username)
                 .claim("roles", roles)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
@@ -56,23 +55,15 @@ public class JwtUtils {
                 .getSubject();
     }
 
-    public String getNameFromJwtToken(String token) {
+    public String getUsernameFromJwtToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
-                .get("name", String.class);
+                .get("username", String.class);
     }
 
-    public String getSurnameFromJwtToken(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .get("surname", String.class);
-    }
 
     public java.util.List<String> getRolesFromJwtToken(String token) {
         return Jwts.parserBuilder()
