@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-@Order(3)
+@Order(3) //order to execute the functions to populate the DBs
 @Component
 public class Neo4jPopulator implements CommandLineRunner {
 
@@ -49,11 +49,13 @@ public class Neo4jPopulator implements CommandLineRunner {
         neo4jRepository.deleteAll();
 
         System.out.println("Starting Neo4j population");
+        //create ingredient node on neo4j
         List<Ingredient> ingredients = ingredientRepository.findAll();
         for(Ingredient ingredient : ingredients){
             neo4jRepository.insertIngredient(ingredient.getId(), ingredient.getName());
         }
 
+        //create chef node excluding admin
         List<Chef> chefs = chefRepository.findAll();
         for(Chef chef : chefs){
             if(chef.getUsername().equals("admin")){
@@ -62,14 +64,15 @@ public class Neo4jPopulator implements CommandLineRunner {
             neo4jRepository.insertChef(chef.getId(), chef.getName(), chef.getSurname());
         }
 
+        // get the recipe list and create the recipe node
         List<RecipeMongo> listRecipes = recipeRepository.findAll();
 
         for(RecipeMongo recipe : listRecipes){
             List<String> ingredientsName = new ArrayList<>();
             for(Ingredient ingredient : recipe.getIngredients()){
-                ingredientsName.add(ingredient.getName());
+                ingredientsName.add(ingredient.getName()); //just get the ingredient name
             }
-            neo4jRepository.createRecipe(recipe.getId(), recipe.getTitle(), recipe.getImageURL(), recipe.getChef().getId(), ingredientsName);
+            neo4jRepository.createRecipe(recipe.getId(), recipe.getTitle(), recipe.getImageURL(),recipe.getCategory(), recipe.getChef().getId(), ingredientsName);
             System.out.println("Recipe " + recipe.getId() + " has been created");
         }
         System.out.println("Finished Neo4j population");

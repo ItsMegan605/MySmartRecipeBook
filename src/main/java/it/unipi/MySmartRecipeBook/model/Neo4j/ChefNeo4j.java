@@ -17,7 +17,7 @@ import org.springframework.data.neo4j.core.schema.Property;
 public class ChefNeo4j {
 
     @Id @GeneratedValue
-    private Long neo4jId;
+    private String neo4jId;
 
     @Property("mongo_id")
     private String mongoId;

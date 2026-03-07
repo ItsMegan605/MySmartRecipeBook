@@ -84,7 +84,7 @@ public class SmartFridgeService {
         // la connessione a Redis
         if (!ingredients.isEmpty()) {
             jedisCluster.sadd(key, ingredients.toArray(new String[0]));
-            jedisCluster.del(REDIS_APP_NAMESPACE + REDIS_RECIPES_PREFIX + authFoodie.getUsername());
+            jedisCluster.del(REDIS_APP_NAMESPACE +REDIS_RECIPES_PREFIX + authFoodie.getUsername());
         }
         else{
             System.out.println("No ingredients inserted");
@@ -114,12 +114,12 @@ public class SmartFridgeService {
 
 
     public List<RecipeSuggestionDTO> getRecommendations(String username) {
-        String cacheKey = REDIS_APP_NAMESPACE + REDIS_RECIPES_PREFIX + username;
+        String cacheKey = REDIS_APP_NAMESPACE +REDIS_RECIPES_PREFIX + username;
 
         String json = jedisCluster.get(cacheKey);
+        System.out.println(cacheKey);
         if (json != null) {
             try {
-                System.out.println("errore frigo");
                 return objectMapper.readValue(json, new TypeReference<List<RecipeSuggestionDTO>>(){});
             } catch (JsonProcessingException e) {
                 e.printStackTrace();

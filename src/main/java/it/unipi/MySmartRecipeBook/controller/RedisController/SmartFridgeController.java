@@ -5,6 +5,7 @@ import it.unipi.MySmartRecipeBook.dto.recipe.RecipeSuggestionDTO;
 import it.unipi.MySmartRecipeBook.model.Neo4j.RecipeNeo4j;
 import it.unipi.MySmartRecipeBook.model.Redis.SmartFridge;
 import it.unipi.MySmartRecipeBook.repository.RecipeNeo4jRepository;
+import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import it.unipi.MySmartRecipeBook.service.IngredientService;
 import it.unipi.MySmartRecipeBook.service.RecipeMatchService;
 import it.unipi.MySmartRecipeBook.service.SmartFridgeService;
@@ -51,8 +52,12 @@ public class SmartFridgeController {
 
     @GetMapping("/recommendations")
     public ResponseEntity<List<RecipeSuggestionDTO>> getRecommendations() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        List<RecipeSuggestionDTO> recipes = smartFridgeService.getRecommendations(username);
+        UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        System.out.println("authFoodie: " + authFoodie.getId());
+        List<RecipeSuggestionDTO> recipes = smartFridgeService.getRecommendations(authFoodie.getUsername());
 
         if (recipes.isEmpty()) {
             return ResponseEntity.noContent().build();

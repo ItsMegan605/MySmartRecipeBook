@@ -25,5 +25,7 @@ public class GraphRecipeDTO {
     @JsonProperty("image_url")
     String imgURL;
 
+    String category;
+
     List<Ingredient> ingredients;
 }

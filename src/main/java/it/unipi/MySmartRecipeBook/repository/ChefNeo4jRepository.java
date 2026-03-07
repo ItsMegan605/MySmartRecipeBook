@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface ChefNeo4jRepository extends Neo4jRepository<ChefNeo4j, Long> {
+public interface ChefNeo4jRepository extends Neo4jRepository<ChefNeo4j, String> {
 
     @Query("MATCH (c:Chef)-[:WROTE]->(r:Recipe)<-[:USED_IN]-(i:Ingredient) " +
             "WHERE NOT toLower(i.name) IN $filteredIngredients " +
@@ -19,11 +19,12 @@ public interface ChefNeo4jRepository extends Neo4jRepository<ChefNeo4j, Long> {
             "RETURN c.name AS chefName, c.surname AS chefSurname, topIngredient.name AS ingredientName, topIngredient.count AS usageCount")
     List<PopularIngredientsDTO> getPopularIngredientsStats(List<String> filteredIngredients);
 
-    @Query("MATCH (c:Chef)-[:WROTE]->(r:Recipe {category: $categories}) " +
-            "WITH c, count(r) AS count " +
+    @Query("MATCH (c:Chef)-[:WROTE]->(r:Recipe) " +
+            "WHERE r.category IN $categories " +
+            "WITH c, r.category AS category, count(r) AS count " +
             "ORDER BY count DESC " +
             "LIMIT 3 " +
-            "RETURN c.name AS name, c.surname AS surname, $categories AS category")
+            "RETURN c.name AS name, c.surname AS surname, category")
     List<TopChefDTO> findTop3ChefsByCategory(@Param("categories") List<String> categories);
 }
 

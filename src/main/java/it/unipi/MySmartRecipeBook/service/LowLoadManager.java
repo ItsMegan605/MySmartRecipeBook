@@ -135,6 +135,7 @@ public class LowLoadManager {
                 task.getRecipe().getId(),
                 task.getRecipe().getTitle(),
                 task.getRecipe().getImgURL(),
+                task.getRecipe().getCategory(),
                 task.getRecipe().getChefId(),
                 ingredientNames
         );

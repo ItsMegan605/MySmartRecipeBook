@@ -12,7 +12,7 @@ import java.util.List;
 @Node("Recipe")
 public class RecipeNeo4j {
     @Id @GeneratedValue
-    private Long neo4jId;
+    private String neo4jId;
 
     @Property("mongo_id")
     private String mongoId; // Rimosso @GeneratedValue
@@ -20,6 +20,8 @@ public class RecipeNeo4j {
     private String title;
 
     private String imageURL;
+
+    private String category;
 
     @Relationship(type = "USED_IN", direction = Relationship.Direction.INCOMING)
     private List<Ingredient> ingredients;

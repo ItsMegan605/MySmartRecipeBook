@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long> {
+public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, String> {
 //match dello smart fridge
     @Query("MATCH (i:Ingredient)-[:USED_IN]->(r:Recipe) " +
             "WHERE i.name IN $myIngredients " +
@@ -34,14 +34,14 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
     // entrambi i sensi delle relazioni così facciamo presto sia a trovare lo chef a partire dalla ricetta che
     // eliminare tutte le ricette di uno chef
     @Query("MERGE (c:Chef {id: $chefId}) " +
-            "CREATE (r:Recipe {id: $recipeId, title: $title, imageURL: $imageURL}) " +
+            "CREATE (r:Recipe {id: $recipeId, title: $title, imageURL: $imageURL, category : $category}) " +
             "MERGE (c)<-[:WRITTEN_BY]-(r) " +
             "MERGE (c)-[:WROTE]->(r) " +
             "WITH r " +
             "UNWIND $ingredients AS ingName " +
             "MATCH (i:Ingredient) WHERE toLower(trim(i.name)) = toLower(trim(ingName)) " +
             "MERGE (r)<-[:USED_IN]-(i)")
-    void createRecipe(String recipeId, String title, String imageURL, String chefId, List<String> ingredients);
+    void createRecipe(String recipeId, String title, String imageURL, String category, String chefId, List<String> ingredients);
 
     @Query("MATCH (r:Recipe {id: $recipeId}) DETACH DELETE r")
     void deleteRecipeById(String recipeId);
