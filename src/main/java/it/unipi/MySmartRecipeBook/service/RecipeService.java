@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import it.unipi.MySmartRecipeBook.dto.recipe.RecipeSuggestionDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Mongo.*;
+import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import it.unipi.MySmartRecipeBook.utils.RecipeUtilityFunctions;
 import org.springframework.beans.factory.annotation.Value;
 import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
@@ -54,14 +55,15 @@ public class RecipeService {
     public ShowRecipeDTO getRecipeById(String id, boolean fridge){
 
         Optional<RecipeMongo> full_recipe = recipeRepository.findById(id);
-    // TODO: controllare CAP
         if(full_recipe.isEmpty()){
             //remove from redis cache the sinle recipe
             if(fridge){
                 try {
                     //recuper utente e il suo frigo
-                    String foodie = SecurityContextHolder.getContext().getAuthentication().getName(); //TODO: check
-                    String fridgeKey = "smartFridge:suggestions:" + foodie;
+                    UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
+                            .getAuthentication()
+                            .getPrincipal();
+                    String fridgeKey = "smartFridge:suggestions:" + authFoodie.getUsername();
                     String suggestedRecipes = jedisCluster.get(fridgeKey); //funzione del cluster di jedis per avere il json
 
                     if( suggestedRecipes != null) { //converto da json in oggetto java con object mapper
