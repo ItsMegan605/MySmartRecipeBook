@@ -35,7 +35,7 @@ public class AuthController {
         return ResponseEntity.ok("Foodie registered successfully");
     }
 
-    //Login
+    //Login per entrambi
     @PostMapping("/login")
     public ResponseEntity<JwtResponseDTO> login (@Valid @RequestBody LoginRequestDTO request){
 

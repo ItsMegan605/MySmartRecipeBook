@@ -26,11 +26,13 @@ public class WebSecurityConfig {
         this.userDetailsService = userDetailsService;
     }
 
+    //Bean che crea il filtro JWT, filtro intercetta ogni richiesta HTTP e verifica la validità del token
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() {
         return new AuthTokenFilter();
     }
 
+    //utilizza UserDetailsService per recuperare l'utente e PasswordEncoder per verificare la password
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -38,15 +40,18 @@ public class WebSecurityConfig {
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
     }
-
+    //configurazione regole di sicurezza e di permessi
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        http
+        http    //disabilito CSRF perché l'applicazione utilizza JWT (stateless)
                 .csrf(csrf -> csrf.disable())
+
+                //nessuna sessione lato server: l'autenticazione è gestita tramite token
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
+                // definizione delle autorizzazioni sugli endpoint
                 .authorizeHttpRequests(auth -> auth
 
                         // PUBBLICO
@@ -80,20 +85,27 @@ public class WebSecurityConfig {
                         // tutto il resto autenticato
                         .anyRequest().authenticated()
                 )
-
+                //registrazione del provider di autenticazione
                 .authenticationProvider(authenticationProvider());
 
+         /* Inserimento del filtro JWT nella catena dei filtri di Spring Security.
+         * Il filtro viene eseguito prima del filtro standard di autenticazione
+         * UsernamePasswordAuthenticationFilter. */
         http.addFilterBefore(authenticationJwtTokenFilter(),
                 UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-
+     /* Password encoder utilizzato per cifrare le password nel database.
+     * BCrypt è uno degli algoritmi più sicuri per l'hashing delle password.
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+     /* Bean che espone l'AuthenticationManager, utilizzato nel processo di login
+     per autenticare l'utente */
     @Bean
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration authConfig) throws Exception {
