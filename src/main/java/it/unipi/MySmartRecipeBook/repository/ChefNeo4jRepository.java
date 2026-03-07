@@ -19,12 +19,14 @@ public interface ChefNeo4jRepository extends Neo4jRepository<ChefNeo4j, String> 
             "RETURN c.name AS chefName, c.surname AS chefSurname, topIngredient.name AS ingredientName, topIngredient.count AS usageCount")
     List<PopularIngredientsDTO> getPopularIngredientsStats(List<String> filteredIngredients);
 
-    @Query("MATCH (c:Chef)-[:WROTE]->(r:Recipe) " +
-            "WHERE r.category IN $categories " +
-            "WITH c, r.category AS category, count(r) AS count " +
-            "ORDER BY count DESC " +
-            "LIMIT 3 " +
-            "RETURN c.name AS name, c.surname AS surname, category")
+    @Query(
+            "MATCH (c:Chef)-[:WROTE]->(r:Recipe) " +
+                    "WHERE r.category IN $categories " +
+                    "WITH r.category AS category, c, count(r) AS recipes " +
+                    "ORDER BY category, recipes DESC " +
+                    "WITH category, collect({name: c.name, surname: c.surname, recipes: recipes})[0..3] AS topChefs " +
+                    "RETURN category, topChefs"
+    )
     List<TopChefDTO> findTop3ChefsByCategory(@Param("categories") List<String> categories);
 }
 

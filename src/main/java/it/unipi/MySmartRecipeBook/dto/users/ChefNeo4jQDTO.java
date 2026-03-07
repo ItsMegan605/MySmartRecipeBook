@@ -4,14 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class TopChefDTO{
-    private String category;
-    private List<ChefNeo4jQDTO> topChefs;
-
+public class ChefNeo4jQDTO {
+    private String name;
+    private String surname;
+    private Long recipes;
 }
