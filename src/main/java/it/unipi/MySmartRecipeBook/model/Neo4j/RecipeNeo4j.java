@@ -1,9 +1,8 @@
 package it.unipi.MySmartRecipeBook.model.Neo4j;
 
+import it.unipi.MySmartRecipeBook.dto.users.ChefInfoDTO;
 import it.unipi.MySmartRecipeBook.model.Ingredient;
-import org.springframework.data.neo4j.core.schema.Id;
-import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.data.neo4j.core.schema.Relationship;
+import org.springframework.data.neo4j.core.schema.*;
 import lombok.Data;
 
 import java.util.List;
@@ -12,12 +11,19 @@ import java.util.List;
 @Data
 @Node("Recipe")
 public class RecipeNeo4j {
-    @Id
-    private String id; // Rimosso @GeneratedValue
+    @Id @GeneratedValue
+    private Long neo4jId;
+
+    @Property("id")
+    private String mongoId; // Rimosso @GeneratedValue
 
     private String title;
+
     private String imageURL;
 
     @Relationship(type = "USED_IN", direction = Relationship.Direction.INCOMING)
     private List<Ingredient> ingredients;
+
+    @Relationship(type = "WRITTEN_BY", direction = Relationship.Direction.OUTGOING)
+    private ChefNeo4j chef;
 }

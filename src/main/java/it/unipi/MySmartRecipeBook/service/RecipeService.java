@@ -88,13 +88,14 @@ public class RecipeService {
         return convertions.EntityToDto(full_recipe.get());
     }
 
-    public void deleteRecipe(String recipeId) {
+    // Si può veramente fare?
+    /*public void deleteRecipe(String recipeId) {
         if (!recipeRepository.existsById(recipeId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Recipe not found");
         }
         recipeRepository.deleteById(recipeId);
-        /* Manca l'eliminazione da Neo4j e bisogna vedere se anche da Redis*/
-    }
+        /* Manca l'eliminazione da Neo4j e bisogna vedere se anche da Redis
+    }*/
 
     public List<UserPreviewRecipeDTO> getRecipeByTitle(String title, int pageNumber){
 

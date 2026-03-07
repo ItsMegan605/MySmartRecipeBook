@@ -5,7 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Node;
+import org.springframework.data.neo4j.core.schema.Property;
 
 @Getter
 @Setter
@@ -14,8 +16,10 @@ import org.springframework.data.neo4j.core.schema.Node;
 @Node("Chef")
 public class ChefNeo4j {
 
-    @Id
-    private String id;
+    @Id @GeneratedValue
+    private Long neo4jId;
+
+    @Property("id")
     private String mongoId;
     private String name;
     private String surname;

@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface ChefNeo4jRepository extends Neo4jRepository<ChefNeo4j, String> {
+public interface ChefNeo4jRepository extends Neo4jRepository<ChefNeo4j, Long> {
 
     @Query("MATCH (c:Chef)-[:WROTE]->(r:Recipe)<-[:USED_IN]-(i:Ingredient) " +
             "WHERE NOT toLower(i.name) IN $filteredIngredients " +

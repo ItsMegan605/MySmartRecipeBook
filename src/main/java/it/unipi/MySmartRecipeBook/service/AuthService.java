@@ -4,7 +4,6 @@ import it.unipi.MySmartRecipeBook.dto.LoginRequestDTO;
 import it.unipi.MySmartRecipeBook.dto.JwtResponseDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegistedUserDTO;
 import it.unipi.MySmartRecipeBook.model.Admin;
-import it.unipi.MySmartRecipeBook.model.Chef;
 import it.unipi.MySmartRecipeBook.model.Foodie;
 import it.unipi.MySmartRecipeBook.model.PendingChef;
 import it.unipi.MySmartRecipeBook.repository.AdminRepository;
@@ -18,12 +17,7 @@ import it.unipi.MySmartRecipeBook.utils.FoodieUtilityFunctions;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Date;
 
 @Service
 public class AuthService {
@@ -61,7 +55,7 @@ public class AuthService {
             throw new RuntimeException("Username already taken");
         }
 
-        // Viene creata l'entità chef
+        // Viene creata l'entità chef da inserire tra quelle in attesa di approvazione dell'admin
         PendingChef chef = chefUtils.createChefEntity(chefDTO);
 
         Admin admin = adminRepository.findByUsername("admin");
@@ -101,6 +95,7 @@ public class AuthService {
 
     /* ------------------- Login ----------------------- */
 
+    // Richede username e password (LoginRequestDTO e mi restituisce il token con le altre informazioni
     public JwtResponseDTO authenticateUser(LoginRequestDTO request) {
 
         Authentication authentication = authenticationManager.authenticate(

@@ -104,7 +104,7 @@ public class RecipeUtilityFunctions {
     public RecipeNeo4j MongoToNeo4jRecipe(RecipeMongo recipe){
 
         RecipeNeo4j recipeNeo4j = new RecipeNeo4j();
-        recipeNeo4j.setId(recipe.getId());
+        recipeNeo4j.setMongoId(recipe.getId());
         recipeNeo4j.setTitle(recipe.getTitle());
         recipeNeo4j.setIngredients(recipe.getIngredients());
 

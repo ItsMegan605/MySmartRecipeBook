@@ -218,7 +218,7 @@ public class AdminService {
         adminRepository.removeChefFromApprovals(admin.getId(), chefId);
 
         ChefNeo4j chefNeo4j = new ChefNeo4j();
-        chefNeo4j.setId(chefId);
+        chefNeo4j.setMongoId(chefId);
         chefNeo4j.setName(chef.getName());
         chefNeo4j.setSurname(chef.getSurname());
         chefNeo4jRepository.save(chefNeo4j);

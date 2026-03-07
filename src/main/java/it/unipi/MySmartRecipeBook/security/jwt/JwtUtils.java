@@ -55,6 +55,7 @@ public class JwtUtils {
                 .getBody()
                 .getSubject();
     }
+
     public String getNameFromJwtToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())

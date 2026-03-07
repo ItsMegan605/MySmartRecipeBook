@@ -30,13 +30,13 @@ public class RecipeController {
         return ResponseEntity.ok(standardRecipeDTO);
     }
 
-    /* Delete Reciope */
+    /* Delete Reciope
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteRecipe (@PathVariable String id) {
 
         recipeService.deleteRecipe(id);
         return ResponseEntity.noContent().build();
-    }
+    }*/
 
     /* Function to search a recipe by title in the home page (the research will be done searching sub-strings).
     Five recipes at the time will be shown */
