@@ -32,4 +32,14 @@ public class RecipeSuggestionDTO implements Serializable {
         }
         return chefName + " " + chefSurname;
     }
+
+    // Quando Jackson rilegge "chef" da Redis, ripopola chefName e chefSurname
+    public void setChef(String chef) {
+        if (chef != null) {
+            String[] parts = chef.split(" ", 2);
+            this.chefName = parts[0];
+            this.chefSurname = parts.length > 1 ? parts[1] : "";
+        }
+    }
+
 }

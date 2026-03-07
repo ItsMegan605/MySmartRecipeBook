@@ -37,8 +37,8 @@ public class SmartFridgeService {
     }
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-    public static final String REDIS_APP_NAMESPACE = "MySmartRecipeBook";
-    private static final String REDIS_FRIDGE_PREFIX = "smartFridge:items:";
+    public static final String REDIS_APP_NAMESPACE = "MySmartRecipeBook:";
+    private static final String REDIS_FRIDGE_PREFIX = "smartFridge:ingredients:";
     private static final String REDIS_RECIPES_PREFIX = "smartFridge:suggestions:";
 
 

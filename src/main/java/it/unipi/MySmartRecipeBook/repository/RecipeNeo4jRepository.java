@@ -34,7 +34,7 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
     // entrambi i sensi delle relazioni così facciamo presto sia a trovare lo chef a partire dalla ricetta che
     // eliminare tutte le ricette di uno chef
     @Query("MERGE (c:Chef {id: $chefId}) " +
-            "CREATE (r:Recipe {id: $recipeId, title: $title, imageURL: $imageURL, category : $category}) " +
+            "CREATE (r:Recipe {mongo_id: $recipeId, title: $title, imageURL: $imageURL, category : $category}) " +
             "MERGE (c)<-[:WRITTEN_BY]-(r) " +
             "MERGE (c)-[:WROTE]->(r) " +
             "WITH r " +
@@ -46,18 +46,18 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
     @Query("MATCH (r:Recipe {id: $recipeId}) DETACH DELETE r")
     void deleteRecipeById(String recipeId);
 
-    @Query("MATCH (c:Chef {id: $chefId}) " +
+    @Query("MATCH (c:Chef {mongo_id: $chefId}) " +
             // Usiamo OPTIONAL MATCH nel caso in cui lo chef non abbia ancora scritto nessuna ricetta
             "OPTIONAL MATCH (c)-[:WROTE]->(r:Recipe) " +
             // DETACH DELETE distrugge i nodi e TUTTE le relazioni ad essi collegate
             "DETACH DELETE c, r")
     void deleteChef(String chefId);
 
-    @Query("MERGE (c:Chef {id: $chefId}) " +
+    @Query("MERGE (c:Chef {mongo_id: $chefId}) " +
             "SET c.name = $chefName, c.surname = $chefSurname")
     void insertChef(String chefId, String chefName, String chefSurname);
 
-
+/*
     //query per richiedere 5 ingredienti meno popolari si piò aggiungere anche i 5 più popolari in caso
     @Query("MATCH (i:Ingredient)-[:USED_IN]->(r:Recipe) " +
             "WHERE NOT toLower(i.name) IN $commonIngredients " +
@@ -65,5 +65,6 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
             "ORDER BY usageCount ASC " +
             "LIMIT 5")
     List<UsedIngredientsDTO> getCommonIngredients(List<String> commonIngredients);
+*/
 
 }

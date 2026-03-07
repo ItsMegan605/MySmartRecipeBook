@@ -28,7 +28,7 @@ public class ShoppingListService {
     }
 
 
-    public static final String REDIS_APP_NAMESPACE = "MySmartRecipeBook";
+    public static final String REDIS_APP_NAMESPACE = "MySmartRecipeBook:";
     private static final String REDIS_KEY_PREFIX = "shoppingList:user:";
 
 
