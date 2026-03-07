@@ -180,7 +180,7 @@ public class ChefService {
         ChefInfoDTO chefDTO = new ChefInfoDTO(chef.getId(), chef.getName(), chef.getSurname());
         // A partire dal DTO creiamo un'istanza dell'entità BaseRecipe per poterla salvare embedded dentro il documento
         // dell'admin
-        BaseRecipe savedRecipe = chefConvertions.createBaseRecipe(dto, chefDTO);
+        PendingRecipe savedRecipe = chefConvertions.createBaseRecipe(dto, chefDTO);
 
         // Controlliamo che la ricetta non sia già stata inserita tra quella in attesa di approvazione
         if(admin.getRecipesToApprove() != null){

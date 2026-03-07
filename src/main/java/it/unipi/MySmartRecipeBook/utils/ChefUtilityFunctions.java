@@ -6,10 +6,7 @@ import it.unipi.MySmartRecipeBook.dto.users.RegistedUserDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegistedUserInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Chef;
-import it.unipi.MySmartRecipeBook.model.Mongo.BaseRecipe;
-import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipe;
-import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipeSummary;
-import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
+import it.unipi.MySmartRecipeBook.model.Mongo.*;
 import it.unipi.MySmartRecipeBook.model.PendingChef;
 import it.unipi.MySmartRecipeBook.model.ReducedChef;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -65,9 +62,9 @@ public class ChefUtilityFunctions {
 
     // Ricetta che viene creata nel momento in cui uno chef fa submit del form compilato con tutte le informazioni
     // necessarie per l'inserimento di una ricetta
-    public BaseRecipe createBaseRecipe (CreateRecipeDTO dto, ChefInfoDTO chefDTO){
+    public PendingRecipe createBaseRecipe (CreateRecipeDTO dto, ChefInfoDTO chefDTO){
 
-        BaseRecipe recipe = new BaseRecipe();
+        PendingRecipe recipe = new PendingRecipe();
         recipe.setId(java.util.UUID.randomUUID().toString());
         recipe.setTitle(dto.getTitle());
         recipe.setCategory(dto.getCategory());
@@ -95,7 +92,7 @@ public class ChefUtilityFunctions {
     In addition, we remove all the informations about the chef that would have been redundant.
     */
 
-    public ChefRecipe recipeToChefRecipe (BaseRecipe recipe){
+    public ChefRecipe recipeToChefRecipe (PendingRecipe recipe){
 
         ChefRecipe full_recipe = new ChefRecipe();
         full_recipe.setId(recipe.getId());
@@ -116,7 +113,7 @@ public class ChefUtilityFunctions {
 
     /* Function to create a ChefPreviewRecipeDTO from an AdminRecipe*/
 
-    public ChefPreviewRecipeDTO baseToChefDTO(BaseRecipe recipe){
+    public ChefPreviewRecipeDTO baseToChefDTO(PendingRecipe recipe){
 
         ChefPreviewRecipeDTO recipeDTO = new ChefPreviewRecipeDTO();
 

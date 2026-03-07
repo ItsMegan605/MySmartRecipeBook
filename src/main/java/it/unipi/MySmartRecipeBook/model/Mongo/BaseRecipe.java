@@ -15,9 +15,6 @@ import java.util.List;
 
 public class BaseRecipe {
 
-    @Id
-    private String id;
-
     private String title;
 
     @Field("presentation")

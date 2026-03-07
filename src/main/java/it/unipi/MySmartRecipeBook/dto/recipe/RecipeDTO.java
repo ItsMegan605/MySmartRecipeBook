@@ -13,6 +13,7 @@ public class RecipeDTO {
 
     @JsonProperty("mongo_id")
     private String mongoId;
+
     private String title;
 
     @JsonProperty("image_url")

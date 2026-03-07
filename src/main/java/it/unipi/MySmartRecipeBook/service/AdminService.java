@@ -78,14 +78,14 @@ public class AdminService {
 
         // Prendiamo l'elenco delle ricette in attesa di approvazione che abbiamo dentro l'admin e cerchiamo quella che
         // ha l'id indicato
-        List<BaseRecipe> recipesToApprove = admin.getRecipesToApprove();
+        List<PendingRecipe> recipesToApprove = admin.getRecipesToApprove();
 
         if (recipesToApprove == null) {
             throw new RuntimeException("No recipe has to be approved");
         }
 
-        BaseRecipe recipeApproved = null;
-        for (BaseRecipe recipe : recipesToApprove) {
+        PendingRecipe recipeApproved = null;
+        for (PendingRecipe recipe : recipesToApprove) {
             if (recipe.getId().equals(recipeId)) {
                 recipeApproved = recipe;
                 break;
@@ -154,14 +154,14 @@ public class AdminService {
                 .orElseThrow(() -> new RuntimeException("Admin not found"));
 
         // Prendiamo la lista delle ricette in attesa di approvazione
-        List<BaseRecipe> recipesToApprove = admin.getRecipesToApprove();
+        List<PendingRecipe> recipesToApprove = admin.getRecipesToApprove();
 
         if (recipesToApprove == null) {
             throw new RuntimeException("No recipe has to be approved");
         }
 
         String chefId = null;
-        for (BaseRecipe recipe : recipesToApprove) {
+        for (PendingRecipe recipe : recipesToApprove) {
             if (recipe.getId().equals(recipeId)) {
                 chefId = recipe.getChef().getId();
                 break;
