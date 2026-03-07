@@ -274,7 +274,9 @@ public class AdminService {
                 recipeRepository.findCategoryTrend(oneYearAgo, twoYearsAgo);
 
         for (TrendAnalyticsDTO dto : results) {
-
+            if (dto.getGrowthRate() != null) {
+                    dto.setGrowthRate(dto.getGrowthRate() * 100);
+            }
             if (dto.getPreviousCount() == 0 && dto.getRecentCount() > 0) {
                 dto.setTrendType("NEW");
             } else if (dto.getGrowthRate() != null && dto.getGrowthRate() > 0) {

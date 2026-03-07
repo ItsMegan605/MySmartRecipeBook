@@ -32,7 +32,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import it.unipi.MySmartRecipeBook.dto.ChefRankAnalyticsDTO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -349,4 +349,10 @@ public class ChefService {
     public List<TopChefDTO> getTopChef() {
         return chefNeo4jRepository.findTop3ChefsByCategory(CATEGORIES);
     }
+
+    /* --------- Bayesian Chef Ranking-------- */
+    public List<ChefRankAnalyticsDTO> getChefRankingForFoodie() {
+        return chefRepository.ChefBayesianRanking();
+    }
+
 }
