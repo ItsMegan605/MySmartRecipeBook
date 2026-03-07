@@ -24,7 +24,6 @@ public class AdminController {
         return ResponseEntity.ok("Recipe approved");
     }
 
-
     /*------------------- Discard a pending recipe  --------------------*/
 
     @DeleteMapping("/discard/{id}")
@@ -33,15 +32,15 @@ public class AdminController {
         return ResponseEntity.ok("Recipe succesfully discarded");
     }
 
-    @PostMapping("/approveChef/{id}")
-    public ResponseEntity<String> approveChef(@PathVariable("id") String chefId) {
-        adminService.approveChef(chefId);
+    @PostMapping("/approveChef/{username}")
+    public ResponseEntity<String> approveChef(@PathVariable("username") String chefUsername) {
+        adminService.approveChef(chefUsername);
         return ResponseEntity.ok("Chef succesfully added by admin");
     }
 
-    @PostMapping("/discardChef/{id}")
-    public ResponseEntity<String> discardChef(@PathVariable("id") String chefId) {
-        adminService.declineChef(chefId);
+    @PostMapping("/discardChef/{username}")
+    public ResponseEntity<String> discardChef(@PathVariable("username") String chefUsername) {
+        adminService.declineChef(chefUsername);
         return ResponseEntity.ok("Chef declined by admin");
     }
 
@@ -61,11 +60,11 @@ public class AdminController {
     public ResponseEntity<List<TrendAnalyticsDTO>> getCategoryTrends() {
         return ResponseEntity.ok(adminService.getCategoryTrends());
     }
-
+/*
     @GetMapping("/leastUsedIngredients")
     public ResponseEntity<List<UsedIngredientsDTO>> getLeastUsedIngredients() {
         List<UsedIngredientsDTO> rareIngredients = adminService.getLeastUsedIngredients();
         return ResponseEntity.ok(rareIngredients);
-    }
+    } */
 }
 

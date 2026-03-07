@@ -132,7 +132,7 @@ public class ChefService {
     @Transactional
     public void deleteChef(String chefId) {
 
-        Chef chef = chefRepository.findById(chefId)
+        Chef chef = chefRepository.findByUsername(chefId)
                 .orElseThrow(() -> new RuntimeException("Chef not found"));
 
         // Vengono eliminate tutte le ricette di quello chef (è stato definito un indice sullo chef - compound o

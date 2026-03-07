@@ -22,8 +22,8 @@ public interface AdminRepository extends MongoRepository<Admin, String> {
     void removeRecipeFromApprovals(String adminId, String recipeId);
 
     @Query("{ '_id': ?0 }")
-    @Update("{ '$pull': { 'chefs_to_approve': { 'id': ?1 } } }")
-    void removeChefFromApprovals(String adminId, String chefId);
+    @Update("{ '$pull': { 'chefs_to_approve': { 'username': ?1 } } }")
+    void removeChefFromApprovals(String adminId, String chefUsername);
 
 
     @Query("{ '_id': ?0 }")

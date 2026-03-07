@@ -184,7 +184,7 @@ public class AdminService {
 
     /*------------------- Approve a pending chef registration request  --------------------*/
 
-    public void approveChef(String chefId) {
+    public void approveChef(String chefUsername) {
 
         UserPrincipal logged_admin = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -200,7 +200,7 @@ public class AdminService {
 
         PendingChef chef = null;
         for (PendingChef approvedChef : chefToApprove) {
-            if (approvedChef.getId().equals(chefId)) {
+            if (approvedChef.getUsername().equals(chefUsername)) {
                 chef = approvedChef;
                 break;
             }
@@ -212,13 +212,14 @@ public class AdminService {
 
         Chef chefMongo = chefUtilityFunctions.pendingChefToChef(chef);
         // Salvataggio del nuovo chef nella collection "chefs"
-        chefRepository.save(chefMongo);
+
+        Chef chefApproved = chefRepository.save(chefMongo);
 
         // Rimozione dello chef dalla lista di quelli in attesa di approvazione
-        adminRepository.removeChefFromApprovals(admin.getId(), chefId);
+        adminRepository.removeChefFromApprovals(admin.getId(), chefUsername);
 
         ChefNeo4j chefNeo4j = new ChefNeo4j();
-        chefNeo4j.setMongoId(chefId);
+        chefNeo4j.setMongoId(chefApproved.getId());
         chefNeo4j.setName(chef.getName());
         chefNeo4j.setSurname(chef.getSurname());
         chefNeo4jRepository.save(chefNeo4j);
@@ -227,7 +228,7 @@ public class AdminService {
 
     /*------------------- Discard a pending chef registration request  --------------------*/
 
-    public void declineChef(String chefId) {
+    public void declineChef(String chefUsername) {
 
         UserPrincipal logged_admin = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -243,7 +244,7 @@ public class AdminService {
 
         PendingChef chef = null;
         for (PendingChef newChef : chefToApprove) {
-            if (newChef.getId().equals(chefId)) {
+            if (newChef.getUsername().equals(chefUsername)) {
                 chef = newChef;
                 break;
             }
@@ -253,7 +254,7 @@ public class AdminService {
             throw new RuntimeException("Chef to approve not found");
         }
 
-        adminRepository.removeChefFromApprovals(admin.getId(), chefId);
+        adminRepository.removeChefFromApprovals(admin.getId(), chefUsername);
     }
 
 
@@ -294,10 +295,10 @@ public class AdminService {
     public List<PopularIngredientsDTO> getPopularIngredients() {
         return chefNeo4jRepository.getPopularIngredientsStats(COMMON_INGREDIENTS);
     }
-
+/*
     public List<UsedIngredientsDTO> getLeastUsedIngredients() {
         return recipeNeo4jRepository.getCommonIngredients(RARE_INGREDIENTS);
-    }
+    } */
 }
 
 
