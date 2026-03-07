@@ -65,7 +65,7 @@ public class AuthService {
         if(admin.getChefsToApprove()!=null) {
             for (PendingChef targetChef : admin.getChefsToApprove()) {
                 if (chefUtils.chefAlreadyInserted(targetChef, chef)) {
-                    throw new RuntimeException("Request already sent");
+                    throw new RuntimeException("Request already sent or username already present");
                 }
             }
         }

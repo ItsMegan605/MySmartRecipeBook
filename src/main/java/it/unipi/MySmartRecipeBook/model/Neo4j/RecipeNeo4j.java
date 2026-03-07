@@ -6,7 +6,7 @@ import lombok.Data;
 
 import java.util.List;
 
-//recipe node
+
 @Data
 @Node("Recipe")
 public class RecipeNeo4j {
@@ -14,7 +14,7 @@ public class RecipeNeo4j {
     private Long neo4jId;
 
     @Property("mongo_id")
-    private String mongoId; // Rimosso @GeneratedValue
+    private String mongoId;
 
     private String title;
 
@@ -23,7 +23,7 @@ public class RecipeNeo4j {
     private String category;
 
     @Relationship(type = "USED_IN", direction = Relationship.Direction.INCOMING)
-    private List<Ingredient> ingredients;
+    private List<IngredientNeo4j> ingredients;
 
     @Relationship(type = "WRITTEN_BY", direction = Relationship.Direction.OUTGOING)
     private ChefNeo4j chef;

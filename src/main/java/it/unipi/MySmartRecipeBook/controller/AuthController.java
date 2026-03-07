@@ -24,7 +24,7 @@ public class AuthController {
     public ResponseEntity<String> registerChef (@Valid @RequestBody RegistedUserDTO dto){
 
         authService.registerChef(dto);
-        return ResponseEntity.ok("Chef registered successfully");
+        return ResponseEntity.ok("Registration request completed successfully. Waiting for admin approval.");
     }
 
     //Register Foodie

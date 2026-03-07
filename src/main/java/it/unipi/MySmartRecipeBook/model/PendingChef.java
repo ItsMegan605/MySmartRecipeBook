@@ -41,7 +41,7 @@ public class PendingChef {
 
     @Past(message = "Birthdate must be in the past")
     private LocalDate birthdate;
+
     @Field("reg_date")
-    @Past
     private LocalDate registrationDate;
 }

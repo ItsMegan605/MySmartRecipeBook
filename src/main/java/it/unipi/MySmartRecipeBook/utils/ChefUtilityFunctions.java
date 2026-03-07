@@ -12,8 +12,6 @@ import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipeSummary;
 import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
 import it.unipi.MySmartRecipeBook.model.PendingChef;
 import it.unipi.MySmartRecipeBook.model.ReducedChef;
-import it.unipi.MySmartRecipeBook.security.UserPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -189,9 +187,12 @@ public class ChefUtilityFunctions {
 
     public boolean chefAlreadyInserted(PendingChef targetChef, PendingChef chef) {
 
-        return  targetChef.getName().equals(chef.getName()) &&
+        boolean sameRequest = targetChef.getName().equals(chef.getName()) &&
                 targetChef.getSurname().equals(chef.getSurname()) &&
                 targetChef.getBirthdate().equals(chef.getBirthdate());
+
+        boolean sameUsername = targetChef.getUsername().equals(chef.getUsername());
+        return sameRequest || sameUsername;
     }
 
     public Chef pendingChefToChef (PendingChef chef){

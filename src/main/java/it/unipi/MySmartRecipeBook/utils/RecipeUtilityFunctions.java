@@ -4,11 +4,16 @@ import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.GraphRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
+import it.unipi.MySmartRecipeBook.model.Ingredient;
 import it.unipi.MySmartRecipeBook.model.Mongo.BaseRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
+import it.unipi.MySmartRecipeBook.model.Neo4j.IngredientNeo4j;
 import it.unipi.MySmartRecipeBook.model.Neo4j.RecipeNeo4j;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class RecipeUtilityFunctions {
@@ -106,11 +111,18 @@ public class RecipeUtilityFunctions {
         RecipeNeo4j recipeNeo4j = new RecipeNeo4j();
         recipeNeo4j.setMongoId(recipe.getId());
         recipeNeo4j.setTitle(recipe.getTitle());
-        recipeNeo4j.setIngredients(recipe.getIngredients());
+
+        List<IngredientNeo4j> ingredients = new ArrayList<>();
+        for(Ingredient ingredient : recipe.getIngredients()){
+            IngredientNeo4j ingredientNeo4j = new IngredientNeo4j();
+            ingredientNeo4j.setName(ingredient.getName());
+        }
+        recipeNeo4j.setIngredients(ingredients);
 
 
         return recipeNeo4j;
     }
+
 
 
 }

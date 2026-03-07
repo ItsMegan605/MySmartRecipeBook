@@ -3,6 +3,8 @@ package it.unipi.MySmartRecipeBook.utils.populateDB;
 import it.unipi.MySmartRecipeBook.model.Chef;
 import it.unipi.MySmartRecipeBook.model.Ingredient;
 import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
+import it.unipi.MySmartRecipeBook.model.Neo4j.ChefNeo4j;
+import it.unipi.MySmartRecipeBook.model.Neo4j.RecipeNeo4j;
 import it.unipi.MySmartRecipeBook.repository.ChefRepository;
 import it.unipi.MySmartRecipeBook.repository.IngredientRepository;
 import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
@@ -70,11 +72,12 @@ public class Neo4jPopulator implements CommandLineRunner {
         for(RecipeMongo recipe : listRecipes){
             List<String> ingredientsName = new ArrayList<>();
             for(Ingredient ingredient : recipe.getIngredients()){
-                ingredientsName.add(ingredient.getName()); //just get the ingredient name
+                ingredientsName.add(ingredient.getName());
             }
             neo4jRepository.createRecipe(recipe.getId(), recipe.getTitle(), recipe.getImageURL(),recipe.getCategory(), recipe.getChef().getId(), ingredientsName);
             System.out.println("Recipe " + recipe.getId() + " has been created");
         }
+
         System.out.println("Finished Neo4j population");
     }
 }
