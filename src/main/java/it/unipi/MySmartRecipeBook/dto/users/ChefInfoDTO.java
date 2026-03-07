@@ -10,6 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ChefInfoDTO {
+    String id;
     String name;
     String surname;
 }

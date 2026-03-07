@@ -1,6 +1,7 @@
 package it.unipi.MySmartRecipeBook.utils;
 
 import it.unipi.MySmartRecipeBook.dto.recipe.CreateRecipeDTO;
+import it.unipi.MySmartRecipeBook.dto.users.ChefInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegistedUserDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegistedUserInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
@@ -66,7 +67,7 @@ public class ChefUtilityFunctions {
 
     // Ricetta che viene creata nel momento in cui uno chef fa submit del form compilato con tutte le informazioni
     // necessarie per l'inserimento di una ricetta
-    public BaseRecipe createBaseRecipe (CreateRecipeDTO dto){
+    public BaseRecipe createBaseRecipe (CreateRecipeDTO dto, ChefInfoDTO chefDTO){
 
         BaseRecipe recipe = new BaseRecipe();
         recipe.setId(java.util.UUID.randomUUID().toString());
@@ -81,11 +82,10 @@ public class ChefUtilityFunctions {
         recipe.setCreationDate(LocalDateTime.now());
 
         ReducedChef chef = new ReducedChef();
-        UserPrincipal chef1 = (UserPrincipal) SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getPrincipal();
-        chef.setId(chef1.getId());
-        //tolti getname e getsurname
+        chef.setId(chefDTO.getId());
+        chef.setName(chefDTO.getName());
+        chef.setSurname(chefDTO.getSurname());
+
         recipe.setChef(chef);
 
         return recipe;

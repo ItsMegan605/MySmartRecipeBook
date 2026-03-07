@@ -14,7 +14,7 @@ public class RecipeNeo4j {
     @Id @GeneratedValue
     private Long neo4jId;
 
-    @Property("id")
+    @Property("mongo_id")
     private String mongoId; // Rimosso @GeneratedValue
 
     private String title;

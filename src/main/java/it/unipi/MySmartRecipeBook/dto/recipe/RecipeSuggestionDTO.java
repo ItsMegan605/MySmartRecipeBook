@@ -16,12 +16,20 @@ public class RecipeSuggestionDTO implements Serializable {
     private String id;
     private String title;
     private String imageURL;
+
+    @JsonIgnore
     private String chefName;
+    @JsonIgnore
     private String chefSurname;
 
     private String chef;
     private int matchCount; // Numero di ingredienti che fanno match
     private List<String> matchedIngredients; // Elenco dei nomi degli ingredienti trovati
 
-
+    public String getChef() {
+        if (chefName == null && chefSurname == null) {
+            return null;
+        }
+        return chefName + " " + chefSurname;
+    }
 }

@@ -18,7 +18,7 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
             "WITH r, count(i) AS matchCount, collect(i.name) AS matchedIngredients " +
             "WHERE matchCount >= 3 " +
             "MATCH (r)-[:WRITTEN_BY]->(c:Chef) " +
-            "RETURN r.id AS id, " +
+            "RETURN r.mongo_id AS id, " +
             "       r.title AS title, " +
             "       r.imageURL AS imageURL, " +
             "       c.name AS chefName, " +

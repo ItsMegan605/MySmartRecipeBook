@@ -19,7 +19,7 @@ public class ChefNeo4j {
     @Id @GeneratedValue
     private Long neo4jId;
 
-    @Property("id")
+    @Property("mongo_id")
     private String mongoId;
     private String name;
     private String surname;

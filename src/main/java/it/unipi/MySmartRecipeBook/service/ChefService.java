@@ -1,6 +1,8 @@
 package it.unipi.MySmartRecipeBook.service;
 
 import static it.unipi.MySmartRecipeBook.utils.enums.Categories.*;
+
+import it.unipi.MySmartRecipeBook.dto.users.ChefInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegistedUserInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.users.TopChefDTO;
 import it.unipi.MySmartRecipeBook.dto.users.UpdateChefDTO;
@@ -152,6 +154,13 @@ public class ChefService {
     @Transactional
     public ChefPreviewRecipeDTO createRecipe(CreateRecipeDTO dto) {
 
+        UserPrincipal authChef = (UserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        Chef chef = chefRepository.findById(authChef.getId())
+                .orElseThrow(() -> new RuntimeException("Chef not found"));
+
         // Controlliamo che gli ingredienti siano presenti nel formato richiesto
         List<Ingredient> ingredients = dto.getIngredients();
         for(Ingredient ingredient : ingredients) {
@@ -168,9 +177,10 @@ public class ChefService {
             throw new RuntimeException("Admin not found");
         }
 
+        ChefInfoDTO chefDTO = new ChefInfoDTO(chef.getId(), chef.getName(), chef.getSurname());
         // A partire dal DTO creiamo un'istanza dell'entità BaseRecipe per poterla salvare embedded dentro il documento
         // dell'admin
-        BaseRecipe savedRecipe = chefConvertions.createBaseRecipe(dto);
+        BaseRecipe savedRecipe = chefConvertions.createBaseRecipe(dto, chefDTO);
 
         // Controlliamo che la ricetta non sia già stata inserita tra quella in attesa di approvazione
         if(admin.getRecipesToApprove() != null){
@@ -183,13 +193,6 @@ public class ChefService {
 
         // Aggiungiamo la ricetta a quelle in attesa di approvazione dell'admin
         adminRepository.addRecipeToApprovals(admin.getId(), savedRecipe);
-
-        UserPrincipal authChef = (UserPrincipal) SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getPrincipal();
-
-        Chef chef = chefRepository.findById(authChef.getId())
-                .orElseThrow(() -> new RuntimeException("Chef not found"));
 
         // Dobbiamo convertire la ricetta nel formato in cui viene salvata all'interno della collezione degli chef (con
         // il campo numSaves inzializzato a 0
