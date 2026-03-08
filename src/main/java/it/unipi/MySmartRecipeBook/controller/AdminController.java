@@ -50,7 +50,7 @@ public class AdminController {
         return ResponseEntity.ok(stats);
     }
 
-    @GetMapping("/popularIngredients")
+    @GetMapping("/popularIngredients") //TODO forse da togliere
     public ResponseEntity<List<PopularIngredientsDTO>> getPopularIngredients() {
         List<PopularIngredientsDTO> ingredients = adminService.getPopularIngredients();
         return ResponseEntity.ok(ingredients);

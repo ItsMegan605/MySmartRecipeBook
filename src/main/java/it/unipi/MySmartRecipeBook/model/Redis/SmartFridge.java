@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class SmartFridge implements Serializable {
 
     private String id; // ID dell'utente
@@ -35,20 +36,5 @@ public class SmartFridge implements Serializable {
         this.ingredients = ingredients;
     }
 
-    //metodi per le maiuscole
-    public void addIngredient(String ingredient) {
-        if (ingredient == null || ingredient.trim().isEmpty()) return;
-        String trimmedItem = ingredient.trim();
-        boolean exists = ingredients.stream().anyMatch(i -> i.equalsIgnoreCase(trimmedItem));
 
-        if (!exists) {
-            ingredients.add(trimmedItem);
-        }
-    }
-
-    public void removeIngredient(String item) {
-        if (item == null) return;
-        String trimmedItem = item.trim();
-        ingredients.removeIf(i -> i.equalsIgnoreCase(trimmedItem)); //logica per il case sensitive
-    }
 }

@@ -17,6 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import redis.clients.jedis.JedisCluster;
+import redis.clients.jedis.JedisPooled;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,12 +43,12 @@ public class RecipeService {
 
     private final RecipeMongoRepository recipeRepository;
     private final RecipeUtilityFunctions convertions;
-    private final JedisCluster jedisCluster;
+    private JedisPooled jedisPool;
     private final ObjectMapper objectMapper;
-    public RecipeService(RecipeMongoRepository recipeRepository, RecipeUtilityFunctions convertions,  JedisCluster jedisCluster, ObjectMapper objectMapper) {
+    public RecipeService(RecipeMongoRepository recipeRepository, RecipeUtilityFunctions convertions,  JedisPooled jedisPool, ObjectMapper objectMapper) {
         this.recipeRepository = recipeRepository;
         this.convertions = convertions;
-        this.jedisCluster = jedisCluster;
+        this.jedisPool = jedisPool;
         this.objectMapper = objectMapper;
     }
 
@@ -64,7 +65,7 @@ public class RecipeService {
                             .getAuthentication()
                             .getPrincipal();
                     String fridgeKey = "smartFridge:suggestions:" + authFoodie.getUsername();
-                    String suggestedRecipes = jedisCluster.get(fridgeKey); //funzione del cluster di jedis per avere il json
+                    String suggestedRecipes = jedisPool.get(fridgeKey); //funzione del cluster di jedis per avere il json
 
                     if( suggestedRecipes != null) { //converto da json in oggetto java con object mapper
                         List<RecipeSuggestionDTO> cachedRecipes = objectMapper.readValue(suggestedRecipes, new TypeReference<List<RecipeSuggestionDTO>>(){});
@@ -74,7 +75,7 @@ public class RecipeService {
                            if(cachedRecipes.isEmpty()){
                                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Recipe not found");
                            } else  {
-                               jedisCluster.set(fridgeKey, objectMapper.writeValueAsString(cachedRecipes));
+                               jedisPool.set(fridgeKey, objectMapper.writeValueAsString(cachedRecipes));
                            }
                        }
                     }
