@@ -1,4 +1,4 @@
-package it.unipi.MySmartRecipeBook.repository.Redis;
+/*package it.unipi.MySmartRecipeBook.repository.Redis;
 //la shopping list è su redis e basta
 
 import it.unipi.MySmartRecipeBook.model.Redis.ShoppingList;
@@ -9,3 +9,4 @@ import org.springframework.stereotype.Repository;
 public interface ShoppingListRepository extends CrudRepository<ShoppingList, Integer> {
 }
 
+*/

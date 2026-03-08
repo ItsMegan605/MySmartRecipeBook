@@ -60,6 +60,7 @@ public class FoodieUtilityFunctions {
         recipe.setImageURL(recipeMongo.getImageURL());
         recipe.setCategory(recipeMongo.getCategory());
         recipe.setDifficulty(recipeMongo.getDifficulty());
+        recipe.setChef(recipeMongo.getChef());
         recipe.setSavingDate(LocalDate.now());
 
         return  recipe;

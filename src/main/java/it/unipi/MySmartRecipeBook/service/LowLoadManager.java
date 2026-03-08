@@ -73,6 +73,7 @@ public class LowLoadManager {
 
         OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
         double cpuLoad = osBean.getCpuLoad();
+        System.out.println("cpuLoad = " + cpuLoad);
 
         if(cpuLoad < 0.3){
 
@@ -124,6 +125,7 @@ public class LowLoadManager {
 
     private void createNeo4jRecipe(TaskToDo task) {
 
+        System.out.println("Creating Neo4j recipe");
         List<String> ingredientNames = new ArrayList<>();
         List<IngredientDTO> ingredients = task.getRecipe().getIngredients();
 
@@ -145,6 +147,7 @@ public class LowLoadManager {
 
     private void decrementSavesCounters(TaskToDo task){
 
+        System.out.println("Decrement Saves Counters");
         List<String> recipesId = task.getInfoToDelete().getRecipeIds();
         Map<String, Long> chefDecrements = task.getInfoToDelete().getChefDecrements();
 
@@ -166,6 +169,7 @@ public class LowLoadManager {
 
     private void updateChefCounters(TaskToDo task, int increment) {
 
+        System.out.println("Update Chef Counters");
         /* Aggiorno il numero totale di ricette salvate dello chef */
         chefRepository.updateTotalSaves(task.getChefId(), increment);
 
@@ -178,7 +182,7 @@ public class LowLoadManager {
 
     /* In questa funzione c'è la Risk Acceptancec */
     private void deleteChefRecipes(String chefId){
-
+        System.out.println("Delete Chef Recipes");
         /* Pulizia su mongo delle ricette salvate dei foodie */
         List<Foodie> foodieList = foodieRepository.findFoodiesWithChefRecipes(chefId);
 
@@ -204,6 +208,7 @@ public class LowLoadManager {
 
     private void deleteRecipe(String recipeId, String chefId){
 
+        System.out.println("Delete Recipe");
         foodieRepository.deleteRecipeFromFoodies(chefId, recipeId);
         recipeNeo4jRepository.deleteRecipeById(recipeId);
 
