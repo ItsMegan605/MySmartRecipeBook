@@ -1,7 +1,7 @@
 package it.unipi.MySmartRecipeBook.service;
 
-import it.unipi.MySmartRecipeBook.model.Ingredient;
-import it.unipi.MySmartRecipeBook.repository.IngredientRepository;
+import it.unipi.MySmartRecipeBook.model.Mongo.ingredients.Ingredient;
+import it.unipi.MySmartRecipeBook.repository.Mongo.IngredientRepository;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
 

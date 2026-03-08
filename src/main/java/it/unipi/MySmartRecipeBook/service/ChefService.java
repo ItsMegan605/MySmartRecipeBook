@@ -1,26 +1,28 @@
 package it.unipi.MySmartRecipeBook.service;
 
-import static it.unipi.MySmartRecipeBook.utils.enums.Categories.*;
+import static it.unipi.MySmartRecipeBook.utils.parameters.Categories.*;
 
+import it.unipi.MySmartRecipeBook.dto.IngredientDTO;
 import it.unipi.MySmartRecipeBook.dto.users.ChefInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegistedUserInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.users.TopChefDTO;
 import it.unipi.MySmartRecipeBook.dto.users.UpdateChefDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.CreateRecipeDTO;
-import it.unipi.MySmartRecipeBook.model.Admin;
-import it.unipi.MySmartRecipeBook.model.Chef;
-import it.unipi.MySmartRecipeBook.model.Ingredient;
-import it.unipi.MySmartRecipeBook.model.Mongo.*;
-import it.unipi.MySmartRecipeBook.repository.ChefNeo4jRepository;
-import it.unipi.MySmartRecipeBook.utils.enums.Categories;
-import it.unipi.MySmartRecipeBook.utils.enums.Task;
-import it.unipi.MySmartRecipeBook.repository.AdminRepository;
-import it.unipi.MySmartRecipeBook.repository.ChefRepository;
+import it.unipi.MySmartRecipeBook.model.Mongo.users.Admin;
+import it.unipi.MySmartRecipeBook.model.Mongo.users.Chef;
+import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefPendingRecipe;
+import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefRecipeSummary;
+import it.unipi.MySmartRecipeBook.model.Mongo.recipes.PendingRecipe;
+import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
+import it.unipi.MySmartRecipeBook.repository.Neo4j.ChefNeo4jRepository;
+import it.unipi.MySmartRecipeBook.utils.parameters.Task;
+import it.unipi.MySmartRecipeBook.repository.Mongo.AdminRepository;
+import it.unipi.MySmartRecipeBook.repository.Mongo.ChefRepository;
 
-import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
+import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
-import it.unipi.MySmartRecipeBook.utils.ChefUtilityFunctions;
+import it.unipi.MySmartRecipeBook.utils.convertionFunctions.ChefUtilityFunctions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.*;
@@ -38,7 +40,6 @@ import it.unipi.MySmartRecipeBook.dto.ChefRankAnalyticsDTO;
 
 import java.util.ArrayList;
 import java.util.List;
-import it.unipi.MySmartRecipeBook.utils.enums.Categories.*;
 
 @Service
 public class ChefService {
@@ -151,8 +152,16 @@ public class ChefService {
 
     /*------------------- Add new recipe --------------------*/
 
+    /**
+     * Funzione invocata dallo chef per scrivere una nuova ricetta: la ricetta è provvisoria e viene aggiunta alla lista
+     * di quelle in attesa di conferma da parte dell'admin
+     * @param recipeDTO DTO che si compone di tutti i cambi (tutti obbligatori) inseriti dallo chef al momento della scrittura
+     *            della ricetta
+     * @return DTO che contiene una preview della ricetta appena inserita per mostrarla allo chef come conferma dell'operazione
+     *            correttamente eseguita
+     */
     @Transactional
-    public ChefPreviewRecipeDTO createRecipe(CreateRecipeDTO dto) {
+    public ChefPreviewRecipeDTO createRecipe(CreateRecipeDTO recipeDTO) {
 
         UserPrincipal authChef = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -162,15 +171,14 @@ public class ChefService {
                 .orElseThrow(() -> new RuntimeException("Chef not found"));
 
         // Controlliamo che gli ingredienti siano presenti nel formato richiesto
-        List<Ingredient> ingredients = dto.getIngredients();
-        for(Ingredient ingredient : ingredients) {
+        List<IngredientDTO> ingredients = recipeDTO.getIngredients();
+        for(IngredientDTO ingredient : ingredients) {
             String ingredientName = ingredient.getName();
             if(!ingredientService.isValidIngredient(ingredientName)){
                 throw new RuntimeException("'" + ingredientName + "': invalid ingredient");
             }
         }
 
-        /* We add the entire recipe to the admin list of recipes waiting to be approved */
         Admin admin = adminRepository.findByUsername("admin");
 
         if (admin == null) {
@@ -178,14 +186,14 @@ public class ChefService {
         }
 
         ChefInfoDTO chefDTO = new ChefInfoDTO(chef.getId(), chef.getName(), chef.getSurname());
-        // A partire dal DTO creiamo un'istanza dell'entità BaseRecipe per poterla salvare embedded dentro il documento
+        // A partire dal DTO creiamo un'istanza dell'entità PendingRecipe per poterla salvare embedded dentro il documento
         // dell'admin
-        PendingRecipe savedRecipe = chefConvertions.createBaseRecipe(dto, chefDTO);
+        PendingRecipe savedRecipe = chefConvertions.createBaseRecipe(recipeDTO, chefDTO);
 
         // Controlliamo che la ricetta non sia già stata inserita tra quella in attesa di approvazione
         if(admin.getRecipesToApprove() != null){
-            for(BaseRecipe recipe : admin.getRecipesToApprove()){
-                if(recipe.getTitle().equals(dto.getTitle())){
+            for(PendingRecipe recipe : admin.getRecipesToApprove()){
+                if(recipe.getTitle().equals(recipeDTO.getTitle())){
                     throw new RuntimeException("Recipe already waiting to be approved");
                 }
             }
@@ -196,7 +204,7 @@ public class ChefService {
 
         // Dobbiamo convertire la ricetta nel formato in cui viene salvata all'interno della collezione degli chef (con
         // il campo numSaves inzializzato a 0
-        ChefRecipe chefRecipe = chefConvertions.recipeToChefRecipe(savedRecipe);
+        ChefPendingRecipe chefRecipe = chefConvertions.recipeToChefRecipe(savedRecipe);
         chefRepository.addRecipeToWaiting(chef.getId(), chefRecipe);
 
         // Allo chef viene mostrata un'anteprima della ricetta inserita nella sezione "in attesa di approvazione"

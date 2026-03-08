@@ -1,11 +1,11 @@
 package it.unipi.MySmartRecipeBook.utils.populateDB;
 
-import it.unipi.MySmartRecipeBook.model.Foodie;
-import it.unipi.MySmartRecipeBook.model.Mongo.FoodieRecipeSummary;
-import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
-import it.unipi.MySmartRecipeBook.repository.FoodieRepository;
-import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
-import it.unipi.MySmartRecipeBook.utils.FoodieUtilityFunctions;
+import it.unipi.MySmartRecipeBook.model.Mongo.users.Foodie;
+import it.unipi.MySmartRecipeBook.model.Mongo.recipes.FoodieRecipeSummary;
+import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
+import it.unipi.MySmartRecipeBook.repository.Mongo.FoodieRepository;
+import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
+import it.unipi.MySmartRecipeBook.utils.convertionFunctions.FoodieUtilityFunctions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;

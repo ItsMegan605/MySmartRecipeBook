@@ -1,15 +1,14 @@
 package it.unipi.MySmartRecipeBook.utils.populateDB;
 
-import it.unipi.MySmartRecipeBook.model.Chef;
-import it.unipi.MySmartRecipeBook.model.Ingredient;
-import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
-import it.unipi.MySmartRecipeBook.model.Neo4j.ChefNeo4j;
-import it.unipi.MySmartRecipeBook.model.Neo4j.RecipeNeo4j;
-import it.unipi.MySmartRecipeBook.repository.ChefRepository;
-import it.unipi.MySmartRecipeBook.repository.IngredientRepository;
-import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
-import it.unipi.MySmartRecipeBook.repository.RecipeNeo4jRepository;
-import it.unipi.MySmartRecipeBook.utils.RecipeUtilityFunctions;
+import it.unipi.MySmartRecipeBook.model.Mongo.ingredients.RecipeIngredient;
+import it.unipi.MySmartRecipeBook.model.Mongo.users.Chef;
+import it.unipi.MySmartRecipeBook.model.Mongo.ingredients.Ingredient;
+import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
+import it.unipi.MySmartRecipeBook.repository.Mongo.ChefRepository;
+import it.unipi.MySmartRecipeBook.repository.Mongo.IngredientRepository;
+import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
+import it.unipi.MySmartRecipeBook.repository.Neo4j.RecipeNeo4jRepository;
+import it.unipi.MySmartRecipeBook.utils.convertionFunctions.RecipeUtilityFunctions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
@@ -71,7 +70,7 @@ public class Neo4jPopulator implements CommandLineRunner {
 
         for(RecipeMongo recipe : listRecipes){
             List<String> ingredientsName = new ArrayList<>();
-            for(Ingredient ingredient : recipe.getIngredients()){
+            for(RecipeIngredient ingredient : recipe.getIngredients()){
                 ingredientsName.add(ingredient.getName());
             }
             neo4jRepository.createRecipe(recipe.getId(), recipe.getTitle(), recipe.getImageURL(),recipe.getCategory(), recipe.getChef().getId(), ingredientsName);

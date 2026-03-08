@@ -1,9 +1,9 @@
 package it.unipi.MySmartRecipeBook.security;
 
-import it.unipi.MySmartRecipeBook.model.Chef;
-import it.unipi.MySmartRecipeBook.model.Foodie;
-import it.unipi.MySmartRecipeBook.repository.ChefRepository;
-import it.unipi.MySmartRecipeBook.repository.FoodieRepository;
+import it.unipi.MySmartRecipeBook.model.Mongo.users.Chef;
+import it.unipi.MySmartRecipeBook.model.Mongo.users.Foodie;
+import it.unipi.MySmartRecipeBook.repository.Mongo.ChefRepository;
+import it.unipi.MySmartRecipeBook.repository.Mongo.FoodieRepository;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
 import java.util.Optional;

@@ -1,8 +1,5 @@
 package it.unipi.MySmartRecipeBook.dto.recipe;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import it.unipi.MySmartRecipeBook.dto.users.ChefInfoDTO;
-import it.unipi.MySmartRecipeBook.model.ReducedChef;
 import lombok.*;
 
 import java.io.Serializable;

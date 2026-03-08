@@ -1,18 +1,25 @@
 package it.unipi.MySmartRecipeBook.service;
 
-import it.unipi.MySmartRecipeBook.dto.UsedIngredientsDTO;
 import it.unipi.MySmartRecipeBook.dto.YearAnalyticsDTO;
 import it.unipi.MySmartRecipeBook.dto.PopularIngredientsDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.GraphRecipeDTO;
-import it.unipi.MySmartRecipeBook.model.Admin;
-import it.unipi.MySmartRecipeBook.model.Chef;
-import it.unipi.MySmartRecipeBook.model.Mongo.*;
+import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefRecipeSummary;
+import it.unipi.MySmartRecipeBook.model.Mongo.users.Admin;
+import it.unipi.MySmartRecipeBook.model.Mongo.users.Chef;
+import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefPendingRecipe;
+import it.unipi.MySmartRecipeBook.model.Mongo.recipes.PendingRecipe;
+import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
 import it.unipi.MySmartRecipeBook.model.Neo4j.ChefNeo4j;
-import it.unipi.MySmartRecipeBook.model.PendingChef;
-import it.unipi.MySmartRecipeBook.repository.*;
-import it.unipi.MySmartRecipeBook.utils.ChefUtilityFunctions;
-import it.unipi.MySmartRecipeBook.utils.RecipeUtilityFunctions;
-import it.unipi.MySmartRecipeBook.utils.enums.Task;
+import it.unipi.MySmartRecipeBook.model.Mongo.users.PendingChef;
+import it.unipi.MySmartRecipeBook.repository.Mongo.AdminRepository;
+import it.unipi.MySmartRecipeBook.repository.Mongo.ChefRepository;
+import it.unipi.MySmartRecipeBook.repository.Mongo.FoodieRepository;
+import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
+import it.unipi.MySmartRecipeBook.repository.Neo4j.ChefNeo4jRepository;
+import it.unipi.MySmartRecipeBook.repository.Neo4j.RecipeNeo4jRepository;
+import it.unipi.MySmartRecipeBook.utils.convertionFunctions.ChefUtilityFunctions;
+import it.unipi.MySmartRecipeBook.utils.convertionFunctions.RecipeUtilityFunctions;
+import it.unipi.MySmartRecipeBook.utils.parameters.Task;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 
 import jakarta.transaction.Transactional;
@@ -131,7 +138,7 @@ public class AdminService {
             throw new RuntimeException("Chef not found");
         }
 
-        ChefRecipe chefRecipe = recipeConvertions.recipeToChefRecipe(recipe);
+        ChefRecipeSummary chefRecipe = recipeConvertions.recipeToChefRecipe(recipe);
 
         // Viene eliminata la ricetta da quelle in attesa di conferma, viene incrementato il numero totale di ricette
         // dello chef, la ricetta viene inserita nel campo newRecipes (eventualmente rimuovendo una ricetta se l'array

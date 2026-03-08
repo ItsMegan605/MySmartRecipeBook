@@ -1,10 +1,8 @@
 package it.unipi.MySmartRecipeBook.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import it.unipi.MySmartRecipeBook.dto.IngredientsListDTO;
 
 
-import it.unipi.MySmartRecipeBook.repository.FoodieRepository;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;

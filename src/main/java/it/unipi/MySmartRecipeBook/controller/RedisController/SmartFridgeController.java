@@ -2,18 +2,12 @@ package it.unipi.MySmartRecipeBook.controller.RedisController;
 
 import it.unipi.MySmartRecipeBook.dto.IngredientsListDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.RecipeSuggestionDTO;
-import it.unipi.MySmartRecipeBook.model.Neo4j.RecipeNeo4j;
-import it.unipi.MySmartRecipeBook.model.Redis.SmartFridge;
-import it.unipi.MySmartRecipeBook.repository.RecipeNeo4jRepository;
+import it.unipi.MySmartRecipeBook.repository.Neo4j.RecipeNeo4jRepository;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
-import it.unipi.MySmartRecipeBook.service.IngredientService;
-import it.unipi.MySmartRecipeBook.service.RecipeMatchService;
 import it.unipi.MySmartRecipeBook.service.SmartFridgeService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import it.unipi.MySmartRecipeBook.model.*;
 
 import java.util.List;
 

@@ -1,12 +1,11 @@
 package it.unipi.MySmartRecipeBook.utils.populateDB;
 
-import it.unipi.MySmartRecipeBook.model.Chef;
-import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipe;
-import it.unipi.MySmartRecipeBook.model.Mongo.ChefRecipeSummary;
-import it.unipi.MySmartRecipeBook.model.Mongo.RecipeMongo;
-import it.unipi.MySmartRecipeBook.repository.ChefRepository;
-import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
-import it.unipi.MySmartRecipeBook.utils.ChefUtilityFunctions;
+import it.unipi.MySmartRecipeBook.model.Mongo.users.Chef;
+import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefRecipeSummary;
+import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
+import it.unipi.MySmartRecipeBook.repository.Mongo.ChefRepository;
+import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
+import it.unipi.MySmartRecipeBook.utils.convertionFunctions.ChefUtilityFunctions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;

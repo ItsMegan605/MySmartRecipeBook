@@ -1,6 +1,5 @@
 package it.unipi.MySmartRecipeBook.model.Neo4j;
 
-import it.unipi.MySmartRecipeBook.model.Ingredient;
 import org.springframework.data.neo4j.core.schema.*;
 import lombok.Data;
 

@@ -1,18 +1,18 @@
 package it.unipi.MySmartRecipeBook.service;
 
-import static it.unipi.MySmartRecipeBook.utils.enums.Categories.*;
+import static it.unipi.MySmartRecipeBook.utils.parameters.Categories.*;
 import it.unipi.MySmartRecipeBook.dto.InfoToDeleteDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegistedUserInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.users.UpdateFoodieDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
-import it.unipi.MySmartRecipeBook.model.Foodie;
-import it.unipi.MySmartRecipeBook.model.Mongo.*;
-import it.unipi.MySmartRecipeBook.repository.ChefNeo4jRepository;
+import it.unipi.MySmartRecipeBook.model.Mongo.users.Foodie;
+import it.unipi.MySmartRecipeBook.model.Mongo.recipes.FoodieRecipeSummary;
+import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
-import it.unipi.MySmartRecipeBook.utils.enums.Task;
-import it.unipi.MySmartRecipeBook.repository.FoodieRepository;
-import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
-import it.unipi.MySmartRecipeBook.utils.FoodieUtilityFunctions;
+import it.unipi.MySmartRecipeBook.utils.parameters.Task;
+import it.unipi.MySmartRecipeBook.repository.Mongo.FoodieRepository;
+import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
+import it.unipi.MySmartRecipeBook.utils.convertionFunctions.FoodieUtilityFunctions;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.*;

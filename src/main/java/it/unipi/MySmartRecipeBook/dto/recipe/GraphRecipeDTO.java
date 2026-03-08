@@ -1,7 +1,7 @@
 package it.unipi.MySmartRecipeBook.dto.recipe;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import it.unipi.MySmartRecipeBook.model.Ingredient;
+import it.unipi.MySmartRecipeBook.dto.IngredientDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,5 +27,5 @@ public class GraphRecipeDTO {
 
     String category;
 
-    List<Ingredient> ingredients;
+    List<IngredientDTO> ingredients;
 }

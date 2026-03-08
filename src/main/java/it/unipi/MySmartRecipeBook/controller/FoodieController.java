@@ -1,6 +1,5 @@
 package it.unipi.MySmartRecipeBook.controller;
 
-import it.unipi.MySmartRecipeBook.dto.users.ChefInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegistedUserInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.users.UpdateFoodieDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;

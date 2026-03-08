@@ -1,15 +1,15 @@
 package it.unipi.MySmartRecipeBook.service;
 
 import it.unipi.MySmartRecipeBook.dto.InfoToDeleteDTO;
+import it.unipi.MySmartRecipeBook.dto.IngredientDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.GraphRecipeDTO;
 import it.unipi.MySmartRecipeBook.event.TaskToDo;
-import it.unipi.MySmartRecipeBook.model.Foodie;
-import it.unipi.MySmartRecipeBook.model.Ingredient;
-import it.unipi.MySmartRecipeBook.utils.enums.Task;
-import it.unipi.MySmartRecipeBook.repository.ChefRepository;
-import it.unipi.MySmartRecipeBook.repository.FoodieRepository;
-import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
-import it.unipi.MySmartRecipeBook.repository.RecipeNeo4jRepository;
+import it.unipi.MySmartRecipeBook.model.Mongo.users.Foodie;
+import it.unipi.MySmartRecipeBook.utils.parameters.Task;
+import it.unipi.MySmartRecipeBook.repository.Mongo.ChefRepository;
+import it.unipi.MySmartRecipeBook.repository.Mongo.FoodieRepository;
+import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
+import it.unipi.MySmartRecipeBook.repository.Neo4j.RecipeNeo4jRepository;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -125,9 +125,9 @@ public class LowLoadManager {
     private void createNeo4jRecipe(TaskToDo task) {
 
         List<String> ingredientNames = new ArrayList<>();
-        List<Ingredient> ingredients = task.getRecipe().getIngredients();
+        List<IngredientDTO> ingredients = task.getRecipe().getIngredients();
 
-        for(Ingredient ingredient : ingredients){
+        for(IngredientDTO ingredient : ingredients){
             ingredientNames.add(ingredient.getName());
         }
 

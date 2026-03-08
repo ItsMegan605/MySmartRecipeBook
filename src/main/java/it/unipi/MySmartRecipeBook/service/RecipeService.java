@@ -4,13 +4,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.unipi.MySmartRecipeBook.dto.recipe.RecipeSuggestionDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
-import it.unipi.MySmartRecipeBook.model.Mongo.*;
+import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
-import it.unipi.MySmartRecipeBook.utils.RecipeUtilityFunctions;
+import it.unipi.MySmartRecipeBook.utils.convertionFunctions.RecipeUtilityFunctions;
 import org.springframework.beans.factory.annotation.Value;
 import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
-import it.unipi.MySmartRecipeBook.repository.RecipeMongoRepository;
+import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static it.unipi.MySmartRecipeBook.utils.enums.Categories.CATEGORIES;
+import static it.unipi.MySmartRecipeBook.utils.parameters.Categories.CATEGORIES;
 
 @Service
 public class RecipeService {

@@ -47,10 +47,6 @@ public class ChefController {
     @PostMapping("/changeInfo")
     public ResponseEntity<RegistedUserInfoDTO> updateInformation (@Valid @RequestBody UpdateChefDTO dto){
 
-        String username = SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getName();
-
         return ResponseEntity.ok(chefService.updateChef(dto));
     }
 

@@ -1,7 +1,7 @@
 package it.unipi.MySmartRecipeBook.dto.recipe;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import it.unipi.MySmartRecipeBook.model.Ingredient;
+import it.unipi.MySmartRecipeBook.dto.IngredientDTO;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,10 +26,10 @@ public class RecipeDTO {
 
     @JsonProperty("presentation")
     private String presentation;
-    private List<Ingredient> ingredients;
+    private List<IngredientDTO> ingredients;
     private String preparation;
 
-    @JsonProperty("chef_name")
+    @JsonProperty("chef")
     private String chef;
 
 }
