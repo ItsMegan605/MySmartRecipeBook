@@ -1,4 +1,4 @@
-package it.unipi.MySmartRecipeBook.model.Redis;
+/*package it.unipi.MySmartRecipeBook.model.Redis;
 
 import java.io.Serializable;
 import java.util.Set;
@@ -7,7 +7,7 @@ public class ShoppingList implements Serializable {
 
     private String id;
     private Set<String> items;
-/*
+
     public ShoppingList() {
         this.items = new ArrayList<>();
     }
@@ -54,7 +54,7 @@ public class ShoppingList implements Serializable {
     public static ShoppingList fromJson(String json) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.readValue(json, ShoppingList.class);
-    }*/
+    }
 }
-
+*/
 //TO-DO: forse aggiungere metodi per json
