@@ -11,13 +11,13 @@ public class Categories {
     );
 
     public static final List<String> DIFFICULTIES = List.of(
-            "very easy", "easy", "average", "hard", "very hard"
+            "Very easy", "Easy", "Average", "Hard", "Very hard"
     );
 
     public static final List<String> FOODIE_FILTERS = List.of(
-            "vegan", "dairy-free", "egg-free", "gluten-free",
-            "main-course", "second-course", "dessert",
-            "very easy", "easy", "average", "hard", "very hard",
+            "Vegan", "Dairy-free", "Egg-free", "Gluten-free",
+            "Main-course", "Second-course", "Desserts",
+            "Very easy", "Easy", "Average", "Hard", "Very hard",
             "saving-date"
     );
 

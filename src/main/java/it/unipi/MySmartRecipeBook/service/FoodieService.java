@@ -165,7 +165,7 @@ public class FoodieService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No valid foodie");
         }
 
-        /* We retrieve all the recipe informations from the recipe collection*/
+        /* We retrieve all the recipe information from the recipe collection*/
         RecipeMongo recipe = recipeRepository.findById(recipeId)
                 .orElseThrow(() -> new RuntimeException("Recipe to save not found"));
 
@@ -228,7 +228,7 @@ public class FoodieService {
             throw new RuntimeException("Invalid parameters");
         }
 
-        if (numPage == 1 && category.equals("date")) {
+        if (numPage == 1 && category.equals("saving-date")) {
             Pageable pageable = PageRequest.of(numPage - 1, pageSizeFoodie, Sort.by("savingDate").descending());
             boolean hasNext = (foodie.getSavedRecipes().size() < 5) ? false : true;
 
@@ -249,7 +249,7 @@ public class FoodieService {
                     recipesPreview.add(recipe);
                 }
             }
-        } else if (category.equals("date")) {
+        } else if (category.equals("saving-date")) {
             recipesPreview.addAll(foodie.getSavedRecipes());
         }
 

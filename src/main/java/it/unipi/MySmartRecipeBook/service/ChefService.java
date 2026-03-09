@@ -40,6 +40,7 @@ import it.unipi.MySmartRecipeBook.dto.ChefRankAnalyticsDTO;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.bson.types.ObjectId;
 
 @Service
 public class ChefService {
@@ -274,9 +275,9 @@ public class ChefService {
             throw new RuntimeException("No recipes waiting to be confirmed");
         }
 
-
+        ObjectId chefObjectId = new ObjectId(chef.getId());
         // Troviamo la ricetta da rimuovere tra quelle in attesa di conferma
-        boolean recipeFound = chefRepository.removeRecipeFromWaiting(chef.getId(), recipeId) > 0;
+        boolean recipeFound = chefRepository.removeRecipeFromWaiting(chefObjectId, recipeId) > 0;
 
 
 
