@@ -40,7 +40,7 @@ public class Chef extends RegisteredUser {
     @Field("tot_recipes")
     private Integer totalRecipes = 0;
 
-    @Version
+   // @Version
     private long version;
 }
 

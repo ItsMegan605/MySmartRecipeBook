@@ -23,4 +23,5 @@ public class ChefNeo4j {
     private String mongoId;
     private String name;
     private String surname;
+    private String email;
 }

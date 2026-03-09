@@ -229,6 +229,7 @@ public class AdminService {
         chefNeo4j.setMongoId(chefApproved.getId());
         chefNeo4j.setName(chef.getName());
         chefNeo4j.setSurname(chef.getSurname());
+        chefNeo4j.setEmail(chef.getEmail());
         chefNeo4jRepository.save(chefNeo4j);
     }
 

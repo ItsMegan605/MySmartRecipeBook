@@ -41,7 +41,7 @@ public class AuthController {
     public ResponseEntity<String> registerFoodie (@Valid @RequestBody RegistedUserDTO dto){
 
         if(Period.between(dto.getBirthdate(), LocalDate.now()).getYears() < 15){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You must have at least 15 to register");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You must be at least 15 to register");
         }
 
         authService.registerFoodie(dto);

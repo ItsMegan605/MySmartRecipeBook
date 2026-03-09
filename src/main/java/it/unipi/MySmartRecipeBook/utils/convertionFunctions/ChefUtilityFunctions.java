@@ -212,7 +212,9 @@ public class ChefUtilityFunctions {
         chefMongo.setPassword(chef.getPassword());
         chefMongo.setName(chef.getName());
         chefMongo.setSurname(chef.getSurname());
+        chefMongo.setEmail(chef.getEmail());
         chefMongo.setBirthdate(chef.getBirthdate());
+        chefMongo.setRegistrationDate(chef.getRegistrationDate());
         return chefMongo;
     }
 }

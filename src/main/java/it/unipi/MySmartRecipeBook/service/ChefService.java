@@ -185,7 +185,7 @@ public class ChefService {
             throw new RuntimeException("Admin not found");
         }
 
-        ChefInfoDTO chefDTO = new ChefInfoDTO(chef.getId(), chef.getName(), chef.getSurname());
+        ChefInfoDTO chefDTO = new ChefInfoDTO(chef.getId(), chef.getName(), chef.getSurname(), chef.getEmail());
         // A partire dal DTO creiamo un'istanza dell'entità PendingRecipe per poterla salvare embedded dentro il documento
         // dell'admin
         PendingRecipe savedRecipe = chefConvertions.createBaseRecipe(recipeDTO, chefDTO);
@@ -216,7 +216,7 @@ public class ChefService {
     /*--------------- Delete a recipe  ----------------*/
 
     @Transactional
-    @Retryable(retryFor = OptimisticLockingFailureException.class, maxAttempts = 3)
+    //@Retryable(retryFor = OptimisticLockingFailureException.class, maxAttempts = 3)
     public void deleteRecipe(String recipeId) {
 
         UserPrincipal chef1 = (UserPrincipal) SecurityContextHolder.getContext()

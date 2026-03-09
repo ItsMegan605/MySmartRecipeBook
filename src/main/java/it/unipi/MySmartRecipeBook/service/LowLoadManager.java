@@ -74,7 +74,7 @@ public class LowLoadManager {
         OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
         double cpuLoad = osBean.getCpuLoad();
 
-        if(cpuLoad < 0.3){
+        if(cpuLoad < 1){
 
             int processedTasks = 0;
             while(processedTasks < 10 && !taskQueue.isEmpty()){
