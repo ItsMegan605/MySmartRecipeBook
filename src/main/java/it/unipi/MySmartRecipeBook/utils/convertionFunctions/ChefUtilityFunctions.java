@@ -150,7 +150,6 @@ public class ChefUtilityFunctions {
             recipe.setTitle(recipeMongo.getTitle());
             recipe.setImageURL(recipeMongo.getImageURL());
             recipe.setCreationDate(recipeMongo.getCreationDate());
-            //recipe.setNumSaves(recipe.getNumSaves());
             recipe.setNumSaves(recipeMongo.getNumSaves());
 
             chefRecipes.add(recipe);
