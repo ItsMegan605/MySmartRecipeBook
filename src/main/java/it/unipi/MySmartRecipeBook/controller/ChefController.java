@@ -62,14 +62,14 @@ public class ChefController {
     /*----------------- Delete chef's profile ------------------*/
 
     @DeleteMapping("/deleteProfile")
-    public ResponseEntity<Void> deleteProfile() {
+    public ResponseEntity<String> deleteProfile() {
 
         String username = SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getName();
 
         chefService.deleteChef(username);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Profile successfully deleted. We are sorry to see you leaving");
     }
 
 

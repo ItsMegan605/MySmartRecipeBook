@@ -2,14 +2,11 @@ package it.unipi.MySmartRecipeBook.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.unipi.MySmartRecipeBook.dto.recipe.RecipeSuggestionDTO;
-import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
+import it.unipi.MySmartRecipeBook.dto.recipe.*;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import it.unipi.MySmartRecipeBook.utils.convertionFunctions.RecipeUtilityFunctions;
 import org.springframework.beans.factory.annotation.Value;
-import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
-import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
@@ -100,63 +97,58 @@ public class RecipeService {
         /* Manca l'eliminazione da Neo4j e bisogna vedere se anche da Redis
     }*/
 
-    public List<UserPreviewRecipeDTO> getRecipeByTitle(String title, int pageNumber){
+    public SliceRecipeDTO getRecipeByTitle(String title, int pageNumber){
 
         if(pageNumber <= 0){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid page number");
         }
 
-        Pageable pageable = PageRequest.of(--pageNumber, pageSizeTitle);
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSizeTitle);
         Slice<RecipeMongo> matching_recipes = recipeRepository.findByTitleContainingIgnoreCase(title, pageable);
         if (matching_recipes.isEmpty()){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found");
         }
 
-        List<UserPreviewRecipeDTO> recipes = new ArrayList<>();
-        for (RecipeMongo full_recipe : matching_recipes){
-            UserPreviewRecipeDTO recipeDTO = convertions.EntityToUserDto(full_recipe);
-            recipes.add(recipeDTO);
-        }
-        return recipes;
+        List<UserPreviewRecipeDTO> recipesDTO = convertions.EntityToUserDto(matching_recipes.getContent());
+        boolean hasNext = matching_recipes.hasNext();
+        boolean hasPrevious = matching_recipes.hasPrevious();
+
+        return  new SliceRecipeDTO<>(recipesDTO, hasNext, hasPrevious);
     }
 
-    public List<UserPreviewRecipeDTO> getNewestRecipe (int pageNumber){
+    public SliceRecipeDTO getNewestRecipe (int pageNumber){
 
         if(pageNumber <= 0){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid page number");
         }
 
-        Pageable pageable = PageRequest.of(--pageNumber, pageSizeHome, Sort.by("creationDate").descending());
-        Page<RecipeMongo> pageResult = recipeRepository.findAll(pageable);
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSizeHome, Sort.by("creationDate").descending());
+        Slice <RecipeMongo> pageResult = recipeRepository.findAll(pageable);
 
-        List<UserPreviewRecipeDTO> recipe_list = new ArrayList<>();
-        for (RecipeMongo recipe: pageResult.getContent()){
-            UserPreviewRecipeDTO recipeDTO = convertions.EntityToUserDto(recipe);
-            recipe_list.add(recipeDTO);
-        }
-        return recipe_list;
+        List<UserPreviewRecipeDTO> recipesDTO = convertions.EntityToUserDto(pageResult.getContent());
+        boolean hasNext = pageResult.hasNext();
+        boolean hasPrevious = pageResult.hasPrevious();
+        return new SliceRecipeDTO(recipesDTO, hasNext, hasPrevious);
     }
 
-    public List<UserPreviewRecipeDTO> getByCategory (int pageNumber, String filter){
+    public SliceRecipeDTO getByCategory (int pageNumber, String filter){
 
         if(pageNumber <= 0 || !CATEGORIES.contains(filter)){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid parameters");
         }
 
-        Pageable pageable = PageRequest.of(--pageNumber, pageSizeCategory);
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSizeCategory);
         Slice<RecipeMongo> matching_list = recipeRepository.findByCategory(filter, pageable);
 
+        List<UserPreviewRecipeDTO> recipesDTO = convertions.EntityToUserDto(matching_list.getContent());
+        boolean hasNext = matching_list.hasNext();
+        boolean hasPrevious = matching_list.hasPrevious();
 
-        List<UserPreviewRecipeDTO> recipe_list = new ArrayList<>();
-        for (RecipeMongo recipe: matching_list){
-            UserPreviewRecipeDTO recipeDTO = convertions.EntityToUserDto(recipe);
-            recipe_list.add(recipeDTO);
-        }
-        return recipe_list;
+        return new SliceRecipeDTO(recipesDTO, hasNext, hasPrevious);
     }
 
     /* Per ora sono stati ordinati per data ma andrebbero ordinate per popolarità*/
-    public List<ChefPreviewRecipeDTO> getChefRecipePage(int pageNumber, String chefName){
+    public SliceRecipeDTO getChefRecipePage(int pageNumber, String chefName){
 
         if(pageNumber <= 0){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid parameters");
@@ -169,12 +161,11 @@ public class RecipeService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found");
         }
 
-        List<ChefPreviewRecipeDTO> recipe_list = new ArrayList<>();
-        for (RecipeMongo recipe: matching_recipes){
-            ChefPreviewRecipeDTO recipeDTO = convertions.EntityToChefDTO(recipe);
-            recipe_list.add(recipeDTO);
-        }
-        return recipe_list;
+        List<UserPreviewRecipeDTO> recipesDTO = convertions.EntityToUserDto(matching_recipes.getContent());
+        boolean hasNext = matching_recipes.hasNext();
+        boolean hasPrevious = matching_recipes.hasPrevious();
+
+        return new SliceRecipeDTO(recipesDTO, hasNext, hasPrevious);
     }
 }
 

@@ -1,10 +1,7 @@
 package it.unipi.MySmartRecipeBook.utils.convertionFunctions;
 
 import it.unipi.MySmartRecipeBook.dto.IngredientDTO;
-import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
-import it.unipi.MySmartRecipeBook.dto.recipe.GraphRecipeDTO;
-import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
-import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
+import it.unipi.MySmartRecipeBook.dto.recipe.*;
 import it.unipi.MySmartRecipeBook.model.Mongo.ingredients.RecipeIngredient;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefRecipeSummary;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.PendingRecipe;
@@ -41,15 +38,18 @@ public class RecipeUtilityFunctions {
         return recipeDTO;
     }
 
-    public UserPreviewRecipeDTO EntityToUserDto (RecipeMongo recipe){
+    public List<UserPreviewRecipeDTO> EntityToUserDto (List<RecipeMongo> recipes){
 
-        UserPreviewRecipeDTO recipeDTO = new UserPreviewRecipeDTO();
-        recipeDTO.setId(recipe.getId());
-        recipeDTO.setTitle(recipe.getTitle());
-        recipeDTO.setImageURL(recipe.getImageURL());
-        recipeDTO.setChefName(recipe.getChef().getName() + " " + recipe.getChef().getSurname());
-
-        return recipeDTO;
+        List<UserPreviewRecipeDTO> recipesDTO = new ArrayList<>();
+        for(RecipeMongo recipe : recipes) {
+            UserPreviewRecipeDTO recipeDTO = new UserPreviewRecipeDTO();
+            recipeDTO.setId(recipe.getId());
+            recipeDTO.setTitle(recipe.getTitle());
+            recipeDTO.setImageURL(recipe.getImageURL());
+            recipeDTO.setChefName(recipe.getChef().getName() + " " + recipe.getChef().getSurname());
+            recipesDTO.add(recipeDTO);
+        }
+        return recipesDTO;
     }
 
     public ChefPreviewRecipeDTO EntityToChefDTO (RecipeMongo recipe){

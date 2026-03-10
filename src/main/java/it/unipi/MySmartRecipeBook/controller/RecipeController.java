@@ -1,9 +1,11 @@
 package it.unipi.MySmartRecipeBook.controller;
 import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
+import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.service.RecipeService;
 
+import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,31 +43,31 @@ public class RecipeController {
     /* Function to search a recipe by title in the home page (the research will be done searching sub-strings).
     Five recipes at the time will be shown */
     @GetMapping("/search")
-    public ResponseEntity<List<UserPreviewRecipeDTO>> getRecipeByTitle(@RequestParam String title, @RequestParam(defaultValue = "1") int pageNumber){
+    public ResponseEntity<SliceRecipeDTO> getRecipeByTitle(@RequestParam String title, @RequestParam(defaultValue = "1") int pageNumber){
 
-        List<UserPreviewRecipeDTO> recipes_list = recipeService.getRecipeByTitle(title, pageNumber);
+        SliceRecipeDTO recipes_list = recipeService.getRecipeByTitle(title, pageNumber);
         return ResponseEntity.ok(recipes_list);
     }
 
     @GetMapping("/homeRecipe")
-    public ResponseEntity<List<UserPreviewRecipeDTO>> getHomeRecipe (@RequestParam(defaultValue = "1") int pageNumber){
+    public ResponseEntity<SliceRecipeDTO> getHomeRecipe (@RequestParam(defaultValue = "1") int pageNumber){
 
-        List<UserPreviewRecipeDTO> recipe_list = recipeService.getNewestRecipe(pageNumber);
+        SliceRecipeDTO recipe_list = recipeService.getNewestRecipe(pageNumber);
         return ResponseEntity.ok(recipe_list);
     }
 
     /* Function to order the user saved recipes by specifing a category */
     @GetMapping("/category")
-    public ResponseEntity<List<UserPreviewRecipeDTO>> getRecipeByCategory (@RequestParam(defaultValue = "1") int pageNumber, @RequestParam String category){
+    public ResponseEntity<SliceRecipeDTO> getRecipeByCategory (@RequestParam(defaultValue = "1") int pageNumber, @RequestParam String category){
 
-        List<UserPreviewRecipeDTO> recipe_list = recipeService.getByCategory(pageNumber, category);
+        SliceRecipeDTO recipe_list = recipeService.getByCategory(pageNumber, category);
         return ResponseEntity.ok(recipe_list);
     }
 
     @GetMapping("/chef")
-    public ResponseEntity<List<ChefPreviewRecipeDTO>> getChefRecipes (@RequestParam(defaultValue = "1") int pageNumber, @RequestParam String chefName){
+    public ResponseEntity<SliceRecipeDTO> getChefRecipes (@RequestParam(defaultValue = "1") int pageNumber, @RequestParam String chefName){
 
-        List<ChefPreviewRecipeDTO> recipe_list = recipeService.getChefRecipePage(pageNumber, chefName);
+        SliceRecipeDTO recipe_list = recipeService.getChefRecipePage(pageNumber, chefName);
         return ResponseEntity.ok(recipe_list);
     }
 }
