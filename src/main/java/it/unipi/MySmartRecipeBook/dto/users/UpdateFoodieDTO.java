@@ -17,21 +17,17 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class UpdateFoodieDTO{
 
-    @NotBlank
+
     private String name;
 
-    @NotBlank
     private String surname;
 
     @Email
-    @NotBlank
     private String email;
 
     @Past
-    @NotNull
     private LocalDate birthdate;
 
-    @NotBlank
     private String password;
 
 }

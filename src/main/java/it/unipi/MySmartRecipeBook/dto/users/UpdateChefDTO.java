@@ -25,14 +25,11 @@ public class UpdateChefDTO {
      We don't allow chefs to change their username
      */
 
-    @NotBlank
     private String password;
 
     @Email
-    @NotBlank
     private String email;
 
-    @NotNull
     @Past
     private LocalDate birthdate;
 }

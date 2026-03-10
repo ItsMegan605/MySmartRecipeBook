@@ -7,6 +7,7 @@ import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import it.unipi.MySmartRecipeBook.service.FoodieService;
 
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,14 +45,15 @@ public class FoodieController {
     }
 
 
-    /*--------------- Change foodie's informations ----------------*/
+    /*--------------- Change foodie's information ----------------*/
 
-    @PatchMapping("/changeInfo")
-    public ResponseEntity<RegistedUserInfoDTO> changeInfo (@RequestBody UpdateFoodieDTO updates){
+    @PostMapping("/changeInfo")
+    public ResponseEntity<RegistedUserInfoDTO> changeInfo (@Valid @RequestBody UpdateFoodieDTO updates){
 
-        if(Period.between(updates.getBirthdate(), LocalDate.now()).getYears() < 15){
+        if(updates.getBirthdate() != null && Period.between(updates.getBirthdate(), LocalDate.now()).getYears() < 15){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You must be at least 15");
         }
+
         return ResponseEntity.ok(foodieService.updateFoodie(updates));
     }
 

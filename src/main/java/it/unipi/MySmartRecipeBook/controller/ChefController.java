@@ -47,12 +47,12 @@ public class ChefController {
     }
 
 
-    /*--------------- Change chef's informations ----------------*/
+    /*--------------- Change chef's information ----------------*/
 
     @PostMapping("/changeInfo")
     public ResponseEntity<RegistedUserInfoDTO> updateInformation (@Valid @RequestBody UpdateChefDTO updates){
 
-        if(Period.between(updates.getBirthdate(), LocalDate.now()).getYears() < 15){
+        if(updates.getBirthdate() != null && Period.between(updates.getBirthdate(), LocalDate.now()).getYears() < 15){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You must be at least 15");
         }
         return ResponseEntity.ok(chefService.updateChef(updates));

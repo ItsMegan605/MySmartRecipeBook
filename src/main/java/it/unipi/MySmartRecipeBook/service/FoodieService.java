@@ -100,10 +100,10 @@ public class FoodieService {
         Query query = new Query(Criteria.where("id").is(authFoodie.getId()));
 
         Update update = new Update();
-        if (dto.getName() != null)
+        if (dto.getName() != null && StringUtils.hasText(dto.getName()))
             update.set("name", dto.getName());
 
-        if (dto.getSurname() != null)
+        if (dto.getSurname() != null && StringUtils.hasText(dto.getSurname()))
             update.set("surname", dto.getSurname());
 
         if (dto.getEmail() != null && StringUtils.hasText(dto.getEmail()))

@@ -42,6 +42,7 @@ import it.unipi.MySmartRecipeBook.dto.ChefRankAnalyticsDTO;
 import java.util.ArrayList;
 import java.util.List;
 import org.bson.types.ObjectId;
+import org.springframework.util.StringUtils;
 
 @Service
 public class ChefService {
@@ -113,10 +114,10 @@ public class ChefService {
         Query query = new Query(Criteria.where("id").is(authChef.getId()));
 
         Update update = new Update();
-        if (dto.getEmail() != null)
+        if (dto.getEmail() != null && StringUtils.hasText(dto.getEmail()))
             update.set("email", dto.getEmail());
 
-        if (dto.getPassword() != null && !dto.getPassword().isBlank())
+        if (dto.getPassword() != null && StringUtils.hasText(dto.getPassword()))
             update.set("password", passwordEncoder.encode(dto.getPassword()));
 
         if (dto.getBirthdate() != null)
@@ -360,8 +361,8 @@ public class ChefService {
         Slice<RecipeMongo> recipesPage = recipeMongoRepository.findByChef_Id(chef.getId(), pageable);
         List<ChefPreviewRecipeDTO> content = chefConvertions.MongoListToChefPreview(recipesPage.getContent());
         boolean hasNext = (chef.getTotalRecipes() > pageSizeChef*pageNumber) ? true : false;
-
-        return  new SliceRecipeDTO(content, hasNext, true);
+        boolean hasPrevious = pageNumber > 1;
+        return  new SliceRecipeDTO(content, hasNext, hasPrevious);
     }
 
     /* Get top 3 chefs per category */

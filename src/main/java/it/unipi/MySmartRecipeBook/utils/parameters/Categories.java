@@ -16,7 +16,7 @@ public class Categories {
 
     public static final List<String> FOODIE_FILTERS = List.of(
             "Vegan", "Dairy-free", "Egg-free", "Gluten-free",
-            "Main-course", "Second-course", "Desserts",
+            "Main courses", "Second courses", "Desserts",
             "Very easy", "Easy", "Average", "Hard", "Very hard",
             "saving-date"
     );
