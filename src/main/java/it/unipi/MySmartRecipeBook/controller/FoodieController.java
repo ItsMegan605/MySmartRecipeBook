@@ -1,5 +1,6 @@
 package it.unipi.MySmartRecipeBook.controller;
 
+import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegistedUserInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.users.UpdateFoodieDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
@@ -7,14 +8,18 @@ import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import it.unipi.MySmartRecipeBook.service.FoodieService;
 
 import org.springframework.data.domain.Slice;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import it.unipi.MySmartRecipeBook.dto.ChefRankAnalyticsDTO;
 import it.unipi.MySmartRecipeBook.service.ChefService;
+import org.springframework.web.server.ResponseStatusException;
 
 
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 
 @RestController
@@ -44,6 +49,9 @@ public class FoodieController {
     @PatchMapping("/changeInfo")
     public ResponseEntity<RegistedUserInfoDTO> changeInfo (@RequestBody UpdateFoodieDTO updates){
 
+        if(Period.between(updates.getBirthdate(), LocalDate.now()).getYears() < 15){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You must be at least 15");
+        }
         return ResponseEntity.ok(foodieService.updateFoodie(updates));
     }
 
@@ -84,9 +92,9 @@ public class FoodieController {
 
     /*------------ Order favourites recipes by filter -------------*/
     @GetMapping("/getRecipe/{category}/{numPage}")
-    public ResponseEntity<Slice<UserPreviewRecipeDTO>> getRecipeByCategory (@PathVariable String category,
+    public ResponseEntity<SliceRecipeDTO> getRecipeByCategory (@PathVariable String category,
                                                                             @PathVariable int numPage) {
-        Slice<UserPreviewRecipeDTO> recipeList = foodieService.getRecipeByCategory(category, numPage);
+        SliceRecipeDTO recipeList = foodieService.getRecipeByCategory(category, numPage);
         return ResponseEntity.ok(recipeList);
     }
 

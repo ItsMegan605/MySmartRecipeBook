@@ -2,6 +2,7 @@ package it.unipi.MySmartRecipeBook.service;
 
 import static it.unipi.MySmartRecipeBook.utils.parameters.Categories.*;
 import it.unipi.MySmartRecipeBook.dto.InfoToDeleteDTO;
+import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegistedUserInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.users.UpdateFoodieDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
@@ -30,6 +31,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -211,7 +213,7 @@ public class FoodieService {
 
     /*------------ Show foodie's favourites recipes -------------*/
 
-    public Slice<UserPreviewRecipeDTO> getRecipeByCategory(String category, int numPage) {
+    public SliceRecipeDTO getRecipeByCategory(String category, int numPage) {
 
         UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -228,13 +230,12 @@ public class FoodieService {
             throw new RuntimeException("Invalid parameters");
         }
 
-        if (numPage == 1 && category.equals("saving-date")) {
-            Pageable pageable = PageRequest.of(numPage - 1, pageSizeFoodie, Sort.by("savingDate").descending());
+        /*if (numPage == 1 && category.equals("saving-date")) {
             boolean hasNext = (foodie.getSavedRecipes().size() < 5) ? false : true;
 
             List<UserPreviewRecipeDTO> content = usersConvertions.foodieSummaryToUserPreview(foodie.getSavedRecipes());
-            return new SliceImpl<>(content, pageable, hasNext);
-        }
+            return new SliceRecipeDTO(content, hasNext, false);
+        }*/
 
         List<FoodieRecipeSummary> recipesPreview = new ArrayList<>();
         if (CATEGORIES.contains(category)) {
@@ -254,18 +255,19 @@ public class FoodieService {
         }
 
         int start = (numPage - 1) * pageSizeFoodie;
-        if (start > recipesPreview.size()) {
+        if (start >= recipesPreview.size()) {
             throw new RuntimeException("Invalid page number");
         }
 
+        recipesPreview.sort(Comparator.comparing(FoodieRecipeSummary::getSavingDate).reversed());
         int end = Math.min(start + pageSizeFoodie, recipesPreview.size());
 
         boolean hasNext = recipesPreview.size() > numPage * pageSizeFoodie;
+        boolean hasPrevious = numPage > 1;
         List<FoodieRecipeSummary> recipes = recipesPreview.subList(start, end);
 
-        Pageable pageable = PageRequest.of(numPage - 1, pageSizeFoodie, Sort.by("savingDate").descending());
         List<UserPreviewRecipeDTO> content = usersConvertions.foodieSummaryToUserPreview(recipes);
-        return new SliceImpl<>(content, pageable, hasNext);
+        return new SliceRecipeDTO(content, hasNext, hasPrevious);
 
     }
 }

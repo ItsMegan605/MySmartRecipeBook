@@ -35,10 +35,10 @@ public class Chef extends RegisteredUser {
     private List<ChefPendingRecipe> recipesToConfirm;
 
     @Field("tot_saves")
-    private Integer totalSaves = 0;
+    private Integer totalSaves;
 
     @Field("tot_recipes")
-    private Integer totalRecipes = 0;
+    private Integer totalRecipes;
 
    // @Version
     private long version;

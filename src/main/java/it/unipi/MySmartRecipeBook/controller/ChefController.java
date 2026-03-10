@@ -1,5 +1,6 @@
 package it.unipi.MySmartRecipeBook.controller;
 
+import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegistedUserInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.users.TopChefDTO;
 import it.unipi.MySmartRecipeBook.dto.users.UpdateChefDTO;
@@ -9,11 +10,15 @@ import it.unipi.MySmartRecipeBook.service.ChefService;
 
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Slice;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 
 
@@ -45,9 +50,12 @@ public class ChefController {
     /*--------------- Change chef's informations ----------------*/
 
     @PostMapping("/changeInfo")
-    public ResponseEntity<RegistedUserInfoDTO> updateInformation (@Valid @RequestBody UpdateChefDTO dto){
+    public ResponseEntity<RegistedUserInfoDTO> updateInformation (@Valid @RequestBody UpdateChefDTO updates){
 
-        return ResponseEntity.ok(chefService.updateChef(dto));
+        if(Period.between(updates.getBirthdate(), LocalDate.now()).getYears() < 15){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You must be at least 15");
+        }
+        return ResponseEntity.ok(chefService.updateChef(updates));
     }
 
 
@@ -75,16 +83,6 @@ public class ChefController {
     }
 
 
-    /*------------------- Delete recipe --------------------*/
-
-    @DeleteMapping("/deleteRecipe/{id}")
-    public ResponseEntity<String> deleteRecipe (@PathVariable("id") String recipeId){
-
-        chefService.deleteRecipe(recipeId);
-        return ResponseEntity.ok("Recipe succesfully deleted");
-    }
-
-
     /* ----------- Remove a recipe that is waiting to be confirmed ------------ */
 
     @DeleteMapping("/removeWaiting/{id}")
@@ -95,12 +93,22 @@ public class ChefController {
     }
 
 
+    /*------------------- Delete recipe --------------------*/
+
+    @DeleteMapping("/deleteRecipe/{id}")
+    public ResponseEntity<String> deleteRecipe (@PathVariable("id") String recipeId){
+
+        chefService.deleteRecipe(recipeId);
+        return ResponseEntity.ok("Recipe succesfully deleted");
+    }
+
+
     /*------------------- Show recipe --------------------*/
 
     @GetMapping("/show/{filter}/{page}")
-    public ResponseEntity<Slice<ChefPreviewRecipeDTO>> showRecipe (@PathVariable("filter") String filter,
-                                                                   @PathVariable("page") int page){
-        Slice<ChefPreviewRecipeDTO> recipeList = chefService.showRecipes(filter, page);
+    public ResponseEntity<SliceRecipeDTO> showRecipe (@PathVariable("filter") String filter,
+                                                      @PathVariable("page") int page){
+        SliceRecipeDTO recipeList = chefService.showRecipes(filter, page);
         return ResponseEntity.ok(recipeList);
     }
 

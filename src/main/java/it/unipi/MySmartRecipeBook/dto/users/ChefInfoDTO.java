@@ -13,5 +13,4 @@ public class ChefInfoDTO {
     String id;
     String name;
     String surname;
-    String email;
 }

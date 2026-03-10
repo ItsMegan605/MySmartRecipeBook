@@ -3,6 +3,7 @@ package it.unipi.MySmartRecipeBook.service;
 import static it.unipi.MySmartRecipeBook.utils.parameters.Categories.*;
 
 import it.unipi.MySmartRecipeBook.dto.IngredientDTO;
+import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.users.ChefInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegistedUserInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.users.TopChefDTO;
@@ -171,6 +172,14 @@ public class ChefService {
         Chef chef = chefRepository.findById(authChef.getId())
                 .orElseThrow(() -> new RuntimeException("Chef not found"));
 
+        if(!CATEGORIES.contains(recipeDTO.getCategory())){
+            throw new RuntimeException("'" + recipeDTO.getCategory() + "': invalid category");
+        }
+
+        if(!DIFFICULTIES.contains(recipeDTO.getDifficulty())){
+            throw new RuntimeException("'" + recipeDTO.getDifficulty() + "': invalid difficulty");
+        }
+
         // Controlliamo che gli ingredienti siano presenti nel formato richiesto
         List<IngredientDTO> ingredients = recipeDTO.getIngredients();
         for(IngredientDTO ingredient : ingredients) {
@@ -186,7 +195,7 @@ public class ChefService {
             throw new RuntimeException("Admin not found");
         }
 
-        ChefInfoDTO chefDTO = new ChefInfoDTO(chef.getId(), chef.getName(), chef.getSurname(), chef.getEmail());
+        ChefInfoDTO chefDTO = new ChefInfoDTO(chef.getId(), chef.getName(), chef.getSurname());
         // A partire dal DTO creiamo un'istanza dell'entità PendingRecipe per poterla salvare embedded dentro il documento
         // dell'admin
         PendingRecipe savedRecipe = chefConvertions.createBaseRecipe(recipeDTO, chefDTO);
@@ -301,7 +310,7 @@ public class ChefService {
 
     /*------------------- Show recipe --------------------*/
     @Transactional
-    public Slice<ChefPreviewRecipeDTO> showRecipes (String filter, int pageNumber){
+    public SliceRecipeDTO showRecipes (String filter, int pageNumber){
 
         UserPrincipal authChef = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -323,14 +332,13 @@ public class ChefService {
             if(pageNumber == 1){
 
                 if (chef.getNewRecipes() == null || chef.getNewRecipes().isEmpty()) {
-                    return new SliceImpl<>(new ArrayList<>(), PageRequest.of(pageNumber - 1, pageSizeChef), false);
+                    return new SliceRecipeDTO(null, false, false);
                 }
 
                 List<ChefPreviewRecipeDTO> content = chefConvertions.ChefListToSummaryList(chef.getNewRecipes());
-                pageable = PageRequest.of(pageNumber - 1, pageSizeChef);
                 boolean hasNext = (chef.getTotalRecipes() > pageSizeChef) ? true : false;
 
-                return  new SliceImpl<>(content, pageable, hasNext);
+                return  new SliceRecipeDTO(content, hasNext, false);
             }
 
             // Se la pagina non è la prima o il filtro non è quello per data, dobbiamo accedere direttamente al DB, che
@@ -353,7 +361,7 @@ public class ChefService {
         List<ChefPreviewRecipeDTO> content = chefConvertions.MongoListToChefPreview(recipesPage.getContent());
         boolean hasNext = (chef.getTotalRecipes() > pageSizeChef*pageNumber) ? true : false;
 
-        return  new SliceImpl<>(content, pageable, hasNext);
+        return  new SliceRecipeDTO(content, hasNext, true);
     }
 
     /* Get top 3 chefs per category */
