@@ -26,7 +26,7 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
     Slice<RecipeMongo> findByChef_Id(String chefId, Pageable pageable);
 
     @Query("{ '_id' : ?0 }")
-    @Update("{ '$inc' : { 'numSaves' : ?1 } }")
+    @Update("{ '$inc' : { 'num_saves' : ?1 } }")
     void updateSavesCounter(String recipeId, int i);
 
     void deleteAllByChefId(String chefId);
