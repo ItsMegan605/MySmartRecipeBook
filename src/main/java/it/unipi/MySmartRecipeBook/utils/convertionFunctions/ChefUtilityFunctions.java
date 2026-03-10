@@ -150,7 +150,8 @@ public class ChefUtilityFunctions {
             recipe.setTitle(recipeMongo.getTitle());
             recipe.setImageURL(recipeMongo.getImageURL());
             recipe.setCreationDate(recipeMongo.getCreationDate());
-            recipe.setNumSaves(recipe.getNumSaves());
+            //recipe.setNumSaves(recipe.getNumSaves());
+            recipe.setNumSaves(recipeMongo.getNumSaves());
 
             chefRecipes.add(recipe);
         }
@@ -169,7 +170,9 @@ public class ChefUtilityFunctions {
             recipeDTO.setTitle(recipe.getTitle());
             recipeDTO.setImageURL(recipe.getImageURL());
             recipeDTO.setCreationDate(recipe.getCreationDate().toLocalDate());
-            recipeDTO.setNumSaves(recipe.getNumSaves());
+            recipeDTO.setNumSaves(
+                    recipe.getNumSaves() == null ? 0 : recipe.getNumSaves()
+            );
 
             chefPreviewList.add(recipeDTO);
         }
@@ -188,6 +191,7 @@ public class ChefUtilityFunctions {
             recipe.setTitle(recipeMongo.getTitle());
             recipe.setImageURL(recipeMongo.getImageURL());
             recipe.setCreationDate(recipeMongo.getCreationDate().toLocalDate());
+            recipe.setNumSaves(recipeMongo.getNumSaves());
             chefRecipes.add(recipe);
         }
 

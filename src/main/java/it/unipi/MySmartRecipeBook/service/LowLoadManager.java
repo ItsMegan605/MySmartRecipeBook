@@ -75,7 +75,7 @@ public class LowLoadManager {
         double cpuLoad = osBean.getCpuLoad();
         System.out.println("cpuLoad = " + cpuLoad);
 
-        if(cpuLoad < 1){
+        if(cpuLoad < 0.3){
 
             int processedTasks = 0;
             while(processedTasks < 10 && !taskQueue.isEmpty()){
