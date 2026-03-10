@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class LowLoadManager {
 
     /* Tipo di coda che è utile per evitare problemi di sincronizzazione con i thread */
-    private final Queue<TaskToDo> taskQueue = new ConcurrentLinkedQueue<>();
+    private static final Queue<TaskToDo> taskQueue = new ConcurrentLinkedQueue<>();
     private final RecipeMongoRepository recipeMongoRepository;
     private final ChefRepository chefRepository;
     private final FoodieRepository foodieRepository;

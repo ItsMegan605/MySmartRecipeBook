@@ -26,7 +26,7 @@ public interface ChefRepository extends MongoRepository<Chef, String> {
     void updateTotalSaves(String chefId, int amount);
 
     @Query("{ '_id' : ?0, 'new_recipes.id' : ?1 }")
-    @Update("{ '$inc' : { 'new_recipes.$.num_saves' : ?2 } }")
+    @Update("{ '$inc' : { 'new_recipes.$.tot_saves' : ?2 } }")
     void updateChefCounters(String chefId, String recipeId, int increment);
 
     @Query("{ '_id': ?0 }")
