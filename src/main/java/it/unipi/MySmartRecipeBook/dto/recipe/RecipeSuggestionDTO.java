@@ -1,5 +1,6 @@
 package it.unipi.MySmartRecipeBook.dto.recipe;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.io.Serializable;
@@ -20,6 +21,9 @@ public class RecipeSuggestionDTO implements Serializable {
     private String chefSurname;
 
     private String chef;
+
+    @JsonProperty("chef_id")
+    private String chefId;
     private int matchCount; // Numero di ingredienti che fanno match
     private List<String> matchedIngredients; // Elenco dei nomi degli ingredienti trovati
 

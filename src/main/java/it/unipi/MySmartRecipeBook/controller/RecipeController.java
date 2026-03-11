@@ -65,9 +65,9 @@ public class RecipeController {
     }
 
     @GetMapping("/chef")
-    public ResponseEntity<SliceRecipeDTO> getChefRecipes (@RequestParam(defaultValue = "1") int pageNumber, @RequestParam String chefName){
+    public ResponseEntity<SliceRecipeDTO> getChefRecipes (@RequestParam(defaultValue = "1") int pageNumber, @RequestParam String chefId){
 
-        SliceRecipeDTO recipe_list = recipeService.getChefRecipePage(pageNumber, chefName);
+        SliceRecipeDTO recipe_list = recipeService.getChefRecipePage(pageNumber, chefId);
         return ResponseEntity.ok(recipe_list);
     }
 }

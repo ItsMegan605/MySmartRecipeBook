@@ -137,7 +137,7 @@ public class RecipeService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid parameters");
         }
 
-        Pageable pageable = PageRequest.of(pageNumber - 1, pageSizeCategory);
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSizeCategory, Sort.by("creationDate").descending());
         Slice<RecipeMongo> matching_list = recipeRepository.findByCategory(filter, pageable);
 
         List<UserPreviewRecipeDTO> recipesDTO = convertions.EntityToUserDto(matching_list.getContent());
@@ -147,18 +147,18 @@ public class RecipeService {
         return new SliceRecipeDTO(recipesDTO, hasNext, hasPrevious);
     }
 
-    /* Per ora sono stati ordinati per data ma andrebbero ordinate per popolarità*/
-    public SliceRecipeDTO getChefRecipePage(int pageNumber, String chefName){
+
+    public SliceRecipeDTO getChefRecipePage(int pageNumber, String chefId){
 
         if(pageNumber <= 0){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid parameters");
         }
 
-        Pageable pageable = PageRequest.of(--pageNumber, pageSizeChef, Sort.by("totalSaves").descending());
-        Slice<RecipeMongo> matching_recipes = recipeRepository.findByChef_Name(chefName, pageable);
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSizeChef, Sort.by("totalSaves").descending());
+        Slice<RecipeMongo> matching_recipes = recipeRepository.findByChef_Id(chefId, pageable);
 
         if (matching_recipes.isEmpty()){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found");
+            return new SliceRecipeDTO(List.of(), false, false);
         }
 
         List<UserPreviewRecipeDTO> recipesDTO = convertions.EntityToUserDto(matching_recipes.getContent());

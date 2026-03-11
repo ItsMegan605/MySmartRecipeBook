@@ -2,6 +2,7 @@ package it.unipi.MySmartRecipeBook.service;
 
 import static it.unipi.MySmartRecipeBook.utils.parameters.Categories.*;
 import it.unipi.MySmartRecipeBook.dto.InfoToDeleteDTO;
+import it.unipi.MySmartRecipeBook.dto.recipe.FoodiePreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegistedUserInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.users.UpdateFoodieDTO;
@@ -266,7 +267,7 @@ public class FoodieService {
         boolean hasPrevious = numPage > 1;
         List<FoodieRecipeSummary> recipes = recipesPreview.subList(start, end);
 
-        List<UserPreviewRecipeDTO> content = usersConvertions.foodieSummaryToUserPreview(recipes);
+        List<FoodiePreviewRecipeDTO> content = usersConvertions.foodieSummaryToUserPreview(recipes);
         return new SliceRecipeDTO(content, hasNext, hasPrevious);
 
     }

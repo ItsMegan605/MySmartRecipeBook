@@ -1,5 +1,6 @@
 package it.unipi.MySmartRecipeBook.utils.convertionFunctions;
 
+import it.unipi.MySmartRecipeBook.dto.recipe.FoodiePreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegistedUserDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegistedUserInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
@@ -66,16 +67,17 @@ public class FoodieUtilityFunctions {
         return  recipe;
     }
 
-    public List<UserPreviewRecipeDTO> foodieSummaryToUserPreview (List<FoodieRecipeSummary> fullRecipes) {
+    public List<FoodiePreviewRecipeDTO> foodieSummaryToUserPreview (List<FoodieRecipeSummary> fullRecipes) {
 
-        List<UserPreviewRecipeDTO> recipes = new ArrayList<>();
+        List<FoodiePreviewRecipeDTO> recipes = new ArrayList<>();
 
         for(FoodieRecipeSummary recipe: fullRecipes) {
-            UserPreviewRecipeDTO userPreviewRecipeDTO = new UserPreviewRecipeDTO();
+            FoodiePreviewRecipeDTO userPreviewRecipeDTO = new FoodiePreviewRecipeDTO();
             userPreviewRecipeDTO.setId(recipe.getId());
             userPreviewRecipeDTO.setTitle(recipe.getTitle());
             userPreviewRecipeDTO.setImageURL(recipe.getImageURL());
             userPreviewRecipeDTO.setChefName(recipe.getChef().getName() + " " + recipe.getChef().getSurname());
+            userPreviewRecipeDTO.setChefId(recipe.getChef().getId());
             recipes.add(userPreviewRecipeDTO);
         }
 

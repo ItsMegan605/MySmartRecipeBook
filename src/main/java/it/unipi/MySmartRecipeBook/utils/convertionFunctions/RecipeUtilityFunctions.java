@@ -47,21 +47,13 @@ public class RecipeUtilityFunctions {
             recipeDTO.setTitle(recipe.getTitle());
             recipeDTO.setImageURL(recipe.getImageURL());
             recipeDTO.setChefName(recipe.getChef().getName() + " " + recipe.getChef().getSurname());
+            recipeDTO.setChefId(recipe.getChef().getId());
+            recipeDTO.setNumSaves(recipe.getNumSaves());
             recipesDTO.add(recipeDTO);
         }
         return recipesDTO;
     }
 
-    public ChefPreviewRecipeDTO EntityToChefDTO (RecipeMongo recipe){
-
-        ChefPreviewRecipeDTO recipeDTO = new ChefPreviewRecipeDTO();
-        recipeDTO.setId(recipe.getId());
-        recipeDTO.setTitle(recipe.getTitle());
-        recipeDTO.setImageURL(recipe.getImageURL());
-        recipeDTO.setCreationDate(recipe.getCreationDate().toLocalDate());
-
-        return recipeDTO;
-    }
 
 
     public ChefRecipeSummary recipeToChefRecipe (RecipeMongo recipeMongo){

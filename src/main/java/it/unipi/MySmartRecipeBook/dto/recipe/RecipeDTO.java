@@ -32,4 +32,7 @@ public class RecipeDTO {
     @JsonProperty("chef")
     private String chef;
 
+    @JsonProperty("chef_id")
+    private String chefId;
+
 }

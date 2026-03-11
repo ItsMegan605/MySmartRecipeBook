@@ -19,11 +19,9 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
 
     Slice<RecipeMongo> findByTitleContainingIgnoreCase(String titleFragment, Pageable pageable);
 
-    Slice<RecipeMongo> findByChef_Name(String chefName, Pageable pageable);
+    Slice<RecipeMongo>findByCategory(String category, Pageable pageable);
 
-    Slice<RecipeMongo> findByCategory(String category, Pageable pageable);
-
-    Slice<RecipeMongo> findByChef_Id(String chefId, Pageable pageable);
+    Slice<RecipeMongo>findByChef_Id(String chefId, Pageable pageable);
 
     @Query("{ '_id' : ?0 }")
     @Update("{ '$inc' : { 'num_saves' : ?1 } }")

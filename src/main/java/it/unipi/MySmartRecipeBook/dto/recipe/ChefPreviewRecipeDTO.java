@@ -15,7 +15,15 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 
-public class ChefPreviewRecipeDTO extends PreviewRecipeDTO {
+public class ChefPreviewRecipeDTO{
+
+    @JsonProperty("id")
+    private String id;
+
+    private String title;
+
+    @JsonProperty("image_URL")
+    private String imageURL;
 
     @JsonProperty("creation_date")
     private LocalDate creationDate;

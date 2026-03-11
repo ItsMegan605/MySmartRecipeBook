@@ -8,7 +8,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public abstract class PreviewRecipeDTO {
+public class FoodiePreviewRecipeDTO {
 
     @JsonProperty("id")
     private String id;
@@ -18,5 +18,10 @@ public abstract class PreviewRecipeDTO {
     @JsonProperty("image_URL")
     private String imageURL;
 
+    @JsonProperty("chef_name")
+    private String chefName;
+
+    @JsonProperty("chef_id")
+    private String chefId;
 }
 

@@ -14,8 +14,22 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 
-public class UserPreviewRecipeDTO extends PreviewRecipeDTO {
+public class UserPreviewRecipeDTO {
+
+    @JsonProperty("id")
+    private String id;
+
+    private String title;
+
+    @JsonProperty("image_URL")
+    private String imageURL;
 
     @JsonProperty("chef_name")
     private String chefName;
+
+    @JsonProperty("chef_id")
+    private String chefId;
+
+    @JsonProperty("num_saves")
+    private int numSaves;
 }
