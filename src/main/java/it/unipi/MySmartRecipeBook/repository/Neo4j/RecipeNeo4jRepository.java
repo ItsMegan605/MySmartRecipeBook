@@ -30,7 +30,7 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
 
     // entrambi i sensi delle relazioni così facciamo presto sia a trovare lo chef a partire dalla ricetta che
     // eliminare tutte le ricette di uno chef
-    @Query("MERGE (c:Chef {id: $chefId}) " +
+    @Query("MERGE (c:Chef {mongo_id: $chefId}) " +
             "CREATE (r:Recipe {mongo_id: $recipeId, title: $title, imageURL: $imageURL, category : $category}) " +
             "MERGE (c)<-[:WRITTEN_BY]-(r) " +
             "MERGE (c)-[:WROTE]->(r) " +
@@ -40,7 +40,7 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
             "MERGE (r)<-[:USED_IN]-(i)")
     void createRecipe(String recipeId, String title, String imageURL, String category, String chefId, List<String> ingredients);
 
-    @Query("MATCH (r:Recipe {id: $recipeId}) DETACH DELETE r")
+    @Query("MATCH (r:Recipe {mongo_id: $recipeId}) DETACH DELETE r")
     void deleteRecipeById(String recipeId);
 
     @Query("MATCH (c:Chef {mongo_id: $chefId}) " +

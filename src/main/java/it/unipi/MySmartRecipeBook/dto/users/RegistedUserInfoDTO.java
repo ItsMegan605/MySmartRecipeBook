@@ -30,5 +30,5 @@ public class RegistedUserInfoDTO {
     private String email;
 
     @Past
-    private LocalDate birthdate;
+    private LocalDate birthDate;
 }
