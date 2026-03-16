@@ -20,6 +20,7 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
             "       r.imageURL AS imageURL, " +
             "       c.name AS chefName, " +
             "       c.surname AS chefSurname, " +
+            "       c.mongo_id AS chefId, " +
             "       matchCount, " +
             "       matchedIngredients " +
             "ORDER BY matchCount DESC")

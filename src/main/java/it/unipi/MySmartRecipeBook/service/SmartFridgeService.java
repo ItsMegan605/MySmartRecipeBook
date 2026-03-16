@@ -11,7 +11,7 @@ import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.JedisCluster;
-import redis.clients.jedis.JedisPooled;
+
 
 
 import java.util.ArrayList;
@@ -23,14 +23,14 @@ import java.util.Set;
 public class SmartFridgeService {
 
 
-    private JedisPooled jedisPool;
+    private JedisCluster jedisCluster;
     private FoodieRepository foodieRepository;
     private RecipeNeo4jRepository recipeNeo4jRepository;
     private IngredientService ingredientService;
 
-    public SmartFridgeService(JedisPooled jedisPool, FoodieRepository foodieRepository,
+    public SmartFridgeService(JedisCluster jedisCluster, FoodieRepository foodieRepository,
                               RecipeNeo4jRepository recipeNeo4jRepository, IngredientService ingredientService){
-        this.jedisPool = jedisPool;
+        this.jedisCluster = jedisCluster;
         this.foodieRepository = foodieRepository;
         this.recipeNeo4jRepository = recipeNeo4jRepository;
         this.ingredientService = ingredientService;
@@ -55,7 +55,7 @@ public class SmartFridgeService {
 
         String key = REDIS_APP_NAMESPACE + REDIS_FRIDGE_PREFIX + username;
 
-        Set<String> ingredients = jedisPool.smembers(key);
+        Set<String> ingredients = jedisCluster.smembers(key);
         IngredientsListDTO ingredientsListDTO = new IngredientsListDTO();
         ingredientsListDTO.setIngredients(ingredients);
 
@@ -83,8 +83,8 @@ public class SmartFridgeService {
         // Metodo di aggiunta univoco, degli elementi alla lista - controllo se ci sono ingredienti sennò mi rispsparmio
         // la connessione a Redis
         if (!ingredients.isEmpty()) {
-            jedisPool.sadd(key, ingredients.toArray(new String[0]));
-            jedisPool.del(REDIS_APP_NAMESPACE +REDIS_RECIPES_PREFIX + authFoodie.getUsername());
+            jedisCluster.sadd(key, ingredients.toArray(new String[0]));
+            jedisCluster.del(REDIS_APP_NAMESPACE +REDIS_RECIPES_PREFIX + authFoodie.getUsername());
         }
         else{
             System.out.println("No ingredients inserted");
@@ -104,7 +104,7 @@ public class SmartFridgeService {
 
         if(ingredientService.isValidIngredient(ingredient.toLowerCase())) {
             String key = REDIS_APP_NAMESPACE + REDIS_FRIDGE_PREFIX + authFoodie.getUsername();
-            jedisPool.srem(key, ingredient.toLowerCase());
+            jedisCluster.srem(key, ingredient.toLowerCase());
             updateCacheAfterRemoval(authFoodie.getUsername(), ingredient.toLowerCase());
         }
 
@@ -116,7 +116,7 @@ public class SmartFridgeService {
     public List<RecipeSuggestionDTO> getRecommendations(String username) {
         String cacheKey = REDIS_APP_NAMESPACE +REDIS_RECIPES_PREFIX + username;
 
-        String json = jedisPool.get(cacheKey);
+        String json = jedisCluster.get(cacheKey);
         System.out.println(cacheKey);
         if (json != null) {
             try {
@@ -140,7 +140,7 @@ public class SmartFridgeService {
         //we get the suggestion and cache it
         if (!suggestions.isEmpty()) {
             try {
-                jedisPool.set(cacheKey, objectMapper.writeValueAsString(suggestions));
+                jedisCluster.set(cacheKey, objectMapper.writeValueAsString(suggestions));
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
@@ -152,7 +152,7 @@ public class SmartFridgeService {
 
     private void updateCacheAfterRemoval(String username, String removedIngredient) {
         String cacheKey = REDIS_APP_NAMESPACE +REDIS_RECIPES_PREFIX + username;
-        String json = jedisPool.get(cacheKey);
+        String json = jedisCluster.get(cacheKey);
 
         if (json != null) {
             try {
@@ -177,10 +177,10 @@ public class SmartFridgeService {
                 }
 
                 if (updatedList.isEmpty()) {
-                    jedisPool.del(cacheKey);
+                    jedisCluster.del(cacheKey);
                 } else {
                     updatedList.sort(Comparator.comparingInt(RecipeSuggestionDTO::getMatchCount).reversed());
-                    jedisPool.set(cacheKey, objectMapper.writeValueAsString(updatedList));
+                    jedisCluster.set(cacheKey, objectMapper.writeValueAsString(updatedList));
                 }
 
             } catch (JsonProcessingException e) {

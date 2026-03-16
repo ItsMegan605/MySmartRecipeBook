@@ -61,7 +61,7 @@ public class ChefUtilityFunctions {
                 chef.getName(),
                 chef.getSurname(),
                 chef.getEmail(),
-                chef.getBirthdate()
+                chef.getBirthDate()
         );
     }
 
@@ -216,7 +216,7 @@ public class ChefUtilityFunctions {
         chefMongo.setName(chef.getName());
         chefMongo.setSurname(chef.getSurname());
         chefMongo.setEmail(chef.getEmail());
-        chefMongo.setBirthdate(chef.getBirthdate());
+        chefMongo.setBirthDate(chef.getBirthdate());
         chefMongo.setRegistrationDate(chef.getRegistrationDate());
         return chefMongo;
     }

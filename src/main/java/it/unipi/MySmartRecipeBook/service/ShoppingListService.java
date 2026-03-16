@@ -9,8 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import redis.clients.jedis.JedisCluster;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPooled;
+
 
 import java.util.List;
 import java.util.Set;
@@ -19,11 +18,11 @@ import java.util.Set;
 @Service
 public class ShoppingListService {
 
-    private JedisPooled jedisPool;
+    private JedisCluster jedisCluster;
     private IngredientService ingredientService;
 
-    public ShoppingListService(JedisPooled jedisPool, IngredientService ingredientService) {
-        this.jedisPool = jedisPool;
+    public ShoppingListService(JedisCluster jedisCluster, IngredientService ingredientService) {
+        this.jedisCluster = jedisCluster;
         this.ingredientService = ingredientService;
     }
 
@@ -45,7 +44,7 @@ public class ShoppingListService {
 
         String key = REDIS_APP_NAMESPACE + REDIS_KEY_PREFIX + username;
 
-        Set<String> ingredients = jedisPool.smembers(key);
+        Set<String> ingredients = jedisCluster.smembers(key);
         IngredientsListDTO ingredientsListDTO = new IngredientsListDTO();
         ingredientsListDTO.setIngredients(ingredients);
 
@@ -76,7 +75,7 @@ public class ShoppingListService {
         // la connessione a Redis
 
         if (!ingredients.isEmpty()) {
-            jedisPool.sadd(key, ingredients.toArray(new String[0]));
+            jedisCluster.sadd(key, ingredients.toArray(new String[0]));
         }
         else{
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No valid ingredient inserted");
@@ -97,7 +96,7 @@ public class ShoppingListService {
 
         if(ingredientService.isValidIngredient(ingredient.toLowerCase())) {
             String key = REDIS_APP_NAMESPACE + REDIS_KEY_PREFIX + authFoodie.getUsername();
-            jedisPool.srem(key, ingredient.toLowerCase());
+            jedisCluster.srem(key, ingredient.toLowerCase());
         }
 
         return returnShoppingList(authFoodie.getUsername());

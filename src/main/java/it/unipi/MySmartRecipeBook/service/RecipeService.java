@@ -14,7 +14,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import redis.clients.jedis.JedisCluster;
-import redis.clients.jedis.JedisPooled;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,12 +39,12 @@ public class RecipeService {
 
     private final RecipeMongoRepository recipeRepository;
     private final RecipeUtilityFunctions convertions;
-    private JedisPooled jedisPool;
+    private JedisCluster jedisCluster;
     private final ObjectMapper objectMapper;
-    public RecipeService(RecipeMongoRepository recipeRepository, RecipeUtilityFunctions convertions,  JedisPooled jedisPool, ObjectMapper objectMapper) {
+    public RecipeService(RecipeMongoRepository recipeRepository, RecipeUtilityFunctions convertions,  JedisCluster jedisCluster, ObjectMapper objectMapper) {
         this.recipeRepository = recipeRepository;
         this.convertions = convertions;
-        this.jedisPool = jedisPool;
+        this.jedisCluster = jedisCluster;
         this.objectMapper = objectMapper;
     }
 
@@ -61,8 +60,8 @@ public class RecipeService {
                     UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
                             .getAuthentication()
                             .getPrincipal();
-                    String fridgeKey = "smartFridge:suggestions:" + authFoodie.getUsername();
-                    String suggestedRecipes = jedisPool.get(fridgeKey); //funzione del cluster di jedis per avere il json
+                    String fridgeKey = "MySmartRecipeBook:smartFridge:suggestions:" + authFoodie.getUsername();
+                    String suggestedRecipes = jedisCluster.get(fridgeKey); //funzione del cluster di jedis per avere il json
 
                     if( suggestedRecipes != null) { //converto da json in oggetto java con object mapper
                         List<RecipeSuggestionDTO> cachedRecipes = objectMapper.readValue(suggestedRecipes, new TypeReference<List<RecipeSuggestionDTO>>(){});
@@ -72,7 +71,7 @@ public class RecipeService {
                            if(cachedRecipes.isEmpty()){
                                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Recipe not found");
                            } else  {
-                               jedisPool.set(fridgeKey, objectMapper.writeValueAsString(cachedRecipes));
+                               jedisCluster.set(fridgeKey, objectMapper.writeValueAsString(cachedRecipes));
                            }
                        }
                     }
