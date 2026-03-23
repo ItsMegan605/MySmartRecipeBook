@@ -21,7 +21,4 @@ public class Categories {
             "saving-date"
     );
 
-    public static final List<String> CHEF_FILTERS = List.of(
-            "date", "popularity"
-    );
 }

@@ -30,8 +30,8 @@ public class Chef extends RegisteredUser {
     @Field("new_recipes")
     private List<ChefRecipeSummary> newRecipes;
 
-    @Field("top_recipes")
-    private List<ChefRecipeSummary> topRecipes;
+    /*@Field("top_recipes")
+    private List<ChefRecipeSummary> topRecipes;*/
 
     @Field("old_recipes")
     private List<String> oldRecipes;

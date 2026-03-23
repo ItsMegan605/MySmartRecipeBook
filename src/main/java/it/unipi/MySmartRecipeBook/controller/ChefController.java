@@ -105,10 +105,9 @@ public class ChefController {
 
     /*------------------- Show recipe --------------------*/
 
-    @GetMapping("/show/{filter}/{page}")
-    public ResponseEntity<SliceRecipeDTO> showRecipe (@PathVariable("filter") String filter,
-                                                      @PathVariable("page") int page){
-        SliceRecipeDTO recipeList = chefService.showRecipes(filter, page);
+    @GetMapping("/show/{page}")
+    public ResponseEntity<SliceRecipeDTO> showRecipe (@PathVariable("page") int page){
+        SliceRecipeDTO recipeList = chefService.showRecipes(page);
         return ResponseEntity.ok(recipeList);
     }
 

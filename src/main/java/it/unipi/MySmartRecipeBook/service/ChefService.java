@@ -25,21 +25,19 @@ import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import it.unipi.MySmartRecipeBook.utils.convertionFunctions.ChefUtilityFunctions;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.*;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import it.unipi.MySmartRecipeBook.dto.ChefRankAnalyticsDTO;
 
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -322,8 +320,7 @@ public class ChefService {
 
 
     /*------------------- Show recipe --------------------*/
-    @Transactional
-    public SliceRecipeDTO showRecipes (String filter, int pageNumber){
+    public SliceRecipeDTO showRecipes (int pageNumber){
 
         UserPrincipal authChef = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -332,48 +329,36 @@ public class ChefService {
         Chef chef = chefRepository.findById(authChef.getId())
                 .orElseThrow(() -> new RuntimeException("Chef not found"));
 
-        if(pageNumber <= 0 || !CHEF_FILTERS.contains(filter)){
+        if(pageNumber <= 0){
             throw new RuntimeException("Invalid parameters");
         }
 
 
-        Pageable pageable = null;
-        if(filter.equals("date")){
-
-            // Se richiediamo la prima pagina ordinata per data (quella che viene mostrata di default) non è necessario
+        int start = (pageNumber-1)*pageSizeChef;
+        int end = pageNumber*pageSizeChef;
+        List<ChefPreviewRecipeDTO> content;
+        boolean hasPrevious = true;
+        // Se richiediamo la prima pagina ordinata per data (quella che viene mostrata di default) non è necessario
             // fare un altro accesso al DB, abbiamo già tutte le informazioni memorizzate dentro il documento dello chef
-            if(pageNumber == 1){
+        if(pageNumber <= 3){
 
-                if (chef.getNewRecipes() == null || chef.getNewRecipes().isEmpty()) {
-                    return new SliceRecipeDTO(null, false, false);
-                }
-
-                List<ChefPreviewRecipeDTO> content = chefConvertions.ChefListToSummaryList(chef.getNewRecipes());
-                boolean hasNext = (chef.getTotalRecipes() > pageSizeChef) ? true : false;
-
-                return  new SliceRecipeDTO(content, hasNext, false);
+            if (chef.getNewRecipes() == null || chef.getNewRecipes().isEmpty()) {
+                return new SliceRecipeDTO(null, false, false);
             }
 
+            content = chefConvertions.ChefListToSummaryList(chef.getNewRecipes().subList(start, end));
+            hasPrevious = pageNumber == 1 ? false :  true;
+        }
             // Se la pagina non è la prima o il filtro non è quello per data, dobbiamo accedere direttamente al DB, che
             // sfrutta l'indice secondario definito sull'id dello chef della collection "recipes"
-            else{
-                pageable = PageRequest.of(pageNumber - 1, pageSizeChef,
-                        Sort.by("creationDate").descending());
-            }
-        }
-        else if(filter.equals("popularity")){
-            pageable = PageRequest.of(pageNumber - 1, pageSizeChef,
-                    Sort.by("numSaves").descending());
-        }
         else{
-            throw new RuntimeException("Invalid filter");
+
+            List<String> ids = chef.getOldRecipes().subList(start, end);
+            List<RecipeMongo> recipes = recipeMongoRepository.findByIdIn(ids);
+            content = chefConvertions.MongoListToChefPreview(recipes);
         }
 
-        // Recuperiamo le ricette di interesse (le convertiamo nel formato ridotto dell'anteprima)
-        Slice<RecipeMongo> recipesPage = recipeMongoRepository.findByChef_Id(chef.getId(), pageable);
-        List<ChefPreviewRecipeDTO> content = chefConvertions.MongoListToChefPreview(recipesPage.getContent());
-        boolean hasNext = (chef.getTotalRecipes() > pageSizeChef*pageNumber) ? true : false;
-        boolean hasPrevious = pageNumber > 1;
+        boolean hasNext = (chef.getTotalRecipes() > end) ? true : false;
         return  new SliceRecipeDTO(content, hasNext, hasPrevious);
     }
 
