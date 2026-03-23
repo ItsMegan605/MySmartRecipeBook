@@ -139,6 +139,7 @@ public class ChefUtilityFunctions {
         return recipeDTO;
     }
 
+
     public List<ChefRecipeSummary> MongoListToChefListSummary(List<RecipeMongo> recipesToConvert) {
 
         List<ChefRecipeSummary> chefRecipes = new ArrayList<>();
@@ -219,5 +220,16 @@ public class ChefUtilityFunctions {
         chefMongo.setBirthDate(chef.getBirthdate());
         chefMongo.setRegistrationDate(chef.getRegistrationDate());
         return chefMongo;
+    }
+
+    public ChefRecipeSummary recipeToChefRecipe (RecipeMongo recipeMongo){
+
+        ChefRecipeSummary recipe = new ChefRecipeSummary();
+        recipe.setId(recipeMongo.getId());
+        recipe.setTitle(recipeMongo.getTitle());
+        recipe.setImageURL(recipeMongo.getImageURL());
+        recipe.setCreationDate(recipeMongo.getCreationDate());
+
+        return recipe;
     }
 }

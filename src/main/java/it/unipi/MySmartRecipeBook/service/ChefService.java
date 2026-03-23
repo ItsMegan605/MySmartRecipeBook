@@ -41,6 +41,8 @@ import it.unipi.MySmartRecipeBook.dto.ChefRankAnalyticsDTO;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
 import org.bson.types.ObjectId;
 import org.springframework.util.StringUtils;
 
@@ -249,18 +251,28 @@ public class ChefService {
         }
 
         // Questa parte non è atomica ma per renderla tale dobbiamo necessariamente usare version o lock
+        boolean findRecipe = false;
         for (ChefRecipeSummary recipe : newRecipes) {
             if (recipe.getId().equals(recipeId)) {
 
-                Pageable pageable = PageRequest.of(0, pageSizeChef, Sort.by("creationDate").descending());
-                Slice<RecipeMongo> matchSlice = recipeMongoRepository.findByChef_Id(chef1.getId(), pageable);
-                List<RecipeMongo> matchRecipes = matchSlice.getContent();
+                newRecipes.remove(recipe);
 
-                List<ChefRecipeSummary> recipesToSave = chefConvertions.MongoListToChefListSummary(matchRecipes);
-                chef.setNewRecipes(recipesToSave);
+                if(chef.getOldRecipes() != null){
+                    String oldRecipeId = chef.getOldRecipes().remove(0);
+                    Optional<RecipeMongo> recipeMongo = recipeMongoRepository.findById(oldRecipeId);
+                    ChefRecipeSummary reducedRecipe = chefConvertions.recipeToChefRecipe(recipeMongo.get());
+                    chef.getNewRecipes().add(reducedRecipe);
+                }
+
+                findRecipe = true;
                 break;
             }
         }
+
+        if(findRecipe == false){
+            chef.getOldRecipes().remove(recipeId);
+        }
+
         chef.setTotalRecipes(chef.getTotalRecipes() - 1);
         chefRepository.save(chef);
 
