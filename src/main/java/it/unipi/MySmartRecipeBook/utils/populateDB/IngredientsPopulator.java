@@ -18,7 +18,7 @@ public class IngredientsPopulator implements CommandLineRunner {
     private JedisCluster jedisCluster;
     // key per ingredienti
     private static final String INGREDIENTS_REDIS_KEY = "MySmartRecipeBook:allowed_ingredients";
-    @Value("false")
+    @Value("${app.recipe.do-redis-population:false}")
     private boolean doRedisPopulation;
 
     public IngredientsPopulator(JedisCluster jedisCluster) {
