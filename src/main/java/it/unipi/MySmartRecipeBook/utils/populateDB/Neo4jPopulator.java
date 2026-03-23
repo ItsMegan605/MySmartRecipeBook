@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-@Order(3) //order to execute the functions to populate the DBs
+@Order(4) //order to execute the functions to populate the DBs
 @Component
 public class Neo4jPopulator implements CommandLineRunner {
 

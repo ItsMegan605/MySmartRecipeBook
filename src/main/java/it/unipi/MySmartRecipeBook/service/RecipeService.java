@@ -41,13 +41,19 @@ public class RecipeService {
     private final RecipeUtilityFunctions convertions;
     private JedisCluster jedisCluster;
     private final ObjectMapper objectMapper;
-    public RecipeService(RecipeMongoRepository recipeRepository, RecipeUtilityFunctions convertions,  JedisCluster jedisCluster, ObjectMapper objectMapper) {
+    private final IngredientService ingredientService;
+
+    public RecipeService(RecipeMongoRepository recipeRepository, RecipeUtilityFunctions convertions,  JedisCluster jedisCluster, ObjectMapper objectMapper, IngredientService ingredientService) {
         this.recipeRepository = recipeRepository;
         this.convertions = convertions;
         this.jedisCluster = jedisCluster;
         this.objectMapper = objectMapper;
+        this.ingredientService = ingredientService;
     }
 
+   public boolean isValidIngredient(String ingredientName) {
+        return ingredientService.isValidIngredient(ingredientName);
+   } //alla fine ogni service ha il suo controllo
 
     public ShowRecipeDTO getRecipeById(String id, boolean fridge){
 

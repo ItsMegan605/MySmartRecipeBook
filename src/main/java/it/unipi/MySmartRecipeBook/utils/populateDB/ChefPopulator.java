@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Order(2)
+@Order(3)
 @Component
 public class ChefPopulator implements CommandLineRunner{
 

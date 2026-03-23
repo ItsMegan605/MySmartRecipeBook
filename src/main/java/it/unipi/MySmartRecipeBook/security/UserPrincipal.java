@@ -9,8 +9,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
-//rappresentazione dell'utente autentixato all'interno di Spring Security,
-// implementa interfacia UserDetails, richieesta per gestire autenticazione e autorizzazione
+//rappresentazione dell'utente autenticato all'interno di Spring Security,
+//implementa interfacia UserDetails trasfroma i dati in formato per SpringSecurity
 
 
 //ogni volta che l'utente effettua il login, spring secuirty crea un oggetto UserPrincipal.
@@ -22,7 +22,7 @@ public class UserPrincipal implements UserDetails {
     // identificativo univoco dell'utente nel database
     private String id;
     private String username;
-    private Collection<? extends GrantedAuthority> authorities;
+    private Collection<? extends GrantedAuthority> authorities; //lista di ruoli per decidere chi può fare cosa
 
     //costruttore
     public UserPrincipal(String id, String username, String password,

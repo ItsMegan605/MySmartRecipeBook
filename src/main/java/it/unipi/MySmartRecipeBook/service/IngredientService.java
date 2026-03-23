@@ -1,41 +1,30 @@
 package it.unipi.MySmartRecipeBook.service;
 
-import it.unipi.MySmartRecipeBook.model.Mongo.ingredients.Ingredient;
-import it.unipi.MySmartRecipeBook.repository.Mongo.IngredientRepository;
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+import redis.clients.jedis.JedisCluster;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 @Service
 public class IngredientService {
+    //metto cluster di redis visto che gli ingredienti andranno su redis anzichè la repo di mongo
+    @Autowired
+    private JedisCluster jedisCluster;
+    // key per ingredienti
+    private static final String INGREDIENTS_REDIS_KEY = "MySmartRecipeBook:allowed_ingredients";
 
-    private Set<String> allowedIngredients = new HashSet<String>();
-
-    private final IngredientRepository ingredientRepository;
-
-    public IngredientService(IngredientRepository ingredientRepository) {
-        this.ingredientRepository = ingredientRepository;
-    }
-
-    // Dice a Spring di fare questa come prima cosa prima di accettare richieste degli utenti - possiamo dire che è un
-    // costrutto che ci ha detto l'AI così Ducange è contento che ammettiamo le nostre colpe
-    @PostConstruct
-    private void inizializeAllowedIngredients(){
-
-        List<Ingredient> ingredients = ingredientRepository.findAll();
-        for(Ingredient ingredient : ingredients){
-            allowedIngredients.add(ingredient.getName().toLowerCase());
+    //controllo validità
+    public boolean isValidIngredient(String ingredientName) {
+        if (ingredientName == null || ingredientName.trim().isEmpty()) {
+            return false;
         }
+
+        //sismember controlla se un membro appartiene a un certo set di chiavi
+        return jedisCluster.sismember(INGREDIENTS_REDIS_KEY, ingredientName.toLowerCase().trim());
     }
-
-    public boolean isValidIngredient(String ingredientName){
-
-        String ingredient = ingredientName.toLowerCase();
-        return allowedIngredients.contains(ingredient);
-    }
-
-
 }
