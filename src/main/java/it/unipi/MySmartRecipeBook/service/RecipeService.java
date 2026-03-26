@@ -51,9 +51,9 @@ public class RecipeService {
         this.ingredientService = ingredientService;
     }
 
-   public boolean isValidIngredient(String ingredientName) {
+    public boolean isValidIngredient(String ingredientName) {
         return ingredientService.isValidIngredient(ingredientName);
-   } //alla fine ogni service ha il suo controllo
+    } //alla fine ogni service ha il suo controllo
 
     public ShowRecipeDTO getRecipeById(String id, boolean fridge){
 
@@ -71,15 +71,15 @@ public class RecipeService {
 
                     if( suggestedRecipes != null) { //converto da json in oggetto java con object mapper
                         List<RecipeSuggestionDTO> cachedRecipes = objectMapper.readValue(suggestedRecipes, new TypeReference<List<RecipeSuggestionDTO>>(){});
-                       Boolean removedRecipe = cachedRecipes.removeIf(recipe -> recipe.getId().equals(id));
+                        Boolean removedRecipe = cachedRecipes.removeIf(recipe -> recipe.getId().equals(id));
 
-                       if(removedRecipe) {
-                           if(cachedRecipes.isEmpty()){
-                               throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Recipe not found");
-                           } else  {
-                               jedisCluster.set(fridgeKey, objectMapper.writeValueAsString(cachedRecipes));
-                           }
-                       }
+                        if(removedRecipe) {
+                            if(cachedRecipes.isEmpty()){
+                                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Recipe not found");
+                            } else  {
+                                jedisCluster.set(fridgeKey, objectMapper.writeValueAsString(cachedRecipes));
+                            }
+                        }
                     }
 
                 } catch (Exception e) {

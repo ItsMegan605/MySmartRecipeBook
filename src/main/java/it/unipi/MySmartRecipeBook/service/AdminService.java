@@ -22,6 +22,7 @@ import it.unipi.MySmartRecipeBook.utils.parameters.Task;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 
 import jakarta.transaction.Transactional;
+import org.bson.types.ObjectId;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +30,7 @@ import it.unipi.MySmartRecipeBook.dto.TrendAnalyticsDTO;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AdminService {
@@ -54,10 +56,12 @@ public class AdminService {
     private final ChefNeo4jRepository chefNeo4jRepository;
     private final ChefUtilityFunctions chefUtilityFunctions;
     private final RecipeNeo4jRepository recipeNeo4jRepository;
+    private final RecipeMongoRepository recipeMongoRepository;
+    private final ChefUtilityFunctions chefUtility;
 
     public AdminService(RecipeUtilityFunctions recipeConvertions, ChefRepository chefRepository,
                         AdminRepository adminRepository, RecipeMongoRepository recipeRepository,
-                        LowLoadManager lowLoadManager, FoodieRepository foodieRepository, ChefNeo4jRepository chefNeo4jRepository, ChefUtilityFunctions chefUtilityFunctions, RecipeNeo4jRepository recipeNeo4jRepository) {
+                        LowLoadManager lowLoadManager, FoodieRepository foodieRepository, ChefNeo4jRepository chefNeo4jRepository, ChefUtilityFunctions chefUtilityFunctions, RecipeNeo4jRepository recipeNeo4jRepository, RecipeMongoRepository recipeMongoRepository, ChefUtilityFunctions chefUtility) {
         this.recipeConvertions = recipeConvertions;
         this.chefRepository = chefRepository;
         this.adminRepository = adminRepository;
@@ -67,6 +71,8 @@ public class AdminService {
         this.chefNeo4jRepository = chefNeo4jRepository;
         this.chefUtilityFunctions = chefUtilityFunctions;
         this.recipeNeo4jRepository = recipeNeo4jRepository;
+        this.recipeMongoRepository = recipeMongoRepository;
+        this.chefUtility = chefUtility;
     }
 
     /*------------------- Approve a pending recipe  --------------------*/
@@ -128,21 +134,40 @@ public class AdminService {
     }
 
 
-    private void addToChefRecipes(RecipeMongo recipe, String oldRecipeId) {
+    private void addToChefRecipes(RecipeMongo recipe, String pendingRecipeId) {
 
         // Controllo esistenza chef
         String chefId = recipe.getChef().getId();
 
-        if (!chefRepository.existsById(chefId)) {
-            throw new RuntimeException("Chef not found");
+        Chef chef = chefRepository.findById(chefId)
+                .orElseThrow(() -> new RuntimeException("Chef not found"));
+
+      //if it is a pending recipe
+        if (chef.getRecipesToConfirm() != null) {
+            chef.getRecipesToConfirm().removeIf(pending -> pending.getId().equals(pendingRecipeId));
+        }
+    //converto la ricetta nel formato corretto
+        ChefRecipeSummary newChefRecipe = recipeConvertions.recipeToChefRecipe(recipe);
+
+        if(chef.getNewRecipes() == null) {
+            System.out.println("No new recipes found, creating the array list");
+            chef.setNewRecipes(new java.util.ArrayList<>());
         }
 
-        ChefRecipeSummary chefRecipe = recipeConvertions.recipeToChefRecipe(recipe);
+        chef.getNewRecipes().add(0, newChefRecipe);
 
+        if( chef.getNewRecipes().size() > 15 ) {//se consideriamo 3 pagine sono 15 ricette
+            ChefRecipeSummary oldestRecipe = chef.getNewRecipes().remove(14); //tolgo ultimo elemento
+            chef.getOldRecipes().add(0, oldestRecipe.getId()); //aggiungo alla lista delle ricette vecchie
+        }
+
+        //aggiorno
+        chef.setTotalRecipes(chef.getTotalRecipes() + 1);
+        chefRepository.save(chef);
         // Viene eliminata la ricetta da quelle in attesa di conferma, viene incrementato il numero totale di ricette
         // dello chef, la ricetta viene inserita nel campo newRecipes (eventualmente rimuovendo una ricetta se l'array
         // ha già dimensione 5)
-        chefRepository.approveRecipe(chefId, oldRecipeId, chefRecipe);
+        //chefRepository.approveRecipe(chefId, oldRecipeId, chefRecipe);
 
     }
 
@@ -178,13 +203,13 @@ public class AdminService {
         if (chefId == null) {
             throw new RuntimeException("Recipe not found among the ones that have to be approved");
         }
+        //ho invertito qui
+        boolean recipeFoundAdmin = adminRepository.removeRecipeFromApprovals(admin.getId(), recipeId) > 0;
 
-        // Rimuove la ricetta da quelle in attesa di essere confermate nella collezione "chefs"
-        chefRepository.removeRecipeFromWaiting(chefId, recipeId);
-
-        // Rimuove la ricetta da quelle da approvare dell'admin
-        adminRepository.removeRecipeFromApprovals(admin.getId(), recipeId);
-
+        if(recipeFoundAdmin) {
+            ObjectId chefObjectId = new ObjectId(chefId);
+            chefRepository.removeRecipeFromWaiting(chefObjectId, recipeId);
+        }
     }
 
 
