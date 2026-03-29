@@ -10,12 +10,9 @@ import it.unipi.MySmartRecipeBook.dto.users.TopChefDTO;
 import it.unipi.MySmartRecipeBook.dto.users.UpdateChefDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.CreateRecipeDTO;
+import it.unipi.MySmartRecipeBook.model.Mongo.recipes.*;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Admin;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Chef;
-import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefPendingRecipe;
-import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefRecipeSummary;
-import it.unipi.MySmartRecipeBook.model.Mongo.recipes.PendingRecipe;
-import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
 import it.unipi.MySmartRecipeBook.repository.Neo4j.ChefNeo4jRepository;
 import it.unipi.MySmartRecipeBook.utils.parameters.Task;
 import it.unipi.MySmartRecipeBook.repository.Mongo.AdminRepository;
@@ -227,14 +224,13 @@ public class ChefService {
     /*--------------- Delete a recipe  ----------------*/
 
     @Transactional
-    //@Retryable(retryFor = OptimisticLockingFailureException.class, maxAttempts = 3)
     public void deleteRecipe(String recipeId) {
 
-        UserPrincipal chef1 = (UserPrincipal) SecurityContextHolder.getContext()
+        UserPrincipal authChef = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getPrincipal();
 
-        Chef chef = chefRepository.findById(chef1.getId())
+        Chef chef = chefRepository.findById(authChef.getId())
                 .orElseThrow(() -> new RuntimeException("Chef not found"));
 
         List<ChefRecipeSummary> newRecipes = chef.getNewRecipes();
@@ -253,11 +249,12 @@ public class ChefService {
         for (ChefRecipeSummary recipe : newRecipes) {
             if (recipe.getId().equals(recipeId)) {
 
+                chef.setTotalSaves(chef.getTotalSaves() - recipe.getNumSaves());
                 newRecipes.remove(recipe);
 
                 if(chef.getOldRecipes() != null){
-                    String oldRecipeId = chef.getOldRecipes().remove(0);
-                    Optional<RecipeMongo> recipeMongo = recipeMongoRepository.findById(oldRecipeId);
+                    OldRecipe oldRecipe = chef.getOldRecipes().remove(0);
+                    Optional<RecipeMongo> recipeMongo = recipeMongoRepository.findById(oldRecipe.getId());
                     ChefRecipeSummary reducedRecipe = chefConvertions.recipeToChefRecipe(recipeMongo.get());
                     chef.getNewRecipes().add(reducedRecipe);
                 }
@@ -268,7 +265,20 @@ public class ChefService {
         }
 
         if(findRecipe == false){
-            chef.getOldRecipes().remove(recipeId);
+            for(OldRecipe oldRecipe : chef.getOldRecipes()){
+                if(oldRecipe.getId().equals(recipeId)){
+                    chef.setTotalSaves(chef.getTotalSaves() - oldRecipe.getNumSaves());
+                    chef.getOldRecipes().remove(oldRecipe);
+                    break;
+                }
+            }
+        }
+
+        for(ChefRecipeSummary popularRecipe : chef.getPopularRecipes()){
+            if(popularRecipe.getId().equals(recipeId)){
+                chef.getPopularRecipes().remove(popularRecipe);
+                break;
+            }
         }
 
         chef.setTotalRecipes(chef.getTotalRecipes() - 1);
@@ -353,13 +363,41 @@ public class ChefService {
             // sfrutta l'indice secondario definito sull'id dello chef della collection "recipes"
         else{
 
-            List<String> ids = chef.getOldRecipes().subList(start, end);
+            List<OldRecipe> oldRecipes = chef.getOldRecipes().subList(start, end);
+            List<String> ids = oldRecipes.stream().map(OldRecipe::getId).toList();
             List<RecipeMongo> recipes = recipeMongoRepository.findByIdIn(ids);
             content = chefConvertions.MongoListToChefPreview(recipes);
         }
 
         boolean hasNext = (chef.getTotalRecipes() > end) ? true : false;
         return  new SliceRecipeDTO(content, hasNext, hasPrevious);
+    }
+
+    public SliceRecipeDTO showPopularRecipes(int pageNumber){
+
+        UserPrincipal authChef = (UserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        Chef chef = chefRepository.findById(authChef.getId())
+                .orElseThrow(() -> new RuntimeException("Chef not found"));
+
+        if(pageNumber <= 0){
+            throw new RuntimeException("Invalid parameters");
+        }
+
+        if(chef.getPopularRecipes() == null || chef.getPopularRecipes().isEmpty()) {
+            throw new RuntimeException("No popular recipes");
+        }
+
+        int start = (pageNumber-1)*pageSizeChef;
+        int end = pageNumber*pageSizeChef;
+
+        boolean hasPrevious = pageNumber == 1 ? false : true;
+        boolean hasNext = (chef.getPopularRecipes().size() > end) ? true : false;
+
+        List<ChefRecipeSummary> chefList = chef.getPopularRecipes().subList(start, end);
+        return  new SliceRecipeDTO(chefList, hasNext, hasPrevious);
     }
 
     /* Get top 3 chefs per category */

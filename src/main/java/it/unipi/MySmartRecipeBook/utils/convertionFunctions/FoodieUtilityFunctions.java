@@ -4,6 +4,7 @@ import it.unipi.MySmartRecipeBook.dto.recipe.FoodiePreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegistedUserDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegistedUserInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
+import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefRecipeSummary;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Foodie;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.FoodieRecipeSummary;
@@ -63,6 +64,18 @@ public class FoodieUtilityFunctions {
         recipe.setDifficulty(recipeMongo.getDifficulty());
         recipe.setChef(recipeMongo.getChef());
         recipe.setSavingDate(LocalDate.now());
+
+        return  recipe;
+    }
+
+    public ChefRecipeSummary entityToChefRecipe (RecipeMongo recipeMongo) {
+
+        ChefRecipeSummary recipe = new ChefRecipeSummary();
+        recipe.setId(recipeMongo.getId());
+        recipe.setTitle(recipeMongo.getTitle());
+        recipe.setImageURL(recipeMongo.getImageURL());
+        recipe.setCreationDate(recipeMongo.getCreationDate());
+        recipe.setNumSaves(recipeMongo.getNumSaves());
 
         return  recipe;
     }

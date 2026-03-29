@@ -7,6 +7,7 @@ import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegistedUserInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.users.UpdateFoodieDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
+import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefRecipeSummary;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Foodie;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.FoodieRecipeSummary;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
@@ -31,10 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -140,19 +138,22 @@ public class FoodieService {
                 .orElseThrow(() -> new RuntimeException("Foodie not found"));
 
         List<String> recipesId = new ArrayList<>();
-        List<String> chefsId = new ArrayList<>();
+        Map<String, List<String>> recipesByChefId = new HashMap<>();
 
         if (foodie.getSavedRecipes() != null) {
             for (FoodieRecipeSummary recipe : foodie.getSavedRecipes()) {
-                recipesId.add(recipe.getId());
-                chefsId.add(recipe.getChef().getId());
+                String recipeId = recipe.getId();
+                String chefId = recipe.getChef().getId();
+
+                // 1. Aggiungiamo l'ID alla lista di tutte le ricette
+                recipesId.add(recipeId);
+
+                // 2. Raggruppiamo l'ID della ricetta sotto il rispettivo chef
+                recipesByChefId.computeIfAbsent(chefId, k -> new ArrayList<>()).add(recipeId);
             }
         }
 
-        Map<String, Long> chefDecrements = chefsId.stream()
-                .collect(Collectors.groupingBy(id -> id, Collectors.counting()));
-
-        InfoToDeleteDTO infoFoodie = new InfoToDeleteDTO(recipesId, chefDecrements);
+        InfoToDeleteDTO infoFoodie = new InfoToDeleteDTO(recipesId, recipesByChefId);
         lowLoadManager.addTask(Task.TaskType.SET_COUNTERS_FOODIE_DELETE, infoFoodie);
 
         foodieRepository.delete(foodie);
@@ -176,7 +177,9 @@ public class FoodieService {
         FoodieRecipeSummary fullRecipe = usersConvertions.entityToReducedRecipe(recipe);
 
         foodieRepository.addRecipeToFavourites(foodieId, recipeId, fullRecipe);
-        lowLoadManager.addTask(Task.TaskType.SET_COUNTERS_ADD_FAVOURITE, recipeId, recipe.getChef().getId());
+
+        ChefRecipeSummary chefRecipe = usersConvertions.entityToChefRecipe(recipe);
+        lowLoadManager.addTask(Task.TaskType.SET_COUNTERS_ADD_FAVOURITE, chefRecipe, recipe.getChef().getId());
     }
 
 

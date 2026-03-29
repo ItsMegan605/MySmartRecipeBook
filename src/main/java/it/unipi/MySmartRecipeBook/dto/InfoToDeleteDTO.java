@@ -11,5 +11,5 @@ public class InfoToDeleteDTO {
     List<String> recipeIds;
 
     // Lista degli chef e dei decrementi del totSaves per ogni chef
-    Map<String, Long> chefDecrements;
+    Map<String, List<String>> chefRecipeList;
 }

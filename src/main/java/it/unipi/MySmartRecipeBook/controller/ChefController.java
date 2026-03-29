@@ -111,6 +111,12 @@ public class ChefController {
         return ResponseEntity.ok(recipeList);
     }
 
+    @GetMapping("/popular/{pageNumber}")
+    public ResponseEntity<SliceRecipeDTO> popularRecipe (@PathVariable("pageNumber") int pageNumber){
+        SliceRecipeDTO recipeList = chefService.showPopularRecipes(pageNumber);
+        return ResponseEntity.ok(recipeList);
+    }
+
     /* Show top 3 chefs per Category */
 
     @GetMapping("/getTopChef")
@@ -118,4 +124,5 @@ public class ChefController {
         List<TopChefDTO> topChefs = chefService.getTopChef();
         return ResponseEntity.ok(topChefs);
     }
+
 }

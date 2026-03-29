@@ -2,6 +2,7 @@ package it.unipi.MySmartRecipeBook.event;
 
 import it.unipi.MySmartRecipeBook.dto.InfoToDeleteDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.GraphRecipeDTO;
+import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefRecipeSummary;
 import it.unipi.MySmartRecipeBook.utils.parameters.Task;
 import lombok.Getter;
 
@@ -13,6 +14,7 @@ public class TaskToDo {
     private final String chefId;
     private final InfoToDeleteDTO infoToDelete;
     private final GraphRecipeDTO recipe;
+    private final ChefRecipeSummary recipeMongo;
 
 
 
@@ -22,14 +24,25 @@ public class TaskToDo {
         this.chefId = null;
         this.infoToDelete = infoToDelete;
         this.recipe = null;
+        this.recipeMongo = null;
+    }
+
+    public TaskToDo(Task.TaskType type, ChefRecipeSummary recipeMongo, String chefId) {
+        this.type = type;
+        this.recipeId = recipeMongo.getId();
+        this.chefId = recipeId;
+        this.infoToDelete = null;
+        this.recipe = null;
+        this.recipeMongo = recipeMongo;
     }
 
     public TaskToDo(Task.TaskType type, String recipeId, String chefId) {
         this.type = type;
         this.recipeId = recipeId;
-        this.chefId = chefId;
+        this.chefId = recipeId;
         this.infoToDelete = null;
         this.recipe = null;
+        this.recipeMongo = null;
     }
 
     public TaskToDo(Task.TaskType type, String recipeId) {
@@ -38,6 +51,7 @@ public class TaskToDo {
         this.chefId = null;
         this.infoToDelete = null;
         this.recipe = null;
+        this.recipeMongo = null;
     }
 
     public TaskToDo(Task.TaskType type, GraphRecipeDTO recipe) {
@@ -46,5 +60,6 @@ public class TaskToDo {
         this.chefId = null;
         this.infoToDelete = null;
         this.recipe = recipe;
+        this.recipeMongo = null;
     }
 }

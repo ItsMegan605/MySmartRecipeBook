@@ -4,6 +4,9 @@ import it.unipi.MySmartRecipeBook.dto.InfoToDeleteDTO;
 import it.unipi.MySmartRecipeBook.dto.IngredientDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.GraphRecipeDTO;
 import it.unipi.MySmartRecipeBook.event.TaskToDo;
+import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefRecipeSummary;
+import it.unipi.MySmartRecipeBook.model.Mongo.recipes.OldRecipe;
+import it.unipi.MySmartRecipeBook.model.Mongo.users.Chef;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Foodie;
 import it.unipi.MySmartRecipeBook.utils.parameters.Task;
 import it.unipi.MySmartRecipeBook.repository.Mongo.ChefRepository;
@@ -16,10 +19,7 @@ import org.springframework.stereotype.Service;
 import java.lang.management.ManagementFactory;
 import com.sun.management.OperatingSystemMXBean;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 @Service
@@ -40,8 +40,14 @@ public class LowLoadManager {
         this.recipeNeo4jRepository = recipeNeo4jRepository;
     }
 
+    public void addTask (Task.TaskType type, ChefRecipeSummary recipe, String chefId){
+        TaskToDo task = new TaskToDo(type, recipe, chefId);
+        taskQueue.add(task);
+        System.out.println("Task succesfully added to the queue");
+    }
+
     public void addTask (Task.TaskType type, String recipeId, String chefId){
-        TaskToDo task = new TaskToDo(type, recipeId,chefId);
+        TaskToDo task = new TaskToDo(type, recipeId, chefId);
         taskQueue.add(task);
         System.out.println("Task succesfully added to the queue");
     }
@@ -95,11 +101,11 @@ public class LowLoadManager {
                     break;
 
                 case SET_COUNTERS_ADD_FAVOURITE:
-                    updateChefCounters(task, 1);
+                    updateChefCountersSaves(task);
                     break;
 
                 case SET_COUNTERS_REMOVE_FAVOURITE:
-                    updateChefCounters(task, -1);
+                    updateChefCounters(task);
                     break;
 
                 case CREATE_RECIPE_NEO4J:
@@ -149,7 +155,6 @@ public class LowLoadManager {
 
         System.out.println("Decrement Saves Counters");
         List<String> recipesId = task.getInfoToDelete().getRecipeIds();
-        Map<String, Long> chefDecrements = task.getInfoToDelete().getChefDecrements();
 
         if(recipesId != null) {
             for (String recipeId : recipesId) {
@@ -157,27 +162,129 @@ public class LowLoadManager {
             }
         }
 
-        if(chefDecrements != null) {
-            for (Map.Entry<String, Long> element : chefDecrements.entrySet()) {
-                String chefId = element.getKey();
-                int savesToRemove = element.getValue().intValue();
+        Map<String, List<String>> recipesByChefId = task.getInfoToDelete().getChefRecipeList();
 
-                chefRepository.updateTotalSaves(chefId, -savesToRemove);
+        recipesByChefId.forEach((chefId, chefRecipes) -> {
+            Chef targetChef = chefRepository.findById(chefId).get();
+
+            for (String recipeId : chefRecipes) {
+
+                Integer numSaves = null;
+                for(ChefRecipeSummary recipe : targetChef.getNewRecipes()){
+                    if(recipe.getId().equals(recipeId)){
+                        recipe.setNumSaves(recipe.getNumSaves()-1);
+                        targetChef.setTotalSaves(targetChef.getTotalSaves()-1);
+                        numSaves = recipe.getNumSaves();
+                        break;
+                    }
+                }
+                if(numSaves == null){
+                    for(ChefRecipeSummary recipe : targetChef.getNewRecipes()){
+                        if(recipe.getId().equals(recipeId)){
+                            recipe.setNumSaves(recipe.getNumSaves()-1);
+                            targetChef.setTotalSaves(targetChef.getTotalSaves()-1);
+                            numSaves = recipe.getNumSaves();
+                            break;
+                        }
+                    }
+                }
+
+                if(numSaves > 40){
+                    for(ChefRecipeSummary recipe : targetChef.getPopularRecipes()){
+                        if(recipe.getId().equals(recipeId)){
+                            recipe.setNumSaves(recipe.getNumSaves()-1);
+                            targetChef.getPopularRecipes().sort(Comparator.comparing(ChefRecipeSummary::getNumSaves).reversed());
+                            break;
+                        }
+                    }
+                }
+                else if(numSaves == 40){
+                    for(ChefRecipeSummary recipe : targetChef.getPopularRecipes()){
+                        if(recipe.getId().equals(recipeId)){
+                            targetChef.getPopularRecipes().remove(recipe.getId());
+                            break;
+                        }
+                    }
+                }
             }
-        }
+            chefRepository.save(targetChef);
+        });
+
     }
 
-    private void updateChefCounters(TaskToDo task, int increment) {
+    private void updateChefCounters(TaskToDo task) {
 
         System.out.println("Update Chef Counters");
-        /* Aggiorno il numero totale di ricette salvate dello chef */
-        chefRepository.updateTotalSaves(task.getChefId(), increment);
 
-        /* Se la ricette è tra le ultime 5 dello chef aggiorno la copia embedded */
-        chefRepository.updateChefCounters(task.getChefId(), task.getRecipeId(), increment);
+        Chef targetChef = chefRepository.findById(task.getChefId()).get();
+        targetChef.setTotalSaves(targetChef.getTotalSaves()-1);
+
+        Integer numSaves = null;
+        for(ChefRecipeSummary recipe : targetChef.getNewRecipes()){
+            if(recipe.getId().equals(task.getRecipeId())){
+                numSaves = recipe.getNumSaves();
+                recipe.setNumSaves(recipe.getNumSaves()-1);
+                break;
+            }
+        }
+
+        if(numSaves == null){
+            for(OldRecipe recipe : targetChef.getOldRecipes()){
+                if(recipe.getId().equals(task.getRecipeId())){
+                    numSaves = recipe.getNumSaves();
+                    recipe.setNumSaves(recipe.getNumSaves()-1);
+                    break;
+                }
+            }
+        }
+
+        if(numSaves > 40){
+            targetChef.getPopularRecipes().sort(Comparator.comparing(ChefRecipeSummary::getNumSaves).reversed());
+        }
+        else if(numSaves == 40) {
+            targetChef.getPopularRecipes().remove(task.getRecipeMongo());
+        }
+
 
         /* Aggiorno il numero totale di saves nella collezione delle recipes */
-        recipeMongoRepository.updateSavesCounter(task.getRecipeId(), increment);
+        recipeMongoRepository.updateSavesCounter(task.getRecipeId(), -1);
+    }
+
+    private void updateChefCountersSaves(TaskToDo task) {
+
+        System.out.println("Update Chef Counters");
+
+        Chef targetChef = chefRepository.findById(task.getChefId()).get();
+        targetChef.setTotalSaves(targetChef.getTotalSaves()+1);
+
+        Integer numSaves = null;
+        for(ChefRecipeSummary recipe : targetChef.getNewRecipes()){
+            if(recipe.getId().equals(task.getRecipeId())){
+                recipe.setNumSaves(recipe.getNumSaves()+1);
+                numSaves = recipe.getNumSaves();
+                break;
+            }
+        }
+
+        if(numSaves == null){
+            for(OldRecipe recipe : targetChef.getOldRecipes()){
+                if(recipe.getId().equals(task.getRecipeId())){
+                    recipe.setNumSaves(recipe.getNumSaves()+1);
+                    numSaves = recipe.getNumSaves();
+                    break;
+                }
+            }
+        }
+
+        if(numSaves > 40){
+            targetChef.getPopularRecipes().sort(Comparator.comparing(ChefRecipeSummary::getNumSaves).reversed());
+        }
+        else if(numSaves == 40) {
+            targetChef.getPopularRecipes().add(targetChef.getPopularRecipes().size()-1, task.getRecipeMongo());
+        }
+
+        /* Aggiorno il numero totale di saves nella collezione delle recipes */
+        recipeMongoRepository.updateSavesCounter(task.getRecipeId(), 1);
     }
 
     /* In questa funzione c'è la Risk Acceptancec */

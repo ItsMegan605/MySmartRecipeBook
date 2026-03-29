@@ -1,0 +1,20 @@
+package it.unipi.MySmartRecipeBook.model.Mongo.recipes;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.data.mongodb.core.mapping.Field;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+
+public class OldRecipe {
+    @Field("id")
+    String id;
+
+    @Field("num_saves")
+    private Integer numSaves;
+}

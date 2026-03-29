@@ -4,6 +4,7 @@ import it.unipi.MySmartRecipeBook.dto.YearAnalyticsDTO;
 import it.unipi.MySmartRecipeBook.dto.PopularIngredientsDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.GraphRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefRecipeSummary;
+import it.unipi.MySmartRecipeBook.model.Mongo.recipes.OldRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Admin;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Chef;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.PendingRecipe;
@@ -35,17 +36,12 @@ import java.util.Optional;
 @Service
 public class AdminService {
 
-    /* filtro per gliingredienti degli chef */
+    /* filtro per gli ingredienti degli chef */
 
     private static final List<String> COMMON_INGREDIENTS = Arrays.asList( //funzione suggerita da geminiperchè non sapevo come mapparlo
             "salt", "water", "pepper", "baking soda",
             "baking powder", "olive oil", "oil"
     );
-
-    private static final List<String> RARE_INGREDIENTS = Arrays.asList (
-            "anchovies" //ci ho messo la prima cosa che mi è venuta in mente, non so se serve averla
-    );
-
 
     private final RecipeUtilityFunctions recipeConvertions;
     private final ChefRepository chefRepository;
@@ -55,13 +51,10 @@ public class AdminService {
     private final FoodieRepository foodieRepository;
     private final ChefNeo4jRepository chefNeo4jRepository;
     private final ChefUtilityFunctions chefUtilityFunctions;
-    private final RecipeNeo4jRepository recipeNeo4jRepository;
-    private final RecipeMongoRepository recipeMongoRepository;
-    private final ChefUtilityFunctions chefUtility;
 
     public AdminService(RecipeUtilityFunctions recipeConvertions, ChefRepository chefRepository,
                         AdminRepository adminRepository, RecipeMongoRepository recipeRepository,
-                        LowLoadManager lowLoadManager, FoodieRepository foodieRepository, ChefNeo4jRepository chefNeo4jRepository, ChefUtilityFunctions chefUtilityFunctions, RecipeNeo4jRepository recipeNeo4jRepository, RecipeMongoRepository recipeMongoRepository, ChefUtilityFunctions chefUtility) {
+                        LowLoadManager lowLoadManager, FoodieRepository foodieRepository, ChefNeo4jRepository chefNeo4jRepository, ChefUtilityFunctions chefUtilityFunctions) {
         this.recipeConvertions = recipeConvertions;
         this.chefRepository = chefRepository;
         this.adminRepository = adminRepository;
@@ -70,9 +63,6 @@ public class AdminService {
         this.foodieRepository = foodieRepository;
         this.chefNeo4jRepository = chefNeo4jRepository;
         this.chefUtilityFunctions = chefUtilityFunctions;
-        this.recipeNeo4jRepository = recipeNeo4jRepository;
-        this.recipeMongoRepository = recipeMongoRepository;
-        this.chefUtility = chefUtility;
     }
 
     /*------------------- Approve a pending recipe  --------------------*/
@@ -155,8 +145,9 @@ public class AdminService {
         chef.getNewRecipes().add(0, newChefRecipe);
 
         if( chef.getNewRecipes().size() > 15 ) {//se consideriamo 3 pagine sono 15 ricette
-            ChefRecipeSummary oldestRecipe = chef.getNewRecipes().remove(14); //tolgo ultimo elemento
-            chef.getOldRecipes().add(0, oldestRecipe.getId()); //aggiungo alla lista delle ricette vecchie
+            ChefRecipeSummary oldestRecipe = chef.getNewRecipes().remove(14);
+            OldRecipe oldRecipe = new OldRecipe(oldestRecipe.getId(), oldestRecipe.getNumSaves());//tolgo ultimo elemento
+            chef.getOldRecipes().add(0, oldRecipe); //aggiungo alla lista delle ricette vecchie
         }
 
         //aggiorno
