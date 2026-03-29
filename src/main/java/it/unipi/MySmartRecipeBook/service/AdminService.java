@@ -124,7 +124,7 @@ public class AdminService {
         addToChefRecipes(savedRecipe, recipeId);
 
         // 3_ Rimuovere la ricetta da quelle in attesa di approvazione nell'admin
-        adminRepository.removeRecipeFromApprovals(admin.getId(), recipeApproved.getId());
+        adminRepository.removeRecipeFromApprovals(admin.getId(), recipeId);
 
         // 4_ Inserire l'evento "inserimento ricetta in Neo4j" nella coda degli eventi che verranno gestiti quando
         // l'utilizzazione della CPU è sotto il 30%
@@ -146,11 +146,9 @@ public class AdminService {
         if (chef.getRecipesToConfirm() != null) {
             chef.getRecipesToConfirm().removeIf(pending -> pending.getId().equals(pendingRecipeId));
         }
-    //converto la ricetta nel formato corretto
         ChefRecipeSummary newChefRecipe = recipeConvertions.recipeToChefRecipe(recipe);
 
         if(chef.getNewRecipes() == null) {
-            System.out.println("No new recipes found, creating the array list");
             chef.setNewRecipes(new java.util.ArrayList<>());
         }
 
@@ -164,11 +162,6 @@ public class AdminService {
         //aggiorno
         chef.setTotalRecipes(chef.getTotalRecipes() + 1);
         chefRepository.save(chef);
-        // Viene eliminata la ricetta da quelle in attesa di conferma, viene incrementato il numero totale di ricette
-        // dello chef, la ricetta viene inserita nel campo newRecipes (eventualmente rimuovendo una ricetta se l'array
-        // ha già dimensione 5)
-        //chefRepository.approveRecipe(chefId, oldRecipeId, chefRecipe);
-
     }
 
 
