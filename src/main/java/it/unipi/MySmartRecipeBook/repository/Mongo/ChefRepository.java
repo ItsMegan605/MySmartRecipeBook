@@ -4,6 +4,7 @@ package it.unipi.MySmartRecipeBook.repository.Mongo;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Chef;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefPendingRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefRecipeSummary;
+import it.unipi.MySmartRecipeBook.model.Mongo.recipes.OldRecipe;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.Update;
@@ -47,8 +48,11 @@ public interface ChefRepository extends MongoRepository<Chef, String> {
     void addRecipeToWaiting(String chefId, ChefPendingRecipe recipe);
 
     @Query("{ '_id': ?0 }")
-    @Update("{ '$set': { 'tot_recipes': ?1, 'tot_saves': ?2, 'new_recipes': ?3 } }")
-    void addChefNewSaved(String chefId, int totalRecipes, int totSaves, List<ChefRecipeSummary> newRecipes);
+    @Update("{ '$set': { 'tot_recipes': ?1, 'tot_saves': ?2, 'new_recipes': ?3, 'old_recipes': ?4, 'popular_recipes': ?5 } }")
+    void addChefNewSaved(String chefId, int totalRecipes, int totSaves,
+                         List<ChefRecipeSummary> newRecipes,
+                         List<OldRecipe> oldRecipes,
+                         List<ChefRecipeSummary> popularRecipes);
 
     @Aggregation(pipeline = {
 
