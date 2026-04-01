@@ -23,6 +23,10 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
 
+/**
+ * Foodie's controller
+ */
+
 @RestController
 @RequestMapping("/api/foodies")
 @PreAuthorize("hasRole('FOODIE')")
@@ -36,7 +40,13 @@ public class FoodieController {
         this.chefService = chefService;
     }
 
-    /*--------------- Retrieve foodie's informations ----------------*/
+
+
+    /**
+     * Retrieve foodie's information
+     * @see FoodieService#getById()
+     * @return ResponseEntity ok message
+     */
 
     @GetMapping("/info")
     public ResponseEntity<RegistedUserInfoDTO> getInfo(){
@@ -45,7 +55,12 @@ public class FoodieController {
     }
 
 
-    /*--------------- Change foodie's information ----------------*/
+    /**
+     * Change foodie's information
+     * @param updates the parameter that we want to change
+     * @see FoodieService#updateFoodie(UpdateFoodieDTO)
+     * @return ResponseEntity ok message
+     */
 
     @PostMapping("/changeInfo")
     public ResponseEntity<RegistedUserInfoDTO> changeInfo (@Valid @RequestBody UpdateFoodieDTO updates){
@@ -58,7 +73,11 @@ public class FoodieController {
     }
 
 
-    /*------------------ Delete foodie's Profile -------------------*/
+    /**
+     * Delete foodie's Profile
+     * @see FoodieService#deleteFoodie()
+     * @return ResponseEntity with message
+     */
 
     @DeleteMapping("/deleteProfile")
     public ResponseEntity<String> deleteProfile() {
@@ -68,7 +87,12 @@ public class FoodieController {
     }
 
 
-    /*------------ Add a recipe to foodie's favourites  -------------*/
+    /**
+     * Add a recipe to foodie's favourites
+     * @param recipeId
+     * @see FoodieService#saveRecipe(String, String)
+     * @return ResponseEntity with message
+     */
 
     @PostMapping("/addFavourite/{recipeId}")
     public ResponseEntity<String> saveRecipe (@PathVariable String recipeId) {
@@ -82,7 +106,12 @@ public class FoodieController {
     }
 
 
-    /*------------ Remove a recipe from foodie's favourites  -------------*/
+    /**
+     * Remove a recipe from foodie's favourites
+     * @param recipeId
+     * @see FoodieService#removeSavedRecipe(String)
+     * @return ResponseEntity ok message
+     */
 
     @DeleteMapping("/removeFavourite/{recipeId}")
     public ResponseEntity<String> removeSavedRecipe(@PathVariable String recipeId) {
@@ -92,7 +121,13 @@ public class FoodieController {
     }
 
 
-    /*------------ Order favourites recipes by filter -------------*/
+    /**
+     * Order favourites recipes by filter
+     * @param category
+     * @param numPage
+     * @see FoodieService#getRecipeByCategory(String, int)
+     * @return ResponseEntity ok message
+     */
     @GetMapping("/getRecipe/{category}/{numPage}")
     public ResponseEntity<SliceRecipeDTO> getRecipeByCategory (@PathVariable String category,
                                                                             @PathVariable int numPage) {
@@ -100,7 +135,13 @@ public class FoodieController {
         return ResponseEntity.ok(recipeList);
     }
 
-    /* --------- Bayesian Chef Ranking visible to Foodies -------- */
+    /* ---------  -------- */
+
+    /**
+     * Bayesian Chef Ranking visible to Foodies
+     * @see ChefService#getChefRankingForFoodie()
+     * @return ResponseEntity ok message
+     */
 
     @GetMapping("/chefsRanking")
     public ResponseEntity<java.util.List<ChefRankAnalyticsDTO>> getChefRanking() {

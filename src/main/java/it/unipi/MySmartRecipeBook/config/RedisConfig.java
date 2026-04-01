@@ -14,8 +14,17 @@ import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Redis cluster configuration code
+ */
+
 @Configuration
 public class RedisConfig {
+
+    /**
+     *
+     * @return the correct configuration, gets the host and ports and generates the cluster
+     */
 
     @Bean
     public JedisCluster jedisCluster() {

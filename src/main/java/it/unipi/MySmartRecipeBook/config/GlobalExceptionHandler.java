@@ -26,8 +26,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 /* SWAGGER: annotation for documentation, ci va messo mediatype, in che modo è la ripssita 
 * schema: tipo di struttura dati restituita */
 
-/*** MethodArgumentNotValidException: se per esempio ho un not blank e lo lascio vuoto ***
- * così non mi da tutto lo stack trace */
+/**
+ * MethodArgumentNotValidException: se per esempio ho un not blank e lo lascio vuoto ***
+ * così non mi da tutto lo stack trace
+ * */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -50,7 +52,9 @@ public class GlobalExceptionHandler {
     }
 
 
-    /*** ConstraintViolationException: fallimento sui parametri URL, tipo età e io metto sbagliata ***/
+    /**
+     * ConstraintViolationException: fallimento sui parametri URL, tipo età e io metto sbagliata
+     * */
     @ApiResponses({
             @ApiResponse(
                     responseCode = "400",
@@ -68,7 +72,9 @@ public class GlobalExceptionHandler {
         });
         return ResponseEntity.badRequest().body(errors);
     }
-/*** TypeMismatchException: Se non converte parametri, es sbaglio endpoint API  ***/
+/**
+ * TypeMismatchException: Se non converte parametri, es sbaglio endpoint API
+ * */
     @ApiResponses({
             @ApiResponse(
                     responseCode = "400",
@@ -82,7 +88,9 @@ public class GlobalExceptionHandler {
 
     }
 
-    /***Exception: intercetta qualsiasi errore non previsto, mi da errore generico ***/
+    /**
+     * Exception: intercetta qualsiasi errore non previsto, mi da errore generico
+     * */
     @ApiResponses({
             @ApiResponse(
                     responseCode = "500",
@@ -95,7 +103,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.internalServerError().body("Internal Server Error occured while using the Application");
     }
 
-    /*** IllegalArgumentException: parametro ok, ma non logicamente accettabile dalla logica***/
+    /**
+     *  IllegalArgumentException: parametro ok, ma non logicamente accettabile dalla logica
+     *  */
     @ApiResponses({
             @ApiResponse(
                     responseCode = "400",
@@ -108,7 +118,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body("Illegal argument");
     }
 
-    /*** NoSuchElementException: quando chiamo qualcosa ceh non esiste***/
+    /**
+     *  NoSuchElementException: quando chiamo qualcosa ceh non esiste
+     *  */
     @ApiResponses({
             @ApiResponse(
                     responseCode = "404",
@@ -121,7 +133,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("resource not found");
     }
 
-/***AccessDeniedException: generata da sping security, quando vuole fa op per cu non ha p4rmesso ***/
+/**
+ * AccessDeniedException: generata da sping security, quando vuole fa op per cu non ha p4rmesso
+ * */
     @ApiResponses({
             @ApiResponse(
                     responseCode = "403",
@@ -136,7 +150,9 @@ public class GlobalExceptionHandler {
     }
 
 
-/*** HttpMessageNotReadableException: quando manda JSON fatto male ***/
+/**
+ *  HttpMessageNotReadableException: quando manda JSON fatto male
+ *  */
 @ApiResponses({
             @ApiResponse(
                     responseCode = "400",

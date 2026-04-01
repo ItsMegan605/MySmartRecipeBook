@@ -7,6 +7,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * Admin controller
+ */
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
@@ -16,15 +19,28 @@ public class AdminController {
         this.adminService = adminService;
     }
 
-    /*------------------- Approve a pending recipe  --------------------*/
 
+
+    /**
+     * Post Method to approve a pending recipe
+     * @param recipeId
+     * @see AdminService#saveRecipe(String)
+     * @return ResponseEntity with apporval message
+     */
     @PostMapping("/approve/{id}")
     public ResponseEntity<String> approveRecipe(@PathVariable("id") String recipeId) {
         adminService.saveRecipe(recipeId);
         return ResponseEntity.ok("Recipe approved");
     }
 
-    /*------------------- Discard a pending recipe  --------------------*/
+
+    /**
+    /**
+     * Delete Method to discard a pending recipe
+     * @param recipeId
+     * @see AdminService#discardRecipe(String)
+     * @return ResponseEntity with  message
+     */
 
     @DeleteMapping("/discard/{id}")
     public ResponseEntity<String> discardRecipe(@PathVariable("id") String recipeId) {
@@ -32,17 +48,36 @@ public class AdminController {
         return ResponseEntity.ok("Recipe succesfully discarded");
     }
 
+    /**
+     * Post method to approve a chef
+     * @param chefUsername
+     * @see AdminService#
+     * @return ResponseEntity with  message
+     */
     @PostMapping("/approveChef/{username}")
     public ResponseEntity<String> approveChef(@PathVariable("username") String chefUsername) {
         adminService.approveChef(chefUsername);
         return ResponseEntity.ok("Chef succesfully added by admin");
     }
 
+    /**
+     * Post method to discard a chef's request to register
+     * @param chefUsername
+     * @see AdminService#declineChef(String)
+     * @return ResponseEntity with  message
+     */
     @PostMapping("/discardChef/{username}")
     public ResponseEntity<String> discardChef(@PathVariable("username") String chefUsername) {
         adminService.declineChef(chefUsername);
         return ResponseEntity.ok("Chef declined by admin");
     }
+
+    /**
+     * Get method to get the number of users that registered in past months
+     * @return
+     * @see AdminService#getMonthlyFoodies()
+     * @return ResponseEntity with ok message
+     */
 
     @GetMapping ("/monthlyFoodies")
     public ResponseEntity<List<YearAnalyticsDTO>> getMonthlyFoodies() {
@@ -50,11 +85,25 @@ public class AdminController {
         return ResponseEntity.ok(stats);
     }
 
+    /**
+     * Method to see the most popular ingredients used by a chef
+     * @see AdminService#getPopularIngredients()
+     * @return ResponseEntity with ok message
+     *
+     */
+
     @GetMapping("/popularIngredients") //TODO forse da togliere
     public ResponseEntity<List<PopularIngredientsDTO>> getPopularIngredients() {
         List<PopularIngredientsDTO> ingredients = adminService.getPopularIngredients();
         return ResponseEntity.ok(ingredients);
     }
+
+    /**
+     * Get method to se the trending of the different categories
+     * @see AdminService#getCategoryTrends()
+     * @return ResponseEntity with ok message
+     *
+     */
 
     @GetMapping("/categoryTrends")
     public ResponseEntity<List<TrendAnalyticsDTO>> getCategoryTrends() {

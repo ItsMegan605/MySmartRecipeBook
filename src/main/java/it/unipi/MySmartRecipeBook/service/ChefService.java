@@ -41,6 +41,12 @@ import java.util.Optional;
 import org.bson.types.ObjectId;
 import org.springframework.util.StringUtils;
 
+
+/**
+ * Service Function for the chef of the application
+ * where the logic of the different operations is handled.
+ * At first the parameters, such as repositories  and utility functions are declared
+ */
 @Service
 public class ChefService {
 
@@ -75,9 +81,14 @@ public class ChefService {
     }
 
 
+    /**
+     *
+     * @param username Gets the chef's username
+     * @return if the chef exists or not to gather his/her information
+     * @throws RuntimeException if the chef doesn't exist
+     */
 
-
-    /*--------------- Retrieve chef's informations ----------------*/
+    /*--------------- Retrieve chef's information ----------------*/
 
     public RegistedUserInfoDTO getByUsername(String username) {
 
@@ -88,12 +99,19 @@ public class ChefService {
     }
 
 
-    /*--------------- Change chef's informations ----------------*/
-    /* This function allows a chef to change its personal information, in particolar one or more among the following
-    fields:
-        - Email
-        - Password
-        - Birthday
+    /*--------------- Change chef's information  ----------------*/
+
+    /**
+     * This function allows a chef to change its personal information, in particolar o
+     * ne or more among the followin fields:
+     *  - Email
+     *  - Password
+     *  - Birthday
+     * @param dto We get the dto for the chef and check the authentication parameters
+     * @return if the chef exists we return the updated chef's information
+     * @throws RuntimeException if the chef doesn't exist
+     */
+    /*
 
      We don't allow a foodie to change his/her username, name and surname for security reasons */
 
@@ -130,6 +148,13 @@ public class ChefService {
 
     /*----------------- Delete chef's profile ----------------*/
 
+    /**
+     *
+     * @param chefId Gets the chef's id in order to delet his/her profile and then the low load manager handles
+     *               the deletion of the chef once the load of the cpu is lower than 30%
+     * @throws RuntimeException if the chef doesn't exist
+     */
+
     @Transactional
     public void deleteChef(String chefId) {
 
@@ -153,12 +178,12 @@ public class ChefService {
     /*------------------- Add new recipe --------------------*/
 
     /**
-     * Funzione invocata dallo chef per scrivere una nuova ricetta: la ricetta è provvisoria e viene aggiunta alla lista
-     * di quelle in attesa di conferma da parte dell'admin
-     * @param recipeDTO DTO che si compone di tutti i cambi (tutti obbligatori) inseriti dallo chef al momento della scrittura
-     *            della ricetta
-     * @return DTO che contiene una preview della ricetta appena inserita per mostrarla allo chef come conferma dell'operazione
-     *            correttamente eseguita
+     * function called by the chef to write a new recipe: the recipe is on a waiting list at the beginning and it will
+     * wait for admin's approval.
+     *
+     * @param recipeDTO DTO with all the obbligatory fields inserted by the chef when he writes the recipe
+     * @throws RuntimeException if the chef is not found, if the admin is not found and if one of the fields is wrong/missing
+     * @return DTO with a recipe preview to show the chef while he wait for the approval
      */
     @Transactional
     public ChefPreviewRecipeDTO createRecipe(CreateRecipeDTO recipeDTO) {
@@ -222,6 +247,13 @@ public class ChefService {
 
 
     /*--------------- Delete a recipe  ----------------*/
+
+    /**
+     * function to delete a recipoe: once deleted it must update the total recipes of a chef and later up0date the user's
+     * SmartFridge
+     * @param recipeId gets the recipe's ID number
+     * @throws RuntimeException if the chef or recipe is not found
+     */
 
     @Transactional
     public void deleteRecipe(String recipeId) {
@@ -290,6 +322,13 @@ public class ChefService {
 
     /*---------- Remove a recipe from the list of recipes waiting to be confirmed ------------*/
 
+    /**
+     *
+     * @param recipeId gets the recipe ID of the recipe that is waiting to be approved
+     * @throws RuntimeException
+     * Updates the reposutory
+     */
+
     @Transactional
     public void removeRecipe(String recipeId) {
 
@@ -330,6 +369,14 @@ public class ChefService {
 
 
     /*------------------- Show recipe --------------------*/
+
+    /**
+     * Function to show the total recipe to a chef
+     * @param pageNumber Number of the page, each page has 5 recipes
+     * @return the recipe's details
+     *
+     */
+
     public SliceRecipeDTO showRecipes (int pageNumber){
 
         UserPrincipal authChef = (UserPrincipal) SecurityContextHolder.getContext()
@@ -402,12 +449,23 @@ public class ChefService {
 
     /* Get top 3 chefs per category */
 
+    /**
+     *
+     * @return the top chef's for each category in the website
+     *
+     */
+
     public List<TopChefDTO> getTopChef() {
         return chefNeo4jRepository.findTop3ChefsByCategory(CATEGORIES);
     }
 
     /* --------- Bayesian Chef Ranking-------- */
+
+    /**
+     * @return the Bayesian Ranking of the chefs
+     */
     public List<ChefRankAnalyticsDTO> getChefRankingForFoodie() {
+
         return chefRepository.ChefBayesianRanking();
     }
 

@@ -21,6 +21,9 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
 
+/**
+ * Chef's controller
+ */
 
 @RestController
 @RequestMapping("/api/chefs")
@@ -34,7 +37,12 @@ public class ChefController {
     }
 
 
-    /*--------------- Retrieve chef's informations ----------------*/
+
+    /**
+     * Method Retrieve chef's information
+     * @see ChefService#getByUsername(String)
+     * @return ResponseEntity ok message
+     */
 
     @GetMapping("/info")
     public ResponseEntity<RegistedUserInfoDTO> getInformations() {
@@ -47,8 +55,13 @@ public class ChefController {
     }
 
 
-    /*--------------- Change chef's information ----------------*/
 
+    /**
+     * Change chef's information
+     * @param updates
+     * @see ChefService#updateChef(UpdateChefDTO)
+     * @return ResponseEntity ok message
+     */
     @PostMapping("/changeInfo")
     public ResponseEntity<RegistedUserInfoDTO> updateInformation (@Valid @RequestBody UpdateChefDTO updates){
 
@@ -59,7 +72,11 @@ public class ChefController {
     }
 
 
-    /*----------------- Delete chef's profile ------------------*/
+    /**
+     * Delete chef's profile
+     * @see ChefService#deleteChef(String)
+     * @return ResponseEntity with message
+     */
 
     @DeleteMapping("/deleteProfile")
     public ResponseEntity<String> deleteProfile() {
@@ -73,7 +90,13 @@ public class ChefController {
     }
 
 
-    /*------------------- Add new recipe --------------------*/
+
+    /**
+     * Method to handle a new recipe
+     * @param dto
+     * @see ChefService#createRecipe(CreateRecipeDTO)
+     * @return ResponseEntity ok message
+     */
 
     @PostMapping("/addNewRecipe")
     public ResponseEntity<ChefPreviewRecipeDTO> saveRecipe (@Valid @RequestBody CreateRecipeDTO dto){
@@ -83,7 +106,13 @@ public class ChefController {
     }
 
 
-    /* ----------- Remove a recipe that is waiting to be confirmed ------------ */
+
+    /**
+     * Remove a recipe that is waiting to be confirmed
+     * @param recipeId
+     * @see ChefService#removeRecipe(String)
+     * @return ResponseEntity ok message
+     */
 
     @DeleteMapping("/removeWaiting/{id}")
     public ResponseEntity<String> removeRecipe (@PathVariable("id") String recipeId){
@@ -93,7 +122,12 @@ public class ChefController {
     }
 
 
-    /*------------------- Delete recipe --------------------*/
+    /**
+     * Method to delete a recipe that already exists
+     * @param recipeId
+     * @see ChefService#deleteRecipe(String)
+     * @return ResponseEntity with message
+     */
 
     @DeleteMapping("/deleteRecipe/{id}")
     public ResponseEntity<String> deleteRecipe (@PathVariable("id") String recipeId){
@@ -103,7 +137,13 @@ public class ChefController {
     }
 
 
-    /*------------------- Show recipe --------------------*/
+
+    /**
+     * Show a recipe to a chef
+     * @param page
+     * @see ChefService#showRecipes(int)
+     * @return ResponseEntity ok message
+     */
 
     @GetMapping("/show/{page}")
     public ResponseEntity<SliceRecipeDTO> showRecipe (@PathVariable("page") int page){
@@ -111,13 +151,25 @@ public class ChefController {
         return ResponseEntity.ok(recipeList);
     }
 
+    /**
+     * Show to the chef his/her popular recipes
+     * @param pageNumber
+     * @see ChefService#showPopularRecipes(int)
+     * @return ResponseEntity ok message
+     */
+
     @GetMapping("/popular/{pageNumber}")
     public ResponseEntity<SliceRecipeDTO> popularRecipe (@PathVariable("pageNumber") int pageNumber){
         SliceRecipeDTO recipeList = chefService.showPopularRecipes(pageNumber);
         return ResponseEntity.ok(recipeList);
     }
 
-    /* Show top 3 chefs per Category */
+    /**
+     * Show top 3 chefs per Category
+     * @see ChefService#getTopChef()
+     * @return ResponseEntity ok message
+     */
+
 
     @GetMapping("/getTopChef")
     public ResponseEntity<List<TopChefDTO>> getTopChef() {

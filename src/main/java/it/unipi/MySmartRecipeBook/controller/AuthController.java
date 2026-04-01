@@ -14,6 +14,9 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDate;
 import java.time.Period;
 
+/**
+ * Authentication controller
+ */
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -24,6 +27,12 @@ public class AuthController {
         this.authService = authService;
     }
 
+    /**
+     * Endpoint for chef registration request
+     * @param dto
+     * @see AuthService#registerChef(RegistedUserDTO)
+     * @return ResponseEntity with message
+     */
     //Register Chef
     @PostMapping("/register/chef")
     public ResponseEntity<String> registerChef (@Valid @RequestBody RegistedUserDTO dto){
@@ -36,6 +45,12 @@ public class AuthController {
         return ResponseEntity.ok("Registration request completed successfully. Waiting for admin approval.");
     }
 
+    /**
+     * Endpoint for the foodie's registration phase
+     * @param dto with user's parameters
+     * @see AuthService#registerFoodie(RegistedUserDTO)
+     * @return ResponseEntity with message
+     */
     //Register Foodie
     @PostMapping("/register/foodie")
     public ResponseEntity<String> registerFoodie (@Valid @RequestBody RegistedUserDTO dto){
@@ -47,6 +62,12 @@ public class AuthController {
         authService.registerFoodie(dto);
         return ResponseEntity.ok("Foodie registered successfully");
     }
+
+    /**
+     * Login endpoint for both chef and foodie
+     * @param request
+     * @return ResponseEntity ok message
+     */
 
     //Login per entrambi
     @PostMapping("/login")
