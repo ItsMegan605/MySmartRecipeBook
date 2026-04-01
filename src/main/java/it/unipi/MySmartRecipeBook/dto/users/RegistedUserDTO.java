@@ -7,7 +7,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-// per la registrazione di uno chef o di un foodie
+
+/**
+ * DTO for users registrsation
+ */
+
 @Getter
 @Setter
 @AllArgsConstructor

@@ -6,6 +6,10 @@ import lombok.*;
 import java.io.Serializable;
 import java.util.List;
 
+/**
+ * DTO for recipe's suggestions
+ */
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -33,6 +37,11 @@ public class RecipeSuggestionDTO implements Serializable {
         }
         return chefName + " " + chefSurname;
     }
+
+    /**
+     * Function for suggestion's chef refresh
+     * @param chef gets the chef parameter
+     */
 
     // Quando Jackson rilegge "chef" da Redis, ripopola chefName e chefSurname
     public void setChef(String chef) {

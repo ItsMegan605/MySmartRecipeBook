@@ -7,6 +7,9 @@ import lombok.Setter;
 
 import java.util.Set;
 
+/**
+ * DTO for ingredients as a list
+ */
 @Setter
 @Getter
 @NoArgsConstructor

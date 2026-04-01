@@ -10,6 +10,10 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
+/**
+ * DTO for user's information
+ */
+
 @Getter
 @Setter
 @NoArgsConstructor

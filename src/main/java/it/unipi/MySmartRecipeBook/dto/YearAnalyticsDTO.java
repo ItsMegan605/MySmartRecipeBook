@@ -6,6 +6,9 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.List;
 
+/**
+ * Analytics for total of registered foodies for each year
+ */
 @Data
 public class YearAnalyticsDTO {
 

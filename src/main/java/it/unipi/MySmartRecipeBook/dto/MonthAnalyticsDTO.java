@@ -6,6 +6,10 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.List;
 
+/**
+ * DTO to get the monthly subscribed foodies
+ */
+
 @Data
 public class MonthAnalyticsDTO {
 

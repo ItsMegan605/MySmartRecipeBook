@@ -4,7 +4,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
-//DTO for recipe's preview, abstract
+
+/**
+ * DTO for the foodie's recipe preview
+ * NOTE: the preview of a recipe has just the id, image,chef's name and his/her id
+ */
 
 @Getter
 @Setter

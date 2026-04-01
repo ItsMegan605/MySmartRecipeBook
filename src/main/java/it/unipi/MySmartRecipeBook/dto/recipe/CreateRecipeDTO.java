@@ -11,6 +11,11 @@ import lombok.Setter;
 
 import java.util.List;
 
+/**
+ * DTO for recipe's creation with mandatory fields
+ *
+ */
+
 @Getter
 @Setter
 @AllArgsConstructor

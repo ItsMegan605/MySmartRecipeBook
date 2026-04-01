@@ -6,6 +6,9 @@ import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefRecipeSummary;
 import it.unipi.MySmartRecipeBook.utils.parameters.Task;
 import lombok.Getter;
 
+/**
+ * Task manager
+ */
 @Getter
 public class TaskToDo {
 
@@ -17,7 +20,11 @@ public class TaskToDo {
     private final ChefRecipeSummary recipeMongo;
 
 
-
+    /**
+     * Task for info to delate
+     * @param type
+     * @param infoToDelete
+     */
     public TaskToDo(Task.TaskType type, InfoToDeleteDTO infoToDelete) {
         this.type = type;
         this.recipeId = null;
@@ -27,6 +34,12 @@ public class TaskToDo {
         this.recipeMongo = null;
     }
 
+    /**
+     *
+     * @param type
+     * @param recipeMongo
+     * @param chefId
+     */
     public TaskToDo(Task.TaskType type, ChefRecipeSummary recipeMongo, String chefId) {
         this.type = type;
         this.recipeId = recipeMongo.getId();
@@ -36,6 +49,12 @@ public class TaskToDo {
         this.recipeMongo = recipeMongo;
     }
 
+    /**
+     *
+     * @param type
+     * @param recipeId
+     * @param chefId
+     */
     public TaskToDo(Task.TaskType type, String recipeId, String chefId) {
         this.type = type;
         this.recipeId = recipeId;
@@ -45,6 +64,11 @@ public class TaskToDo {
         this.recipeMongo = null;
     }
 
+    /**
+     *
+     * @param type
+     * @param recipeId
+     */
     public TaskToDo(Task.TaskType type, String recipeId) {
         this.type = type;
         this.recipeId = recipeId;
@@ -54,6 +78,11 @@ public class TaskToDo {
         this.recipeMongo = null;
     }
 
+    /**
+     *
+     * @param type
+     * @param recipe
+     */
     public TaskToDo(Task.TaskType type, GraphRecipeDTO recipe) {
         this.type = type;
         this.recipeId = null;

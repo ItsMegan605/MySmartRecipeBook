@@ -11,6 +11,10 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
+/**
+ * DTO to update the foodie's personal information
+ *
+ */
 @Getter
 @Setter
 @NoArgsConstructor

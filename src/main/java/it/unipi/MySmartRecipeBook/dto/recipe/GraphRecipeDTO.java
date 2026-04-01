@@ -9,6 +9,11 @@ import lombok.Setter;
 
 import java.util.List;
 
+/**
+ * Recipe's preview for NEO4j
+ * it includes the category for queries requirements
+ */
+
 @Getter
 @Setter
 @AllArgsConstructor

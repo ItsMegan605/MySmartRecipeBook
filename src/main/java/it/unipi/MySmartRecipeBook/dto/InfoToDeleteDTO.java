@@ -4,6 +4,9 @@ import lombok.Value;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * DTO for information to delete such as recipes
+ */
 @Value
 public class InfoToDeleteDTO {
 

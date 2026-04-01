@@ -3,6 +3,9 @@ package it.unipi.MySmartRecipeBook.dto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/**
+ * DTO for the security functions
+ */
 @Getter
 @AllArgsConstructor
 

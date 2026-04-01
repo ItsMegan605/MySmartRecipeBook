@@ -7,12 +7,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-//recipe's preview for foodies
+/**
+ * Recipe's preview for foodies
+ */
+
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+
 
 public class UserPreviewRecipeDTO {
 

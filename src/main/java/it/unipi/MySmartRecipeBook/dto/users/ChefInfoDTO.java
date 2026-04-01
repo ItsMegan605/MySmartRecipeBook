@@ -5,10 +5,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+
+/**
+ * Chef indormation DTO
+ */
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
+
+
 public class ChefInfoDTO {
     String id;
     String name;

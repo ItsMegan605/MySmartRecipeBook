@@ -8,12 +8,16 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
-//chef's recipe's preview
+
+/**
+ * Chef's recipe preview
+ */
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+
 
 public class ChefPreviewRecipeDTO{
 

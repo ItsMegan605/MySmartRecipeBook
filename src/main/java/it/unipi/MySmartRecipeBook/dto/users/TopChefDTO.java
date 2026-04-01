@@ -5,6 +5,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ *  DTO to get the top chef in a certain category
+ */
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter

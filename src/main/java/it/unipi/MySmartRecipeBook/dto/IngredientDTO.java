@@ -5,6 +5,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * DTO for ingredient's format
+ */
+
 @Getter
 @Setter
 @AllArgsConstructor

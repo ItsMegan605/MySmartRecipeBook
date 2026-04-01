@@ -7,6 +7,10 @@ import lombok.Setter;
 
 import java.util.List;
 
+/**
+ * Full recipe DTO for mongoDB
+ */
+
 @Getter
 @Setter
 public class RecipeDTO {

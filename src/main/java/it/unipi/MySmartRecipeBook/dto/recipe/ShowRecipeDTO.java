@@ -8,6 +8,10 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
+/**
+ * DTO to filter the recipes
+ */
+
 @Getter
 @Setter
 @NoArgsConstructor

@@ -1,5 +1,9 @@
 package it.unipi.MySmartRecipeBook.dto;
 
+/**
+ * DTO to get the most popular ingredients used
+ */
+
 public class PopularIngredientsDTO {
 
     public String chefName;
