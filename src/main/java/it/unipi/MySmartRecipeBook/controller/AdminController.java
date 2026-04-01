@@ -51,7 +51,7 @@ public class AdminController {
     /**
      * Post method to approve a chef
      * @param chefUsername
-     * @see AdminService#
+     * @see AdminService#approveChef(String) 
      * @return ResponseEntity with  message
      */
     @PostMapping("/approveChef/{username}")
