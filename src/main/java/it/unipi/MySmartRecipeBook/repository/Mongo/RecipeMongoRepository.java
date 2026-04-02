@@ -21,6 +21,7 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
 
     Slice<RecipeMongo>findByCategory(String category, Pageable pageable);
 
+    List<RecipeMongo> findByChef_IdOrderByCreationDateDesc(String chefId);
     Slice<RecipeMongo>findByChef_Id(String chefId, Pageable pageable);
 
     List<RecipeMongo> findByIdIn(List<String> ids);

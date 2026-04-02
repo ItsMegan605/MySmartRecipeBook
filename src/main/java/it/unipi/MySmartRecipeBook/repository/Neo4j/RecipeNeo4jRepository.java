@@ -6,10 +6,12 @@ import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long> {
 //match dello smart fridge
+
     @Query("MATCH (i:Ingredient)-[:USED_IN]->(r:Recipe) " +
             "WHERE i.name IN $myIngredients " +
             "WITH r, count(i) AS matchCount, collect(i.name) AS matchedIngredients " +
@@ -55,6 +57,20 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
             "SET c.name = $chefName, c.surname = $chefSurname")
     void insertChef(String chefId, String chefName, String chefSurname);
 
+    // Query per Chef - Ricetta
+    @Query("UNWIND $relations AS rel " +
+            "MATCH (r:Recipe {mongo_id: rel.recipeId}) " +
+            "MATCH (c:Chef {mongo_id: rel.chefId}) " +
+            "MERGE (r)-[:WRITTEN_BY]->(c)")
+    void createChefRecipeRelations(List<Map<String, String>> relations);
+
+    // Query per Ingrediente - Ricetta
+    @Query("UNWIND $relations AS rel " +
+            "MATCH (r:Recipe {mongo_id: rel.recipeId}) " +
+            "MATCH (i:Ingredient {name: rel.ingredientName}) " +
+            "MERGE (i)-[:USED_IN]->(r)")
+    void createIngredientRecipeRelations(List<Map<String, String>> relations);
+
 /*
     //query per richiedere 5 ingredienti meno popolari si piò aggiungere anche i 5 più popolari in caso
     @Query("MATCH (i:Ingredient)-[:USED_IN]->(r:Recipe) " +
@@ -63,6 +79,8 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
             "ORDER BY usageCount ASC " +
             "LIMIT 5")
     List<UsedIngredientsDTO> getCommonIngredients(List<String> commonIngredients);
+
+
 */
 
 }

@@ -6,6 +6,9 @@ import it.unipi.MySmartRecipeBook.model.Mongo.ingredients.RecipeIngredient;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefRecipeSummary;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.PendingRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
+import it.unipi.MySmartRecipeBook.model.Neo4j.ChefNeo4j;
+import it.unipi.MySmartRecipeBook.model.Neo4j.IngredientNeo4j;
+import it.unipi.MySmartRecipeBook.model.Neo4j.RecipeNeo4j;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -109,4 +112,29 @@ public class RecipeUtilityFunctions {
         return recipeNeo4j;
     }
 
+    public RecipeNeo4j MongoToNeo4j(RecipeMongo recipe){
+
+        RecipeNeo4j recipeNeo4j = new RecipeNeo4j();
+        recipeNeo4j.setMongoId(recipe.getId());
+        recipeNeo4j.setTitle(recipe.getTitle());
+
+        List<IngredientNeo4j> ingredients = new ArrayList<>();
+        for(RecipeIngredient ingredient : recipe.getIngredients()){
+            IngredientNeo4j ingredientDTO = new IngredientNeo4j();
+            ingredientDTO.setName(ingredient.getName());
+            ingredients.add(ingredientDTO);
+        }
+        recipeNeo4j.setIngredients(ingredients);
+
+        ChefNeo4j chef = new ChefNeo4j();
+        chef.setMongoId(recipe.getChef().getId());
+        chef.setName(recipe.getChef().getName());
+        chef.setSurname(recipe.getChef().getSurname());
+        recipeNeo4j.setChef(chef);
+
+        recipeNeo4j.setImageURL(recipe.getImageURL());
+        recipeNeo4j.setCategory(recipe.getCategory());
+
+        return recipeNeo4j;
+    }
 }

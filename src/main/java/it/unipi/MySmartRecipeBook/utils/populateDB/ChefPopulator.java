@@ -10,13 +10,10 @@ import it.unipi.MySmartRecipeBook.utils.convertionFunctions.ChefUtilityFunctions
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Order(3)
@@ -48,44 +45,53 @@ public class ChefPopulator implements CommandLineRunner {
         List<Chef> chefs = chefRepository.findAll();
 
         for (Chef chef : chefs) {
-            if (chef.getUsername().equals("admin")) continue;
-
-            // Query 1 - totalRecipes
-            int totalRecipes = recipeRepository.countByChef(chef.getId());
-
-            // Query 2 - totalSaves
-            Integer totalSaves = recipeRepository.getTotalSaves(chef.getId());
-            //if (totalSaves == null) totalSaves = 0;
-
-            // Query 3 - newRecipes: le prime pageSizeChef*3 per data decrescente
-            Pageable newPageable = PageRequest.of(0, pageSizeChef * 3,
-                    Sort.by("creation_date").descending());
-            Slice<RecipeMongo> newSlice = recipeRepository.findByChef_Id(chef.getId(), newPageable);
-            List<ChefRecipeSummary> newRecipes = chefUtils.MongoListToChefListSummary(newSlice.getContent());
-
-            // Query 4 - popularRecipes: top popularSize per num_saves, filtrate in memoria >= 40
-            Pageable popularPageable = PageRequest.of(0, Integer.MAX_VALUE,
-                    Sort.by("num_saves").descending());
-            Slice<RecipeMongo> popularSlice = recipeRepository.findByChef_Id(chef.getId(), popularPageable);
-            List<ChefRecipeSummary> popularRecipes = chefUtils.MongoListToChefListSummary(
-                    popularSlice.getContent().stream()
-                            .filter(r -> r.getNumSaves() != null && r.getNumSaves() >= 40)
-                            .toList()
-            );
-
-            // Query 5 - oldRecipes: dalla pageSizeChef*3+1 in poi, solo id + num_saves
-            List<OldRecipe> oldRecipes = new ArrayList<>();
-            if (totalRecipes > pageSizeChef * 3) {
-                Pageable oldPageable = PageRequest.of(1, pageSizeChef * 3,
-                        Sort.by("creation_date").descending());
-                Slice<RecipeMongo> oldSlice = recipeRepository.findByChef_Id(chef.getId(), oldPageable);
-                oldRecipes = oldSlice.getContent().stream()
-                        .map(r -> new OldRecipe(r.getId(), r.getNumSaves()))
-                        .toList();
+            if (chef.getUsername().equals("admin")){
+                continue;
             }
 
-            chefRepository.addChefNewSaved(chef.getId(), totalRecipes, totalSaves,
-                    newRecipes, oldRecipes, popularRecipes);
+            List<RecipeMongo> chefRecipes =  recipeRepository.findByChef_IdOrderByCreationDateDesc(chef.getId());
+
+            int limitNew = Math.min(chefRecipes.size(), pageSizeChef * 3);
+            List<ChefRecipeSummary> newRecipes = chefUtils.MongoListToChefListSummary(
+                    chefRecipes.subList(0, limitNew)
+            );
+
+            chef.setNewRecipes(newRecipes);
+
+            int totalSaves = 0;
+            for(ChefRecipeSummary recipe: newRecipes){
+                if(recipe.getNumSaves() != null){
+                    totalSaves += recipe.getNumSaves();
+                }
+            }
+
+            List<OldRecipe> oldRecipes = new ArrayList<>();
+            List<RecipeMongo> oldRecipesMongo = chefRecipes.subList(limitNew, chefRecipes.size());
+            for(RecipeMongo recipeMongo : oldRecipesMongo){
+               OldRecipe oldRecipe = new OldRecipe(recipeMongo.getId(), recipeMongo.getNumSaves());
+               oldRecipes.add(oldRecipe);
+               if(oldRecipe.getNumSaves() != null){
+                    totalSaves += oldRecipe.getNumSaves();
+               }
+            }
+
+            chef.setOldRecipes(oldRecipes);
+            chef.setTotalSaves(totalSaves);
+
+            List<ChefRecipeSummary> popularRecipes = new ArrayList<>();
+            for(RecipeMongo recipe: chefRecipes){
+                if(recipe.getNumSaves() != null && recipe.getNumSaves() > 40){
+                    popularRecipes.add(chefUtils.recipeToChefRecipe(recipe));
+                }
+            }
+
+            popularRecipes.sort(Comparator.comparing(ChefRecipeSummary::getNumSaves).reversed());
+            chef.setPopularRecipes(popularRecipes);
+
+
+            int totalRecipes = chefRecipes.size();
+            chef.setTotalRecipes(totalRecipes);
+            chefRepository.save(chef);
 
             System.out.println("Finished Chef " + chef.getUsername() + " population");
         }
