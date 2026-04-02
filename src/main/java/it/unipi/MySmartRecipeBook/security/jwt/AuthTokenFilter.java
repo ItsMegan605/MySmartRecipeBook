@@ -15,21 +15,32 @@ import it.unipi.MySmartRecipeBook.security.jwt.JwtUtils;
 
 import java.io.IOException;
 import java.util.List;
-/* Questo filtro viene eseguito per ogni richiesta HTTP dell'applicazione.
- * Il suo compito è:
- * 1. leggere il token JWT dall'header Authorization
- * 2. verificarne la validità
- * 3. estrarre le informazioni dell'utente
- * 4. impostare l'utente autenticato nel SecurityContext di Spring
- *
- * Estende OncePerRequestFilter per garantire che il filtro venga
- * eseguito una sola volta per ogni richiesta.
+
+/**
+ * Questo filtro viene eseguito per ogni richiesta HTTP dell'applicazione.
+ *  * Il suo compito è:
+ *  * 1. leggere il token JWT dall'header Authorization
+ *  * 2. verificarne la validità
+ *  * 3. estrarre le informazioni dell'utente
+ *  * 4. impostare l'utente autenticato nel SecurityContext di Spring
+ *  *
+ *  * Estende OncePerRequestFilter per garantire che il filtro venga
+ *  * eseguito una sola volta per ogni richiesta.
  */
 public class AuthTokenFilter extends OncePerRequestFilter {
 
     @Autowired
     private JwtUtils jwtUtils;
 
+    /**
+     *
+     * @param request parametro che prende la richiesta
+     * @param response
+     * @param filterChain
+     * @throws ServletException
+     * @throws IOException
+     * @see JwtUtils#
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
