@@ -12,6 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @NoArgsConstructor
 public class TrendAnalyticsDTO {
 
+    @Field("_id")
     private String category;
 
     private Integer recentCount;
