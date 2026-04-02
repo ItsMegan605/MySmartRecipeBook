@@ -22,7 +22,7 @@ import java.util.List;
 @AllArgsConstructor
 @Document(collection = "chefs")
 
-public class Chef extends RegisteredUser {
+public class  Chef extends RegisteredUser {
 
     @Field("reg_date")
     @Past

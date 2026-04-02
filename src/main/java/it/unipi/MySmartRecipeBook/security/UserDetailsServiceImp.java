@@ -8,33 +8,50 @@ import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
 
-/* implementa l'interfaccia UserDetailsService di Spring Security, ha il compito è recuperare dal database le
-info dell'utente quando viene effettuato un login
+/**
+ * Implementation of Spring Security's UserDetailsService.
+ *
+ * This service is responsible for retrieving user information
+ * from the database during the authentication process.
  */
 @Service
 public class UserDetailsServiceImp implements UserDetailsService {
 
-    //Repository utilizzato per accedere alla collezione degli chef e dei foodie
+    //repository used to access Chef and Foodie collections
     private final ChefRepository chefRepository;
     private final FoodieRepository foodieRepository;
 
-    //costruttore
+    /**
+     * Constructor for dependency injection.
+     *
+     * @param chefRepository repository for Chef entities
+     * @param foodieRepository repository for Foodie entities
+     */
     public UserDetailsServiceImp(ChefRepository chefRepository,
                                  FoodieRepository foodieRepository) {
         this.chefRepository = chefRepository;
         this.foodieRepository = foodieRepository;
     }
 
-    /* chiamato automaticamente al login, Spring Security utilizza il metodo loadUserByUsername per:
- * - cercare l'utente nel database
- * - costruire un oggetto UserDetails (nel nostro caso UserPrincipal)
- * - verificare successivamente la password
+    /**
+     * Loads a user by username.
+     *
+     * This method is automatically called during login.
+     * Spring Security uses it to:
+     * - retrieve the user from the database
+     * - build a UserDetails object (UserPrincipal)
+     * - validate the password afterward
+     *
+     * @param username the username provided during login
+     * @return a UserDetails object representing the user
+     * @throws UsernameNotFoundException if the user is not found
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        /* L'admin non è gestito come una normale entità con ruolo nel database,
-         * quindi viene riconosciuto direttamente tramite username.
+        /*
+         * The admin user is not managed as a standard role in the database,
+         * so it is identified directly by its username.
          */
         if(username.equals("admin")) {
             Chef admin = chefRepository.findByUsername("admin")
@@ -42,19 +59,19 @@ public class UserDetailsServiceImp implements UserDetailsService {
             return UserPrincipal.buildAdmin(admin);
         }
 
-        //controllo se lo username appartiene a uno chef
+        //check if the username belongs to a Chef
         Optional<Chef> chefOpt = chefRepository.findByUsername(username);
         if (chefOpt.isPresent()) {
             return UserPrincipal.buildChef(chefOpt.get());
         }
 
-        //controllo se lo username appartiene a uno foodie
+        //check if the username belongs to a Foodie
         Optional<Foodie> foodieOpt = foodieRepository.findByUsername(username);
         if (foodieOpt.isPresent()) {
             return UserPrincipal.buildFoodie(foodieOpt.get());
         }
 
-        //eccezione se username non viene trovato nel DB
+        //throw exception if user is not found in the database
         throw new UsernameNotFoundException("User not found");
     }
 }

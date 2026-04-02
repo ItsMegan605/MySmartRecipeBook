@@ -17,15 +17,16 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Questo filtro viene eseguito per ogni richiesta HTTP dell'applicazione.
- *  * Il suo compito è:
- *  * 1. leggere il token JWT dall'header Authorization
- *  * 2. verificarne la validità
- *  * 3. estrarre le informazioni dell'utente
- *  * 4. impostare l'utente autenticato nel SecurityContext di Spring
- *  *
- *  * Estende OncePerRequestFilter per garantire che il filtro venga
- *  * eseguito una sola volta per ogni richiesta.
+ * This filter is executed for every HTTP request in the application.
+ *
+ * Its responsibilities are:
+ * 1. Extract the JWT token from the Authorization header
+ * 2. Validate the token
+ * 3. Extract user information from the token
+ * 4. Set the authenticated user into Spring Security's SecurityContext
+ *
+ * It extends OncePerRequestFilter to guarantee that the filter
+ * is executed only once per request.
  */
 public class AuthTokenFilter extends OncePerRequestFilter {
 
@@ -33,13 +34,13 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     private JwtUtils jwtUtils;
 
     /**
+     * Core filtering logic executed for each request.
      *
-     * @param request parametro che prende la richiesta
-     * @param response
-     * @param filterChain
-     * @throws ServletException
-     * @throws IOException
-     * @see JwtUtils#
+     * @param request the incoming HTTP request
+     * @param response the outgoing HTTP response
+     * @param filterChain the chain of filters to continue execution
+     * @throws ServletException if a servlet error occurs
+     * @throws IOException if an input/output error occurs
      */
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -47,59 +48,60 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        // recupero l'header Authorization dalla richiesta HTTP
+        //retrieve the Authorization header from the HTTP request
         String headerAuth = request.getHeader("Authorization");
 
-        // Controllo se l'header esiste e se contiene un token Bearer,
-        //Il formato standard del JWT nell'header è:  Authorization: Bearer <token>
+        //check if the header exists and contains a Bearer token
+        //standard format: Authorization: Bearer <token>
         if (headerAuth != null && headerAuth.startsWith("Bearer ")) {
 
-            // estraggo il token rimuovendo la parte "Bearer "
+            //extract the token by removing "Bearer "
             String jwt = headerAuth.substring(7);
 
-            // verifico se il token è valido
+            //validate the token
             if (jwtUtils.validateJwtToken(jwt)) {
 
-                // estraggo le informazioni salvate nel token
+                //extract user information from the token
                 String id = jwtUtils.getIdFromJwtToken(jwt);
                 String username = jwtUtils.getUsernameFromJwtToken(jwt);
                 List<String> roles = jwtUtils.getRolesFromJwtToken(jwt);
 
-                // convertiamo i ruoli in GrantedAuthority
+                //convert roles into GrantedAuthority objects
                 var authorities = roles.stream()
                         .map(SimpleGrantedAuthority::new)
                         .toList();
 
-                // Creo un UserPrincipal SENZA query al DB (ho gia tutte le info dentro JWT)
+                //create a UserPrincipal WITHOUT querying the database
+                //(all necessary information is already inside the JWT)
                 UserPrincipal userPrincipal = new UserPrincipal(
                         id,
                         username,
                         null,
                         authorities
                 );
-                // Creo un oggetto Authentication che rappresenta l'utente autenticato nel sistema Spring Security
+
+                //create an Authentication object representing the authenticated user
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
                                 userPrincipal,
                                 null,
                                 authorities
                         );
-                // aggiungo i dettagli della richiesta HTTP
+
+                // attach request details (e.g., IP, session info)
                 authentication.setDetails(
                         new WebAuthenticationDetailsSource()
                                 .buildDetails(request));
 
-                /*
-                 * Salviamo l'autenticazione nel SecurityContext.
-                 * Da questo momento in poi Spring Security considera
-                 * la richiesta come autenticata.
-                 */
+                //store the authentication inside the SecurityContext.From this point on, Spring Security considers
+                // the request as authenticated
+
                 SecurityContextHolder.getContext()
                         .setAuthentication(authentication);
             }
         }
 
-        // continuo la catena dei filtri per far continuare la richiesta
+        //continue the filter chain
         filterChain.doFilter(request, response);
     }
 }

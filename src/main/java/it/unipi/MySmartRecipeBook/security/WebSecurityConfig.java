@@ -16,23 +16,54 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * Main Spring Security configuration class.
+ *
+ * It defines:
+ * - authentication mechanisms
+ * - authorization rules
+ * - JWT filter integration
+ * - password encoding strategy
+ *
+ * Uses stateless authentication based on JWT.
+ */
 @Configuration
 @EnableMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig {
 
     private final UserDetailsService userDetailsService;
 
+    /**
+     * Constructor for dependency injection.
+     *
+     * @param userDetailsService service used to load user details from DB
+     */
     public WebSecurityConfig(UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 
-    //Bean che crea il filtro JWT, filtro intercetta ogni richiesta HTTP e verifica la validità del token
+    /**
+     * Creates the JWT authentication filter.
+     *
+     * This filter intercepts every HTTP request
+     * and validates the JWT token.
+     *
+     * @return AuthTokenFilter instance
+     */
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() {
         return new AuthTokenFilter();
     }
 
-    //utilizza UserDetailsService per recuperare l'utente e PasswordEncoder per verificare la password
+    /**
+     * Configures the authentication provider.
+     *
+     * Uses:
+     * - UserDetailsService to load user data
+     * - PasswordEncoder to verify passwords
+     *
+     * @return DaoAuthenticationProvider instance
+     */
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -40,72 +71,94 @@ public class WebSecurityConfig {
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
     }
-    //configurazione regole di sicurezza e di permessi
+
+    /**
+     * Configures security rules and filter chain.
+     *
+     * @param http HttpSecurity object used to configure security
+     * @return configured SecurityFilterChain
+     * @throws Exception if configuration fails
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        http    //disabilito CSRF perché l'applicazione utilizza JWT (stateless)
+        http
+                //disable CSRF since the application uses JWT (stateless)
                 .csrf(csrf -> csrf.disable())
 
-                //nessuna sessione lato server: l'autenticazione è gestita tramite token
+                //no server-side session: authentication is token-based
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                // definizione delle autorizzazioni sugli endpoint
+                //define endpoint authorization rules
                 .authorizeHttpRequests(auth -> auth
 
-                        // PUBBLICO
+                        // PUBLIC endpoints
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/recipes/**").permitAll()
                         .requestMatchers("/error").permitAll()
 
-                        // CHEF - gestione ricette
+                        // CHEF - recipe management
                         .requestMatchers(HttpMethod.POST, "/api/recipes/**").hasRole("CHEF")
                         .requestMatchers(HttpMethod.PUT, "/api/recipes/**").hasRole("CHEF")
                         .requestMatchers(HttpMethod.DELETE, "/api/recipes/**").hasRole("CHEF")
 
-                        //CHEF - gestione proprio profilo
+                        // CHEF - profile management
                         .requestMatchers("/api/chefs/**").hasRole("CHEF")
 
-                        //FOODIE - gestione profilo
+                        // FOODIE - profile management
                         .requestMatchers("/api/foodies/**").hasRole("FOODIE")
 
-                        // FOODIE - salvataggio ricette
+                        // FOODIE - saved recipes
                         .requestMatchers("/api/savedrecipes/**").hasRole("FOODIE")
 
-                        //FOODIE - SmartFridge
+                        // FOODIE - SmartFridge
                         .requestMatchers("/api/fridge/**").hasRole("FOODIE")
 
-                        //FOODIE - SmartShoppingList
+                        // FOODIE - SmartShoppingList
                         .requestMatchers("/api/shopping/**").hasRole("FOODIE")
 
-                        //aggiungere endpoint amministratore
+                        // ADMIN endpoints
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
-                        // tutto il resto autenticato
+                        // All other requests require authentication
                         .anyRequest().authenticated()
                 )
-                //registrazione del provider di autenticazione
+
+                //register authentication provider
                 .authenticationProvider(authenticationProvider());
 
-         /* Inserimento del filtro JWT nella catena dei filtri di Spring Security.
-         * Il filtro viene eseguito prima del filtro standard di autenticazione
-         * UsernamePasswordAuthenticationFilter. */
+        /*
+         * Add the JWT filter to the Spring Security filter chain.
+         * It is executed before the default UsernamePasswordAuthenticationFilter.
+         */
         http.addFilterBefore(authenticationJwtTokenFilter(),
                 UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-     /* Password encoder utilizzato per cifrare le password nel database.
-     * BCrypt è uno degli algoritmi più sicuri per l'hashing delle password.
+
+    /**
+     * Password encoder used to hash passwords.
+     *
+     * BCrypt is a secure hashing algorithm widely used for password storage.
+     *
+     * @return PasswordEncoder instance
      */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-     /* Bean che espone l'AuthenticationManager, utilizzato nel processo di login
-     per autenticare l'utente */
+    /**
+     * Exposes the AuthenticationManager bean.
+     *
+     * Used during login to authenticate users.
+     *
+     * @param authConfig authentication configuration
+     * @return AuthenticationManager instance
+     * @throws Exception if retrieval fails
+     */
     @Bean
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration authConfig) throws Exception {

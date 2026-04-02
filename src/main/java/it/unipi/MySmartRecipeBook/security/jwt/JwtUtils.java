@@ -10,48 +10,55 @@ import java.util.Date;
 import java.util.stream.Collectors;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 
-/*classe che gestisce tutte le operazioni relative ai JWT.
-  In particolare:
-    - genera un token quando un utente effettua il login
-    - estrae le informazioni dal token
-    - verifica la validità del token
+/**
+ * Utility class that handles all JWT-related operations.
+ *
+ * Main responsibilities:
+ * - Generate a JWT token after user authentication (login)
+ * - Extract information from the token (id, username, roles)
+ * - Validate the token (signature, expiration, format)
  */
-
 @Component
 public class JwtUtils {
 
-    // chiave segreta utilizzata per firmare il token
-    // viene letta dal file application.properties
+    //secret key used to sign the JWT (loaded from application.properties)
     @Value("${app.jwt.secret}")
     private String jwtSecret;
 
-    // durata del token (in millisecondi)
-    // anche questo valore è definito nel file application.properties
+    //token expiration time in milliseconds (loaded from application.properties)
     @Value("${app.jwt.expiration-ms}")
     private int jwtExpirationMs;
 
-    // metodo che genera la chiave crittografica utilizzata
-    // per firmare e verificare il token JWT.
+    /**
+     * Generates the cryptographic key used to sign and validate the JWT.
+     *
+     * @return the signing key
+     */
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
-    //metodo per generare il token
+    /**
+     * Generates a JWT token from the authenticated user.
+     *
+     * @param authentication the authenticated user object provided by Spring Security
+     * @return the generated JWT token
+     */
     public String generateJwtToken(Authentication authentication) {
 
-        // recupero l'utente autenticato
+        //retrieve the authenticated user
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
 
         String id = userPrincipal.getId();
         String username = authentication.getName();
 
-        // estraggo i ruoli dell'utente
+        //extract user roles
         var roles = authentication.getAuthorities()
                 .stream()
                 .map(auth -> auth.getAuthority())
                 .collect(Collectors.toList());
 
-        //costruzione del token
+        //build the JWT token
         return Jwts.builder()
                 .setSubject(id)
                 .claim("username", username)
@@ -62,6 +69,12 @@ public class JwtUtils {
                 .compact();
     }
 
+    /**
+     * Extracts the user ID (subject) from the JWT.
+     *
+     * @param token the JWT token
+     * @return the user ID
+     */
     public String getIdFromJwtToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
@@ -71,6 +84,12 @@ public class JwtUtils {
                 .getSubject();
     }
 
+    /**
+     * Extracts the username from the JWT.
+     *
+     * @param token the JWT token
+     * @return the username
+     */
     public String getUsernameFromJwtToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
@@ -80,7 +99,12 @@ public class JwtUtils {
                 .get("username", String.class);
     }
 
-
+    /**
+     * Extracts user roles from the JWT.
+     *
+     * @param token the JWT token
+     * @return the list of roles
+     */
     public java.util.List<String> getRolesFromJwtToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
@@ -90,14 +114,16 @@ public class JwtUtils {
                 .get("roles", java.util.List.class);
     }
 
-    /* Verifica la validità del token JWT.
-     * Il metodo controlla:
-     * - che la firma del token sia valida
-     * - che il token non sia scaduto
-     * - che il formato del token sia corretto
+    /**
+     * Validates the JWT token.
      *
-     * Se il token è valido restituisce true,
-     * altrimenti restituisce false.
+     * It checks:
+     * - token signature validity
+     * - token expiration
+     * - correct token format
+     *
+     * @param authToken the JWT token
+     * @return true if valid, false otherwise
      */
     public boolean validateJwtToken(String authToken) {
         try {
@@ -112,19 +138,20 @@ public class JwtUtils {
     }
 }
 
-/* flusso di autenticazione
+/*
+Authentication flow:
+
 Login
    ↓
 AuthenticationManager
    ↓
 JwtUtils.generateJwtToken()
    ↓
-JWT inviato al client
+JWT returned to client
    ↓
-Client lo manda in ogni richiesta (Authorization: Bearer ...)
+Client sends JWT in each request (Authorization: Bearer ...)
    ↓
-AuthTokenFilter verifica il token
+AuthTokenFilter validates the token
    ↓
-utente autenticato
-
- */
+User is authenticated
+*/

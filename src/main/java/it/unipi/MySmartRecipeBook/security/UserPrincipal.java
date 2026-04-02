@@ -9,22 +9,38 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
-//rappresentazione dell'utente autenticato all'interno di Spring Security,
-//implementa interfacia UserDetails trasfroma i dati in formato per SpringSecurity
 
-
-//ogni volta che l'utente effettua il login, spring secuirty crea un oggetto UserPrincipal.
-//con le info dell'utente e il suo ruolo
+/**
+ * Represents the authenticated user inside Spring Security.
+ *
+ * This class implements UserDetails and adapts application-specific
+ * user data (Chef, Foodie, Admin) into a format usable by Spring Security.
+ *
+ * Each time a user logs in, Spring Security creates a UserPrincipal
+ * instance containing user information and roles.
+ */
 public class UserPrincipal implements UserDetails {
 
-    //password dell'utente (utilizzata per verificare le credenziali durante il login)
+    //user password (used during authentication)
     private String password;
-    // identificativo univoco dell'utente nel database
-    private String id;
-    private String username;
-    private Collection<? extends GrantedAuthority> authorities; //lista di ruoli per decidere chi può fare cosa
 
-    //costruttore
+    //unique identifier of the user in the database
+    private String id;
+
+    //username used for login
+    private String username;
+
+    //list of authorities (roles) assigned to the user
+    private Collection<? extends GrantedAuthority> authorities;
+
+    /**
+     * Constructor.
+     *
+     * @param id user unique identifier
+     * @param username login username
+     * @param password user password
+     * @param authorities user roles/permissions
+     */
     public UserPrincipal(String id, String username, String password,
                          Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
@@ -33,90 +49,139 @@ public class UserPrincipal implements UserDetails {
         this.authorities = authorities;
     }
 
-    //Chef
-    /* Metodo factory per creare un UserPrincipal a partire da un oggetto Chef,
-     * Viene assegnato automaticamente il ruolo ROLE_CHEF
+    /**
+     * Factory method to build a UserPrincipal from a Chef.
+     *
+     * Automatically assigns ROLE_CHEF.
+     *
+     * @param chef the Chef entity
+     * @return a UserPrincipal instance
      */
     public static UserPrincipal buildChef(Chef chef) {
         return new UserPrincipal(
                 chef.getId(),
                 chef.getUsername(),
                 chef.getPassword(),
-                Collections.singletonList (new SimpleGrantedAuthority("ROLE_CHEF"))
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_CHEF"))
         );
     }
 
-    //Foodie - same thing
+    /**
+     * Factory method to build a UserPrincipal from a Foodie.
+     *
+     * Automatically assigns ROLE_FOODIE.
+     *
+     * @param foodie the Foodie entity
+     * @return a UserPrincipal instance
+     */
     public static UserPrincipal buildFoodie(Foodie foodie) {
         return new UserPrincipal(
                 foodie.getId(),
                 foodie.getUsername(),
                 foodie.getPassword(),
-                Collections.singletonList (new SimpleGrantedAuthority("ROLE_FOODIE"))
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_FOODIE"))
         );
     }
 
-    //Admin
+    /**
+     * Factory method to build a UserPrincipal for Admin.
+     *
+     * Automatically assigns ROLE_ADMIN.
+     *
+     * @param admin the Admin entity (stored as Chef)
+     * @return a UserPrincipal instance
+     */
     public static UserPrincipal buildAdmin(Chef admin) {
         return new UserPrincipal(
                 admin.getId(),
                 admin.getUsername(),
                 admin.getPassword(),
-                Collections.singletonList (new SimpleGrantedAuthority("ROLE_ADMIN"))
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_ADMIN"))
         );
     }
 
-    /* Restituisce i ruoli associati all'utente, Spring Security utilizza queste informazioni per
-     verificare se l'utente ha i permessi necessari per accedere a un endpoint.
+    /**
+     * Returns the authorities (roles) of the user.
+     *
+     * Used by Spring Security to check access permissions.
+     *
+     * @return collection of authorities
      */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;
     }
 
-    /* Restituisce la password dell'utente.
-     * Utilizzata dal sistema di autenticazione per confrontare
-     * la password inserita con quella salvata nel database.
+    /**
+     * Returns the user password.
+     *
+     * Used during authentication to verify credentials.
+     *
+     * @return the password
      */
     @Override
     public String getPassword() {
         return password;
     }
 
-
-    /* Restituisce l'id dell'utente.
-     * Non fa parte dell'interfaccia UserDetails ma è utile
-     * per identificare l'utente autenticato nelle operazioni applicative.
+    /**
+     * Returns the user ID.
+     *
+     * Not part of UserDetails, but useful for application logic.
+     *
+     * @return the user ID
      */
     public String getId() {
         return id;
     }
 
-    /* Restituisce lo username utilizzato per il login.
-     * Questo metodo è richiesto dall'interfaccia UserDetails.
+    /**
+     * Returns the username used for login.
+     *
+     * @return the username
      */
     @Override
     public String getUsername() {
         return username;
     }
 
-    /* I seguenti metodi indicano lo stato dell'account.
-     * In questo progetto tutti gli account sono considerati validi,
-     * quindi restituiscono sempre true.
+    /**
+     * Indicates whether the account is non-expired.
+     *
+     * @return always true in this implementation
      */
-    @Override public boolean isAccountNonExpired() {
+    @Override
+    public boolean isAccountNonExpired() {
         return true;
     }
 
-    @Override public boolean isAccountNonLocked() {
+    /**
+     * Indicates whether the account is non-locked.
+     *
+     * @return always true in this implementation
+     */
+    @Override
+    public boolean isAccountNonLocked() {
         return true;
     }
 
-    @Override public boolean isCredentialsNonExpired() {
+    /**
+     * Indicates whether the credentials are non-expired.
+     *
+     * @return always true in this implementation
+     */
+    @Override
+    public boolean isCredentialsNonExpired() {
         return true;
     }
 
-    @Override public boolean isEnabled() {
+    /**
+     * Indicates whether the account is enabled.
+     *
+     * @return always true in this implementation
+     */
+    @Override
+    public boolean isEnabled() {
         return true;
     }
 }
