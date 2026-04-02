@@ -1,12 +1,15 @@
 package it.unipi.MySmartRecipeBook.dto;
 
-import lombok.Data;
+import lombok.*;
 
 /**
  * DTO for chef's ranking analytic
  */
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class ChefRankAnalyticsDTO {
 
     private Integer rank;

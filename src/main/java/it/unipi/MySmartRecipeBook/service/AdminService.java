@@ -33,6 +33,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Admin service that handles admin's business logic operations
+ */
 @Service
 public class AdminService {
 
@@ -67,6 +70,10 @@ public class AdminService {
 
     /*------------------- Approve a pending recipe  --------------------*/
 
+    /**
+     *
+     * @param recipeId
+     */
     @Transactional
     public void saveRecipe(String recipeId) {
 
@@ -123,7 +130,11 @@ public class AdminService {
 
     }
 
-
+    /**
+     *
+     * @param recipe
+     * @param pendingRecipeId
+     */
     private void addToChefRecipes(RecipeMongo recipe, String pendingRecipeId) {
 
         // Controllo esistenza chef
@@ -159,6 +170,10 @@ public class AdminService {
 
     /*------------------- Discard a pending recipe  --------------------*/
 
+    /**
+     *
+     * @param recipeId
+     */
     public void discardRecipe(String recipeId) {
 
         UserPrincipal logged_admin = (UserPrincipal) SecurityContextHolder.getContext()
@@ -199,6 +214,10 @@ public class AdminService {
 
     /*------------------- Approve a pending chef registration request  --------------------*/
 
+    /**
+     *
+     * @param chefUsername
+     */
     public void approveChef(String chefUsername) {
 
         UserPrincipal logged_admin = (UserPrincipal) SecurityContextHolder.getContext()
@@ -243,6 +262,10 @@ public class AdminService {
 
     /*------------------- Discard a pending chef registration request  --------------------*/
 
+    /**
+     *
+     * @param chefUsername
+     */
     public void declineChef(String chefUsername) {
 
         UserPrincipal logged_admin = (UserPrincipal) SecurityContextHolder.getContext()
@@ -274,12 +297,22 @@ public class AdminService {
 
 
     /* counting of the monthly foodies */
+
+    /**
+     *
+     * @return
+     */
     public List<YearAnalyticsDTO> getMonthlyFoodies() {
+
         return foodieRepository.getMonthlyFoodiesStats();
     }
 
     /*------------------- Emerging vs Declining Categories (Analytics) --------------------*/
 
+    /**
+     *
+     * @return
+     */
     public List<TrendAnalyticsDTO> getCategoryTrends() {
 
         LocalDateTime now = LocalDateTime.now();
@@ -307,6 +340,11 @@ public class AdminService {
         return results;
     }
 
+
+    /**
+     * 
+     * @return
+     */
     public List<PopularIngredientsDTO> getPopularIngredients() {
         return chefNeo4jRepository.getPopularIngredientsStats(COMMON_INGREDIENTS);
     }
