@@ -38,10 +38,12 @@ public class ShowRecipeDTO  {
     private List<IngredientDTO> ingredients;
     private String preparation;
 
-    private String chef;
 
+    @JsonProperty("creation_date")
+    private LocalDate creationDate;
+
+    //private String chef;
    /* @JsonProperty("chef_id")
     private String chefId;
-    @JsonProperty("creation_date")
-    private LocalDate creationDate; */
+   */
 }
