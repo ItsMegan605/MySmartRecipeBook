@@ -16,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 public class MonthAnalyticsDTO {
 
-
+    @Field ("_id") //for mongo query
     private String month;
 
     @JsonProperty("tot_new_monthly_foodies")

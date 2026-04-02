@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class YearAnalyticsDTO {
-
+    @Field ("_id") //for mongo query
     private Integer year;
 
     @JsonProperty("total_registered_foodies")
