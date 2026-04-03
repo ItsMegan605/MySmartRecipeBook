@@ -9,10 +9,28 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
+/**
+ * Repository for managing Chef nodes in Neo4j.
+ *
+ * Provides methods for graph-based analytics such as:
+ * - most used ingredients per chef
+ * - top chefs per category
+ */
 public interface ChefNeo4jRepository extends Neo4jRepository<ChefNeo4j, Long> {
 
-
-
+    /**
+     * Retrieves the most used ingredient for each chef,
+     * excluding a list of filtered ingredients.
+     *
+     * Query logic:
+     * - match chefs, recipes, and ingredients
+     * - exclude filtered ingredients
+     * - count how many times each ingredient is used
+     * - select the most used ingredient (top 1)
+     *
+     * @param filteredIngredients list of ingredients to exclude (lowercase)
+     * @return list of PopularIngredientsDTO
+     */
     @Query("MATCH (c:Chef)-[:WROTE]->(r:Recipe)<-[:USED_IN]-(i:Ingredient) " +
             "WHERE NOT toLower(i.name) IN $filteredIngredients " +
             "WITH c, i, count(r) AS usageCount " +
@@ -21,6 +39,20 @@ public interface ChefNeo4jRepository extends Neo4jRepository<ChefNeo4j, Long> {
             "RETURN c.name AS chefName, c.surname AS chefSurname, topIngredient.name AS ingredientName, topIngredient.count AS usageCount")
     List<PopularIngredientsDTO> getPopularIngredientsStats(List<String> filteredIngredients);
 
+    /**
+     * Retrieves the top 3 chefs for each given category.
+     *
+     * Query logic:
+     * - filter recipes by category
+     * - group by category
+     * - for each category:
+     *   - count recipes per chef
+     *   - sort descending
+     *   - take top 3
+     *
+     * @param categories list of categories
+     * @return list of TopChefDTO
+     */
     @Query("MATCH (r:Recipe) WHERE r.category IN $categories " +
             "WITH DISTINCT r.category AS cat " +
             "CALL { " +
@@ -34,6 +66,10 @@ public interface ChefNeo4jRepository extends Neo4jRepository<ChefNeo4j, Long> {
     List<TopChefDTO> findTop3ChefsByCategory(@Param("categories") List<String> categories);
 }
 
-//prende tutti gli ingredienti di quel singolo Chef e li impacchetta in una lista
-//e salva l'emeno posto a 0 come primo elemento e lo salva come top ingredient
-
+/*
+ * This query:
+ * - collects all ingredients used by a chef
+ * - sorts them by usage count
+ * - takes the first element (most used ingredient)
+ * - returns it as the top ingredient
+ */

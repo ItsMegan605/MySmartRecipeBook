@@ -1,4 +1,5 @@
 package it.unipi.MySmartRecipeBook.repository.Neo4j;
+
 import it.unipi.MySmartRecipeBook.dto.recipe.RecipeSuggestionDTO;
 import it.unipi.MySmartRecipeBook.model.Neo4j.RecipeNeo4j;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
@@ -8,10 +9,30 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Repository for managing Recipe nodes in Neo4j.
+ *
+ * Provides methods for:
+ * - recipe suggestions based on ingredients
+ * - graph creation (recipes, chefs, ingredients)
+ * - deletion operations
+ */
 @Repository
 public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long> {
-//match dello smart fridge
 
+    /**
+     * Finds recipe suggestions based on available ingredients (Smart Fridge use case).
+     *
+     * Query logic:
+     * - match recipes that use given ingredients
+     * - count how many ingredients match
+     * - require at least 3 matching ingredients
+     * - retrieve chef information
+     * - return results ordered by match count
+     *
+     * @param myIngredients list of available ingredients
+     * @return list of RecipeSuggestionDTO
+     */
     @Query("MATCH (i:Ingredient)-[:USED_IN]->(r:Recipe) " +
             "WHERE i.name IN $myIngredients " +
             "WITH r, count(i) AS matchCount, collect(i.name) AS matchedIngredients " +
@@ -28,11 +49,33 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
             "ORDER BY matchCount DESC")
     List<RecipeSuggestionDTO> findRecipesByIngredients(List<String> myIngredients);
 
+    /**
+     * Inserts a new ingredient node.
+     *
+     * @param id ingredient ID
+     * @param name ingredient name
+     */
     @Query("CREATE (i:Ingredient {id: $id, name: $name})")
     void insertIngredient(String id, String name);
 
-    // entrambi i sensi delle relazioni così facciamo presto sia a trovare lo chef a partire dalla ricetta che
-    // eliminare tutte le ricette di uno chef
+    /**
+     * Creates a recipe node and connects it to a chef and ingredients.
+     *
+     * Relationships are created in both directions:
+     * - Recipe → Chef (WRITTEN_BY)
+     * - Chef → Recipe (WROTE)
+     *
+     * This allows:
+     * - efficient navigation from recipe to chef
+     * - efficient deletion of all recipes of a chef
+     *
+     * @param recipeId recipe ID
+     * @param title recipe title
+     * @param imageURL recipe image URL
+     * @param category recipe category
+     * @param chefId chef ID
+     * @param ingredients list of ingredient names
+     */
     @Query("MERGE (c:Chef {mongo_id: $chefId}) " +
             "CREATE (r:Recipe {mongo_id: $recipeId, title: $title, imageURL: $imageURL, category : $category}) " +
             "MERGE (c)<-[:WRITTEN_BY]-(r) " +
@@ -43,44 +86,64 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
             "MERGE (r)<-[:USED_IN]-(i)")
     void createRecipe(String recipeId, String title, String imageURL, String category, String chefId, List<String> ingredients);
 
+    /**
+     * Deletes a recipe node by its Mongo ID.
+     *
+     * @param recipeId recipe ID
+     */
     @Query("MATCH (r:Recipe {mongo_id: $recipeId}) DETACH DELETE r")
     void deleteRecipeById(String recipeId);
 
+    /**
+     * Deletes a chef and all related recipes.
+     *
+     * Uses OPTIONAL MATCH in case the chef has no recipes.
+     * DETACH DELETE removes nodes and all connected relationships.
+     *
+     * @param chefId chef ID
+     */
     @Query("MATCH (c:Chef {mongo_id: $chefId}) " +
-            // Usiamo OPTIONAL MATCH nel caso in cui lo chef non abbia ancora scritto nessuna ricetta
             "OPTIONAL MATCH (c)-[:WROTE]->(r:Recipe) " +
-            // DETACH DELETE distrugge i nodi e TUTTE le relazioni ad essi collegate
             "DETACH DELETE c, r")
     void deleteChef(String chefId);
 
+    /**
+     * Inserts or updates a chef node.
+     *
+     * @param chefId chef ID
+     * @param chefName chef first name
+     * @param chefSurname chef last name
+     */
     @Query("MERGE (c:Chef {mongo_id: $chefId}) " +
             "SET c.name = $chefName, c.surname = $chefSurname")
     void insertChef(String chefId, String chefName, String chefSurname);
 
-    // Query per Chef - Ricetta
+    /**
+     * Creates relationships between chefs and recipes.
+     *
+     * @param relations list of maps containing chefId and recipeId
+     */
     @Query("UNWIND $relations AS rel " +
             "MATCH (r:Recipe {mongo_id: rel.recipeId}) " +
             "MATCH (c:Chef {mongo_id: rel.chefId}) " +
             "MERGE (r)-[:WRITTEN_BY]->(c)")
     void createChefRecipeRelations(List<Map<String, String>> relations);
 
-    // Query per Ingrediente - Ricetta
+    /**
+     * Creates relationships between ingredients and recipes.
+     *
+     * @param relations list of maps containing ingredientName and recipeId
+     */
     @Query("UNWIND $relations AS rel " +
             "MATCH (r:Recipe {mongo_id: rel.recipeId}) " +
             "MATCH (i:Ingredient {name: rel.ingredientName}) " +
             "MERGE (i)-[:USED_IN]->(r)")
     void createIngredientRecipeRelations(List<Map<String, String>> relations);
 
-/*
-    //query per richiedere 5 ingredienti meno popolari si piò aggiungere anche i 5 più popolari in caso
-    @Query("MATCH (i:Ingredient)-[:USED_IN]->(r:Recipe) " +
-            "WHERE NOT toLower(i.name) IN $commonIngredients " +
-            "RETURN i.name AS ingredientName, count(r) AS usageCount " +
-            "ORDER BY usageCount ASC " +
-            "LIMIT 5")
-    List<UsedIngredientsDTO> getCommonIngredients(List<String> commonIngredients);
-
-
-*/
-
+    /*
+     * This query:
+     * - retrieves least used ingredients
+     * - excludes common ingredients
+     * - can be used for recommendation systems
+     */
 }
