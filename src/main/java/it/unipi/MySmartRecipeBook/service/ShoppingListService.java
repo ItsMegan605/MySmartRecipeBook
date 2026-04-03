@@ -14,7 +14,9 @@ import redis.clients.jedis.JedisCluster;
 import java.util.List;
 import java.util.Set;
 
-
+/**
+ *
+ */
 @Service
 public class ShoppingListService {
 
@@ -30,7 +32,10 @@ public class ShoppingListService {
     public static final String REDIS_APP_NAMESPACE = "MySmartRecipeBook:";
     private static final String REDIS_KEY_PREFIX = "shoppingList:user:";
 
-
+    /**
+     *
+     * @return
+     */
     public IngredientsListDTO getShoppingList() {
 
         UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
@@ -40,6 +45,11 @@ public class ShoppingListService {
         return returnShoppingList(authFoodie.getUsername());
     }
 
+    /**
+     *
+     * @param username
+     * @return
+     */
     private IngredientsListDTO returnShoppingList(String username) {
 
         String key = REDIS_APP_NAMESPACE + REDIS_KEY_PREFIX + username;
@@ -54,6 +64,11 @@ public class ShoppingListService {
 
     /*--------------- Add ingredients to foodie shopping list  ----------------*/
 
+    /**
+     *
+     * @param ingredients
+     * @return
+     */
     public IngredientsListDTO addIngredients(List<String> ingredients) {
 
         UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
@@ -87,6 +102,11 @@ public class ShoppingListService {
 
     /*--------------- Remove ingredient from foodie shopping list  ----------------*/
 
+    /**
+     *
+     * @param ingredient
+     * @return
+     */
     public IngredientsListDTO removeIngredient(String ingredient) {
 
         UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()

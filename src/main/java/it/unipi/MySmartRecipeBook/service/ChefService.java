@@ -103,10 +103,7 @@ public class ChefService {
 
     /**
      * This function allows a chef to change its personal information, in particolar o
-     * ne or more among the followin fields:
-     *  - Email
-     *  - Password
-     *  - Birthday
+     * ne or more among the followin fields: Email, password and birthday
      * @param dto We get the dto for the chef and check the authentication parameters
      * @return if the chef exists we return the updated chef's information
      * @throws RuntimeException if the chef doesn't exist

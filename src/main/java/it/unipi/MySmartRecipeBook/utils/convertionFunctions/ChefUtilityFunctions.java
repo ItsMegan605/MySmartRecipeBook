@@ -22,6 +22,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *
+ */
 @Component
 public class ChefUtilityFunctions {
 
@@ -34,6 +37,12 @@ public class ChefUtilityFunctions {
 
     // Nel momento in cui un utente compila il form per la registrazione, affinchè possa essere effettivamente registrato
     // dobbiamo criptare la password e aggiungere la data di registrazione
+
+    /**
+     *
+     * @param dto
+     * @return
+     */
     public PendingChef createChefEntity (RegistedUserDTO dto){
 
         PendingChef chef = new PendingChef();
@@ -54,6 +63,11 @@ public class ChefUtilityFunctions {
     // Prendiamo le informazioni da mostrare nell'area personale dello chef a partire dall'entità Chef in MongoDB
     // (in particolare non mostriamo la password per questioni di sicurezza)
 
+    /**
+     *
+     * @param chef
+     * @return
+     */
     public RegistedUserInfoDTO chefToChefInfo(Chef chef){
 
         return new RegistedUserInfoDTO(
@@ -67,6 +81,13 @@ public class ChefUtilityFunctions {
 
     // Ricetta che viene creata nel momento in cui uno chef fa submit del form compilato con tutte le informazioni
     // necessarie per l'inserimento di una ricetta
+
+    /**
+     *
+     * @param dto
+     * @param chefDTO
+     * @return
+     */
     public PendingRecipe createBaseRecipe (CreateRecipeDTO dto, ChefInfoDTO chefDTO){
 
         PendingRecipe recipe = new PendingRecipe();
@@ -105,6 +126,11 @@ public class ChefUtilityFunctions {
     In addition, we remove all the informations about the chef that would have been redundant.
     */
 
+    /**
+     *
+     * @param recipe
+     * @return
+     */
     public ChefPendingRecipe recipeToChefRecipe (PendingRecipe recipe){
 
         ChefPendingRecipe full_recipe = new ChefPendingRecipe();
@@ -125,6 +151,11 @@ public class ChefUtilityFunctions {
 
     /* Function to create a ChefPreviewRecipeDTO from an AdminRecipe*/
 
+    /**
+     *
+     * @param recipe
+     * @return
+     */
     public ChefPreviewRecipeDTO baseToChefDTO(PendingRecipe recipe){
 
         ChefPreviewRecipeDTO recipeDTO = new ChefPreviewRecipeDTO();
@@ -139,7 +170,11 @@ public class ChefUtilityFunctions {
         return recipeDTO;
     }
 
-
+    /**
+     *
+     * @param recipesToConvert
+     * @return
+     */
     public List<ChefRecipeSummary> MongoListToChefListSummary(List<RecipeMongo> recipesToConvert) {
 
         List<ChefRecipeSummary> chefRecipes = new ArrayList<>();
@@ -159,7 +194,11 @@ public class ChefUtilityFunctions {
         return chefRecipes;
     }
 
-
+    /**
+     *
+     * @param recipesList
+     * @return
+     */
     public List<ChefPreviewRecipeDTO> ChefListToSummaryList(List<ChefRecipeSummary> recipesList) {
 
         List<ChefPreviewRecipeDTO> chefPreviewList = new ArrayList<>();
@@ -180,6 +219,11 @@ public class ChefUtilityFunctions {
         return  chefPreviewList;
     }
 
+    /**
+     *
+     * @param recipesToConvert
+     * @return
+     */
     public List<ChefPreviewRecipeDTO> MongoListToChefPreview(List<RecipeMongo> recipesToConvert) {
 
         List<ChefPreviewRecipeDTO> chefRecipes = new ArrayList<>();
@@ -198,6 +242,12 @@ public class ChefUtilityFunctions {
         return chefRecipes;
     }
 
+    /**
+     *
+     * @param targetChef
+     * @param chef
+     * @return
+     */
     public boolean chefAlreadyInserted(PendingChef targetChef, PendingChef chef) {
 
         boolean sameRequest = targetChef.getName().equals(chef.getName()) &&
@@ -208,6 +258,11 @@ public class ChefUtilityFunctions {
         return sameRequest || sameUsername;
     }
 
+    /**
+     *
+     * @param chef
+     * @return
+     */
     public Chef pendingChefToChef (PendingChef chef){
 
         Chef chefMongo = new Chef();
@@ -222,6 +277,11 @@ public class ChefUtilityFunctions {
         return chefMongo;
     }
 
+    /**
+     *
+     * @param recipeMongo
+     * @return
+     */
     public ChefRecipeSummary recipeToChefRecipe (RecipeMongo recipeMongo){
 
         ChefRecipeSummary recipe = new ChefRecipeSummary();

@@ -19,6 +19,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
+/**
+ *
+ */
 @Service
 public class SmartFridgeService {
 
@@ -41,7 +44,10 @@ public class SmartFridgeService {
     private static final String REDIS_FRIDGE_PREFIX = "smartFridge:ingredients:";
     private static final String REDIS_RECIPES_PREFIX = "smartFridge:suggestions:";
 
-
+    /**
+     *
+     * @return
+     */
     public IngredientsListDTO getSmartFridge() {
 
         UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
@@ -64,6 +70,11 @@ public class SmartFridgeService {
 
     /*--------------- Add ingredients to foodie shopping list  ----------------*/
 
+    /**
+     *
+     * @param ingredients
+     * @return
+     */
     public IngredientsListDTO addIngredients(List<String> ingredients) {
 
         UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
@@ -95,6 +106,11 @@ public class SmartFridgeService {
 
     /*--------------- Remove ingredient from foodie shopping list  ----------------*/
 
+    /**
+     *
+     * @param ingredient
+     * @return
+     */
     public IngredientsListDTO removeIngredient(String ingredient) {
 
         UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
@@ -111,7 +127,11 @@ public class SmartFridgeService {
         return getSmartFridge();
     }
 
-
+    /**
+     *
+     * @param username
+     * @return
+     */
 
     public List<RecipeSuggestionDTO> getRecommendations(String username) {
         String cacheKey = REDIS_APP_NAMESPACE +REDIS_RECIPES_PREFIX + username;
@@ -149,7 +169,11 @@ public class SmartFridgeService {
         return suggestions;
     }
 
-
+    /**
+     *
+     * @param username
+     * @param removedIngredient
+     */
     private void updateCacheAfterRemoval(String username, String removedIngredient) {
         String cacheKey = REDIS_APP_NAMESPACE +REDIS_RECIPES_PREFIX + username;
         String json = jedisCluster.get(cacheKey);

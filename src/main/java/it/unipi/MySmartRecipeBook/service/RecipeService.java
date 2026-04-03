@@ -21,6 +21,9 @@ import java.util.Optional;
 
 import static it.unipi.MySmartRecipeBook.utils.parameters.Categories.CATEGORIES;
 
+/**
+ *
+ */
 @Service
 public class RecipeService {
 
@@ -51,10 +54,21 @@ public class RecipeService {
         this.ingredientService = ingredientService;
     }
 
+    /**
+     *
+     * @param ingredientName
+     * @return
+     */
     public boolean isValidIngredient(String ingredientName) {
         return ingredientService.isValidIngredient(ingredientName);
     } //alla fine ogni service ha il suo controllo
 
+    /**
+     *
+     * @param id
+     * @param fridge
+     * @return
+     */
     public ShowRecipeDTO getRecipeById(String id, boolean fridge){
 
         Optional<RecipeMongo> full_recipe = recipeRepository.findById(id);
@@ -102,6 +116,12 @@ public class RecipeService {
         /* Manca l'eliminazione da Neo4j e bisogna vedere se anche da Redis
     }*/
 
+    /**
+     *
+     * @param title
+     * @param pageNumber
+     * @return
+     */
     public SliceRecipeDTO getRecipeByTitle(String title, int pageNumber){
 
         if(pageNumber <= 0){
@@ -121,6 +141,11 @@ public class RecipeService {
         return  new SliceRecipeDTO<>(recipesDTO, hasNext, hasPrevious);
     }
 
+    /**
+     *
+     * @param pageNumber
+     * @return
+     */
     public SliceRecipeDTO getNewestRecipe (int pageNumber){
 
         if(pageNumber <= 0){
@@ -136,6 +161,12 @@ public class RecipeService {
         return new SliceRecipeDTO(recipesDTO, hasNext, hasPrevious);
     }
 
+    /**
+     *
+     * @param pageNumber
+     * @param filter
+     * @return
+     */
     public SliceRecipeDTO getByCategory (int pageNumber, String filter){
 
         if(pageNumber <= 0 || !CATEGORIES.contains(filter)){
@@ -152,7 +183,12 @@ public class RecipeService {
         return new SliceRecipeDTO(recipesDTO, hasNext, hasPrevious);
     }
 
-
+    /**
+     *
+     * @param pageNumber
+     * @param chefId
+     * @return
+     */
     public SliceRecipeDTO getChefRecipePage(int pageNumber, String chefId){
 
         if(pageNumber <= 0){

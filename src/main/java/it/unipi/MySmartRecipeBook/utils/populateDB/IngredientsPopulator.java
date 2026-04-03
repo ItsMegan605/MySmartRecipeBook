@@ -11,6 +11,9 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
+/**
+ *
+ */
 @Order(1)
 @Component
 public class IngredientsPopulator implements CommandLineRunner {
@@ -25,6 +28,11 @@ public class IngredientsPopulator implements CommandLineRunner {
         this.jedisCluster = jedisCluster;
     }
 
+    /**
+     *
+     * @param args
+     * @throws Exception
+     */
     @Override
     public void run(String... args) throws Exception {
         if (!doRedisPopulation) {

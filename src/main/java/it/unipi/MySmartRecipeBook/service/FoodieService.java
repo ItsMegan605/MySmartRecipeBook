@@ -35,6 +35,9 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ *
+ */
 @Service
 public class FoodieService {
 
@@ -62,6 +65,11 @@ public class FoodieService {
 
     /*--------------- Retrieve foodie's informations ----------------*/
 
+    /**
+     *
+     * @return
+     */
+
     public RegistedUserInfoDTO getById() {
 
         UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
@@ -85,6 +93,12 @@ public class FoodieService {
         - Birthday
 
      We don't allow a foodie to change his/her username for security reasons */
+
+    /**
+     *
+     * @param dto
+     * @return
+     */
 
     public RegistedUserInfoDTO updateFoodie(UpdateFoodieDTO dto) {
 
@@ -127,6 +141,10 @@ public class FoodieService {
 
     /*----------------- Delete foodie's Profile ------------------*/
 
+    /**
+     *
+     */
+
     @Transactional
     public void deleteFoodie() {
 
@@ -162,6 +180,11 @@ public class FoodieService {
 
     /*------------ Add a recipe to foodie's favourites  -------------*/
 
+    /**
+     *
+     * @param foodieId
+     * @param recipeId
+     */
     @Transactional
     public void saveRecipe(String foodieId, String recipeId) {
 
@@ -186,6 +209,11 @@ public class FoodieService {
     /*------------ Remove a recipe from foodie's favourites  -------------*/
     // VA FATTA PER FORZA CON VERSIONE PERCHè SE USIAMO LA LISTA "AGGIORNATA", NEL MENTRE POTREBBE ESSERCI STATO UN ALTRO
     // THREAD CHE HA MODIFICATO I PREFERITI E ANDIAMO A SOVRASCRIVERLA
+
+    /**
+     *
+     * @param recipeId
+     */
     @Transactional
     public void removeSavedRecipe(String recipeId) {
 
@@ -216,6 +244,13 @@ public class FoodieService {
 
 
     /*------------ Show foodie's favourites recipes -------------*/
+
+    /**
+     *
+     * @param category
+     * @param numPage
+     * @return
+     */
 
     public SliceRecipeDTO getRecipeByCategory(String category, int numPage) {
 

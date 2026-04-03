@@ -10,6 +10,9 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
+/**
+ *
+ */
 @Service
 public class IngredientService {
     //metto cluster di redis visto che gli ingredienti andranno su redis anzichè la repo di mongo
@@ -19,6 +22,12 @@ public class IngredientService {
     private static final String INGREDIENTS_REDIS_KEY = "MySmartRecipeBook:allowed_ingredients";
 
     //controllo validità
+
+    /**
+     *
+     * @param ingredientName
+     * @return
+     */
     public boolean isValidIngredient(String ingredientName) {
         if (ingredientName == null || ingredientName.trim().isEmpty()) {
             return false;

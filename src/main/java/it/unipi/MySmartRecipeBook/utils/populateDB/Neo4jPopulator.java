@@ -23,6 +23,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ *
+ */
 @Order(4) //order to execute the functions to populate the DBs
 @Component
 public class Neo4jPopulator implements CommandLineRunner {
@@ -53,6 +56,11 @@ public class Neo4jPopulator implements CommandLineRunner {
         this.jedisCluster = jedisCluster;
     }
 
+    /**
+     *
+     * @param args
+     * @throws Exception
+     */
     @Override
     public void run(String... args) throws Exception {
 

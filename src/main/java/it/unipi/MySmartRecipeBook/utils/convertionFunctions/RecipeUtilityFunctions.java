@@ -14,9 +14,16 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *
+ */
 @Component
 public class RecipeUtilityFunctions {
-
+    /**
+     *
+     * @param recipe
+     * @return
+     */
     public ShowRecipeDTO EntityToDto (RecipeMongo recipe){
 
         ShowRecipeDTO recipeDTO = new ShowRecipeDTO();
@@ -58,7 +65,11 @@ public class RecipeUtilityFunctions {
     }
 
 
-
+    /**
+     *
+     * @param recipeMongo
+     * @return
+     */
     public ChefRecipeSummary recipeToChefRecipe (RecipeMongo recipeMongo){
 
         ChefRecipeSummary recipe = new ChefRecipeSummary();
@@ -72,6 +83,12 @@ public class RecipeUtilityFunctions {
 
     // Quando l'admin approva una ricetta e deve essere inserita nel DB, dobbiamo trasformarla in una recipeMongo,
     // aggiungendo il campo numSaves inizializzato a 0
+
+    /**
+     *
+     * @param recipe
+     * @return
+     */
     public RecipeMongo baseToMongoRecipe(PendingRecipe recipe){
 
         RecipeMongo full_recipe = new RecipeMongo();
@@ -90,6 +107,11 @@ public class RecipeUtilityFunctions {
         return full_recipe;
     }
 
+    /**
+     *
+     * @param recipe
+     * @return
+     */
     public GraphRecipeDTO MongoToNeo4jGraph(RecipeMongo recipe){
 
         GraphRecipeDTO recipeNeo4j = new GraphRecipeDTO();
@@ -112,6 +134,11 @@ public class RecipeUtilityFunctions {
         return recipeNeo4j;
     }
 
+    /**
+     *
+     * @param recipe
+     * @return
+     */
     public RecipeNeo4j MongoToNeo4j(RecipeMongo recipe){
 
         RecipeNeo4j recipeNeo4j = new RecipeNeo4j();

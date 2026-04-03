@@ -2,6 +2,9 @@ package it.unipi.MySmartRecipeBook.utils.parameters;
 
 import java.util.List;
 
+/**
+ *
+ */
 public class Categories {
 
     // Static perchè così sono globali

@@ -13,6 +13,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+/**
+ *
+ */
 @Order(2)
 @Component
 public class FavouritesPopulator implements CommandLineRunner {
@@ -32,7 +35,10 @@ public class FavouritesPopulator implements CommandLineRunner {
         this.foodieUtils = foodieUtils;
     }
 
-
+    /**
+     *
+     * @param args
+     */
     // Devo salvare le ricette preferite (in numero compreso tra 0 e 200) per ciascun foodie
     @Override
     public void run(String... args){

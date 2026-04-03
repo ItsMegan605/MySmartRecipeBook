@@ -1,5 +1,8 @@
 package it.unipi.MySmartRecipeBook.utils.parameters;
 
+/**
+ *
+ */
 public class Task {
     public enum TaskType{
         SET_COUNTERS_FOODIE_DELETE,

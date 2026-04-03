@@ -19,6 +19,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+/**
+ *
+ */
 @Service
 public class AuthService {
 
@@ -46,6 +49,11 @@ public class AuthService {
 
 
     /* ------------------- Register a new chef ----------------------- */
+
+    /**
+     *
+     * @param chefDTO
+     */
 
     public void registerChef(RegistedUserDTO chefDTO) {
 
@@ -78,6 +86,10 @@ public class AuthService {
 
     /* ------------------- Register a new foodie ----------------------- */
 
+    /**
+     *
+     * @param foodieDTO
+     */
     public void registerFoodie(RegistedUserDTO foodieDTO) {
 
         // Controllo se lo username già esiste (sia nella collezione chefs che in quella foodies) - lo username è
@@ -95,6 +107,11 @@ public class AuthService {
 
     /* ------------------- Login ----------------------- */
 
+    /**
+     *
+     * @param request
+     * @return
+     */
     // Richede username e password (LoginRequestDTO e mi restituisce il token con le altre informazioni
     public JwtResponseDTO authenticateUser(LoginRequestDTO request) {
 

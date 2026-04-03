@@ -16,6 +16,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ *
+ */
 @Component
 public class FoodieUtilityFunctions {
 
@@ -25,7 +28,11 @@ public class FoodieUtilityFunctions {
         this.passwordEncoder = passwordEncoder;
     }
 
-
+    /**
+     *
+     * @param foodieDTO
+     * @return
+     */
     public Foodie createFoodieEntity (RegistedUserDTO foodieDTO){
 
         Foodie foodie = new Foodie();
@@ -41,7 +48,11 @@ public class FoodieUtilityFunctions {
         return foodie;
     }
 
-
+    /**
+     *
+     * @param foodie
+     * @return
+     */
     public RegistedUserInfoDTO entityToFoodieDTO (Foodie foodie) {
 
         return new RegistedUserInfoDTO(
@@ -53,7 +64,11 @@ public class FoodieUtilityFunctions {
         );
     }
 
-
+    /**
+     *
+     * @param recipeMongo
+     * @return
+     */
     public FoodieRecipeSummary entityToReducedRecipe (RecipeMongo recipeMongo) {
 
         FoodieRecipeSummary recipe = new FoodieRecipeSummary();
@@ -68,6 +83,11 @@ public class FoodieUtilityFunctions {
         return  recipe;
     }
 
+    /**
+     *
+     * @param recipeMongo
+     * @return
+     */
     public ChefRecipeSummary entityToChefRecipe (RecipeMongo recipeMongo) {
 
         ChefRecipeSummary recipe = new ChefRecipeSummary();
@@ -80,6 +100,11 @@ public class FoodieUtilityFunctions {
         return  recipe;
     }
 
+    /**
+     *
+     * @param fullRecipes
+     * @return
+     */
     public List<FoodiePreviewRecipeDTO> foodieSummaryToUserPreview (List<FoodieRecipeSummary> fullRecipes) {
 
         List<FoodiePreviewRecipeDTO> recipes = new ArrayList<>();

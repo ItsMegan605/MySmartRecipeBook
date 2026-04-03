@@ -22,6 +22,9 @@ import com.sun.management.OperatingSystemMXBean;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+/**
+ *
+ */
 @Service
 public class LowLoadManager {
 
@@ -40,36 +43,66 @@ public class LowLoadManager {
         this.recipeNeo4jRepository = recipeNeo4jRepository;
     }
 
+    /**
+     *
+     * @param type
+     * @param recipe
+     * @param chefId
+     */
     public void addTask (Task.TaskType type, ChefRecipeSummary recipe, String chefId){
         TaskToDo task = new TaskToDo(type, recipe, chefId);
         taskQueue.add(task);
         System.out.println("Task succesfully added to the queue");
     }
 
+    /**
+     *
+     * @param type
+     * @param recipeId
+     * @param chefId
+     */
     public void addTask (Task.TaskType type, String recipeId, String chefId){
         TaskToDo task = new TaskToDo(type, recipeId, chefId);
         taskQueue.add(task);
         System.out.println("Task succesfully added to the queue");
     }
 
+    /**
+     *
+     * @param type
+     * @param infoToDelete
+     */
     public void addTask (Task.TaskType type, InfoToDeleteDTO infoToDelete){
         TaskToDo task = new TaskToDo(type, infoToDelete);
         taskQueue.add(task);
         System.out.println("Task succesfully added to the queue");
     }
 
+    /**
+     *
+     * @param type
+     * @param recipeId
+     */
     public void addTask (Task.TaskType type, String recipeId){
         TaskToDo task = new TaskToDo(type, recipeId);
         taskQueue.add(task);
         System.out.println("Task succesfully added to the queue");
     }
 
+    /**
+     *
+     * @param type
+     * @param recipe
+     */
     public void addTask (Task.TaskType type, GraphRecipeDTO recipe){
         TaskToDo task = new TaskToDo(type, recipe);
         taskQueue.add(task);
         System.out.println("Task succesfully added to the queue");
     }
 
+    /**
+     *
+     */
     @Scheduled(fixedDelay = 10000)
     public void taskHandler(){
         if(taskQueue.isEmpty()){
@@ -92,6 +125,10 @@ public class LowLoadManager {
         }
     }
 
+    /**
+     *
+     * @param task
+     */
     private void executeTask(TaskToDo task){
 
         try{
@@ -129,6 +166,10 @@ public class LowLoadManager {
         }
     }
 
+    /**
+     *
+     * @param task
+     */
     private void createNeo4jRecipe(TaskToDo task) {
 
         System.out.println("Creating Neo4j recipe");
@@ -150,7 +191,10 @@ public class LowLoadManager {
 
     }
 
-
+    /**
+     *
+     * @param task
+     */
     private void decrementSavesCounters(TaskToDo task){
 
         System.out.println("Decrement Saves Counters");
@@ -212,6 +256,10 @@ public class LowLoadManager {
 
     }
 
+    /**
+     *
+     * @param task
+     */
     private void updateChefCounters(TaskToDo task) {
 
         System.out.println("Update Chef Counters");
@@ -250,6 +298,10 @@ public class LowLoadManager {
         recipeMongoRepository.updateSavesCounter(task.getRecipeId(), -1);
     }
 
+    /**
+     *
+     * @param task
+     */
     private void updateChefCountersSaves(TaskToDo task) {
 
         System.out.println("Update Chef Counters");
@@ -287,6 +339,10 @@ public class LowLoadManager {
         recipeMongoRepository.updateSavesCounter(task.getRecipeId(), 1);
     }
 
+    /**
+     *
+     * @param chefId
+     */
     /* In questa funzione c'è la Risk Acceptancec */
     private void deleteChefRecipes(String chefId){
         System.out.println("Delete Chef Recipes");
@@ -313,6 +369,11 @@ public class LowLoadManager {
         /* Pulizia su Redis - non viene fatta quando sbattiamo sulla ricetta che non c'è più facciamo l'eliminazione */
     }
 
+    /**
+     *
+     * @param recipeId
+     * @param chefId
+     */
     private void deleteRecipe(String recipeId, String chefId){
 
         System.out.println("Delete Recipe");
