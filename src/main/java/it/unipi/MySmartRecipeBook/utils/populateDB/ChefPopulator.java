@@ -85,7 +85,7 @@ public class ChefPopulator implements CommandLineRunner {
                 }
             }
 
-            // 🔍 DEBUG QUI
+            // DEBUG QUI
             popularRecipes.forEach(r -> {
                 if (r.getNumSaves() == null) {
                     System.out.println("🔥 NULL trovato!");

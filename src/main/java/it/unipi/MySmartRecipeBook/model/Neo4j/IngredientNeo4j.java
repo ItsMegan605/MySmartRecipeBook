@@ -5,12 +5,23 @@ import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import lombok.Data;
 
+/**
+ * Represents an Ingredient node in the Neo4j graph database.
+ */
 @Data
-@Node("Ingredients") // Usiamo "Ingredients" per coerenza con le etichette del grafo
-public class  IngredientNeo4j {
+@Node("Ingredients") // Using "Ingredients" for consistency with graph labels
+public class IngredientNeo4j {
 
+    /**
+     * Internal Neo4j identifier.
+     * Automatically generated.
+     */
     @Id
-    @GeneratedValue // Rimosso @GeneratedValue per usare l'ID manuale/condiviso
+    @GeneratedValue // Auto-generated ID
     private Long id;
+
+    /**
+     * Name of the ingredient.
+     */
     private String name;
 }
