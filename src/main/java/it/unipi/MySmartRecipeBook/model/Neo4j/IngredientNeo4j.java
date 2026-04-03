@@ -7,9 +7,10 @@ import lombok.Data;
 
 @Data
 @Node("Ingredients") // Usiamo "Ingredients" per coerenza con le etichette del grafo
-public class IngredientNeo4j {
+public class  IngredientNeo4j {
 
+    @Id
     @GeneratedValue // Rimosso @GeneratedValue per usare l'ID manuale/condiviso
-    private String id;
+    private Long id;
     private String name;
 }

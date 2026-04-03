@@ -80,12 +80,22 @@ public class ChefPopulator implements CommandLineRunner {
 
             List<ChefRecipeSummary> popularRecipes = new ArrayList<>();
             for(RecipeMongo recipe: chefRecipes){
-                if(recipe.getNumSaves() != null && recipe.getNumSaves() > 40){
+                if(recipe.getNumSaves() != null && recipe.getNumSaves() >= 40){
                     popularRecipes.add(chefUtils.recipeToChefRecipe(recipe));
                 }
             }
 
-            popularRecipes.sort(Comparator.comparing(ChefRecipeSummary::getNumSaves).reversed());
+            // 🔍 DEBUG QUI
+            popularRecipes.forEach(r -> {
+                if (r.getNumSaves() == null) {
+                    System.out.println("🔥 NULL trovato!");
+                }
+            });
+            popularRecipes.sort(
+                    Comparator.comparing(
+                            (ChefRecipeSummary r) -> r.getNumSaves() == null ? 0 : r.getNumSaves()
+                    ).reversed()
+            );
             chef.setPopularRecipes(popularRecipes);
 
 

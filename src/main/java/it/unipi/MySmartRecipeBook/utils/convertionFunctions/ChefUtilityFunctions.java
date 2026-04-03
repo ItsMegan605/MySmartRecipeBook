@@ -229,6 +229,9 @@ public class ChefUtilityFunctions {
         recipe.setTitle(recipeMongo.getTitle());
         recipe.setImageURL(recipeMongo.getImageURL());
         recipe.setCreationDate(recipeMongo.getCreationDate());
+        recipe.setNumSaves(
+                recipeMongo.getNumSaves() == null ? 0 : recipeMongo.getNumSaves()
+        );
 
         return recipe;
     }
