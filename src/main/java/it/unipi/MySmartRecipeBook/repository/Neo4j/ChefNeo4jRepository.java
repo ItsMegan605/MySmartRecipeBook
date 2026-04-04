@@ -31,14 +31,13 @@ public interface ChefNeo4jRepository extends Neo4jRepository<ChefNeo4j, Long> {
      * @param filteredIngredients list of ingredients to exclude (lowercase)
      * @return list of PopularIngredientsDTO
      */
-    @Query("MATCH (c:Chef)-[:WROTE]->(r:Recipe)<-[:USED_IN]-(i:Ingredient) " +
+    @Query("MATCH (c:Chef)<-[:WRITTEN_BY]-(r:Recipe)<-[:USED_IN]-(i:Ingredient) " +
             "WHERE NOT toLower(i.name) IN $filteredIngredients " +
             "WITH c, i, count(r) AS usageCount " +
             "ORDER BY usageCount DESC " +
             "WITH c, collect({name: i.name, count: usageCount})[0] AS topIngredient " +
             "RETURN c.name AS chefName, c.surname AS chefSurname, topIngredient.name AS ingredientName, topIngredient.count AS usageCount")
     List<PopularIngredientsDTO> getPopularIngredientsStats(List<String> filteredIngredients);
-
     /**
      * Retrieves the top 3 chefs for each given category.
      *
@@ -57,8 +56,7 @@ public interface ChefNeo4jRepository extends Neo4jRepository<ChefNeo4j, Long> {
             "WITH DISTINCT r.category AS cat " +
             "CALL { " +
             "    WITH cat " +
-            "    MATCH (c:Chef)-[:WROTE]->(r2:Recipe {category: cat}) " +
-            "    RETURN c.name AS name, c.surname AS surname, count(r2) AS recipeCount " +
+            "    MATCH (c:Chef)<-[:WRITTEN_BY]-(r2:Recipe {category: cat}) " +            "    RETURN c.name AS name, c.surname AS surname, count(r2) AS recipeCount " +
             "    ORDER BY recipeCount DESC " +
             "    LIMIT 3 " +
             "} " +
