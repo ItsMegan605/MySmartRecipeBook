@@ -113,6 +113,7 @@ public class Neo4jPopulator implements CommandLineRunner {
             RecipeNeo4j recipeNeo4j = recipeUtils.MongoToNeo4j(recipe);
             recipeNeo4j.setChef(null);
             recipeNeo4j.setIngredients(new ArrayList<>());
+            recipes.add(recipeNeo4j);
 
             chefRecipeRelations.add(Map.of("recipeId", recipe.getId(), "chefId", recipe.getChef().getId()));
 
