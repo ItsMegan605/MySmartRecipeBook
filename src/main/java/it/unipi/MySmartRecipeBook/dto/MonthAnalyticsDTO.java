@@ -9,16 +9,15 @@ import java.util.List;
 /**
  * DTO to get the monthly subscribed foodies
  */
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class MonthAnalyticsDTO {
 
-    @Field ("_id") //for mongo query
+    @Field("_id")
     private String month;
 
-    @JsonProperty("tot_new_monthly_foodies")
+    @JsonProperty("Total of new monthly Foodies")
     private int totalFoodies;
 }
