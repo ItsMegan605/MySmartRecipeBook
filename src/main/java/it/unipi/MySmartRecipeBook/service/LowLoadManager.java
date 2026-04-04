@@ -7,10 +7,8 @@ import it.unipi.MySmartRecipeBook.event.TaskToDo;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefRecipeSummary;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.OldRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Chef;
-import it.unipi.MySmartRecipeBook.model.Mongo.users.Foodie;
 import it.unipi.MySmartRecipeBook.utils.parameters.Task;
 import it.unipi.MySmartRecipeBook.repository.Mongo.ChefRepository;
-import it.unipi.MySmartRecipeBook.repository.Mongo.FoodieRepository;
 import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.repository.Neo4j.RecipeNeo4jRepository;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -32,14 +30,12 @@ public class LowLoadManager {
     private static final Queue<TaskToDo> taskQueue = new ConcurrentLinkedQueue<>();
     private final RecipeMongoRepository recipeMongoRepository;
     private final ChefRepository chefRepository;
-    private final FoodieRepository foodieRepository;
     private final RecipeNeo4jRepository recipeNeo4jRepository;
 
     public LowLoadManager(RecipeMongoRepository recipeMongoRepository, ChefRepository chefRepository,
-                          FoodieRepository foodieRepository, RecipeNeo4jRepository recipeNeo4jRepository) {
+                          RecipeNeo4jRepository recipeNeo4jRepository) {
         this.recipeMongoRepository = recipeMongoRepository;
         this.chefRepository = chefRepository;
-        this.foodieRepository = foodieRepository;
         this.recipeNeo4jRepository = recipeNeo4jRepository;
     }
 
@@ -154,7 +150,7 @@ public class LowLoadManager {
                     break;
 
                 case DELETE_RECIPE:
-                    deleteRecipe(task.getRecipeId(), task.getChefId());
+                    deleteRecipe(task.getRecipeId());
                     break;
 
                 default:
@@ -356,9 +352,8 @@ public class LowLoadManager {
     /**
      *
      * @param recipeId
-     * @param chefId
      */
-    private void deleteRecipe(String recipeId, String chefId){
+    private void deleteRecipe(String recipeId){
 
         System.out.println("Delete Recipe");
         recipeNeo4jRepository.deleteRecipeById(recipeId);

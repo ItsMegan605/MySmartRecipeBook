@@ -43,7 +43,7 @@ public class TaskToDo {
     public TaskToDo(Task.TaskType type, ChefRecipeSummary recipeMongo, String chefId) {
         this.type = type;
         this.recipeId = recipeMongo.getId();
-        this.chefId = recipeId;
+        this.chefId = chefId;
         this.infoToDelete = null;
         this.recipe = null;
         this.recipeMongo = recipeMongo;
@@ -58,7 +58,7 @@ public class TaskToDo {
     public TaskToDo(Task.TaskType type, String recipeId, String chefId) {
         this.type = type;
         this.recipeId = recipeId;
-        this.chefId = recipeId;
+        this.chefId = chefId;
         this.infoToDelete = null;
         this.recipe = null;
         this.recipeMongo = null;

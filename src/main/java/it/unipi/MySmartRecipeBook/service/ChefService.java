@@ -313,7 +313,7 @@ public class ChefService {
         chef.setTotalRecipes(chef.getTotalRecipes() - 1);
         chefRepository.save(chef);
 
-        lowLoadManager.addTask(Task.TaskType.DELETE_RECIPE, recipeId, chef.getId());
+        lowLoadManager.addTask(Task.TaskType.DELETE_RECIPE, recipeId);
     }
 
 
