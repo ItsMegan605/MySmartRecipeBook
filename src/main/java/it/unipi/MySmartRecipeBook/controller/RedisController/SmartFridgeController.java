@@ -2,6 +2,8 @@ package it.unipi.MySmartRecipeBook.controller.RedisController;
 
 import it.unipi.MySmartRecipeBook.dto.IngredientsListDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.RecipeSuggestionDTO;
+import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
+import it.unipi.MySmartRecipeBook.model.Mongo.recipes.FoodieRecipeSummary;
 import it.unipi.MySmartRecipeBook.repository.Neo4j.RecipeNeo4jRepository;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import it.unipi.MySmartRecipeBook.service.ShoppingListService;
@@ -21,12 +23,10 @@ public class SmartFridgeController {
 
 
     private SmartFridgeService smartFridgeService;
-    private RecipeNeo4jRepository recipeNeo4jRepository;
 
     //aggiunto costruttore
-    public SmartFridgeController(SmartFridgeService smartFridgeService, RecipeNeo4jRepository recipeNeo4jRepository) {
+    public SmartFridgeController(SmartFridgeService smartFridgeService) {
         this.smartFridgeService = smartFridgeService;
-        this.recipeNeo4jRepository = recipeNeo4jRepository;
     }
 
     /**
@@ -76,13 +76,18 @@ public class SmartFridgeController {
                 .getAuthentication()
                 .getPrincipal();
 
-        System.out.println("authFoodie: " + authFoodie.getId());
         List<RecipeSuggestionDTO> recipes = smartFridgeService.getRecommendations(authFoodie.getUsername());
 
         if (recipes.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(recipes);
+    }
+
+    @GetMapping("/recipe/{id}")
+    public ResponseEntity<ShowRecipeDTO> getRecipe(String id){
+        ShowRecipeDTO recipe = smartFridgeService.getFridgeRecipeById(id);
+        return ResponseEntity.ok(recipe);
     }
 
 }

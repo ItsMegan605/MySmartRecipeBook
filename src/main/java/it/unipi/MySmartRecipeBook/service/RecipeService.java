@@ -44,67 +44,26 @@ public class RecipeService {
     private final RecipeUtilityFunctions convertions;
     private JedisCluster jedisCluster;
     private final ObjectMapper objectMapper;
-    private final IngredientService ingredientService;
 
-    public RecipeService(RecipeMongoRepository recipeRepository, RecipeUtilityFunctions convertions,  JedisCluster jedisCluster, ObjectMapper objectMapper, IngredientService ingredientService) {
+    public RecipeService(RecipeMongoRepository recipeRepository, RecipeUtilityFunctions convertions,  JedisCluster jedisCluster, ObjectMapper objectMapper) {
         this.recipeRepository = recipeRepository;
         this.convertions = convertions;
         this.jedisCluster = jedisCluster;
         this.objectMapper = objectMapper;
-        this.ingredientService = ingredientService;
     }
 
-    /**
-     *
-     * @param ingredientName
-     * @return
-     */
-    public boolean isValidIngredient(String ingredientName) {
-        return ingredientService.isValidIngredient(ingredientName);
-    } //alla fine ogni service ha il suo controllo
 
     /**
      *
      * @param id
-     * @param fridge
      * @return
      */
-    public ShowRecipeDTO getRecipeById(String id, boolean fridge){
+    public ShowRecipeDTO getRecipeById(String id){
 
-        Optional<RecipeMongo> full_recipe = recipeRepository.findById(id);
-        if(full_recipe.isEmpty()){
-            //remove from redis cache the sinle recipe
-            if(fridge){
-                try {
-                    //recuper utente e il suo frigo
-                    UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
-                            .getAuthentication()
-                            .getPrincipal();
-                    String fridgeKey = "MySmartRecipeBook:smartFridge:suggestions:" + authFoodie.getUsername();
-                    String suggestedRecipes = jedisCluster.get(fridgeKey); //funzione del cluster di jedis per avere il json
+        RecipeMongo full_recipe = recipeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Recipe not found"));
 
-                    if( suggestedRecipes != null) { //converto da json in oggetto java con object mapper
-                        List<RecipeSuggestionDTO> cachedRecipes = objectMapper.readValue(suggestedRecipes, new TypeReference<List<RecipeSuggestionDTO>>(){});
-                        Boolean removedRecipe = cachedRecipes.removeIf(recipe -> recipe.getId().equals(id));
-
-                        if(removedRecipe) {
-                            if(cachedRecipes.isEmpty()){
-                                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Recipe not found");
-                            } else  {
-                                jedisCluster.set(fridgeKey, objectMapper.writeValueAsString(cachedRecipes));
-                            }
-                        }
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-            }
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Recipe not found");
-        }
-
-        return convertions.EntityToDto(full_recipe.get());
+        return convertions.EntityToDto(full_recipe);
     }
 
     // Si può veramente fare?

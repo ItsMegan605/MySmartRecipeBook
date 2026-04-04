@@ -3,10 +3,10 @@ package it.unipi.MySmartRecipeBook.service;
 import static it.unipi.MySmartRecipeBook.utils.parameters.Categories.*;
 import it.unipi.MySmartRecipeBook.dto.InfoToDeleteDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.FoodiePreviewRecipeDTO;
+import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegistedUserInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.users.UpdateFoodieDTO;
-import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefRecipeSummary;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Foodie;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.FoodieRecipeSummary;
@@ -33,7 +33,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -308,5 +307,23 @@ public class FoodieService {
         List<FoodiePreviewRecipeDTO> content = usersConvertions.foodieSummaryToUserPreview(recipes);
         return new SliceRecipeDTO(content, hasNext, hasPrevious);
 
+    }
+
+    public ShowRecipeDTO getRecipeFoodieById(String id){
+        UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        Foodie foodie = foodieRepository.findById(authFoodie.getId())
+                .orElseThrow(() -> new RuntimeException("Foodie not found"));
+
+        Optional<RecipeMongo> recipe = recipeRepository.findById(id);
+
+        if(recipe.isEmpty()){
+            foodie.getSavedRecipes().remove(id);
+            throw new NoSuchElementException("Recipe not found");
+        }
+
+        return usersConvertions.EntityToDto(recipe.get());
     }
 }

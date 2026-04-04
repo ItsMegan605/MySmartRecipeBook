@@ -1,5 +1,6 @@
 package it.unipi.MySmartRecipeBook.controller;
 
+import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegistedUserInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.users.UpdateFoodieDTO;
@@ -133,6 +134,12 @@ public class FoodieController {
                                                                             @PathVariable int numPage) {
         SliceRecipeDTO recipeList = foodieService.getRecipeByCategory(category, numPage);
         return ResponseEntity.ok(recipeList);
+    }
+
+    @GetMapping("/recipe/{id}")
+    public ResponseEntity<ShowRecipeDTO> getRecipeById (String id){
+        ShowRecipeDTO recipe = foodieService.getRecipeFoodieById(id);
+        return ResponseEntity.ok(recipe);
     }
 
     /* ---------  -------- */

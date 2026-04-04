@@ -346,22 +346,6 @@ public class LowLoadManager {
     /* In questa funzione c'è la Risk Acceptancec */
     private void deleteChefRecipes(String chefId){
         System.out.println("Delete Chef Recipes");
-        /* Pulizia su mongo delle ricette salvate dei foodie */
-        List<Foodie> foodieList = foodieRepository.findFoodiesWithChefRecipes(chefId);
-
-        for(Foodie foodie : foodieList) {
-
-            /* In questo caso non possiamo usare la struttura con il for o ci verrebbe dato errore se eliminiamo un
-            elemento e continuiamo a scorrere la lista */
-
-            if (foodie.getSavedRecipes() != null) {
-                foodie.getSavedRecipes().removeIf(r -> r.getChef().getId().equals(chefId));
-            }
-        }
-
-        if(!foodieList.isEmpty()){
-            foodieRepository.saveAll(foodieList);
-        }
 
         /* Pulizia su Neo4j*/
         recipeNeo4jRepository.deleteChef(chefId);
@@ -377,7 +361,6 @@ public class LowLoadManager {
     private void deleteRecipe(String recipeId, String chefId){
 
         System.out.println("Delete Recipe");
-        foodieRepository.deleteRecipeFromFoodies(chefId, recipeId);
         recipeNeo4jRepository.deleteRecipeById(recipeId);
 
     }

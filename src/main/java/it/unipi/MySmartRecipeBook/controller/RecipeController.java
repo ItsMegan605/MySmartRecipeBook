@@ -1,15 +1,13 @@
 package it.unipi.MySmartRecipeBook.controller;
-import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
+
 import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
-import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.service.RecipeService;
 
-import org.springframework.data.domain.Slice;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 /**
  * Recipe's Controller
@@ -28,14 +26,13 @@ public class RecipeController {
     /**
      * When we click on a recipe preview all the details must be shown
      * @param id user id
-     * @param fridge particular user's fridge
-     * @see RecipeService#getRecipeById(String, boolean) 
+     * @see RecipeService#getRecipeById(String)
      * @return RespondeEntity ok message 
      */
-    @GetMapping("/{id}/{fridge}")
-    public ResponseEntity<ShowRecipeDTO> getRecipe (@PathVariable String id, @PathVariable Boolean fridge) {
+    @GetMapping("/{id}")
+    public ResponseEntity<ShowRecipeDTO> getRecipe (@PathVariable String id) {
 
-        ShowRecipeDTO standardRecipeDTO = recipeService.getRecipeById(id, fridge);
+        ShowRecipeDTO standardRecipeDTO = recipeService.getRecipeById(id);
         return ResponseEntity.ok(standardRecipeDTO);
     }
     

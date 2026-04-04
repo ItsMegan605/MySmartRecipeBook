@@ -5,19 +5,21 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.unipi.MySmartRecipeBook.dto.IngredientsListDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.RecipeSuggestionDTO;
+import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
+import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
 import it.unipi.MySmartRecipeBook.repository.Mongo.FoodieRepository;
+import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.repository.Neo4j.RecipeNeo4jRepository;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
+import it.unipi.MySmartRecipeBook.utils.convertionFunctions.RecipeUtilityFunctions;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import redis.clients.jedis.JedisCluster;
 
 
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  *
@@ -27,19 +29,24 @@ public class SmartFridgeService {
 
 
     private JedisCluster jedisCluster;
-    private FoodieRepository foodieRepository;
+    private RecipeMongoRepository recipeRepository;
     private RecipeNeo4jRepository recipeNeo4jRepository;
     private IngredientService ingredientService;
+    private ObjectMapper objectMapper;
+    private RecipeUtilityFunctions conversion;
 
-    public SmartFridgeService(JedisCluster jedisCluster, FoodieRepository foodieRepository,
-                              RecipeNeo4jRepository recipeNeo4jRepository, IngredientService ingredientService){
+    public SmartFridgeService(JedisCluster jedisCluster, RecipeMongoRepository recipeRepository,
+                              RecipeNeo4jRepository recipeNeo4jRepository, IngredientService ingredientService,
+                              ObjectMapper objectMapper, RecipeUtilityFunctions conversion){
         this.jedisCluster = jedisCluster;
-        this.foodieRepository = foodieRepository;
+        this.recipeRepository = recipeRepository;
         this.recipeNeo4jRepository = recipeNeo4jRepository;
         this.ingredientService = ingredientService;
+        this.objectMapper = objectMapper;
+        this.conversion = conversion;
     }
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    //private final ObjectMapper objectMapper = new ObjectMapper();
     public static final String REDIS_APP_NAMESPACE = "MySmartRecipeBook:";
     private static final String REDIS_FRIDGE_PREFIX = "smartFridge:ingredients:";
     private static final String REDIS_RECIPES_PREFIX = "smartFridge:suggestions:";
@@ -211,6 +218,42 @@ public class SmartFridgeService {
                 e.printStackTrace();
             }
         }
+    }
+
+    public ShowRecipeDTO getFridgeRecipeById(String id){
+
+        Optional<RecipeMongo> full_recipe = recipeRepository.findById(id);
+        if(full_recipe.isEmpty()){
+
+            //recuper utente e il suo frigo
+            UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
+                    .getAuthentication()
+                    .getPrincipal();
+            String fridgeKey = "MySmartRecipeBook:smartFridge:suggestions:" + authFoodie.getUsername();
+            String suggestedRecipes = jedisCluster.get(fridgeKey); //funzione del cluster di jedis per avere il json
+
+            if( suggestedRecipes != null) { //converto da json in oggetto java con object mapper
+                try {
+                    List<RecipeSuggestionDTO> cachedRecipes = objectMapper.readValue(suggestedRecipes, new TypeReference<List<RecipeSuggestionDTO>>(){});
+                    Boolean removedRecipe = cachedRecipes.removeIf(recipe -> recipe.getId().equals(id));
+
+                    jedisCluster.set(fridgeKey, objectMapper.writeValueAsString(cachedRecipes));
+
+                    /*if(removedRecipe) {
+                        if(cachedRecipes.isEmpty()){
+                            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Recipes not found");
+                        } else  {
+                            jedisCluster.set(fridgeKey, objectMapper.writeValueAsString(cachedRecipes));
+                        }
+                    }*/
+                } catch (JsonProcessingException e) {
+                    // Gestisci l'errore: stampalo o lancia una RuntimeException
+                    e.printStackTrace();
+                }
+            }
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Recipe not found");
+        }
+        return conversion.EntityToDto(full_recipe.get());
     }
 
 }

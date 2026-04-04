@@ -1,9 +1,12 @@
 package it.unipi.MySmartRecipeBook.utils.convertionFunctions;
 
+import it.unipi.MySmartRecipeBook.dto.IngredientDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.FoodiePreviewRecipeDTO;
+import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegistedUserDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegistedUserInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
+import it.unipi.MySmartRecipeBook.model.Mongo.ingredients.RecipeIngredient;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefRecipeSummary;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Foodie;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
@@ -120,5 +123,29 @@ public class FoodieUtilityFunctions {
         }
 
         return recipes;
+    }
+
+    public ShowRecipeDTO EntityToDto (RecipeMongo recipe){
+
+        ShowRecipeDTO recipeDTO = new ShowRecipeDTO();
+        recipeDTO.setTitle(recipe.getTitle());
+        recipeDTO.setPresentation(recipe.getPresentation());
+        recipeDTO.setCategory(recipe.getCategory());
+        recipeDTO.setPrepTime(recipe.getPrepTime());
+        recipeDTO.setDifficulty(recipe.getDifficulty());
+        recipeDTO.setImageURL(recipe.getImageURL());
+        recipeDTO.setPreparation(recipe.getPreparation());
+
+        List<IngredientDTO> ingredients = new ArrayList<>();
+        for(RecipeIngredient ingredient : recipe.getIngredients()){
+            IngredientDTO ingredientDTO = new IngredientDTO();
+            ingredientDTO.setName(ingredient.getName());
+            ingredientDTO.setQuantity(ingredient.getQuantity());
+            ingredients.add(ingredientDTO);
+        }
+        recipeDTO.setIngredients(ingredients);
+        recipeDTO.setCreationDate(recipe.getCreationDate().toLocalDate());
+
+        return recipeDTO;
     }
 }

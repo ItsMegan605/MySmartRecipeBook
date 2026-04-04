@@ -56,24 +56,6 @@ public interface FoodieRepository extends MongoRepository<Foodie, String> {
      */
     boolean existsByUsername(String username);
 
-    /**
-     * Finds all foodies that have saved recipes from a specific chef.
-     *
-     * @param chefId chef ID
-     * @return list of foodies
-     */
-    @Query("{'saved_recipes.chef.id': ?0 }")
-    List<Foodie> findFoodiesWithChefRecipes(String chefId);
-
-    /**
-     * Removes a recipe from all foodies that saved it.
-     *
-     * @param chefId chef ID
-     * @param recipeId recipe ID
-     */
-    @Query("{ 'saved_recipes.chef.id': ?0, 'saved_recipes.id': ?1 }")
-    @Update("{ '$pull': {'saved_recipes': { 'id': ?1 } } }")
-    void deleteRecipeFromFoodies(String chefId, String recipeId);
 
     /**
      * Adds a recipe to the favourites list if not already present.
