@@ -28,15 +28,10 @@ import java.util.List;
 @Document(collection = "foodies")
 public class Foodie extends RegisteredUser {
 
-    /**
-     * Registration date of the foodie.
-     */
+
     @Field("registration_date")
     private Date registrationDate;
 
-    /**
-     * List of recipes saved by the foodie.
-     */
     @Field("saved_recipes")
     private List<FoodieRecipeSummary> savedRecipes;
 

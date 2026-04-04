@@ -22,15 +22,9 @@ import java.util.List;
 @Document(collection = "chefs")
 public class Admin extends RegisteredUser {
 
-    /**
-     * List of recipes that need to be approved by the admin.
-     */
     @Field("recipes_to_approve")
     private List<PendingRecipe> recipesToApprove;
 
-    /**
-     * List of chefs that need to be approved by the admin.
-     */
     @Field("chefs_to_approve")
     private List<PendingChef> chefsToApprove;
 

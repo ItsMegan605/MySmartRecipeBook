@@ -22,25 +22,13 @@ import org.springframework.data.neo4j.core.schema.Property;
 @Node("Chef")
 public class ChefNeo4j {
 
-    /**
-     * Internal Neo4j identifier (auto-generated).
-     */
     @Id @GeneratedValue
     private Long neo4jId;
 
-    /**
-     * Reference to the corresponding MongoDB Chef ID.
-     */
     @Property("mongo_id")
     private String mongoId;
 
-    /**
-     * First name of the chef.
-     */
     private String name;
 
-    /**
-     * Last name of the chef.
-     */
     private String surname;
 }

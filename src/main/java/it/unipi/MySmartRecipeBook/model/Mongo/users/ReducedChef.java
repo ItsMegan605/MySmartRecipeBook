@@ -18,19 +18,11 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @AllArgsConstructor
 public class ReducedChef {
 
-    /**
-     * Unique identifier of the chef.
-     */
+
     @Field("id")
     private String id;
 
-    /**
-     * First name of the chef.
-     */
     private String name;
 
-    /**
-     * Last name of the chef.
-     */
     private String surname;
 }

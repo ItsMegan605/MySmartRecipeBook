@@ -24,55 +24,30 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class PendingChef {
 
-    /**
-     * Unique identifier of the pending chef.
-     */
     private String id;
 
-    /**
-     * Username chosen by the user.
-     */
     @NotBlank(message = "Username is required")
     @Size(max = 20)
     private String username;
 
-    /**
-     * First name of the user.
-     */
     @NotBlank(message = "First name is required")
     private String name;
 
-    /**
-     * Last name of the user.
-     */
     @NotBlank(message = "Last name is required")
     private String surname;
 
-    /**
-     * Email address of the user.
-     */
     @NotBlank(message = "E-mail is required")
     @Email
     @Size(max = 50)
     private String email;
 
-    /**
-     * User password.
-     */
     @NotBlank
     @Size(min = 8, max = 20)
     private String password;
 
-    /**
-     * Birthdate of the user.
-     * Must be a past date.
-     */
     @Past(message = "Birthdate must be in the past")
     private LocalDate birthdate;
 
-    /**
-     * Registration date of the user.
-     */
     @Field("reg_date")
     private LocalDate registrationDate;
 

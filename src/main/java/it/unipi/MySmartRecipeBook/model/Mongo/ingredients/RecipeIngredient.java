@@ -18,13 +18,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class RecipeIngredient {
 
-    /**
-     * Name of the ingredient.
-     */
     private String name;
-
-    /**
-     * Quantity of the ingredient
-     */
     private String quantity;
 }

@@ -12,16 +12,9 @@ import lombok.Data;
 @Node("Ingredients") // Using "Ingredients" for consistency with graph labels
 public class IngredientNeo4j {
 
-    /**
-     * Internal Neo4j identifier.
-     * Automatically generated.
-     */
     @Id
     @GeneratedValue // Auto-generated ID
     private Long id;
 
-    /**
-     * Name of the ingredient.
-     */
     private String name;
 }

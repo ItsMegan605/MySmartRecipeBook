@@ -18,15 +18,9 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @AllArgsConstructor
 public class OldRecipe {
 
-    /**
-     * Unique identifier of the recipe.
-     */
     @Field("id")
     String id;
 
-    /**
-     * Number of times the recipe has been saved.
-     */
     @Field("num_saves")
     private Integer numSaves;
 }

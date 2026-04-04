@@ -21,43 +21,21 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class FoodieRecipeSummary {
 
-    /**
-     * Unique identifier of the recipe.
-     */
     @Field("id")
     private String id;
 
-    /**
-     * Title of the recipe.
-     */
     private String title;
 
-    /**
-     * Category of the recipe.
-     */
     private String category;
 
-    /**
-     * Difficulty level of the recipe.
-     */
     private String difficulty;
 
-    /**
-     * URL of the recipe image.
-     */
     @Field("image_url")
     private String imageURL;
 
-    /**
-     * Date when the recipe was saved by the foodie.
-     */
     @Field("saving_date")
     private LocalDate savingDate;
 
-    /**
-     * Reference to the chef who created the recipe.
-     * Used when updating or decrementing the chef's saved recipes counter.
-     */
     @Field("chef")
     private ReducedChef chef;
 }
