@@ -4,6 +4,7 @@ import it.unipi.MySmartRecipeBook.dto.recipe.RecipeSuggestionDTO;
 import it.unipi.MySmartRecipeBook.model.Neo4j.RecipeNeo4j;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -126,8 +127,9 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
     @Query("UNWIND $relations AS rel " +
             "MATCH (r:Recipe {mongo_id: rel.recipeId}) " +
             "MATCH (c:Chef {mongo_id: rel.chefId}) " +
-            "MERGE (r)-[:WRITTEN_BY]->(c)")
-    void createChefRecipeRelations(List<Map<String, String>> relations);
+            "MERGE (r)-[:WRITTEN_BY]->(c) " +
+            "MERGE (c)-[:WROTE]->(r)")
+    void createChefRecipeRelations(@Param("relations") List<Map<String, String>> relations);
 
     /**
      * Creates relationships between ingredients and recipes.
@@ -138,7 +140,7 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
             "MATCH (r:Recipe {mongo_id: rel.recipeId}) " +
             "MATCH (i:Ingredient {name: rel.ingredientName}) " +
             "MERGE (i)-[:USED_IN]->(r)")
-    void createIngredientRecipeRelations(List<Map<String, String>> relations);
+    void createIngredientRecipeRelations(@Param("relations")List<Map<String, String>> relations);
 
     /*
      * This query:

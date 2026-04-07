@@ -111,6 +111,7 @@ public class Neo4jPopulator implements CommandLineRunner {
         List<RecipeNeo4j> recipes = new ArrayList<>();
         for(RecipeMongo recipe : listRecipes){
             RecipeNeo4j recipeNeo4j = recipeUtils.MongoToNeo4j(recipe);
+            recipeNeo4j.setMongoId(recipe.getId());
             recipeNeo4j.setChef(null);
             recipeNeo4j.setIngredients(new ArrayList<>());
             recipes.add(recipeNeo4j);
@@ -118,10 +119,11 @@ public class Neo4jPopulator implements CommandLineRunner {
             chefRecipeRelations.add(Map.of("recipeId", recipe.getId(), "chefId", recipe.getChef().getId()));
 
             for(RecipeIngredient ingredient : recipe.getIngredients()) {
-                String ingredientName = ingredient.getName();
-
+                String ingredientName = ingredient.getName().toLowerCase().trim();
                 ingredientRecipeRelations.add(Map.of("recipeId", recipe.getId(), "ingredientName", ingredientName));
             }
+            System.out.println("attesa fine popolamento...");
+
         }
         neo4jRepository.saveAll(recipes);
         neo4jRepository.createChefRecipeRelations(chefRecipeRelations);
