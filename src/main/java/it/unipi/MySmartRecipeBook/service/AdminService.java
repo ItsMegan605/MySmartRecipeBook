@@ -170,7 +170,8 @@ public class AdminService {
         }
 
         //aggiorno
-        chef.setTotalRecipes(chef.getTotalRecipes() + 1);
+        int totalRecipes = chef.getTotalRecipes() != null ? chef.getTotalRecipes() : 0;
+        chef.setTotalRecipes(totalRecipes + 1);
         chefRepository.save(chef);
     }
 
