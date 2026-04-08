@@ -2,7 +2,10 @@ package it.unipi.MySmartRecipeBook.service;
 
 import it.unipi.MySmartRecipeBook.dto.YearAnalyticsDTO;
 import it.unipi.MySmartRecipeBook.dto.PopularIngredientsDTO;
+import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.GraphRecipeDTO;
+import it.unipi.MySmartRecipeBook.dto.users.PendingChefDTO;
+import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefRecipeSummary;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.OldRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Admin;
@@ -24,6 +27,7 @@ import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 
 import jakarta.transaction.Transactional;
 import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +35,7 @@ import it.unipi.MySmartRecipeBook.dto.TrendAnalyticsDTO;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Optional;
 
 /**
@@ -38,6 +43,9 @@ import java.util.Optional;
  */
 @Service
 public class AdminService {
+
+    @Value("${app.recipe.pag-size-chef:5}")
+    private int pageSizeAdmin;
 
     /* filtro per gli ingredienti degli chef */
 
@@ -293,6 +301,79 @@ public class AdminService {
         }
 
         adminRepository.removeChefFromApprovals(admin.getId(), chefUsername);
+    }
+
+
+    public SliceRecipeDTO showPendingRecipes(int pageNumber) {
+
+        UserPrincipal logged_admin = (UserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        Admin admin = adminRepository.findById(logged_admin.getId())
+                .orElseThrow(() -> new RuntimeException("Admin not found"));
+
+        if (pageNumber <= 0) {
+            throw new RuntimeException("Invalid parameters");
+        }
+
+        if (admin.getRecipesToApprove() == null || admin.getRecipesToApprove().isEmpty()) {
+            return new SliceRecipeDTO(null, false, false);
+        }
+
+        List<PendingRecipe> pendingRecipes = admin.getRecipesToApprove();
+
+        int start = (pageNumber - 1) * pageSizeAdmin;
+        int end = Math.min(pageNumber * pageSizeAdmin, pendingRecipes.size());
+
+        if (start >= pendingRecipes.size()) {
+            return new SliceRecipeDTO(null, false, true);
+        }
+
+        List<ChefPreviewRecipeDTO> content = new ArrayList<>();
+        for (PendingRecipe recipe : pendingRecipes.subList(start, end)) {
+            content.add(chefUtilityFunctions.baseToChefDTO(recipe));
+        }
+
+        boolean hasPrevious = pageNumber > 1;
+        boolean hasNext = pendingRecipes.size() > end;
+
+        return new SliceRecipeDTO(content, hasNext, hasPrevious);
+    }
+
+    public SliceRecipeDTO showPendingChefs(int pageNumber) {
+
+        UserPrincipal logged_admin = (UserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        Admin admin = adminRepository.findById(logged_admin.getId())
+                .orElseThrow(() -> new RuntimeException("Admin not found"));
+
+        if (pageNumber <= 0) {
+            throw new RuntimeException("Invalid parameters");
+        }
+
+        if (admin.getChefsToApprove() == null || admin.getChefsToApprove().isEmpty()) {
+            return new SliceRecipeDTO(null, false, false);
+        }
+
+        List<PendingChef> pendingChefs = admin.getChefsToApprove();
+
+        int start = (pageNumber - 1) * pageSizeAdmin;
+        int end = Math.min(pageNumber * pageSizeAdmin, pendingChefs.size());
+
+        if (start >= pendingChefs.size()) {
+            return new SliceRecipeDTO(null, false, true);
+        }
+
+        List<PendingChefDTO> content = chefUtilityFunctions.PendingChefListToDTO(
+                pendingChefs.subList(start, end));
+
+        boolean hasPrevious = pageNumber > 1;
+        boolean hasNext = pendingChefs.size() > end;
+
+        return new SliceRecipeDTO(content, hasNext, hasPrevious);
     }
 
 

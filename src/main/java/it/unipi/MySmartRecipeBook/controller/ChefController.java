@@ -89,8 +89,6 @@ public class ChefController {
         return ResponseEntity.ok("Profile successfully deleted. We are sorry to see you leaving");
     }
 
-
-
     /**
      * Method to handle a new recipe
      * @param dto
@@ -105,6 +103,11 @@ public class ChefController {
         return ResponseEntity.ok(recipe);
     }
 
+    @GetMapping("/showWaiting/{page}")
+    public ResponseEntity<SliceRecipeDTO> showPendingRecipes (@PathVariable("page") int page){
+        SliceRecipeDTO recipeList = chefService.showPendingRecipes(page);
+        return ResponseEntity.ok(recipeList);
+    }
 
 
     /**
@@ -135,7 +138,6 @@ public class ChefController {
         chefService.deleteRecipe(recipeId);
         return ResponseEntity.ok("Recipe succesfully deleted");
     }
-
 
 
     /**

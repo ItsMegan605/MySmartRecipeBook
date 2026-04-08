@@ -1,6 +1,8 @@
 package it.unipi.MySmartRecipeBook.controller;
 
 import it.unipi.MySmartRecipeBook.dto.*;
+import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
+import it.unipi.MySmartRecipeBook.dto.users.PendingChefDTO;
 import it.unipi.MySmartRecipeBook.service.AdminService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -70,6 +72,17 @@ public class AdminController {
     public ResponseEntity<String> discardChef(@PathVariable("username") String chefUsername) {
         adminService.declineChef(chefUsername);
         return ResponseEntity.ok("Chef declined by admin");
+    }
+
+    @GetMapping("/showRecipes/{page}")
+    public ResponseEntity<SliceRecipeDTO> showRecipe (@PathVariable("page") int page){
+        SliceRecipeDTO recipeList = adminService.showPendingRecipes(page);
+        return ResponseEntity.ok(recipeList);
+    }
+    @GetMapping("/showChefs/{page}")
+    public ResponseEntity<SliceRecipeDTO> showChefs (@PathVariable("page") int page){
+        SliceRecipeDTO chefList = adminService.showPendingChefs(page);
+        return ResponseEntity.ok(chefList);
     }
 
     /**

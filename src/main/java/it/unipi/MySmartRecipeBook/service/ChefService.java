@@ -444,6 +444,40 @@ public class ChefService {
         return  new SliceRecipeDTO(chefList, hasNext, hasPrevious);
     }
 
+    public SliceRecipeDTO showPendingRecipes(int pageNumber) {
+
+        UserPrincipal authChef = (UserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        Chef chef = chefRepository.findById(authChef.getId())
+                .orElseThrow(() -> new RuntimeException("Chef not found"));
+
+        if (pageNumber <= 0) {
+            throw new RuntimeException("Invalid parameters");
+        }
+
+        if (chef.getRecipesToConfirm() == null || chef.getRecipesToConfirm().isEmpty()) {
+            return new SliceRecipeDTO(null, false, false);
+        }
+
+        List<ChefPendingRecipe> pendingRecipes = chef.getRecipesToConfirm();
+
+        int start = (pageNumber - 1) * pageSizeChef;
+        int end = Math.min(pageNumber * pageSizeChef, pendingRecipes.size());
+
+        if (start >= pendingRecipes.size()) {
+            return new SliceRecipeDTO(null, false, true);
+        }
+
+        List<ChefPreviewRecipeDTO> content = chefConvertions.PendingChefListToChefPreview(
+                pendingRecipes.subList(start, end));
+
+        boolean hasPrevious = pageNumber > 1;
+        boolean hasNext = pendingRecipes.size() > end;
+
+        return new SliceRecipeDTO(content, hasNext, hasPrevious);
+    }
     /* Get top 3 chefs per category */
 
     /**

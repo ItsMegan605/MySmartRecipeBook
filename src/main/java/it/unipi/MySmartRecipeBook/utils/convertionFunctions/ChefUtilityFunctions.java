@@ -3,6 +3,7 @@ package it.unipi.MySmartRecipeBook.utils.convertionFunctions;
 import it.unipi.MySmartRecipeBook.dto.IngredientDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.CreateRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.users.ChefInfoDTO;
+import it.unipi.MySmartRecipeBook.dto.users.PendingChefDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegistedUserDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegistedUserInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
@@ -293,4 +294,26 @@ public class ChefUtilityFunctions {
 
         return recipe;
     }
+
+    public List<PendingChefDTO> PendingChefListToDTO(List<PendingChef> chefs) {
+        List<PendingChefDTO> result = new ArrayList<>();
+        for (PendingChef chef : chefs) {
+            result.add(new PendingChefDTO(chef.getUsername(), chef.getName(), chef.getSurname()));
+        }
+        return result;
+    }
+
+    public List<ChefPreviewRecipeDTO> PendingChefListToChefPreview(List<ChefPendingRecipe> recipes) {
+        List<ChefPreviewRecipeDTO> result = new ArrayList<>();
+        for (ChefPendingRecipe recipe : recipes) {
+            ChefPreviewRecipeDTO dto = new ChefPreviewRecipeDTO();
+            dto.setId(recipe.getId());
+            dto.setTitle(recipe.getTitle());
+            dto.setImageURL(recipe.getImageURL());
+            dto.setCreationDate(recipe.getCreationDate().toLocalDate());
+            result.add(dto);
+        }
+        return result;
+    }
+
 }

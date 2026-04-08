@@ -107,6 +107,22 @@ public class RecipeUtilityFunctions {
         return full_recipe;
     }
 
+    /* RIDONDANTE
+    public List<ChefPreviewRecipeDTO> PendingListToChefPreview(List<PendingRecipe> recipes) {
+        List<ChefPreviewRecipeDTO> result = new ArrayList<>();
+        for (PendingRecipe recipe : recipes) {
+            ChefPreviewRecipeDTO dto = new ChefPreviewRecipeDTO();
+            dto.setId(recipe.getId());
+            dto.setTitle(recipe.getTitle());
+            dto.setImageURL(recipe.getImageURL());
+            dto.setCreationDate(recipe.getCreationDate().toLocalDate());
+            result.add(dto);
+        }
+        return result;
+    }
+    */
+
+
     /**
      *
      * @param recipe
