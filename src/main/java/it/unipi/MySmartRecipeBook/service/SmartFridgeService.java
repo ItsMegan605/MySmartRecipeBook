@@ -89,7 +89,7 @@ public class SmartFridgeService {
                 .getPrincipal();
 
         if(ingredients == null) {
-            throw new RuntimeException("No ingredients inserted");
+            throw new IllegalArgumentException("No ingredients inserted");
         }
         ingredients.removeIf(ingredient -> !ingredientService.isValidIngredient(ingredient));
         // In questo modo tutti gli ingredienti vengono sempre inseriti in minuscolo
@@ -251,7 +251,7 @@ public class SmartFridgeService {
                     e.printStackTrace();
                 }
             }
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Recipe not found");
+            throw new NoSuchElementException( "Recipe not found");
         }
         return conversion.EntityToDto(full_recipe.get());
     }

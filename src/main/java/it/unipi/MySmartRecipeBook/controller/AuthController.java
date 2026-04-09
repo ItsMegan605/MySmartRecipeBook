@@ -38,8 +38,7 @@ public class AuthController {
     public ResponseEntity<String> registerChef (@Valid @RequestBody RegistedUserDTO dto){
 
         if(Period.between(dto.getBirthdate(), LocalDate.now()).getYears() < 15){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You must be at least 15 to register");
-        }
+            throw new IllegalArgumentException("You must be at least 15 years old to use this service");        }
 
         authService.registerChef(dto);
         return ResponseEntity.ok("Registration request completed successfully. Waiting for admin approval.");
@@ -56,8 +55,7 @@ public class AuthController {
     public ResponseEntity<String> registerFoodie (@Valid @RequestBody RegistedUserDTO dto){
 
         if(Period.between(dto.getBirthdate(), LocalDate.now()).getYears() < 15){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You must be at least 15 to register");
-        }
+            throw new IllegalArgumentException("You must be at least 15 years old to use this service");        }
 
         authService.registerFoodie(dto);
         return ResponseEntity.ok("Foodie registered successfully");

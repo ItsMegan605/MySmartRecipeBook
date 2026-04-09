@@ -76,7 +76,7 @@ public class FoodieService {
                 .getPrincipal();
 
         Foodie foodie = foodieRepository.findById(authFoodie.getId())
-                .orElseThrow(() -> new RuntimeException("Foodie not found"));
+                .orElseThrow(() -> new NoSuchElementException("Foodie not found"));
 
         return usersConvertions.entityToFoodieDTO(foodie);
     }
@@ -106,7 +106,7 @@ public class FoodieService {
                 .getPrincipal();
 
         if (!foodieRepository.existsById(authFoodie.getId())) {
-            throw new RuntimeException("Foodie not found");
+            throw new NoSuchElementException("Foodie not found");
         }
 
         Query query = new Query(Criteria.where("id").is(authFoodie.getId()));
@@ -152,7 +152,7 @@ public class FoodieService {
                 .getPrincipal();
 
         Foodie foodie = foodieRepository.findById(authFoodie.getId())
-                .orElseThrow(() -> new RuntimeException("Foodie not found"));
+                .orElseThrow(() -> new NoSuchElementException("Foodie not found"));
 
         List<String> recipesId = new ArrayList<>();
         Map<String, List<String>> recipesByChefId = new HashMap<>();
@@ -193,7 +193,7 @@ public class FoodieService {
 
         /* We retrieve all the recipe information from the recipe collection*/
         RecipeMongo recipe = recipeRepository.findById(recipeId)
-                .orElseThrow(() -> new RuntimeException("Recipe to save not found"));
+                .orElseThrow(() -> new NoSuchElementException("Recipe to save not found"));
 
         // All'interno di questa entità viene memorizzata la data di salvataggio
         FoodieRecipeSummary fullRecipe = usersConvertions.entityToReducedRecipe(recipe);
@@ -221,10 +221,10 @@ public class FoodieService {
                 .getPrincipal();
 
         Foodie foodie = foodieRepository.findById(authFoodie.getId())
-                .orElseThrow(() -> new RuntimeException("Foodie not found"));
+                .orElseThrow(() -> new NoSuchElementException("Foodie not found"));
 
         if (foodie.getSavedRecipes() == null) {
-            throw new RuntimeException("Recipe not found for the specified foodie");
+            throw new NoSuchElementException("Recipe not found for the specified foodie");
         }
 
         String targetChefId = null;
@@ -258,14 +258,14 @@ public class FoodieService {
                 .getPrincipal();
 
         Foodie foodie = foodieRepository.findById(authFoodie.getId())
-                .orElseThrow(() -> new RuntimeException("Foodie not found"));
+                .orElseThrow(() -> new NoSuchElementException("Foodie not found"));
 
         if (foodie.getSavedRecipes() == null) {
-            throw new RuntimeException("Recipe not found for the specified foodie");
+            throw new NoSuchElementException("Recipe not found for the specified foodie");
         }
 
         if (numPage <= 0 || !FOODIE_FILTERS.contains(category)) {
-            throw new RuntimeException("Invalid parameters");
+            throw new IllegalArgumentException("Invalid parameters");
         }
 
         /*if (numPage == 1 && category.equals("saving-date")) {
@@ -294,7 +294,7 @@ public class FoodieService {
 
         int start = (numPage - 1) * pageSizeFoodie;
         if (start >= recipesPreview.size()) {
-            throw new RuntimeException("Invalid page number");
+            throw new IllegalArgumentException("Invalid page number");
         }
 
         recipesPreview.sort(Comparator.comparing(FoodieRecipeSummary::getSavingDate).reversed());
@@ -315,7 +315,7 @@ public class FoodieService {
                 .getPrincipal();
 
         Foodie foodie = foodieRepository.findById(authFoodie.getId())
-                .orElseThrow(() -> new RuntimeException("Foodie not found"));
+                .orElseThrow(() -> new NoSuchElementException("Foodie not found"));
 
         Optional<RecipeMongo> recipe = recipeRepository.findById(id);
 

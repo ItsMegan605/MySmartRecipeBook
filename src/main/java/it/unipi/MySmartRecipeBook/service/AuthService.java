@@ -60,7 +60,7 @@ public class AuthService {
         // Controllo se lo username già esiste (sia nella collezione chefs che in quella foodies)
         if (chefRepository.existsByUsername(chefDTO.getUsername())
                 || foodieRepository.existsByUsername(chefDTO.getUsername())) {
-            throw new RuntimeException("Username already taken");
+            throw new RuntimeException("Username already taken"); //questa mi sa che va cambiata
         }
 
         // Viene creata l'entità chef da inserire tra quelle in attesa di approvazione dell'admin

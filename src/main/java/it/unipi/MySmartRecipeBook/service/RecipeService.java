@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -17,6 +18,7 @@ import redis.clients.jedis.JedisCluster;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static it.unipi.MySmartRecipeBook.utils.parameters.Categories.CATEGORIES;
@@ -61,7 +63,7 @@ public class RecipeService {
     public ShowRecipeDTO getRecipeById(String id){
 
         RecipeMongo full_recipe = recipeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Recipe not found"));
+                .orElseThrow(() -> new NoSuchElementException("Recipe not found"));
 
         return convertions.EntityToDto(full_recipe);
     }
@@ -84,13 +86,13 @@ public class RecipeService {
     public SliceRecipeDTO getRecipeByTitle(String title, int pageNumber){
 
         if(pageNumber <= 0){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid page number");
+            throw new HttpMessageNotReadableException("Invalid page number");
         }
 
         Pageable pageable = PageRequest.of(pageNumber - 1, pageSizeTitle);
         Slice<RecipeMongo> matching_recipes = recipeRepository.findByTitleContainingIgnoreCase(title, pageable);
         if (matching_recipes.isEmpty()){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found");
+            throw new NoSuchElementException("Not found");
         }
 
         List<UserPreviewRecipeDTO> recipesDTO = convertions.EntityToUserDto(matching_recipes.getContent());
@@ -108,7 +110,7 @@ public class RecipeService {
     public SliceRecipeDTO getNewestRecipe (int pageNumber){
 
         if(pageNumber <= 0){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid page number");
+            throw new HttpMessageNotReadableException("Invalid page number");
         }
 
         Pageable pageable = PageRequest.of(pageNumber - 1, pageSizeHome, Sort.by("creationDate").descending());
@@ -129,7 +131,7 @@ public class RecipeService {
     public SliceRecipeDTO getByCategory (int pageNumber, String filter){
 
         if(pageNumber <= 0 || !CATEGORIES.contains(filter)){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid parameters");
+            throw new HttpMessageNotReadableException("Invalid parameters");
         }
 
         Pageable pageable = PageRequest.of(pageNumber - 1, pageSizeCategory, Sort.by("creationDate").descending());
@@ -151,7 +153,7 @@ public class RecipeService {
     public SliceRecipeDTO getChefRecipePage(int pageNumber, String chefId){
 
         if(pageNumber <= 0){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid parameters");
+            throw new HttpMessageNotReadableException("Invalid parameters");
         }
 
         Pageable pageable = PageRequest.of(pageNumber - 1, pageSizeChef, Sort.by("totalSaves").descending());

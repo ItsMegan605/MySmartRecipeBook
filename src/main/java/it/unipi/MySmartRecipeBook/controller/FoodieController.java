@@ -67,7 +67,7 @@ public class FoodieController {
     public ResponseEntity<RegistedUserInfoDTO> changeInfo (@Valid @RequestBody UpdateFoodieDTO updates){
 
         if(updates.getBirthdate() != null && Period.between(updates.getBirthdate(), LocalDate.now()).getYears() < 15){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You must be at least 15");
+            throw new IllegalArgumentException("You must be at least 15 years old to use this service");
         }
 
         return ResponseEntity.ok(foodieService.updateFoodie(updates));

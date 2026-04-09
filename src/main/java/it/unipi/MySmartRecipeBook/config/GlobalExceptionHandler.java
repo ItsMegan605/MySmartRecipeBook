@@ -115,7 +115,7 @@ public class GlobalExceptionHandler {
     })
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
-        return ResponseEntity.badRequest().body("Illegal argument");
+        return ResponseEntity.badRequest().body(e.getMessage()); //così prende quello che definisco io
     }
 
     /**
@@ -130,11 +130,11 @@ public class GlobalExceptionHandler {
     })
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<String> handleNoSuchElementException(NoSuchElementException e) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("resource not found");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
 
 /**
- * AccessDeniedException: generata da sping security, quando vuole fa op per cu non ha p4rmesso
+ * AccessDeniedException: when we do an operation without the correct role for it
  * */
     @ApiResponses({
             @ApiResponse(
@@ -143,15 +143,14 @@ public class GlobalExceptionHandler {
                     content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class))
             )
     })
-    //tentativo di accesso a una risorsa protetta senza i permessi necessari
     @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
     public ResponseEntity<String> handleAccessDeniedException(AccessDeniedException ex) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied: " + ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied: you don't have rights for this operation");
     }
 
 
 /**
- *  HttpMessageNotReadableException: quando manda JSON fatto male
+ *  HttpMessageNotReadableException: Exception that handles wrong json format
  *  */
 @ApiResponses({
             @ApiResponse(
@@ -162,7 +161,7 @@ public class GlobalExceptionHandler {
     })
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<String> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
-        return ResponseEntity.badRequest().body("HTTP request is not readable: " + ex.getMessage());
+        return ResponseEntity.badRequest().body("HTTP request is not readable: format error");
     }
 
 

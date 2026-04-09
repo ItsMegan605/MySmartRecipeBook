@@ -36,6 +36,7 @@ import it.unipi.MySmartRecipeBook.dto.ChefRankAnalyticsDTO;
 
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.bson.types.ObjectId;
@@ -85,7 +86,7 @@ public class ChefService {
      *
      * @param username Gets the chef's username
      * @return if the chef exists or not to gather his/her information
-     * @throws RuntimeException if the chef doesn't exist
+     * @throws NoSuchElementException if the chef doesn't exist
      */
 
     /*--------------- Retrieve chef's information ----------------*/
@@ -93,7 +94,7 @@ public class ChefService {
     public RegistedUserInfoDTO getByUsername(String username) {
 
         Chef chef = chefRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Chef not found"));
+                .orElseThrow(() -> new NoSuchElementException("Chef not found"));
 
         return chefConvertions.chefToChefInfo(chef);
     }
@@ -106,7 +107,7 @@ public class ChefService {
      * ne or more among the followin fields: Email, password and birthday
      * @param dto We get the dto for the chef and check the authentication parameters
      * @return if the chef exists we return the updated chef's information
-     * @throws RuntimeException if the chef doesn't exist
+     * @throws NoSuchElementException if the chef doesn't exist
      */
     /*
 
@@ -119,7 +120,7 @@ public class ChefService {
                 .getPrincipal();
 
         if(!chefRepository.existsById(authChef.getId())){
-            throw new RuntimeException("Chef not found");
+            throw new NoSuchElementException("Chef not found");
         }
 
         // Vado a modificare solo le informazioni personali, il resto lo lascio invariato
@@ -149,14 +150,14 @@ public class ChefService {
      *
      * @param chefId Gets the chef's id in order to delet his/her profile and then the low load manager handles
      *               the deletion of the chef once the load of the cpu is lower than 30%
-     * @throws RuntimeException if the chef doesn't exist
+     * @throws NoSuchElementException if the chef doesn't exist
      */
 
     @Transactional
     public void deleteChef(String chefId) {
 
         Chef chef = chefRepository.findByUsername(chefId)
-                .orElseThrow(() -> new RuntimeException("Chef not found"));
+                .orElseThrow(() -> new NoSuchElementException("Chef not found"));
 
         // Vengono eliminate tutte le ricette di quello chef (è stato definito un indice sullo chef - compound o
         // semplice non mi ricordo) dalla collection "recipes"
@@ -179,7 +180,7 @@ public class ChefService {
      * wait for admin's approval.
      *
      * @param recipeDTO DTO with all the obbligatory fields inserted by the chef when he writes the recipe
-     * @throws RuntimeException if the chef is not found, if the admin is not found and if one of the fields is wrong/missing
+     * @throws NoSuchElementException if the chef is not found, if the admin is not found and if one of the fields is wrong/missing
      * @return DTO with a recipe preview to show the chef while he wait for the approval
      */
     @Transactional
@@ -190,14 +191,14 @@ public class ChefService {
                 .getPrincipal();
 
         Chef chef = chefRepository.findById(authChef.getId())
-                .orElseThrow(() -> new RuntimeException("Chef not found"));
+                .orElseThrow(() -> new NoSuchElementException("Chef not found"));
 
         if(!CATEGORIES.contains(recipeDTO.getCategory())){
-            throw new RuntimeException("'" + recipeDTO.getCategory() + "': invalid category");
+            throw new IllegalArgumentException("'" + recipeDTO.getCategory() + "': invalid category");
         }
 
         if(!DIFFICULTIES.contains(recipeDTO.getDifficulty())){
-            throw new RuntimeException("'" + recipeDTO.getDifficulty() + "': invalid difficulty");
+            throw new IllegalArgumentException("'" + recipeDTO.getDifficulty() + "': invalid difficulty");
         }
 
         // Controlliamo che gli ingredienti siano presenti nel formato richiesto
@@ -205,14 +206,14 @@ public class ChefService {
         for(IngredientDTO ingredient : ingredients) {
             String ingredientName = ingredient.getName();
             if(!ingredientService.isValidIngredient(ingredientName)){
-                throw new RuntimeException("'" + ingredientName + "': invalid ingredient");
+                throw new IllegalArgumentException("'" + ingredientName + "': invalid ingredient");
             }
         }
 
         Admin admin = adminRepository.findByUsername("admin");
 
         if (admin == null) {
-            throw new RuntimeException("Admin not found");
+            throw new NoSuchElementException("Admin not found");
         }
 
         ChefInfoDTO chefDTO = new ChefInfoDTO(chef.getId(), chef.getName(), chef.getSurname());
@@ -224,7 +225,7 @@ public class ChefService {
         if(admin.getRecipesToApprove() != null){
             for(PendingRecipe recipe : admin.getRecipesToApprove()){
                 if(recipe.getTitle().equals(recipeDTO.getTitle())){
-                    throw new RuntimeException("Recipe already waiting to be approved");
+                    throw new IllegalArgumentException("Recipe already waiting to be approved");
                 }
             }
         }
@@ -249,7 +250,7 @@ public class ChefService {
      * function to delete a recipoe: once deleted it must update the total recipes of a chef and later up0date the user's
      * SmartFridge
      * @param recipeId gets the recipe's ID number
-     * @throws RuntimeException if the chef or recipe is not found
+     * @throws NoSuchElementException if the chef or recipe is not found
      */
 
     @Transactional
@@ -260,17 +261,17 @@ public class ChefService {
                 .getPrincipal();
 
         Chef chef = chefRepository.findById(authChef.getId())
-                .orElseThrow(() -> new RuntimeException("Chef not found"));
+                .orElseThrow(() -> new NoSuchElementException("Chef not found"));
 
         List<ChefRecipeSummary> newRecipes = chef.getNewRecipes();
 
         if (newRecipes == null) {
-            throw new RuntimeException("No recipes found");
+            throw new NoSuchElementException("No recipes found");
         }
 
         // Rimuoviamo la ricetta dalla collezione "recipes" da Mongo
         if(recipeMongoRepository.deleteRecipeById(recipeId) == 0){
-            throw new RuntimeException("Recipe not found");
+            throw new NoSuchElementException("Recipe not found");
         }
 
         // Questa parte non è atomica ma per renderla tale dobbiamo necessariamente usare version o lock
@@ -322,7 +323,7 @@ public class ChefService {
     /**
      *
      * @param recipeId gets the recipe ID of the recipe that is waiting to be approved
-     * @throws RuntimeException
+     * @throws NoSuchElementException
      * Updates the reposutory
      */
 
@@ -334,11 +335,11 @@ public class ChefService {
                 .getPrincipal();
 
         Chef chef = chefRepository.findById(chef1.getId())
-                .orElseThrow(() -> new RuntimeException("Chef not found"));
+                .orElseThrow(() -> new NoSuchElementException("Chef not found"));
 
         // Controlliamo che lo chef abbia delle ricette che sono in attesa di essere confermate
         if(chef.getRecipesToConfirm() == null){
-            throw new RuntimeException("No recipes waiting to be confirmed");
+            throw new NoSuchElementException("No recipes waiting to be confirmed");
         }
 
         ObjectId chefObjectId = new ObjectId(chef.getId());
@@ -352,11 +353,11 @@ public class ChefService {
 
             Admin admin = adminRepository.findByUsername("admin");
             if(admin == null){
-                throw new RuntimeException("Admin not found");
+                throw new NoSuchElementException("Admin not found");
             }
 
             if(admin.getRecipesToApprove() == null){
-                throw new RuntimeException("No recipes waiting to be approved");
+                throw new NoSuchElementException("No recipes waiting to be approved");
             }
 
             adminRepository.removeRecipeFromApprovals(admin.getId(), recipeId);
@@ -381,10 +382,10 @@ public class ChefService {
                 .getPrincipal();
 
         Chef chef = chefRepository.findById(authChef.getId())
-                .orElseThrow(() -> new RuntimeException("Chef not found"));
+                .orElseThrow(() -> new NoSuchElementException("Chef not found"));
 
         if(pageNumber <= 0){
-            throw new RuntimeException("Invalid parameters");
+            throw new IllegalArgumentException("Invalid parameters");
         }
 
 
@@ -424,14 +425,14 @@ public class ChefService {
                 .getPrincipal();
 
         Chef chef = chefRepository.findById(authChef.getId())
-                .orElseThrow(() -> new RuntimeException("Chef not found"));
+                .orElseThrow(() -> new NoSuchElementException("Chef not found"));
 
         if(pageNumber <= 0){
-            throw new RuntimeException("Invalid parameters");
+            throw new IllegalArgumentException("Invalid parameters");
         }
 
         if(chef.getPopularRecipes() == null || chef.getPopularRecipes().isEmpty()) {
-            throw new RuntimeException("No popular recipes");
+            throw new NoSuchElementException("No popular recipes");
         }
 
         int start = (pageNumber-1)*pageSizeChef;
@@ -451,10 +452,10 @@ public class ChefService {
                 .getPrincipal();
 
         Chef chef = chefRepository.findById(authChef.getId())
-                .orElseThrow(() -> new RuntimeException("Chef not found"));
+                .orElseThrow(() -> new NoSuchElementException("Chef not found"));
 
         if (pageNumber <= 0) {
-            throw new RuntimeException("Invalid parameters");
+            throw new IllegalArgumentException("Invalid parameters");
         }
 
         if (chef.getRecipesToConfirm() == null || chef.getRecipesToConfirm().isEmpty()) {

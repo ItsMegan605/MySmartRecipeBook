@@ -5,6 +5,7 @@ import it.unipi.MySmartRecipeBook.dto.IngredientsListDTO;
 
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -76,7 +77,7 @@ public class ShoppingListService {
                 .getPrincipal();
 
         if(ingredients == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No ingredient inserted");
+            throw new HttpMessageNotReadableException("No ingredient inserted");
         }
 
         ingredients.removeIf(ingredient -> !ingredientService.isValidIngredient(ingredient));
@@ -93,7 +94,7 @@ public class ShoppingListService {
             jedisCluster.sadd(key, ingredients.toArray(new String[0]));
         }
         else{
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No valid ingredient inserted");
+            throw new HttpMessageNotReadableException("No valid ingredient inserted");
         }
 
         return returnShoppingList(authFoodie.getUsername());

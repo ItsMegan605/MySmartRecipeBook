@@ -33,10 +33,7 @@ import org.springframework.stereotype.Service;
 
 import it.unipi.MySmartRecipeBook.dto.TrendAnalyticsDTO;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Admin service that handles admin's business logic operations
@@ -90,7 +87,7 @@ public class AdminService {
                 .getPrincipal();
 
         Admin admin = adminRepository.findById(logged_admin.getId())
-                .orElseThrow(() -> new RuntimeException("Admin not found"));
+                .orElseThrow(() -> new NoSuchElementException("Admin not found"));
 
 
         // Prendiamo l'elenco delle ricette in attesa di approvazione che abbiamo dentro l'admin e cerchiamo quella che
@@ -98,7 +95,7 @@ public class AdminService {
         List<PendingRecipe> recipesToApprove = admin.getRecipesToApprove();
 
         if (recipesToApprove == null) {
-            throw new RuntimeException("No recipe has to be approved");
+            throw new NoSuchElementException("No recipe has to be approved");
         }
 
         PendingRecipe recipeApproved = null;
@@ -110,7 +107,7 @@ public class AdminService {
         }
 
         if (recipeApproved == null) {
-            throw new RuntimeException("Recipe not found among the ones that have to be approved");
+            throw new NoSuchElementException("Recipe not found among the ones that have to be approved");
         }
 
 
@@ -149,7 +146,7 @@ public class AdminService {
         String chefId = recipe.getChef().getId();
 
         Chef chef = chefRepository.findById(chefId)
-                .orElseThrow(() -> new RuntimeException("Chef not found"));
+                .orElseThrow(() -> new NoSuchElementException("Chef not found"));
 
       //if it is a pending recipe
         if (chef.getRecipesToConfirm() != null) {
@@ -190,13 +187,13 @@ public class AdminService {
                 .getPrincipal();
 
         Admin admin = adminRepository.findById(logged_admin.getId())
-                .orElseThrow(() -> new RuntimeException("Admin not found"));
+                .orElseThrow(() -> new NoSuchElementException("Admin not found"));
 
         // Prendiamo la lista delle ricette in attesa di approvazione
         List<PendingRecipe> recipesToApprove = admin.getRecipesToApprove();
 
         if (recipesToApprove == null) {
-            throw new RuntimeException("No recipe has to be approved");
+            throw new NoSuchElementException("No recipe has to be approved");
         }
 
         String chefId = null;
@@ -209,7 +206,7 @@ public class AdminService {
 
         // Delete the indicated recipe from the chef list of recipes waiting to be confirmed
         if (chefId == null) {
-            throw new RuntimeException("Recipe not found among the ones that have to be approved");
+            throw new NoSuchElementException("Recipe not found among the ones that have to be approved");
         }
         //ho invertito qui
         boolean recipeFoundAdmin = adminRepository.removeRecipeFromApprovals(admin.getId(), recipeId) > 0;
@@ -234,11 +231,11 @@ public class AdminService {
                 .getPrincipal();
 
         Admin admin = adminRepository.findById(logged_admin.getId())
-                .orElseThrow(() -> new RuntimeException("Admin not found"));
+                .orElseThrow(() -> new NoSuchElementException("Admin not found"));
 
         List<PendingChef> chefToApprove = admin.getChefsToApprove();
         if (chefToApprove == null) {
-            throw new RuntimeException("No chef has to be approved");
+            throw new NoSuchElementException("No chef has to be approved");
         }
 
         PendingChef chef = null;
@@ -250,7 +247,7 @@ public class AdminService {
         }
 
         if (chef == null) {
-            throw new RuntimeException("Chef to approve not found");
+            throw new NoSuchElementException("Chef to approve not found");
         }
 
         Chef chefMongo = chefUtilityFunctions.pendingChefToChef(chef);
@@ -282,11 +279,11 @@ public class AdminService {
                 .getPrincipal();
 
         Admin admin = adminRepository.findById(logged_admin.getId())
-                .orElseThrow(() -> new RuntimeException("Admin not found"));
+                .orElseThrow(() -> new NoSuchElementException("Admin not found"));
 
         List<PendingChef> chefToApprove = admin.getChefsToApprove();
         if (chefToApprove == null) {
-            throw new RuntimeException("No chef has to be approved");
+            throw new NoSuchElementException("No chef has to be approved");
         }
 
         PendingChef chef = null;
@@ -298,7 +295,7 @@ public class AdminService {
         }
 
         if (chef == null) {
-            throw new RuntimeException("Chef to approve not found");
+            throw new NoSuchElementException("Chef to approve not found");
         }
 
         adminRepository.removeChefFromApprovals(admin.getId(), chefUsername);
@@ -312,10 +309,10 @@ public class AdminService {
                 .getPrincipal();
 
         Admin admin = adminRepository.findById(logged_admin.getId())
-                .orElseThrow(() -> new RuntimeException("Admin not found"));
+                .orElseThrow(() -> new NoSuchElementException("Admin not found"));
 
         if (pageNumber <= 0) {
-            throw new RuntimeException("Invalid parameters");
+            throw new IllegalArgumentException("Invalid parameters");
         }
 
         if (admin.getRecipesToApprove() == null || admin.getRecipesToApprove().isEmpty()) {
@@ -349,10 +346,10 @@ public class AdminService {
                 .getPrincipal();
 
         Admin admin = adminRepository.findById(logged_admin.getId())
-                .orElseThrow(() -> new RuntimeException("Admin not found"));
+                .orElseThrow(() -> new NoSuchElementException("Admin not found"));
 
         if (pageNumber <= 0) {
-            throw new RuntimeException("Invalid parameters");
+            throw new IllegalArgumentException("Invalid parameters");
         }
 
         if (admin.getChefsToApprove() == null || admin.getChefsToApprove().isEmpty()) {
