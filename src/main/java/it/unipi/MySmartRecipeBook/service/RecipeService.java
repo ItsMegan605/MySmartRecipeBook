@@ -86,7 +86,7 @@ public class RecipeService {
     public SliceRecipeDTO getRecipeByTitle(String title, int pageNumber){
 
         if(pageNumber <= 0){
-            throw new HttpMessageNotReadableException("Invalid page number");
+            throw new IllegalArgumentException("Invalid page number");
         }
 
         Pageable pageable = PageRequest.of(pageNumber - 1, pageSizeTitle);
@@ -110,7 +110,7 @@ public class RecipeService {
     public SliceRecipeDTO getNewestRecipe (int pageNumber){
 
         if(pageNumber <= 0){
-            throw new HttpMessageNotReadableException("Invalid page number");
+            throw new IllegalArgumentException("Invalid page number");
         }
 
         Pageable pageable = PageRequest.of(pageNumber - 1, pageSizeHome, Sort.by("creationDate").descending());
@@ -131,7 +131,7 @@ public class RecipeService {
     public SliceRecipeDTO getByCategory (int pageNumber, String filter){
 
         if(pageNumber <= 0 || !CATEGORIES.contains(filter)){
-            throw new HttpMessageNotReadableException("Invalid parameters");
+            throw new IllegalArgumentException("Invalid parameters");
         }
 
         Pageable pageable = PageRequest.of(pageNumber - 1, pageSizeCategory, Sort.by("creationDate").descending());
@@ -153,7 +153,7 @@ public class RecipeService {
     public SliceRecipeDTO getChefRecipePage(int pageNumber, String chefId){
 
         if(pageNumber <= 0){
-            throw new HttpMessageNotReadableException("Invalid parameters");
+            throw new IllegalArgumentException("Invalid parameters");
         }
 
         Pageable pageable = PageRequest.of(pageNumber - 1, pageSizeChef, Sort.by("totalSaves").descending());

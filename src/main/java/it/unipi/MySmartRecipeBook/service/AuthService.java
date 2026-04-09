@@ -60,7 +60,7 @@ public class AuthService {
         // Controllo se lo username già esiste (sia nella collezione chefs che in quella foodies)
         if (chefRepository.existsByUsername(chefDTO.getUsername())
                 || foodieRepository.existsByUsername(chefDTO.getUsername())) {
-            throw new RuntimeException("Username already taken"); //questa mi sa che va cambiata
+            throw new IllegalArgumentException("Username already taken"); //questa mi sa che va cambiata
         }
 
         // Viene creata l'entità chef da inserire tra quelle in attesa di approvazione dell'admin
@@ -73,7 +73,7 @@ public class AuthService {
         if(admin.getChefsToApprove()!=null) {
             for (PendingChef targetChef : admin.getChefsToApprove()) {
                 if (chefUtils.chefAlreadyInserted(targetChef, chef)) {
-                    throw new RuntimeException("Request already sent or username already present");
+                    throw new IllegalArgumentException("Request already sent or username already present");
                 }
             }
         }
@@ -96,7 +96,7 @@ public class AuthService {
         // univoco in entrambe le collezioni
         if (chefRepository.existsByUsername(foodieDTO.getUsername())
                 || foodieRepository.existsByUsername(foodieDTO.getUsername())) {
-            throw new RuntimeException("Username already taken");
+            throw new IllegalArgumentException("Username already taken");
         }
 
         // Viene creata l'entità foodie e viene aggiunta alla collection foodies

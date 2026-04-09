@@ -24,13 +24,11 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 
@@ -188,7 +186,7 @@ public class FoodieService {
     public void saveRecipe(String foodieId, String recipeId) {
 
         if (!foodieRepository.existsById(foodieId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No valid foodie");
+            throw new NoSuchElementException("No valid foodie");
         }
 
         /* We retrieve all the recipe information from the recipe collection*/
