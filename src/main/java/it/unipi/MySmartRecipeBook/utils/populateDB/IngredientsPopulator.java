@@ -12,14 +12,14 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
 /**
- *
+ * Populator the Redis cluster with the allowed ingredients list.
  */
 @Order(1)
 @Component
 public class IngredientsPopulator implements CommandLineRunner {
 
     private JedisCluster jedisCluster;
-    // key per ingredienti
+    //ingredient's key
     private static final String INGREDIENTS_REDIS_KEY = "MySmartRecipeBook:allowed_ingredients";
     @Value("${app.recipe.do-redis-population:false}")
     private boolean doRedisPopulation;
@@ -29,9 +29,10 @@ public class IngredientsPopulator implements CommandLineRunner {
     }
 
     /**
-     *
-     * @param args
-     * @throws Exception
+     * Executes the Redis ingredients population script on application startup if enabled in
+     * application properties
+     * @param args command line arguments
+     * @throws Exception if an error occurs during file reading or Redis communication
      */
     @Override
     public void run(String... args) throws Exception {
@@ -42,22 +43,22 @@ public class IngredientsPopulator implements CommandLineRunner {
         System.out.println("check redis state");
 
         try {
-            // Controlla se la chiave esiste già
+            //Checks if the key already exists
             if (jedisCluster.exists(INGREDIENTS_REDIS_KEY)) {
                 System.out.println("Ingredients list already exists on redis");
                 return;
             }
 
             System.out.println("Uploading the list");
-            ClassPathResource resource = new ClassPathResource("ingredients.txt"); //trova il file nella cartella resources
+            ClassPathResource resource = new ClassPathResource("ingredients.txt"); //file in resources folder
 
-            try (BufferedReader reader = new BufferedReader( //apre il file e leggo il testo a blocchi
+            try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
 
                 String ingredient;
-                while ((ingredient = reader.readLine()) != null) { //leggo riga p'er riga fino alla fine
+                while ((ingredient = reader.readLine()) != null) { //read line by line until EOF
                     if (!ingredient.trim().isEmpty()) {
-                        //sadd= comando redis per aggiungere a un Set
+                        //sadd= redis command
                         jedisCluster.sadd(INGREDIENTS_REDIS_KEY, ingredient.toLowerCase().trim());
                     }
                 }
@@ -65,8 +66,8 @@ public class IngredientsPopulator implements CommandLineRunner {
 
             System.out.println("Ingredients updated successfully!");
 
-        } catch (Exception e) { //mi dice il motivo
-            System.out.println("WARNING! Can' communicate with redis: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("WARNING! Can't communicate with redis: " + e.getMessage());
         }
     }
 }

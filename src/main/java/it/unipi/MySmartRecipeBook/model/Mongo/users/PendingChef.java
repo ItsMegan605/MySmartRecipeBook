@@ -13,10 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import java.time.LocalDate;
 
 /**
- * Represents a chef that is pending approval.
- *
- * This model is used to temporarily store user data
- * before the chef account is officially approved by the admin
+ * Represents a chef that is pending approval before it's accepted by the admin
  */
 @Getter
 @Setter

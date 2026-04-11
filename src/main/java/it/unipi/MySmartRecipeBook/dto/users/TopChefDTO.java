@@ -14,7 +14,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class TopChefDTO{
-    String name;
-    String surname;
-    String category;
+   private String name;
+   private String surname;
+   private String category;
 }

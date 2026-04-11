@@ -15,14 +15,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * * Utility class for Recipe-related entity, DTO, and Graph conversions.
  */
 @Component
 public class RecipeUtilityFunctions {
+
     /**
-     *
-     * @param recipe
-     * @return
+     * Converts a RecipeMongo entity into a ShowRecipeDTO for detailed viewing.
+     * @param recipe the mongo recipe
+     * @return the detailed recipe DTO
      */
     public ShowRecipeDTO EntityToDto (RecipeMongo recipe){
 
@@ -48,6 +49,11 @@ public class RecipeUtilityFunctions {
         return recipeDTO;
     }
 
+    /**
+     * Converts a list of RecipeMongo entities into a list of UserPreviewRecipeDTOs.
+     * @param recipes the list of mongo recipes
+     * @return the list of user preview DTOs
+     */
     public List<UserPreviewRecipeDTO> EntityToUserDto (List<RecipeMongo> recipes){
 
         List<UserPreviewRecipeDTO> recipesDTO = new ArrayList<>();
@@ -66,9 +72,9 @@ public class RecipeUtilityFunctions {
 
 
     /**
-     *
-     * @param recipeMongo
-     * @return
+     * Converts a RecipeMongo entity into a ChefRecipeSummary.
+     * @param recipeMongo the mongo recipe
+     * @return the chef recipe summary
      */
     public ChefRecipeSummary recipeToChefRecipe (RecipeMongo recipeMongo){
 
@@ -81,13 +87,11 @@ public class RecipeUtilityFunctions {
         return recipe;
     }
 
-    // Quando l'admin approva una ricetta e deve essere inserita nel DB, dobbiamo trasformarla in una recipeMongo,
-    // aggiungendo il campo numSaves inizializzato a 0
-
     /**
-     *
-     * @param recipe
-     * @return
+     * Converts an approved PendingRecipe into a final RecipeMongo entity.
+     * Initializes the save counter to zero.
+     * @param recipe the pending recipe
+     * @return the final mongo recipe
      */
     public RecipeMongo baseToMongoRecipe(PendingRecipe recipe){
 
@@ -107,6 +111,8 @@ public class RecipeUtilityFunctions {
         return full_recipe;
     }
 
+    //TODO: togliamo allora??
+
     /* RIDONDANTE
     public List<ChefPreviewRecipeDTO> PendingListToChefPreview(List<PendingRecipe> recipes) {
         List<ChefPreviewRecipeDTO> result = new ArrayList<>();
@@ -122,11 +128,10 @@ public class RecipeUtilityFunctions {
     }
     */
 
-
     /**
-     *
-     * @param recipe
-     * @return
+     * Converts a RecipeMongo entity into a GraphRecipeDTO for Neo4j synchronization.
+     * @param recipe the mongo recipe
+     * @return the graph recipe DTO
      */
     public GraphRecipeDTO MongoToNeo4jGraph(RecipeMongo recipe){
 
@@ -151,9 +156,9 @@ public class RecipeUtilityFunctions {
     }
 
     /**
-     *
-     * @param recipe
-     * @return
+     * Converts a RecipeMongo entity into a RecipeNeo4j node entity.
+     * @param recipe the mongo recipe
+     * @return the Neo4j recipe entity
      */
     public RecipeNeo4j MongoToNeo4j(RecipeMongo recipe){
 

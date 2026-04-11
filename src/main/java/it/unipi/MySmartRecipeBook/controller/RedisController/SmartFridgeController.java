@@ -24,13 +24,12 @@ public class SmartFridgeController {
 
     private SmartFridgeService smartFridgeService;
 
-    //aggiunto costruttore
     public SmartFridgeController(SmartFridgeService smartFridgeService) {
         this.smartFridgeService = smartFridgeService;
     }
 
     /**
-     * Method ot get the smart fridge and its content
+     * Method to get the smart fridge and its content
      * @see SmartFridgeService#getSmartFridge() 
      * @return the Smart fridge contents
      */
@@ -42,7 +41,7 @@ public class SmartFridgeController {
     }
     
     /**
-     * Post Method ot add ingredients to the smart fridge 
+     * Post Method to add ingredients to the smart fridge
      * @see SmartFridgeService#addIngredients(List) 
      * @return the Smart fridge and the new added ingredients
      */
@@ -56,7 +55,7 @@ public class SmartFridgeController {
     /**
      * Post Method to remove ingredients from the smart fridge 
      * @see SmartFridgeService#removeIngredient(String) 
-     * @return the Smart fridge and without the removed ingredients
+     * @return returns the Smart fridge without the removed ingredients.
      */
 
     @PostMapping("/remove")
@@ -84,22 +83,18 @@ public class SmartFridgeController {
         return ResponseEntity.ok(recipes);
     }
 
+    /**
+     * Get method to retrieve a recipe's information from the fridge
+     * @param id identifier of the requested recipe
+     * @see SmartFridgeService#getFridgeRecipeById(String)
+     * @return a ResponseEntity.ok with the recipe details
+     */
+
     @GetMapping("/recipe/{id}")
-    public ResponseEntity<ShowRecipeDTO> getRecipe(String id){
+    public ResponseEntity<ShowRecipeDTO> getRecipe(@PathVariable String id){
         ShowRecipeDTO recipe = smartFridgeService.getFridgeRecipeById(id);
         return ResponseEntity.ok(recipe);
     }
 
 }
-/*
-    //non so se serve intanto lo metto lì va aggiustato con Neo4j
-    @GetMapping("/findRecipe")
-    public  ResponseEntity<SmartFridge> getRecipe(@PathVariable String recipeId){
-        return ResponseEntity.ok(smartFridgeService.getRecipeById());
-    }
 
-
-    //lista di ricette salvata su redis
-    //tolgo un ingrediente e quando lo tolgo devo controllare nuovamente le ricette
-
-    //vedere se aggiungere metodo per neo4j */

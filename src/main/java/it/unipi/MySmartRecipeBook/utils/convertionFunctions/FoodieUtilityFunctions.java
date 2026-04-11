@@ -20,7 +20,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- *
+ * * Utility class for Foodie-related entity and DTO conversions.
  */
 @Component
 public class FoodieUtilityFunctions {
@@ -32,9 +32,9 @@ public class FoodieUtilityFunctions {
     }
 
     /**
-     *
-     * @param foodieDTO
-     * @return
+     * Converts a registration DTO into a Foodie entity, encrypting the password.
+     * @param foodieDTO the registration data
+     * @return the Foodie entity
      */
     public Foodie createFoodieEntity (RegistedUserDTO foodieDTO){
 
@@ -52,9 +52,9 @@ public class FoodieUtilityFunctions {
     }
 
     /**
-     *
-     * @param foodie
-     * @return
+     * Converts a Foodie entity to a DTO for profile display.
+     * @param foodie the Foodie entity
+     * @return the registered user info DTO
      */
     public RegistedUserInfoDTO entityToFoodieDTO (Foodie foodie) {
 
@@ -68,9 +68,9 @@ public class FoodieUtilityFunctions {
     }
 
     /**
-     *
-     * @param recipeMongo
-     * @return
+     * Converts a RecipeMongo entity into a FoodieRecipeSummary for saved recipes.
+     * @param recipeMongo the mongo recipe
+     * @return the foodie recipe summary
      */
     public FoodieRecipeSummary entityToReducedRecipe (RecipeMongo recipeMongo) {
 
@@ -87,9 +87,9 @@ public class FoodieUtilityFunctions {
     }
 
     /**
-     *
-     * @param recipeMongo
-     * @return
+     * Converts a RecipeMongo entity into a ChefRecipeSummary.
+     * @param recipeMongo the mongo recipe
+     * @return the chef recipe summary
      */
     public ChefRecipeSummary entityToChefRecipe (RecipeMongo recipeMongo) {
 
@@ -104,9 +104,9 @@ public class FoodieUtilityFunctions {
     }
 
     /**
-     *
-     * @param fullRecipes
-     * @return
+     * Converts a list of FoodieRecipeSummary entities into a list of FoodiePreviewRecipeDTOs.
+     * @param fullRecipes the list of foodie recipe summaries
+     * @return the list of preview DTOs
      */
     public List<FoodiePreviewRecipeDTO> foodieSummaryToUserPreview (List<FoodieRecipeSummary> fullRecipes) {
 
@@ -125,6 +125,11 @@ public class FoodieUtilityFunctions {
         return recipes;
     }
 
+    /**
+     * Converts a RecipeMongo entity into a ShowRecipeDTO for detailed viewing.
+     * @param recipe the mongo recipe
+     * @return the detailed recipe DTO
+     */
     public ShowRecipeDTO EntityToDto (RecipeMongo recipe){
 
         ShowRecipeDTO recipeDTO = new ShowRecipeDTO();

@@ -11,8 +11,8 @@ import lombok.Setter;
 import java.time.LocalDate;
 
 /**
- * DTO for user's information
- */
+ * DTO used to display a registered user's profile information.
+ * */
 
 @Getter
 @Setter

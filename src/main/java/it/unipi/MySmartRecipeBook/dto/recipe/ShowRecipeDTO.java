@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 /**
- * DTO to filter the recipes
+ * DTO used to show the complete details of a recipe.
  */
 
 @Getter

@@ -12,12 +12,8 @@ import java.util.Map;
 
 /**
  * Repository for managing Recipe nodes in Neo4j.
- *
- * Provides methods for:
- * - recipe suggestions based on ingredients
- * - graph creation (recipes, chefs, ingredients)
- * - deletion operations
  */
+
 @Repository
 public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long> {
 
@@ -52,7 +48,6 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
 
     /**
      * Inserts a new ingredient node.
-     *
      * @param id ingredient ID
      * @param name ingredient name
      */
@@ -60,16 +55,8 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
     void insertIngredient(String id, String name);
 
     /**
-     * Creates a recipe node and connects it to a chef and ingredients.
-     *
-     * Relationships are created in both directions:
-     * - Recipe → Chef (WRITTEN_BY)
-     * - Chef → Recipe (WROTE)
-     *
-     * This allows:
-     * - efficient navigation from recipe to chef
-     * - efficient deletion of all recipes of a chef
-     *
+     * Creates a recipe node and connects it to a chef and ingredients and the relationships are in both
+     * directions for efficiency purposes.
      * @param recipeId recipe ID
      * @param title recipe title
      * @param imageURL recipe image URL
@@ -89,7 +76,6 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
 
     /**
      * Deletes a recipe node by its Mongo ID.
-     *
      * @param recipeId recipe ID
      */
     @Query("MATCH (r:Recipe {mongo_id: $recipeId}) DETACH DELETE r")
@@ -97,7 +83,6 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
 
     /**
      * Deletes a chef and all related recipes.
-     *
      * Uses OPTIONAL MATCH in case the chef has no recipes.
      * DETACH DELETE removes nodes and all connected relationships.
      *
@@ -110,7 +95,6 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
 
     /**
      * Inserts or updates a chef node.
-     *
      * @param chefId chef ID
      * @param chefName chef first name
      * @param chefSurname chef last name
@@ -121,7 +105,6 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
 
     /**
      * Creates relationships between chefs and recipes.
-     *
      * @param relations list of maps containing chefId and recipeId
      */
     @Query("UNWIND $relations AS rel " +
@@ -133,7 +116,6 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
 
     /**
      * Creates relationships between ingredients and recipes.
-     *
      * @param relations list of maps containing ingredientName and recipeId
      */
     @Query("UNWIND $relations AS rel " +
@@ -142,10 +124,5 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
             "MERGE (i)-[:USED_IN]->(r)")
     void createIngredientRecipeRelations(@Param("relations")List<Map<String, String>> relations);
 
-    /*
-     * This query:
-     * - retrieves least used ingredients
-     * - excludes common ingredients
-     * - can be used for recommendation systems
-     */
+
 }

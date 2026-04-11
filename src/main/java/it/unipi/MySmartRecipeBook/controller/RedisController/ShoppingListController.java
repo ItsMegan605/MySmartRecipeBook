@@ -22,11 +22,10 @@ public class ShoppingListController {
     }
 
     /**
-     * Get Method to get the shopping list as user
+     * Get Method to get the shopping list as foodie
      * @see ShoppingListService#getShoppingList()
      * @return The shopping list and its contents
      */
-
     @GetMapping("/get")
     public ResponseEntity<IngredientsListDTO> getList() {
 
@@ -36,7 +35,7 @@ public class ShoppingListController {
 
     /**
      * Post method to add items to the shopping list
-     * @param items: items given by a user as a list of stirng, more than one item
+     * @param items: items given by a user as a list of strings, more than one item
      *             can be added in one time
      * @see ShoppingListService#addIngredients(List)
      * @return The result of the shopping list with the new items
@@ -50,7 +49,7 @@ public class ShoppingListController {
 
     /**
      * Method to remove an item from the shopping list.
-     * * @param ingredient Give a single ingredient as a string to remove it
+     * @param ingredient Give a single ingredient as a string to remove it
      * @return The result of the shopping list without the removed items
      * @see ShoppingListService#removeIngredient(String)
      */

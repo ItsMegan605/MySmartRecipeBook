@@ -15,19 +15,12 @@ import java.util.List;
 
 /**
  * Repository for managing RecipeMongo documents in MongoDB.
- *
- * Provides methods for:
- * - searching and filtering recipes
- * - updating counters
- * - deleting recipes
- * - computing analytics (trends, totals)
  */
 @Repository
 public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, String> {
 
     /**
      * Finds recipes by title (case insensitive) with pagination.
-     *
      * @param titleFragment part of the title
      * @param pageable pagination information
      * @return slice of recipes
@@ -36,7 +29,6 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
 
     /**
      * Finds recipes by category with pagination.
-     *
      * @param category recipe category
      * @param pageable pagination information
      * @return slice of recipes
@@ -45,7 +37,6 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
 
     /**
      * Finds all recipes of a chef ordered by creation date (descending).
-     *
      * @param chefId chef ID
      * @return list of recipes
      */
@@ -53,7 +44,6 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
 
     /**
      * Finds recipes by chef ID with pagination.
-     *
      * @param chefId chef ID
      * @param pageable pagination information
      * @return slice of recipes
@@ -62,7 +52,6 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
 
     /**
      * Finds recipes by a list of IDs.
-     *
      * @param ids list of recipe IDs
      * @return list of recipes
      */
@@ -70,7 +59,6 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
 
     /**
      * Updates the save counter of a recipe.
-     *
      * @param recipeId recipe ID
      * @param i increment value
      */
@@ -80,14 +68,12 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
 
     /**
      * Deletes all recipes of a specific chef.
-     *
      * @param chefId chef ID
      */
     void deleteAllByChefId(String chefId);
 
     /**
      * Checks if a recipe exists by title.
-     *
      * @param title recipe title
      * @return true if exists
      */
@@ -95,7 +81,6 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
 
     /**
      * Counts recipes belonging to a chef.
-     *
      * @param chefId chef ID
      * @return number of recipes
      */
@@ -104,16 +89,13 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
 
     /**
      * Deletes a recipe by ID.
-     *
      * @param id recipe ID
      * @return number of deleted documents
      */
     Long deleteRecipeById(String id);
 
     /**
-     * Computes category trends based on recent and previous time windows.
-     *
-     * Pipeline steps:
+     * Computes category trends based on recent and previous time windows:
      * - classify recipes as recent or previous
      * - group by category
      * - compute counts
@@ -151,7 +133,6 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
 
     /**
      * Computes total number of saves for all recipes of a chef.
-     *
      * @param chefId chef ID
      * @return total saves
      */
@@ -160,5 +141,5 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
             "{ '$group': { '_id': null, 'total': { '$sum': '$num_saves' } } }",
             "{ '$project': { '_id': 0, 'total': 1 } }"
     })
-    Integer getTotalSaves(String chefId);
+    Integer getTotalSaves(String chefId); //TODO: anche questa non viene usata
 }

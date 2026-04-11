@@ -7,10 +7,6 @@ import lombok.Setter;
 
 /**
  * Represents an ingredient inside a recipe.
- *
- * It contains:
- * - the ingredient name
- * - the quantity used in the recipe
  */
 @Getter
 @Setter

@@ -12,8 +12,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Represents a recipe that is pending approval.
- *
  * This model includes full recipe details along with
  * the chef who submitted it.
  */

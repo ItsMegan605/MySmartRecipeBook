@@ -7,7 +7,7 @@ import it.unipi.MySmartRecipeBook.utils.parameters.Task;
 import lombok.Getter;
 
 /**
- * Task manager
+ * Task manager class representing a specific task to be executed.
  */
 @Getter
 public class TaskToDo {
@@ -19,11 +19,10 @@ public class TaskToDo {
     private final GraphRecipeDTO recipe;
     private final ChefRecipeSummary recipeMongo;
 
-
     /**
-     * Task for info to delate
-     * @param type
-     * @param infoToDelete
+     * Constructor for tasks with bulk deletion of information.
+     * @param type the specific type of task to execute
+     * @param infoToDelete the DTO containing the data to be deleted
      */
     public TaskToDo(Task.TaskType type, InfoToDeleteDTO infoToDelete) {
         this.type = type;
@@ -35,10 +34,10 @@ public class TaskToDo {
     }
 
     /**
-     *
+     * Constructor for tasks involving the creation or update of a Chef's recipe summary.
      * @param type
-     * @param recipeMongo
-     * @param chefId
+     * @param recipeMongo the summary of the recipe to be processed
+     * @param chefId Id of the chef
      */
     public TaskToDo(Task.TaskType type, ChefRecipeSummary recipeMongo, String chefId) {
         this.type = type;
@@ -50,10 +49,10 @@ public class TaskToDo {
     }
 
     /**
-     *
+     * Constructor for tasks requiring both a recipe ID and a chef ID.
      * @param type
-     * @param recipeId
-     * @param chefId
+     * @param recipeId id of the recipe
+     * @param chefId Id of the chef
      */
     public TaskToDo(Task.TaskType type, String recipeId, String chefId) {
         this.type = type;
@@ -65,9 +64,9 @@ public class TaskToDo {
     }
 
     /**
-     *
+     * Constructor for tasks requiring only a recipe ID.
      * @param type
-     * @param recipeId
+     * @param recipeId id of the recipe
      */
     public TaskToDo(Task.TaskType type, String recipeId) {
         this.type = type;
@@ -79,9 +78,9 @@ public class TaskToDo {
     }
 
     /**
-     *
+     * Constructor for tasks involving graph database operations for a specific recipe.
      * @param type
-     * @param recipe
+     * @param recipe the DTO containing the recipe details for the graph
      */
     public TaskToDo(Task.TaskType type, GraphRecipeDTO recipe) {
         this.type = type;

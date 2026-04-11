@@ -8,8 +8,10 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
+//TODO: bisogna cambiare perchè abbiamo scritto male REGISTERED
+
 /**
- * DTO for users registrsation
+ * DTO for users registration with all mandatory fields
  */
 
 @Getter

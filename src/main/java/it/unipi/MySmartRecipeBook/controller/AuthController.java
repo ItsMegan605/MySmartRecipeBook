@@ -33,7 +33,7 @@ public class AuthController {
      * @see AuthService#registerChef(RegistedUserDTO)
      * @return ResponseEntity with message
      */
-    //Register Chef
+
     @PostMapping("/register/chef")
     public ResponseEntity<String> registerChef (@Valid @RequestBody RegistedUserDTO dto){
 
@@ -50,7 +50,7 @@ public class AuthController {
      * @see AuthService#registerFoodie(RegistedUserDTO)
      * @return ResponseEntity with message
      */
-    //Register Foodie
+
     @PostMapping("/register/foodie")
     public ResponseEntity<String> registerFoodie (@Valid @RequestBody RegistedUserDTO dto){
 
@@ -67,7 +67,6 @@ public class AuthController {
      * @return ResponseEntity ok message
      */
 
-    //Login per entrambi
     @PostMapping("/login")
     public ResponseEntity<JwtResponseDTO> login (@Valid @RequestBody LoginRequestDTO request){
 

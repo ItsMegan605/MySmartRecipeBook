@@ -15,18 +15,12 @@ import java.util.Optional;
 
 /**
  * Repository for managing Foodie documents in MongoDB.
- *
- * Provides methods for:
- * - retrieving foodies
- * - managing saved recipes
- * - performing analytics on registration data
  */
 @Repository
 public interface FoodieRepository extends MongoRepository<Foodie, String> {
 
     /**
      * Finds a foodie by username.
-     *
      * @param username the foodie username
      * @return optional Foodie
      */
@@ -34,7 +28,6 @@ public interface FoodieRepository extends MongoRepository<Foodie, String> {
 
     /**
      * Finds a foodie by ID.
-     *
      * @param id foodie ID
      * @return optional Foodie
      */
@@ -42,7 +35,6 @@ public interface FoodieRepository extends MongoRepository<Foodie, String> {
 
     /**
      * Checks if a foodie exists by ID.
-     *
      * @param id foodie ID
      * @return true if exists
      */
@@ -50,7 +42,6 @@ public interface FoodieRepository extends MongoRepository<Foodie, String> {
 
     /**
      * Checks if a foodie exists by username.
-     *
      * @param username foodie username
      * @return true if exists
      */
@@ -59,7 +50,6 @@ public interface FoodieRepository extends MongoRepository<Foodie, String> {
 
     /**
      * Adds a recipe to the favourites list if not already present.
-     *
      * @param foodieId foodie ID
      * @param recipeId recipe ID
      * @param recipe recipe summary
@@ -71,7 +61,6 @@ public interface FoodieRepository extends MongoRepository<Foodie, String> {
 
     /**
      * Removes a recipe from the favourites list.
-     *
      * @param foodieId foodie ID
      * @param recipeId recipe ID
      * @return number of modified documents
@@ -82,7 +71,6 @@ public interface FoodieRepository extends MongoRepository<Foodie, String> {
 
     /**
      * Adds multiple recipes to favourites if not already present.
-     *
      * @param foodieId foodie ID
      * @param recipesId list of recipe IDs
      * @param recipes list of recipe summaries
@@ -94,35 +82,28 @@ public interface FoodieRepository extends MongoRepository<Foodie, String> {
 
     /**
      * Computes monthly statistics of registered foodies.
-     *
-     * Pipeline steps:
-     * - group by month
-     * - compute yearly grouping
-     * - aggregate total registrations per year
-     * - return structured analytics
-     *
      * @return list of YearAnalyticsDTO
      */
     @Aggregation(pipeline = {
 
-            // Group by month
+            //Group by month
             "{ $group: { " +
                     "        _id: { $dateToString: { format: '%Y-%m', date: '$registration_date' } }, " +
                     "        year: { $first: { $dateToString: { format: '%Y', date: '$registration_date' } } }, " +
                     "        number: { $sum: 1 } " +
                     "} }",
 
-            // Sort (this order will be preserved in the next push)
+            //Sort (this order will be preserved in the next push)
             "{ $sort: { 'year': -1, 'number': -1 } }",
 
-            // Group by year
+            //Group by year
             "{ $group: { " +
                     "        _id: '$year', " +
                     "        totalRegisteredFoodies: { $sum: '$number' }, " +
                     "        monthAnalyticsDTOList: { $push: { _id: '$_id', totalFoodies: '$number' } } " +
                     "} }",
 
-            // Final sorting
+            //Final sorting
             "{$sort :  {'year' :  -1}}"
     })
     List<YearAnalyticsDTO> getMonthlyFoodiesStats();

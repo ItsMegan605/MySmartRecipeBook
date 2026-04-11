@@ -18,9 +18,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Represents a recipe stored in the MongoDB "recipes" collection.
- *
- * This is the main model used to store full recipe information,
+ * Represents a recipe stored in the MongoDB "recipes" collection with full information
  */
 @Getter
 @Setter

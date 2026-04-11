@@ -10,8 +10,8 @@ import lombok.Setter;
 import java.time.LocalDate;
 
 /**
- * We want to allow chef to change their personal information.
- * We don't allow chefs to change their username
+ * DTO used for updating a Chef's personal information.
+ * Note: Username updates are not permitted.
  */
 @Getter
 @Setter

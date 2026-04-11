@@ -17,7 +17,6 @@ import java.util.List;
 
 /**
  * Represents a chef user in the system.
-
  */
 @Getter
 @Setter

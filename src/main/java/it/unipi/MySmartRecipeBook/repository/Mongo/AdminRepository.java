@@ -16,7 +16,6 @@ public interface AdminRepository extends MongoRepository<Admin, String> {
 
     /**
      * Finds an admin by username.
-     *
      * @param username the admin username
      * @return the Admin entity
      */
@@ -24,7 +23,6 @@ public interface AdminRepository extends MongoRepository<Admin, String> {
 
     /**
      * Adds a pending recipe to the admin approval list.
-     *
      * @param adminId the ID of the admin
      * @param recipe the pending recipe to add
      */
@@ -34,7 +32,6 @@ public interface AdminRepository extends MongoRepository<Admin, String> {
 
     /**
      * Removes a recipe from the approval list by its ID.
-     *
      * @param adminId the ID of the admin
      * @param recipeId the ID of the recipe to remove
      * @return number of modified documents
@@ -45,7 +42,6 @@ public interface AdminRepository extends MongoRepository<Admin, String> {
 
     /**
      * Removes a chef from the approval list by username.
-     *
      * @param adminId the ID of the admin
      * @param chefUsername the username of the chef to remove
      */
@@ -55,7 +51,6 @@ public interface AdminRepository extends MongoRepository<Admin, String> {
 
     /**
      * Adds a pending chef to the admin approval list.
-     *
      * @param adminId the ID of the admin
      * @param chef the pending chef to add
      */

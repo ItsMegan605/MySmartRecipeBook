@@ -13,22 +13,15 @@ import org.springframework.data.mongodb.repository.Aggregation;
 
 import java.util.List;
 import java.util.Optional;
-
+//TODO: ho tolto il recap tanto poi le funzioni sono sotto
 /**
  * Repository for managing Chef documents in MongoDB.
- *
- * Provides methods for:
- * - retrieving chefs
- * - updating counters and recipe lists
- * - handling pending recipes
- * - computing analytics (ranking)
  */
 @Repository
 public interface ChefRepository extends MongoRepository<Chef, String> {
 
     /**
      * Finds a chef by username.
-     *
      * @param username the chef username
      * @return optional Chef
      */
@@ -36,7 +29,6 @@ public interface ChefRepository extends MongoRepository<Chef, String> {
 
     /**
      * Checks if a chef exists by ID.
-     *
      * @param id chef ID
      * @return true if exists
      */
@@ -44,7 +36,6 @@ public interface ChefRepository extends MongoRepository<Chef, String> {
 
     /**
      * Checks if a chef exists by username.
-     *
      * @param username chef username
      * @return true if exists
      */
@@ -52,7 +43,6 @@ public interface ChefRepository extends MongoRepository<Chef, String> {
 
     /**
      * Updates total saves counter for a chef.
-     *
      * @param chefId chef ID
      * @param amount increment value
      */
@@ -62,7 +52,6 @@ public interface ChefRepository extends MongoRepository<Chef, String> {
 
     /**
      * Updates save counter for a specific recipe inside new_recipes.
-     *
      * @param chefId chef ID
      * @param recipeId recipe ID
      * @param increment increment value
@@ -81,6 +70,8 @@ public interface ChefRepository extends MongoRepository<Chef, String> {
      * @param recipeToConfirmId pending recipe ID
      * @param newRecipe summary of the approved recipe
      */
+    //TODO: questa non viene mai usata
+
     @Query("{ '_id': ?0 }")
     @Update("{ " +
             "  '$pull': { 'recipes_to_confirm': { 'id': ?1 } }, " +
@@ -91,7 +82,6 @@ public interface ChefRepository extends MongoRepository<Chef, String> {
 
     /**
      * Removes a recipe from the pending list.
-     *
      * @param chefId chef ID
      * @param recipeId recipe ID
      * @return number of modified documents
@@ -102,7 +92,6 @@ public interface ChefRepository extends MongoRepository<Chef, String> {
 
     /**
      * Adds a recipe to the pending list.
-     *
      * @param chefId chef ID
      * @param recipe pending recipe
      */
@@ -112,7 +101,6 @@ public interface ChefRepository extends MongoRepository<Chef, String> {
 
     /**
      * Updates multiple chef fields related to saved recipes.
-     *
      * @param chefId chef ID
      * @param totalRecipes total number of recipes
      * @param totSaves total saves
@@ -129,19 +117,9 @@ public interface ChefRepository extends MongoRepository<Chef, String> {
 
     /**
      * Computes a Bayesian ranking of chefs based on saves and number of recipes.
-     *
-     * Pipeline steps:
-     * - exclude admin
-     * - replace null values with 0
-     * - compute global average (C)
-     * - compute individual average (R)
-     * - compute Bayesian score (m = 5)
-     * - sort by score
-     * - assign rank
-     * - return rank, username, score
-     *
      * @return list of ranked chefs
      */
+    //TODO: ho tolto i passaggi tanto ci sono i commenti
     @Aggregation(pipeline = {
 
             //exclude admin
@@ -180,5 +158,5 @@ public interface ChefRepository extends MongoRepository<Chef, String> {
             //final output
             "{ $project: { rank: 1, username: 1, score: 1 } }"
     })
-    List<ChefRankAnalyticsDTO> ChefBayesianRanking();
+    List<ChefRankAnalyticsDTO> ChefBayesianRanking(); //TODO sarebbe da metterci la minuscola?
 }

@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * DTO for recipe's suggestions
+ * DTO for recipe's suggestions in the smart fridge
  */
 
 @Data
@@ -28,8 +28,8 @@ public class RecipeSuggestionDTO implements Serializable {
 
     @JsonProperty("chef_id")
     private String chefId;
-    private int matchCount; // Numero di ingredienti che fanno match
-    private List<String> matchedIngredients; // Elenco dei nomi degli ingredienti trovati
+    private int matchCount; //Number of matched ingredients in the fridge
+    private List<String> matchedIngredients; //list of matched ingredients
 
     public String getChef() {
         if (chefName == null && chefSurname == null) {
@@ -39,11 +39,10 @@ public class RecipeSuggestionDTO implements Serializable {
     }
 
     /**
-     * Function for suggestion's chef refresh
-     * @param chef gets the chef parameter
+     * Parses the full chef name string to populate
+     * the individual name and surname fields.
+     * @param chef the full name of the chef
      */
-
-    // Quando Jackson rilegge "chef" da Redis, ripopola chefName e chefSurname
     public void setChef(String chef) {
         if (chef != null) {
             String[] parts = chef.split(" ", 2);

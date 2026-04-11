@@ -6,7 +6,6 @@ it.unipi.MySmartRecipeBook.dto
 it.unipi.MySmartRecipeBook.dto.recipe
 it.unipi.MySmartRecipeBook.dto.users
 it.unipi.MySmartRecipeBook.event
-it.unipi.MySmartRecipeBook.graphDB
 it.unipi.MySmartRecipeBook.model.Mongo.ingredients
 it.unipi.MySmartRecipeBook.model.Mongo.recipes
 it.unipi.MySmartRecipeBook.model.Mongo.users

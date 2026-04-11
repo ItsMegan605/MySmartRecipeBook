@@ -11,9 +11,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 
 /**
- * Base class representing a registered user in the system.
- *
- * It contains common attributes shared by all user types
+ * Base class representing a registered user in the system with all common attributes
  */
 @Getter
 @Setter

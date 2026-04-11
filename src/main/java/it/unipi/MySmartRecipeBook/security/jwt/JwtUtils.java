@@ -12,11 +12,7 @@ import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 
 /**
  * Utility class that handles all JWT-related operations.
- *
- * Main responsibilities:
- * - Generate a JWT token after user authentication (login)
- * - Extract information from the token (id, username, roles)
- * - Validate the token (signature, expiration, format)
+
  */
 @Component
 public class JwtUtils {
@@ -31,7 +27,6 @@ public class JwtUtils {
 
     /**
      * Generates the cryptographic key used to sign and validate the JWT.
-     *
      * @return the signing key
      */
     private Key getSigningKey() {
@@ -40,7 +35,6 @@ public class JwtUtils {
 
     /**
      * Generates a JWT token from the authenticated user.
-     *
      * @param authentication the authenticated user object provided by Spring Security
      * @return the generated JWT token
      */
@@ -71,7 +65,6 @@ public class JwtUtils {
 
     /**
      * Extracts the user ID (subject) from the JWT.
-     *
      * @param token the JWT token
      * @return the user ID
      */
@@ -86,7 +79,6 @@ public class JwtUtils {
 
     /**
      * Extracts the username from the JWT.
-     *
      * @param token the JWT token
      * @return the username
      */
@@ -101,7 +93,6 @@ public class JwtUtils {
 
     /**
      * Extracts user roles from the JWT.
-     *
      * @param token the JWT token
      * @return the list of roles
      */
@@ -138,20 +129,3 @@ public class JwtUtils {
     }
 }
 
-/*
-Authentication flow:
-
-Login
-   ↓
-AuthenticationManager
-   ↓
-JwtUtils.generateJwtToken()
-   ↓
-JWT returned to client
-   ↓
-Client sends JWT in each request (Authorization: Bearer ...)
-   ↓
-AuthTokenFilter validates the token
-   ↓
-User is authenticated
-*/

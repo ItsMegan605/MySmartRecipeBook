@@ -8,10 +8,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
-
 /**
- * Recipe's preview for NEO4j
- * it includes the category for queries requirements
+ * DTO representing a recipe for Neo4j.
+ * It includes the category field to satisfy the queries.
  */
 
 @Getter

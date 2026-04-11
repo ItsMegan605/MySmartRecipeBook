@@ -1,3 +1,5 @@
+//TODO: direi che questa cartella possiamo cancellarla
+
 /*package it.unipi.MySmartRecipeBook.repository.Redis;
 //la shopping list è su redis e basta
 

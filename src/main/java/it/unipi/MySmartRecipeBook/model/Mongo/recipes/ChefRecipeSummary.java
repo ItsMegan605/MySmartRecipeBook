@@ -10,9 +10,6 @@ import java.time.LocalDateTime;
 
 /**
  * Represents a summary view of a chef's recipe.
- *
- * This model contains only essential information and
- * it is used in the chef personal page
  */
 @Getter
 @Setter

@@ -7,8 +7,6 @@ import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 /**
- * Represents a minimal reference to an old recipe.
- *
  * This model is used to store limited information about
  * previously created recipes in the chef profile page
  */

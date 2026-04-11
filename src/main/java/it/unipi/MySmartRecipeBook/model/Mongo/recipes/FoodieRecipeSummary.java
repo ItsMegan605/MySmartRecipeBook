@@ -11,9 +11,6 @@ import java.time.LocalDate;
 
 /**
  * Represents a summary of a recipe saved by a foodie.
- *
- * This model is used to store essential information about
- * recipes saved by users
  */
 @Getter
 @Setter

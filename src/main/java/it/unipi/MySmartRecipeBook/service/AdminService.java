@@ -46,7 +46,7 @@ public class AdminService {
 
     /* filtro per gli ingredienti degli chef */
 
-    private static final List<String> COMMON_INGREDIENTS = Arrays.asList( //funzione suggerita da geminiperchè non sapevo come mapparlo
+    private static final List<String> COMMON_INGREDIENTS = Arrays.asList(
             "salt", "water", "pepper", "baking soda",
             "baking powder", "olive oil", "oil"
     );

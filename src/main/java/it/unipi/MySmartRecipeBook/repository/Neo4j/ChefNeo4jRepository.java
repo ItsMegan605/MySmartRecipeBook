@@ -11,10 +11,6 @@ import java.util.List;
 
 /**
  * Repository for managing Chef nodes in Neo4j.
- *
- * Provides methods for graph-based analytics such as:
- * - most used ingredients per chef
- * - top chefs per category
  */
 public interface ChefNeo4jRepository extends Neo4jRepository<ChefNeo4j, Long> {
 
@@ -22,11 +18,7 @@ public interface ChefNeo4jRepository extends Neo4jRepository<ChefNeo4j, Long> {
      * Retrieves the most used ingredient for each chef,
      * excluding a list of filtered ingredients.
      *
-     * Query logic:
-     * - match chefs, recipes, and ingredients
-     * - exclude filtered ingredients
-     * - count how many times each ingredient is used
-     * - select the most used ingredient (top 1)
+     * Query logic: matching of chefs, recips and ingredients, exclude, count and select
      *
      * @param filteredIngredients list of ingredients to exclude (lowercase)
      * @return list of PopularIngredientsDTO
@@ -42,14 +34,8 @@ public interface ChefNeo4jRepository extends Neo4jRepository<ChefNeo4j, Long> {
     /**
      * Retrieves the top 3 chefs for each given category.
      *
-     * Query logic:
-     * - filter recipes by category
-     * - group by category
-     * - for each category:
-     *   - count recipes per chef
-     *   - sort descending
-     *   - take top 3
-     *
+     * Query logic: filter recipes by category, group them and count + sorting
+
      * @param categories list of categories
      * @return list of TopChefDTO
      */
@@ -66,10 +52,3 @@ public interface ChefNeo4jRepository extends Neo4jRepository<ChefNeo4j, Long> {
     List<TopChefDTO> findTop3ChefsByCategory(@Param("categories") List<String> categories);
 }
 
-/*
- * This query:
- * - collects all ingredients used by a chef
- * - sorts them by usage count
- * - takes the first element (most used ingredient)
- * - returns it as the top ingredient
- */

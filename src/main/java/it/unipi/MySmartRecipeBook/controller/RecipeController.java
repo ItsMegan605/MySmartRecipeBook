@@ -27,7 +27,7 @@ public class RecipeController {
      * When we click on a recipe preview all the details must be shown
      * @param id user id
      * @see RecipeService#getRecipeById(String)
-     * @return RespondeEntity ok message 
+     * @return ResponseEntity ok message 
      */
     @GetMapping("/{id}")
     public ResponseEntity<ShowRecipeDTO> getRecipe (@PathVariable String id) {
@@ -35,9 +35,9 @@ public class RecipeController {
         ShowRecipeDTO standardRecipeDTO = recipeService.getRecipeById(id);
         return ResponseEntity.ok(standardRecipeDTO);
     }
-    
 
-    /* Delete Reciope
+//TODO: questa va tolta?
+    /* Delete Recipe
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteRecipe (@PathVariable String id) {
 
@@ -51,7 +51,7 @@ public class RecipeController {
      * @param title
      * @param pageNumber
      * @see RecipeService#getRecipeByTitle(String, int) 
-     * @return RespondeEntity ok message 
+     * @return ResponseEntity ok message 
      */
     @GetMapping("/search")
     public ResponseEntity<SliceRecipeDTO> getRecipeByTitle(@RequestParam String title, @RequestParam(defaultValue = "1") int pageNumber){
@@ -64,7 +64,7 @@ public class RecipeController {
      * Home page for the recipes with the newest recipes uploaded
      * @param pageNumber
      * @see RecipeService#getNewestRecipe(int) 
-     * @return RespondeEntity ok message 
+     * @return ResponseEntity ok message 
      */
     @GetMapping("/homeRecipe")
     public ResponseEntity<SliceRecipeDTO> getHomeRecipe (@RequestParam(defaultValue = "1") int pageNumber){
@@ -78,10 +78,8 @@ public class RecipeController {
      * @param pageNumber
      * @param category
      * @see RecipeService#getByCategory(int, String) 
-     * @return RespondeEntity ok message 
+     * @return ResponseEntity ok message 
      */
-
-    /*  */
     @GetMapping("/category")
     public ResponseEntity<SliceRecipeDTO> getRecipeByCategory (@RequestParam(defaultValue = "1") int pageNumber, @RequestParam String category){
 
@@ -90,13 +88,12 @@ public class RecipeController {
     }
 
     /**
-     * Method to get reciped by chef
+     * Method to get recipes created a chef
      * @param pageNumber
      * @param chefId
      * @see RecipeService#getChefRecipePage(int, String) 
-     * @return RespondeEntity ok message 
+     * @return ResponseEntity ok message 
      */
-
     @GetMapping("/chef")
     public ResponseEntity<SliceRecipeDTO> getChefRecipes (@RequestParam(defaultValue = "1") int pageNumber, @RequestParam String chefId){
 

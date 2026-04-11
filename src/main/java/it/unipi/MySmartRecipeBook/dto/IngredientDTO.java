@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * DTO for ingredient's format
+ * DTO for an ingredient's format
  */
 
 @Getter

@@ -4,8 +4,9 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
 /**
- * DTO for foodies and chef's login request
+ * DTO for handling login requests for both Foodies and Chefs.
  */
+
 @Getter
 public class LoginRequestDTO {
 

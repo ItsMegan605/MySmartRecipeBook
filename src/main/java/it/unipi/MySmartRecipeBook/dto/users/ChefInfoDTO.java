@@ -7,7 +7,7 @@ import lombok.Setter;
 
 
 /**
- * Chef indormation DTO
+ * DTO containing basic Chef information.
  */
 
 @NoArgsConstructor
@@ -15,9 +15,9 @@ import lombok.Setter;
 @Getter
 @Setter
 
-
+//TODO: ho aggiunto provate perchè tutti hanno provate, anche in topchef
 public class ChefInfoDTO {
-    String id;
-    String name;
-    String surname;
+    private String id;
+    private String name;
+    private String surname;
 }

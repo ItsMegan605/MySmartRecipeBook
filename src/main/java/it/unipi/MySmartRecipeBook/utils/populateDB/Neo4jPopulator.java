@@ -24,7 +24,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- *
+ * Command line runner that populates the Neo4j graph database.
+ * It synchronizes Chefs, Recipes, Ingredients, and their relationships from MongoDB.
  */
 @Order(4) //order to execute the functions to populate the DBs
 @Component
@@ -57,9 +58,9 @@ public class Neo4jPopulator implements CommandLineRunner {
     }
 
     /**
-     *
-     * @param args
-     * @throws Exception
+     * Executes the Neo4j graph population script on application startup if enabled.
+     * @param args command line arguments
+     * @throws Exception if a database operation fails
      */
     @Override
     public void run(String... args) throws Exception {
@@ -68,7 +69,7 @@ public class Neo4jPopulator implements CommandLineRunner {
             return;
         }
 
-        // Pulisco tutto prima di farlo ripartire
+        //clear the graph
         neo4jRepository.deleteAll();
         chefNeo4jRepository.deleteAll();
         ingredientNeo4jRepository.deleteAll();
@@ -122,7 +123,7 @@ public class Neo4jPopulator implements CommandLineRunner {
                 String ingredientName = ingredient.getName().toLowerCase().trim();
                 ingredientRecipeRelations.add(Map.of("recipeId", recipe.getId(), "ingredientName", ingredientName));
             }
-            System.out.println("attesa fine popolamento...");
+            System.out.println("Waiting for population to end...");
 
         }
         neo4jRepository.saveAll(recipes);

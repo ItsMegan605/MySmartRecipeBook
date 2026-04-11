@@ -18,32 +18,28 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-//tipi di errori: 100 informativo, 200 tutto ok, 300 reindirizzamento, 400 errore client
-//500 errore server
-//global handler where the different exceptions for the application are handler
-
-
-/* SWAGGER: annotation for documentation, ci va messo mediatype, in che modo è la ripssita 
-* schema: tipo di struttura dati restituita */
-
 /**
- * MethodArgumentNotValidException: se per esempio ho un not blank e lo lascio vuoto ***
- * così non mi da tutto lo stack trace
- * */
+ * Global handler for the different type of exceptions
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+
+    /**
+     * MethodArgumentNotValidException: Exception that occurs when a request payload fails @Valid validation
+     * for example missing required fields or empty strings in a DTO.
+     * */
     @ApiResponses({
             @ApiResponse(
                     responseCode = "400",
-                    description = "Validation error occured",
+                    description = "Validation error occurred",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))
             )
     })
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleUserLoginException(MethodArgumentNotValidException e) {
+    public ResponseEntity<Map<String, String>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         Map<String, String> errors = new HashMap<>();
-        e.getBindingResult().getAllErrors().forEach((error) -> { //prende tutti gli errori e li analizza
+        e.getBindingResult().getAllErrors().forEach((error) -> { //Extracts and analyzes all field errors
         String fieldName = ((FieldError) error).getField();
         String errorMessage = error.getDefaultMessage();
         errors.put(fieldName, errorMessage);
@@ -53,12 +49,13 @@ public class GlobalExceptionHandler {
 
 
     /**
-     * ConstraintViolationException: fallimento sui parametri URL, tipo età e io metto sbagliata
+     * ConstraintViolationException: when validation fails directly on method parameters
+     * for example an invalid age.
      * */
     @ApiResponses({
             @ApiResponse(
                     responseCode = "400",
-                    description = "Constraint violeted",
+                    description = "Constraint violated",
                     content = @Content( mediaType = "application/json", schema = @Schema(implementation = Map.class))
             )
     })
@@ -73,7 +70,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(errors);
     }
 /**
- * TypeMismatchException: Se non converte parametri, es sbaglio endpoint API
+ * TypeMismatchException: thrown when a request parameter or path variable cannot be
+ * converted to the expected Java type
  * */
     @ApiResponses({
             @ApiResponse(
@@ -89,7 +87,8 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Exception: intercetta qualsiasi errore non previsto, mi da errore generico
+     * Exception: global  handler for any unexpected Exception
+     * not caught by specific handlers.
      * */
     @ApiResponses({
             @ApiResponse(
@@ -100,11 +99,11 @@ public class GlobalExceptionHandler {
     })
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception e) {
-        return ResponseEntity.internalServerError().body("Internal Server Error occured while using the Application");
+        return ResponseEntity.internalServerError().body("Internal Server Error occurred while using the application");
     }
 
     /**
-     *  IllegalArgumentException: parametro ok, ma non logicamente accettabile dalla logica
+     *  IllegalArgumentException: illegal argument inserted
      *  */
     @ApiResponses({
             @ApiResponse(
@@ -115,11 +114,11 @@ public class GlobalExceptionHandler {
     })
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
-        return ResponseEntity.badRequest().body(e.getMessage()); //così prende quello che definisco io
+        return ResponseEntity.badRequest().body(e.getMessage()); //Returns the custom message defined when the exception was thrown
     }
 
     /**
-     *  NoSuchElementException: quando chiamo qualcosa ceh non esiste
+     *  NoSuchElementException: when something doesn't exist and/or can't be found
      *  */
     @ApiResponses({
             @ApiResponse(
@@ -134,7 +133,8 @@ public class GlobalExceptionHandler {
     }
 
 /**
- * AccessDeniedException: when we do an operation without the correct role for it
+ * AccessDeniedException: This occurs when an authenticated user attempts to execute an operation or access
+ * an endpoint without the required roles or permissions.
  * */
     @ApiResponses({
             @ApiResponse(
@@ -150,7 +150,7 @@ public class GlobalExceptionHandler {
 
 
 /**
- *  HttpMessageNotReadableException: Exception that handles wrong json format
+ *  HttpMessageNotReadableException: Exception that handles HTTP request body:  malformed or unreadable
  *  */
 @ApiResponses({
             @ApiResponse(

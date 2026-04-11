@@ -21,26 +21,14 @@ import java.util.Collections;
  */
 public class UserPrincipal implements UserDetails {
 
-    //user password (used during authentication)
     private String password;
 
-    //unique identifier of the user in the database
     private String id;
 
-    //username used for login
     private String username;
 
-    //list of authorities (roles) assigned to the user
     private Collection<? extends GrantedAuthority> authorities;
 
-    /**
-     * Constructor.
-     *
-     * @param id user unique identifier
-     * @param username login username
-     * @param password user password
-     * @param authorities user roles/permissions
-     */
     public UserPrincipal(String id, String username, String password,
                          Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
@@ -51,7 +39,6 @@ public class UserPrincipal implements UserDetails {
 
     /**
      * Factory method to build a UserPrincipal from a Chef.
-     *
      * Automatically assigns ROLE_CHEF.
      *
      * @param chef the Chef entity
@@ -68,7 +55,6 @@ public class UserPrincipal implements UserDetails {
 
     /**
      * Factory method to build a UserPrincipal from a Foodie.
-     *
      * Automatically assigns ROLE_FOODIE.
      *
      * @param foodie the Foodie entity
@@ -85,7 +71,6 @@ public class UserPrincipal implements UserDetails {
 
     /**
      * Factory method to build a UserPrincipal for Admin.
-     *
      * Automatically assigns ROLE_ADMIN.
      *
      * @param admin the Admin entity (stored as Chef)
@@ -102,7 +87,6 @@ public class UserPrincipal implements UserDetails {
 
     /**
      * Returns the authorities (roles) of the user.
-     *
      * Used by Spring Security to check access permissions.
      *
      * @return collection of authorities
@@ -114,7 +98,6 @@ public class UserPrincipal implements UserDetails {
 
     /**
      * Returns the user password.
-     *
      * Used during authentication to verify credentials.
      *
      * @return the password
@@ -126,7 +109,6 @@ public class UserPrincipal implements UserDetails {
 
     /**
      * Returns the user ID.
-     *
      * Not part of UserDetails, but useful for application logic.
      *
      * @return the user ID

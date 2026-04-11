@@ -5,14 +5,15 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * DTO for information to delete such as recipes
+ * DTO containing information required for deletion operations
+ * For example updating save counts when recipes are removed
  */
 @Value
 public class InfoToDeleteDTO {
 
-    // Liste degli id delle ricette di cui vogliamo decrementare il numero di saves
+    // List of recipe IDs for which we want to decrease the save count
     List<String> recipeIds;
 
-    // Lista degli chef e dei decrementi del totSaves per ogni chef
+    // Map linking chefs to their respective save count decrements
     Map<String, List<String>> chefRecipeList;
 }

@@ -3,11 +3,11 @@ package it.unipi.MySmartRecipeBook.utils.parameters;
 import java.util.List;
 
 /**
- *
+ * Categories used globally in the codes
  */
 public class Categories {
 
-    // Static perchè così sono globali
+    //static to make them global
     public static final List<String> CATEGORIES = List.of(
             "Vegan", "Dairy-free", "Egg-free", "Gluten-free",
             "Main courses", "Second courses", "Desserts"

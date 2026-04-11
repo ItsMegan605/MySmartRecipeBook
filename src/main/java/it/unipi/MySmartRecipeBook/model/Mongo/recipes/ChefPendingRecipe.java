@@ -9,12 +9,10 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
+//TODO: questo lo abbiamo due volte bruh: abbiamo anche solo Pending recipe non
+//conviene fare una classe che estende quella e ci si aggiunger lo chef?
 /**
- * Represents a recipe submitted by a chef that is pending approval.
- *
- * This model is used for recipes that have not yet been
- * approved by the admin
+ * Model for a recipe submitted by a chef that is pending approval.
  */
 @Getter
 @Setter

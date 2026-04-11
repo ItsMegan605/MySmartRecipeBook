@@ -36,16 +36,14 @@ public class ChefController {
         this.chefService = chefService;
     }
 
-
-
+    
     /**
-     * Method Retrieve chef's information
+     * Method to Retrieve the chef's information
      * @see ChefService#getByUsername(String)
      * @return ResponseEntity ok message
      */
-
     @GetMapping("/info")
-    public ResponseEntity<RegistedUserInfoDTO> getInformations() {
+    public ResponseEntity<RegistedUserInfoDTO> getInformation() {
 
         String username = SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -53,8 +51,6 @@ public class ChefController {
 
         return ResponseEntity.ok(chefService.getByUsername(username));
     }
-
-
 
     /**
      * Change chef's information
@@ -76,7 +72,6 @@ public class ChefController {
      * @see ChefService#deleteChef(String)
      * @return ResponseEntity with message
      */
-
     @DeleteMapping("/deleteProfile")
     public ResponseEntity<String> deleteProfile() {
 
@@ -94,7 +89,6 @@ public class ChefController {
      * @see ChefService#createRecipe(CreateRecipeDTO)
      * @return ResponseEntity ok message
      */
-
     @PostMapping("/addNewRecipe")
     public ResponseEntity<ChefPreviewRecipeDTO> saveRecipe (@Valid @RequestBody CreateRecipeDTO dto){
 
@@ -102,6 +96,12 @@ public class ChefController {
         return ResponseEntity.ok(recipe);
     }
 
+    /**
+     * Get Method to show the chef's pending recipes
+     * @param page
+     * @see ChefService#showPendingRecipes(int) 
+     * @return Response entity ok message 
+     */
     @GetMapping("/showWaiting/{page}")
     public ResponseEntity<SliceRecipeDTO> showPendingRecipes (@PathVariable("page") int page){
         SliceRecipeDTO recipeList = chefService.showPendingRecipes(page);
@@ -115,12 +115,11 @@ public class ChefController {
      * @see ChefService#removeRecipe(String)
      * @return ResponseEntity ok message
      */
-
     @DeleteMapping("/removeWaiting/{id}")
     public ResponseEntity<String> removeRecipe (@PathVariable("id") String recipeId){
 
         chefService.removeRecipe(recipeId);
-        return ResponseEntity.ok("Recipe succesfully removed");
+        return ResponseEntity.ok("Recipe successfully removed");
     }
 
 
@@ -130,12 +129,11 @@ public class ChefController {
      * @see ChefService#deleteRecipe(String)
      * @return ResponseEntity with message
      */
-
     @DeleteMapping("/deleteRecipe/{id}")
     public ResponseEntity<String> deleteRecipe (@PathVariable("id") String recipeId){
 
         chefService.deleteRecipe(recipeId);
-        return ResponseEntity.ok("Recipe succesfully deleted");
+        return ResponseEntity.ok("Recipe successfully deleted");
     }
 
 
@@ -145,7 +143,6 @@ public class ChefController {
      * @see ChefService#showRecipes(int)
      * @return ResponseEntity ok message
      */
-
     @GetMapping("/show/{page}")
     public ResponseEntity<SliceRecipeDTO> showRecipe (@PathVariable("page") int page){
         SliceRecipeDTO recipeList = chefService.showRecipes(page);
@@ -158,7 +155,6 @@ public class ChefController {
      * @see ChefService#showPopularRecipes(int)
      * @return ResponseEntity ok message
      */
-
     @GetMapping("/popular/{pageNumber}")
     public ResponseEntity<SliceRecipeDTO> popularRecipe (@PathVariable("pageNumber") int pageNumber){
         SliceRecipeDTO recipeList = chefService.showPopularRecipes(pageNumber);
@@ -170,8 +166,6 @@ public class ChefController {
      * @see ChefService#getTopChef()
      * @return ResponseEntity ok message
      */
-
-
     @GetMapping("/getTopChef")
     public ResponseEntity<List<TopChefDTO>> getTopChef() {
         List<TopChefDTO> topChefs = chefService.getTopChef();

@@ -1,7 +1,7 @@
 package it.unipi.MySmartRecipeBook.utils.parameters;
 
 /**
- *
+ * Enumerate for task types
  */
 public class Task {
     public enum TaskType{

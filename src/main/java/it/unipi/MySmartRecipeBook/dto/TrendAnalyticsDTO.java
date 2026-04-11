@@ -4,7 +4,8 @@ import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 /**
- * DTO with parameters for trend analytics
+ * DTO representing the trending statistics
+ * and growth rates for recipe categories.
  */
 @Getter
 @Setter

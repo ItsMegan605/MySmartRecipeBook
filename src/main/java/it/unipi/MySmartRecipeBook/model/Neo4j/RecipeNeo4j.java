@@ -6,10 +6,8 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * Represents a Recipe node in the Neo4j graph database.
- *
- * This entity models recipes in the graph and defines relationships
- * with ingredients and chefs.
+ * Represents a Recipe node in the Neo4j graph database with the
+ * relationship between it and chefs and ingredients
  */
 @Data
 @Node("Recipe")

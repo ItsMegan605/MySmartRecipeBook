@@ -18,13 +18,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 /**
  * Main Spring Security configuration class.
- *
- * It defines:
- * - authentication mechanisms
- * - authorization rules
- * - JWT filter integration
- * - password encoding strategy
- *
  * Uses stateless authentication based on JWT.
  */
 @Configuration
@@ -33,18 +26,13 @@ public class WebSecurityConfig {
 
     private final UserDetailsService userDetailsService;
 
-    /**
-     * Constructor for dependency injection.
-     *
-     * @param userDetailsService service used to load user details from DB
-     */
+
     public WebSecurityConfig(UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 
     /**
      * Creates the JWT authentication filter.
-     *
      * This filter intercepts every HTTP request
      * and validates the JWT token.
      *
@@ -140,7 +128,6 @@ public class WebSecurityConfig {
 
     /**
      * Password encoder used to hash passwords.
-     *
      * BCrypt is a secure hashing algorithm widely used for password storage.
      *
      * @return PasswordEncoder instance
@@ -152,7 +139,6 @@ public class WebSecurityConfig {
 
     /**
      * Exposes the AuthenticationManager bean.
-     *
      * Used during login to authenticate users.
      *
      * @param authConfig authentication configuration

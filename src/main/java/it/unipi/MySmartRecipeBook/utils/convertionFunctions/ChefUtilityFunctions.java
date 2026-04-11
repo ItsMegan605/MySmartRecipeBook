@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * Utility class for Chef-related entity and DTO conversions.
  */
 @Component
 public class ChefUtilityFunctions {
@@ -35,14 +35,13 @@ public class ChefUtilityFunctions {
         this.passwordEncoder = passwordEncoder;
     }
 
-
-    // Nel momento in cui un utente compila il form per la registrazione, affinchè possa essere effettivamente registrato
-    // dobbiamo criptare la password e aggiungere la data di registrazione
+    //when a user registers, in order to be registered we need to encypt the password and
+    //update the registration date
 
     /**
-     *
-     * @param dto
-     * @return
+     * Converts a registration DTO into a PendingChef .
+     * @param dto the registration data
+     * @return the PendingChef entity
      */
     public PendingChef createChefEntity (RegistedUserDTO dto){
 
@@ -61,13 +60,11 @@ public class ChefUtilityFunctions {
     }
 
 
-    // Prendiamo le informazioni da mostrare nell'area personale dello chef a partire dall'entità Chef in MongoDB
-    // (in particolare non mostriamo la password per questioni di sicurezza)
-
     /**
-     *
-     * @param chef
-     * @return
+     * Converts a Chef entity to a DTO for the profile.
+     * password is not shown for security
+     * @param chef the Chef entity
+     * @return the registered user info DTO
      */
     public RegistedUserInfoDTO chefToChefInfo(Chef chef){
 
@@ -80,14 +77,11 @@ public class ChefUtilityFunctions {
         );
     }
 
-    // Ricetta che viene creata nel momento in cui uno chef fa submit del form compilato con tutte le informazioni
-    // necessarie per l'inserimento di una ricetta
-
     /**
-     *
-     * @param dto
-     * @param chefDTO
-     * @return
+     * Creates a PendingRecipe from a creation DTO and Chef info.
+     * @param dto the recipe creation data
+     * @param chefDTO the chef information
+     * @return the PendingRecipe entity
      */
     public PendingRecipe createBaseRecipe (CreateRecipeDTO dto, ChefInfoDTO chefDTO){
 
@@ -122,15 +116,11 @@ public class ChefUtilityFunctions {
     }
 
 
-    /* Function to create a ChefRecipe from a BaseRecipe. To be more specific, we have an
-    additional field "NumSaves" that counts how many foodies has saved that specific recipe.
-    In addition, we remove all the informations about the chef that would have been redundant.
-    */
-
     /**
-     *
-     * @param recipe
-     * @return
+     * Converts a PendingRecipe into a ChefPendingRecipe: extra NumSaves field.
+     * It removes redundant chef information.
+     * @param recipe the pending recipe
+     * @return the chef pending recipe summary
      */
     public ChefPendingRecipe recipeToChefRecipe (PendingRecipe recipe){
 
@@ -150,12 +140,10 @@ public class ChefUtilityFunctions {
     }
 
 
-    /* Function to create a ChefPreviewRecipeDTO from an AdminRecipe*/
-
     /**
-     *
-     * @param recipe
-     * @return
+     * Converts a PendingRecipe into a ChefPreviewRecipeDTO using a temporary ID.
+     * @param recipe the pending recipe
+     * @return the preview DTO
      */
     public ChefPreviewRecipeDTO baseToChefDTO(PendingRecipe recipe){
 
@@ -172,9 +160,9 @@ public class ChefUtilityFunctions {
     }
 
     /**
-     *
-     * @param recipesToConvert
-     * @return
+     * Converts a list of RecipeMongo entities to a list of ChefRecipeSummary DTOs.
+     * @param recipesToConvert the list of mongo recipes
+     * @return the list of summaries
      */
     public List<ChefRecipeSummary> MongoListToChefListSummary(List<RecipeMongo> recipesToConvert) {
 
@@ -196,9 +184,9 @@ public class ChefUtilityFunctions {
     }
 
     /**
-     *
-     * @param recipesList
-     * @return
+     * Converts a list of ChefRecipeSummary entities to a list of ChefPreviewRecipeDTOs.
+     * @param recipesList the list of recipe summaries
+     * @return the list of preview DTOs
      */
     public List<ChefPreviewRecipeDTO> ChefListToSummaryList(List<ChefRecipeSummary> recipesList) {
 
@@ -221,9 +209,9 @@ public class ChefUtilityFunctions {
     }
 
     /**
-     *
-     * @param recipesToConvert
-     * @return
+     * Converts a list of RecipeMongo entities directly to ChefPreviewRecipeDTOs.
+     * @param recipesToConvert the list of mongo recipes
+     * @return the list of preview DTOs
      */
     public List<ChefPreviewRecipeDTO> MongoListToChefPreview(List<RecipeMongo> recipesToConvert) {
 
@@ -244,10 +232,10 @@ public class ChefUtilityFunctions {
     }
 
     /**
-     *
-     * @param targetChef
-     * @param chef
-     * @return
+     * Checks if a chef registration request already exists based on personal data or username.
+     * @param targetChef the existing pending chef
+     * @param chef the new pending chef
+     * @return true if a duplicate exists, false otherwise
      */
     public boolean chefAlreadyInserted(PendingChef targetChef, PendingChef chef) {
 
@@ -260,9 +248,9 @@ public class ChefUtilityFunctions {
     }
 
     /**
-     *
-     * @param chef
-     * @return
+     * Converts an approved PendingChef into a final Chef entity.
+     * @param chef the pending chef
+     * @return the final Chef entity
      */
     public Chef pendingChefToChef (PendingChef chef){
 
@@ -279,9 +267,9 @@ public class ChefUtilityFunctions {
     }
 
     /**
-     *
-     * @param recipeMongo
-     * @return
+     * Converts a RecipeMongo entity into a ChefRecipeSummary.
+     * @param recipeMongo the mongo recipe
+     * @return the chef recipe summary
      */
     public ChefRecipeSummary recipeToChefRecipe (RecipeMongo recipeMongo){
 
@@ -295,6 +283,12 @@ public class ChefUtilityFunctions {
         return recipe;
     }
 
+
+    /**
+     * Converts a list of PendingChef entities into a list of PendingChefDTOs.
+     * @param chefs the list of pending chefs
+     * @return the list of pending chef DTOs
+     */
     public List<PendingChefDTO> PendingChefListToDTO(List<PendingChef> chefs) {
         List<PendingChefDTO> result = new ArrayList<>();
         for (PendingChef chef : chefs) {
@@ -303,6 +297,11 @@ public class ChefUtilityFunctions {
         return result;
     }
 
+    /**
+     * Converts a list of ChefPendingRecipe entities into a list of ChefPreviewRecipeDTOs.
+     * @param recipes the list of chef pending recipes
+     * @return the list of preview DTOs
+     */
     public List<ChefPreviewRecipeDTO> PendingChefListToChefPreview(List<ChefPendingRecipe> recipes) {
         List<ChefPreviewRecipeDTO> result = new ArrayList<>();
         for (ChefPendingRecipe recipe : recipes) {

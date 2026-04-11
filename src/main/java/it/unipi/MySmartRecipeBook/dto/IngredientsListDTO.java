@@ -8,7 +8,7 @@ import lombok.Setter;
 import java.util.Set;
 
 /**
- * DTO for ingredients as a list
+ * DTO wrapping a list (set) of ingredient names.
  */
 @Setter
 @Getter

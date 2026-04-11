@@ -1,6 +1,7 @@
 package it.unipi.MySmartRecipeBook.config;
 
-import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import
+        org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +14,7 @@ import redis.clients.jedis.JedisCluster;
 import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
+//TODO: magari anche qui possiamo mettere value e mettere gli indirizzi nelle app properties?
 
 /**
  * Redis cluster configuration code
@@ -22,13 +24,15 @@ import java.util.Set;
 public class RedisConfig {
 
     /**
+     *Initializes and configures a JedisCluster.
+     * Defines the initial set of cluster nodes with proper connections.
+     * @return a  onfigured JedisCluster  ready to execute commands across the nodes.
      *
-     * @return the correct configuration, gets the host and ports and generates the cluster
      */
 
     @Bean
     public JedisCluster jedisCluster() {
-        // Nodi del Cluster: per ora usiamo localhost su WSL
+        //defined cluster nodes
         Set<HostAndPort> clusterNodes = new HashSet<>();
         clusterNodes.add(new HostAndPort("127.0.0.1", 7004));
         clusterNodes.add(new HostAndPort("127.0.0.1", 7005));
@@ -43,7 +47,7 @@ public class RedisConfig {
         poolConfig.setMaxTotal(10);
         poolConfig.setMaxIdle(5);
         poolConfig.setMinIdle(1);
-        poolConfig.setJmxEnabled(false); // Fondamentale per evitare l'UnableToRegisterMBeanException
+        poolConfig.setJmxEnabled(false);
 
         return new JedisCluster(clusterNodes, clientConfig, 5, Duration.ofSeconds(2), poolConfig);
     }

@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * DTO representing a chef registration request pending admin approval.
+ */
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter

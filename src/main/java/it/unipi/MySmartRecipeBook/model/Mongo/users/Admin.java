@@ -11,8 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import java.util.List;
 
 /**
- * Represents an admin user in the system.
- *
+ * Represents the admin user in the system.
  */
 @Getter
 @Setter

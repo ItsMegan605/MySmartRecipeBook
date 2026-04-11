@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 
 /**
- *
+ * Populator for the Foodie collection in MongoDB with random favorite recipes.
  */
 @Order(2)
 @Component
@@ -36,10 +36,11 @@ public class FavouritesPopulator implements CommandLineRunner {
     }
 
     /**
-     *
-     * @param args
+     * Executes the foodie favorites population script on application startup if enabled in
+     * application properties
+     * Assigns a random number of saved recipes (up to 200) to each foodie.
+     * @param args command line arguments
      */
-    // Devo salvare le ricette preferite (in numero compreso tra 0 e 200) per ciascun foodie
     @Override
     public void run(String... args){
 
@@ -59,11 +60,8 @@ public class FavouritesPopulator implements CommandLineRunner {
         int bound = recipes.size() < 200 ?  recipes.size() : 200;
         Random random = new Random();
         for(Foodie foodie : foodies){
-
-            // Scelgo un numero casuale di ricette da salvare tra i preferiti
+            //choose a random number of recipes to save as favourites
             int numRecipes = random.nextInt(bound);
-
-            // Mescolo le ricette o prenderei sempre le stesse in ordine
 
             int addedRecipes = 0;
 
@@ -71,13 +69,12 @@ public class FavouritesPopulator implements CommandLineRunner {
             List<FoodieRecipeSummary> foodieRecipes = new ArrayList<>();
             List<String> recipesId = new ArrayList<>();
 
-            // Fino a quando non abbiamo raggiunto il numero di preferiti che abbiamo casualmente estratto
+            // Loop until the target number of favorite recipes is reached
             while(addedRecipes < numRecipes){
 
-                // estraggo un numero casuale da 0 al numero di ricette
-                int randomIndex = random.nextInt(recipes.size());
+                int randomIndex = random.nextInt(recipes.size()); //random number
 
-                // se quell'indice non è ancora uscito faccio tutte le operazioni del caso
+                //If the random index hasn't been chosen yet, process the recipe
                 if(chosenIndices.add(randomIndex)) {
 
                     RecipeMongo recipe = recipes.get(randomIndex);
@@ -85,7 +82,7 @@ public class FavouritesPopulator implements CommandLineRunner {
                     foodieRecipes.add(fullRecipe);
                     recipesId.add(recipe.getId());
 
-                    /* Aggiorno il numero totale di saves nella collezione delle recipes */
+                    /* Update the total number of saves in the recipes collection */
                     recipeRepository.updateSavesCounter(recipe.getId(), 1);
 
                     addedRecipes++;

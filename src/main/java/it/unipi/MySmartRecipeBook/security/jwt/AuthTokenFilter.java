@@ -35,7 +35,6 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
     /**
      * Core filtering logic executed for each request.
-     *
      * @param request the incoming HTTP request
      * @param response the outgoing HTTP response
      * @param filterChain the chain of filters to continue execution

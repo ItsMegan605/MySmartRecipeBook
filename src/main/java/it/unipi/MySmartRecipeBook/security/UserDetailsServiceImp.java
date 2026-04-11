@@ -17,16 +17,10 @@ import java.util.Optional;
 @Service
 public class UserDetailsServiceImp implements UserDetailsService {
 
-    //repository used to access Chef and Foodie collections
     private final ChefRepository chefRepository;
     private final FoodieRepository foodieRepository;
 
-    /**
-     * Constructor for dependency injection.
-     *
-     * @param chefRepository repository for Chef entities
-     * @param foodieRepository repository for Foodie entities
-     */
+
     public UserDetailsServiceImp(ChefRepository chefRepository,
                                  FoodieRepository foodieRepository) {
         this.chefRepository = chefRepository;

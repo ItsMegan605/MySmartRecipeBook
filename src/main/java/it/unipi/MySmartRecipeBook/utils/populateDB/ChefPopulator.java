@@ -17,8 +17,10 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- *
- */
+ * Populator for the Chef collection in MongoDB.
+ * It calculates and sets the new, old, and popular recipes for each chef,
+ * with their total save counts.
+  */
 @Order(3)
 @Component
 public class ChefPopulator implements CommandLineRunner {
@@ -41,8 +43,9 @@ public class ChefPopulator implements CommandLineRunner {
     }
 
     /**
-     *
-     * @param args
+     * Executes the chef population script on application startup
+     * if enabled in application properties
+     * @param args command line arguments
      */
     @Override
     public void run(String... args) {
@@ -92,10 +95,10 @@ public class ChefPopulator implements CommandLineRunner {
                 }
             }
 
-            // DEBUG QUI
+            //debug lines
             popularRecipes.forEach(r -> {
                 if (r.getNumSaves() == null) {
-                    System.out.println("🔥 NULL trovato!");
+                    System.out.println("NULL found!");
                 }
             });
             popularRecipes.sort(
