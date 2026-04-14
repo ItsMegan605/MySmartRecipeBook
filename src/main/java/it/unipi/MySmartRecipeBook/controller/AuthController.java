@@ -2,14 +2,12 @@ package it.unipi.MySmartRecipeBook.controller;
 
 import it.unipi.MySmartRecipeBook.dto.LoginRequestDTO;
 import it.unipi.MySmartRecipeBook.dto.JwtResponseDTO;
-import it.unipi.MySmartRecipeBook.dto.users.RegistedUserDTO;
+import it.unipi.MySmartRecipeBook.dto.users.RegisteredUserDTO;
 import it.unipi.MySmartRecipeBook.service.AuthService;
 
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -30,12 +28,12 @@ public class AuthController {
     /**
      * Endpoint for chef registration request
      * @param dto
-     * @see AuthService#registerChef(RegistedUserDTO)
+     * @see AuthService#registerChef(RegisteredUserDTO)
      * @return ResponseEntity with message
      */
 
     @PostMapping("/register/chef")
-    public ResponseEntity<String> registerChef (@Valid @RequestBody RegistedUserDTO dto){
+    public ResponseEntity<String> registerChef (@Valid @RequestBody RegisteredUserDTO dto){
 
         if(Period.between(dto.getBirthdate(), LocalDate.now()).getYears() < 15){
             throw new IllegalArgumentException("You must be at least 15 years old to use this service");        }
@@ -47,12 +45,12 @@ public class AuthController {
     /**
      * Endpoint for the foodie's registration phase
      * @param dto with user's parameters
-     * @see AuthService#registerFoodie(RegistedUserDTO)
+     * @see AuthService#registerFoodie(RegisteredUserDTO)
      * @return ResponseEntity with message
      */
 
     @PostMapping("/register/foodie")
-    public ResponseEntity<String> registerFoodie (@Valid @RequestBody RegistedUserDTO dto){
+    public ResponseEntity<String> registerFoodie (@Valid @RequestBody RegisteredUserDTO dto){
 
         if(Period.between(dto.getBirthdate(), LocalDate.now()).getYears() < 15){
             throw new IllegalArgumentException("You must be at least 15 years old to use this service");        }

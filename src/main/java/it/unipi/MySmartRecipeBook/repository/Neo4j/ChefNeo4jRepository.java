@@ -14,22 +14,6 @@ import java.util.List;
  */
 public interface ChefNeo4jRepository extends Neo4jRepository<ChefNeo4j, Long> {
 
-    /**
-     * Retrieves the most used ingredient for each chef,
-     * excluding a list of filtered ingredients.
-     *
-     * Query logic: matching of chefs, recips and ingredients, exclude, count and select
-     *
-     * @param filteredIngredients list of ingredients to exclude (lowercase)
-     * @return list of PopularIngredientsDTO
-     */
-    @Query("MATCH (c:Chef)-[:WROTE]->(r:Recipe)<-[:USED_IN]-(i:Ingredient) " +
-            "WHERE NOT toLower(i.name) IN $filteredIngredients " +
-            "WITH c, i, count(r) AS usageCount " +
-            "ORDER BY usageCount DESC " +
-            "WITH c, collect({name: i.name, count: usageCount})[0] AS topIngredient " +
-            "RETURN c.name AS chefName, c.surname AS chefSurname, topIngredient.name AS ingredientName, topIngredient.count AS usageCount")
-    List<PopularIngredientsDTO> getPopularIngredientsStats(List<String> filteredIngredients);
 
     /**
      * Retrieves the top 3 chefs for each given category.

@@ -1,6 +1,6 @@
 package it.unipi.MySmartRecipeBook.model.Mongo.users;
 
-import it.unipi.MySmartRecipeBook.model.Mongo.recipes.PendingRecipe;
+import it.unipi.MySmartRecipeBook.model.Mongo.recipes.AdminPendingRecipe;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,7 +22,7 @@ import java.util.List;
 public class Admin extends RegisteredUser {
 
     @Field("recipes_to_approve")
-    private List<PendingRecipe> recipesToApprove;
+    private List<AdminPendingRecipe> recipesToApprove;
 
     @Field("chefs_to_approve")
     private List<PendingChef> chefsToApprove;

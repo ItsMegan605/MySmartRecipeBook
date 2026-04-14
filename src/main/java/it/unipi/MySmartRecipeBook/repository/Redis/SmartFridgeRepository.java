@@ -9,3 +9,5 @@ public interface SmartFridgeRepository extends CrudRepository<SmartFridge, Integ
     // Redis repository base: fornisce save(), findById(), deleteById()...
 }*/
 
+
+//TODO: capire se serve diocane

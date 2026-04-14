@@ -5,7 +5,7 @@ import static it.unipi.MySmartRecipeBook.utils.parameters.Categories.*;
 import it.unipi.MySmartRecipeBook.dto.IngredientDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.users.ChefInfoDTO;
-import it.unipi.MySmartRecipeBook.dto.users.RegistedUserInfoDTO;
+import it.unipi.MySmartRecipeBook.dto.users.RegisteredUserInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.users.TopChefDTO;
 import it.unipi.MySmartRecipeBook.dto.users.UpdateChefDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
@@ -22,7 +22,6 @@ import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import it.unipi.MySmartRecipeBook.utils.convertionFunctions.ChefUtilityFunctions;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.*;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -91,7 +90,7 @@ public class ChefService {
 
     /*--------------- Retrieve chef's information ----------------*/
 
-    public RegistedUserInfoDTO getByUsername(String username) {
+    public RegisteredUserInfoDTO getByUsername(String username) {
 
         Chef chef = chefRepository.findByUsername(username)
                 .orElseThrow(() -> new NoSuchElementException("Chef not found"));
@@ -113,7 +112,7 @@ public class ChefService {
 
      We don't allow a foodie to change his/her username, name and surname for security reasons */
 
-    public RegistedUserInfoDTO updateChef(UpdateChefDTO dto) {
+    public RegisteredUserInfoDTO updateChef(UpdateChefDTO dto) {
 
         UserPrincipal authChef = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -217,13 +216,13 @@ public class ChefService {
         }
 
         ChefInfoDTO chefDTO = new ChefInfoDTO(chef.getId(), chef.getName(), chef.getSurname());
-        // A partire dal DTO creiamo un'istanza dell'entità PendingRecipe per poterla salvare embedded dentro il documento
+        // A partire dal DTO creiamo un'istanza dell'entità AdminPendingRecipe per poterla salvare embedded dentro il documento
         // dell'admin
-        PendingRecipe savedRecipe = chefConvertions.createBaseRecipe(recipeDTO, chefDTO);
+        AdminPendingRecipe savedRecipe = chefConvertions.createBaseRecipe(recipeDTO, chefDTO);
 
         // Controlliamo che la ricetta non sia già stata inserita tra quella in attesa di approvazione
         if(admin.getRecipesToApprove() != null){
-            for(PendingRecipe recipe : admin.getRecipesToApprove()){
+            for(AdminPendingRecipe recipe : admin.getRecipesToApprove()){
                 if(recipe.getTitle().equals(recipeDTO.getTitle())){
                     throw new IllegalArgumentException("Recipe already waiting to be approved");
                 }
@@ -235,7 +234,7 @@ public class ChefService {
 
         // Dobbiamo convertire la ricetta nel formato in cui viene salvata all'interno della collezione degli chef (con
         // il campo numSaves inzializzato a 0
-        ChefPendingRecipe chefRecipe = chefConvertions.recipeToChefRecipe(savedRecipe);
+        PendingRecipe chefRecipe = chefConvertions.recipeToChefRecipe(savedRecipe);
         chefRepository.addRecipeToWaiting(chef.getId(), chefRecipe);
 
         // Allo chef viene mostrata un'anteprima della ricetta inserita nella sezione "in attesa di approvazione"
@@ -462,7 +461,7 @@ public class ChefService {
             return new SliceRecipeDTO(null, false, false);
         }
 
-        List<ChefPendingRecipe> pendingRecipes = chef.getRecipesToConfirm();
+        List<PendingRecipe> pendingRecipes = chef.getRecipesToConfirm();
 
         int start = (pageNumber - 1) * pageSizeChef;
         int end = Math.min(pageNumber * pageSizeChef, pendingRecipes.size());
@@ -498,7 +497,7 @@ public class ChefService {
      */
     public List<ChefRankAnalyticsDTO> getChefRankingForFoodie() {
 
-        return chefRepository.ChefBayesianRanking();
+        return chefRepository.chefBayesianRanking();
     }
 
 }

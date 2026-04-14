@@ -14,7 +14,7 @@ import redis.clients.jedis.JedisCluster;
 import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
-//TODO: magari anche qui possiamo mettere value e mettere gli indirizzi nelle app properties?
+//TODO: mettere in app properties i nodi
 
 /**
  * Redis cluster configuration code
@@ -26,7 +26,7 @@ public class RedisConfig {
     /**
      *Initializes and configures a JedisCluster.
      * Defines the initial set of cluster nodes with proper connections.
-     * @return a  onfigured JedisCluster  ready to execute commands across the nodes.
+     * @return a configured JedisCluster  ready to execute commands across the nodes.
      *
      */
 

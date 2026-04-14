@@ -3,9 +3,8 @@ package it.unipi.MySmartRecipeBook.utils.convertionFunctions;
 import it.unipi.MySmartRecipeBook.dto.IngredientDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.FoodiePreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
-import it.unipi.MySmartRecipeBook.dto.users.RegistedUserDTO;
-import it.unipi.MySmartRecipeBook.dto.users.RegistedUserInfoDTO;
-import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
+import it.unipi.MySmartRecipeBook.dto.users.RegisteredUserDTO;
+import it.unipi.MySmartRecipeBook.dto.users.RegisteredUserInfoDTO;
 import it.unipi.MySmartRecipeBook.model.Mongo.ingredients.RecipeIngredient;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefRecipeSummary;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Foodie;
@@ -36,7 +35,7 @@ public class FoodieUtilityFunctions {
      * @param foodieDTO the registration data
      * @return the Foodie entity
      */
-    public Foodie createFoodieEntity (RegistedUserDTO foodieDTO){
+    public Foodie createFoodieEntity (RegisteredUserDTO foodieDTO){
 
         Foodie foodie = new Foodie();
         foodie.setUsername(foodieDTO.getUsername());
@@ -56,9 +55,9 @@ public class FoodieUtilityFunctions {
      * @param foodie the Foodie entity
      * @return the registered user info DTO
      */
-    public RegistedUserInfoDTO entityToFoodieDTO (Foodie foodie) {
+    public RegisteredUserInfoDTO entityToFoodieDTO (Foodie foodie) {
 
-        return new RegistedUserInfoDTO(
+        return new RegisteredUserInfoDTO(
                 foodie.getUsername(),
                 foodie.getName(),
                 foodie.getSurname(),

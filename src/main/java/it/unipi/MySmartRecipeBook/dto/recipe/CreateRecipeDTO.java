@@ -25,7 +25,7 @@ public class CreateRecipeDTO{
     private String title;
 
     @NotBlank (message = "Insert image URL")
-    @JsonProperty("image_url") //TODO in chef preview e foodie preview e user preview abbiamo image_URL
+    @JsonProperty("image_URL")
     private String imageURL;
 
     @NotBlank(message = "Insert category")

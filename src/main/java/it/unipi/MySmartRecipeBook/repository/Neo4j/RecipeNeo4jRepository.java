@@ -46,13 +46,6 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
             "ORDER BY matchCount DESC")
     List<RecipeSuggestionDTO> findRecipesByIngredients(List<String> myIngredients);
 
-    /**
-     * Inserts a new ingredient node.
-     * @param id ingredient ID
-     * @param name ingredient name
-     */
-    @Query("CREATE (i:Ingredient {id: $id, name: $name})")
-    void insertIngredient(String id, String name);
 
     /**
      * Creates a recipe node and connects it to a chef and ingredients and the relationships are in both
@@ -93,15 +86,6 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
             "DETACH DELETE c, r")
     void deleteChef(String chefId);
 
-    /**
-     * Inserts or updates a chef node.
-     * @param chefId chef ID
-     * @param chefName chef first name
-     * @param chefSurname chef last name
-     */
-    @Query("MERGE (c:Chef {mongo_id: $chefId}) " +
-            "SET c.name = $chefName, c.surname = $chefSurname")
-    void insertChef(String chefId, String chefName, String chefSurname);
 
     /**
      * Creates relationships between chefs and recipes.

@@ -18,7 +18,7 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RegistedUserInfoDTO {
+public class RegisteredUserInfoDTO {
 
     @NotBlank
     private String username;

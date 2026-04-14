@@ -4,14 +4,14 @@ import it.unipi.MySmartRecipeBook.dto.IngredientDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.CreateRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.users.ChefInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.users.PendingChefDTO;
-import it.unipi.MySmartRecipeBook.dto.users.RegistedUserDTO;
-import it.unipi.MySmartRecipeBook.dto.users.RegistedUserInfoDTO;
+import it.unipi.MySmartRecipeBook.dto.users.RegisteredUserDTO;
+import it.unipi.MySmartRecipeBook.dto.users.RegisteredUserInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Mongo.ingredients.RecipeIngredient;
-import it.unipi.MySmartRecipeBook.model.Mongo.users.Chef;
-import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefPendingRecipe;
-import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefRecipeSummary;
+import it.unipi.MySmartRecipeBook.model.Mongo.recipes.AdminPendingRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.PendingRecipe;
+import it.unipi.MySmartRecipeBook.model.Mongo.users.Chef;
+import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefRecipeSummary;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.PendingChef;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.ReducedChef;
@@ -43,7 +43,7 @@ public class ChefUtilityFunctions {
      * @param dto the registration data
      * @return the PendingChef entity
      */
-    public PendingChef createChefEntity (RegistedUserDTO dto){
+    public PendingChef createChefEntity (RegisteredUserDTO dto){
 
         PendingChef chef = new PendingChef();
         chef.setUsername(dto.getUsername());
@@ -66,9 +66,9 @@ public class ChefUtilityFunctions {
      * @param chef the Chef entity
      * @return the registered user info DTO
      */
-    public RegistedUserInfoDTO chefToChefInfo(Chef chef){
+    public RegisteredUserInfoDTO chefToChefInfo(Chef chef){
 
-        return new RegistedUserInfoDTO(
+        return new RegisteredUserInfoDTO(
                 chef.getUsername(),
                 chef.getName(),
                 chef.getSurname(),
@@ -78,14 +78,14 @@ public class ChefUtilityFunctions {
     }
 
     /**
-     * Creates a PendingRecipe from a creation DTO and Chef info.
+     * Creates a AdminPendingRecipe from a creation DTO and Chef info.
      * @param dto the recipe creation data
      * @param chefDTO the chef information
-     * @return the PendingRecipe entity
+     * @return the AdminPendingRecipe entity
      */
-    public PendingRecipe createBaseRecipe (CreateRecipeDTO dto, ChefInfoDTO chefDTO){
+    public AdminPendingRecipe createBaseRecipe (CreateRecipeDTO dto, ChefInfoDTO chefDTO){
 
-        PendingRecipe recipe = new PendingRecipe();
+        AdminPendingRecipe recipe = new AdminPendingRecipe();
         recipe.setId(java.util.UUID.randomUUID().toString());
         recipe.setTitle(dto.getTitle());
         recipe.setCategory(dto.getCategory());
@@ -117,14 +117,14 @@ public class ChefUtilityFunctions {
 
 
     /**
-     * Converts a PendingRecipe into a ChefPendingRecipe: extra NumSaves field.
+     * Converts a AdminPendingRecipe into a PendingRecipe: extra NumSaves field.
      * It removes redundant chef information.
      * @param recipe the pending recipe
      * @return the chef pending recipe summary
      */
-    public ChefPendingRecipe recipeToChefRecipe (PendingRecipe recipe){
+    public PendingRecipe recipeToChefRecipe (AdminPendingRecipe recipe){
 
-        ChefPendingRecipe full_recipe = new ChefPendingRecipe();
+        PendingRecipe full_recipe = new PendingRecipe();
         full_recipe.setId(recipe.getId());
         full_recipe.setTitle(recipe.getTitle());
         full_recipe.setPresentation(recipe.getPresentation());
@@ -141,11 +141,11 @@ public class ChefUtilityFunctions {
 
 
     /**
-     * Converts a PendingRecipe into a ChefPreviewRecipeDTO using a temporary ID.
+     * Converts a AdminPendingRecipe into a ChefPreviewRecipeDTO using a temporary ID.
      * @param recipe the pending recipe
      * @return the preview DTO
      */
-    public ChefPreviewRecipeDTO baseToChefDTO(PendingRecipe recipe){
+    public ChefPreviewRecipeDTO baseToChefDTO(AdminPendingRecipe recipe){
 
         ChefPreviewRecipeDTO recipeDTO = new ChefPreviewRecipeDTO();
 
@@ -298,13 +298,13 @@ public class ChefUtilityFunctions {
     }
 
     /**
-     * Converts a list of ChefPendingRecipe entities into a list of ChefPreviewRecipeDTOs.
+     * Converts a list of PendingRecipe entities into a list of ChefPreviewRecipeDTOs.
      * @param recipes the list of chef pending recipes
      * @return the list of preview DTOs
      */
-    public List<ChefPreviewRecipeDTO> PendingChefListToChefPreview(List<ChefPendingRecipe> recipes) {
+    public List<ChefPreviewRecipeDTO> PendingChefListToChefPreview(List<PendingRecipe> recipes) {
         List<ChefPreviewRecipeDTO> result = new ArrayList<>();
-        for (ChefPendingRecipe recipe : recipes) {
+        for (PendingRecipe recipe : recipes) {
             ChefPreviewRecipeDTO dto = new ChefPreviewRecipeDTO();
             dto.setId(recipe.getId());
             dto.setTitle(recipe.getTitle());

@@ -3,8 +3,8 @@ package it.unipi.MySmartRecipeBook.utils.convertionFunctions;
 import it.unipi.MySmartRecipeBook.dto.IngredientDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.*;
 import it.unipi.MySmartRecipeBook.model.Mongo.ingredients.RecipeIngredient;
+import it.unipi.MySmartRecipeBook.model.Mongo.recipes.AdminPendingRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefRecipeSummary;
-import it.unipi.MySmartRecipeBook.model.Mongo.recipes.PendingRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
 import it.unipi.MySmartRecipeBook.model.Neo4j.ChefNeo4j;
 import it.unipi.MySmartRecipeBook.model.Neo4j.IngredientNeo4j;
@@ -88,12 +88,12 @@ public class RecipeUtilityFunctions {
     }
 
     /**
-     * Converts an approved PendingRecipe into a final RecipeMongo entity.
+     * Converts an approved AdminPendingRecipe into a final RecipeMongo entity.
      * Initializes the save counter to zero.
      * @param recipe the pending recipe
      * @return the final mongo recipe
      */
-    public RecipeMongo baseToMongoRecipe(PendingRecipe recipe){
+    public RecipeMongo baseToMongoRecipe(AdminPendingRecipe recipe){
 
         RecipeMongo full_recipe = new RecipeMongo();
         full_recipe.setTitle(recipe.getTitle());
@@ -110,23 +110,6 @@ public class RecipeUtilityFunctions {
 
         return full_recipe;
     }
-
-    //TODO: togliamo allora??
-
-    /* RIDONDANTE
-    public List<ChefPreviewRecipeDTO> PendingListToChefPreview(List<PendingRecipe> recipes) {
-        List<ChefPreviewRecipeDTO> result = new ArrayList<>();
-        for (PendingRecipe recipe : recipes) {
-            ChefPreviewRecipeDTO dto = new ChefPreviewRecipeDTO();
-            dto.setId(recipe.getId());
-            dto.setTitle(recipe.getTitle());
-            dto.setImageURL(recipe.getImageURL());
-            dto.setCreationDate(recipe.getCreationDate().toLocalDate());
-            result.add(dto);
-        }
-        return result;
-    }
-    */
 
     /**
      * Converts a RecipeMongo entity into a GraphRecipeDTO for Neo4j synchronization.

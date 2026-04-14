@@ -107,18 +107,6 @@ public class AdminController {
     }
 
     /**
-     * Method to see the most popular ingredients used by a chef
-     * @see AdminService#getPopularIngredients()
-     * @return ResponseEntity with ok message
-     *
-     */
-    @GetMapping("/popularIngredients") //TODO forse da togliere
-    public ResponseEntity<List<PopularIngredientsDTO>> getPopularIngredients() {
-        List<PopularIngredientsDTO> ingredients = adminService.getPopularIngredients();
-        return ResponseEntity.ok(ingredients);
-    }
-
-    /**
      * Get method to see the trending of the different categories
      * @see AdminService#getCategoryTrends()
      * @return ResponseEntity with ok message

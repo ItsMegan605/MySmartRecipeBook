@@ -2,7 +2,7 @@ package it.unipi.MySmartRecipeBook.service;
 
 import it.unipi.MySmartRecipeBook.dto.LoginRequestDTO;
 import it.unipi.MySmartRecipeBook.dto.JwtResponseDTO;
-import it.unipi.MySmartRecipeBook.dto.users.RegistedUserDTO;
+import it.unipi.MySmartRecipeBook.dto.users.RegisteredUserDTO;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Admin;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Foodie;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.PendingChef;
@@ -55,7 +55,7 @@ public class AuthService {
      * @param chefDTO
      */
 
-    public void registerChef(RegistedUserDTO chefDTO) {
+    public void registerChef(RegisteredUserDTO chefDTO) {
 
         // Controllo se lo username già esiste (sia nella collezione chefs che in quella foodies)
         if (chefRepository.existsByUsername(chefDTO.getUsername())
@@ -90,7 +90,7 @@ public class AuthService {
      *
      * @param foodieDTO
      */
-    public void registerFoodie(RegistedUserDTO foodieDTO) {
+    public void registerFoodie(RegisteredUserDTO foodieDTO) {
 
         // Controllo se lo username già esiste (sia nella collezione chefs che in quella foodies) - lo username è
         // univoco in entrambe le collezioni

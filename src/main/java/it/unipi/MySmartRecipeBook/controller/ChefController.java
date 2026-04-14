@@ -1,7 +1,7 @@
 package it.unipi.MySmartRecipeBook.controller;
 
 import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
-import it.unipi.MySmartRecipeBook.dto.users.RegistedUserInfoDTO;
+import it.unipi.MySmartRecipeBook.dto.users.RegisteredUserInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.users.TopChefDTO;
 import it.unipi.MySmartRecipeBook.dto.users.UpdateChefDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
@@ -9,13 +9,10 @@ import it.unipi.MySmartRecipeBook.dto.recipe.CreateRecipeDTO;
 import it.unipi.MySmartRecipeBook.service.ChefService;
 
 import jakarta.validation.Valid;
-import org.springframework.data.domain.Slice;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -43,7 +40,7 @@ public class ChefController {
      * @return ResponseEntity ok message
      */
     @GetMapping("/info")
-    public ResponseEntity<RegistedUserInfoDTO> getInformation() {
+    public ResponseEntity<RegisteredUserInfoDTO> getInformation() {
 
         String username = SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -59,7 +56,7 @@ public class ChefController {
      * @return ResponseEntity ok message
      */
     @PostMapping("/changeInfo")
-    public ResponseEntity<RegistedUserInfoDTO> updateInformation (@Valid @RequestBody UpdateChefDTO updates){
+    public ResponseEntity<RegisteredUserInfoDTO> updateInformation (@Valid @RequestBody UpdateChefDTO updates){
 
         if(updates.getBirthdate() != null && Period.between(updates.getBirthdate(), LocalDate.now()).getYears() < 15){
             throw new IllegalArgumentException("You must be at least 15 years old to use this service");        }

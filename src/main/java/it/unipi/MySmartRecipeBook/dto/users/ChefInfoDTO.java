@@ -14,8 +14,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-
-//TODO: ho aggiunto provate perchè tutti hanno provate, anche in topchef
 public class ChefInfoDTO {
     private String id;
     private String name;

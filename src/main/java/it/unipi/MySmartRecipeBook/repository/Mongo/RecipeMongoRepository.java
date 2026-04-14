@@ -80,14 +80,6 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
     boolean existsByTitle(String title);
 
     /**
-     * Counts recipes belonging to a chef.
-     * @param chefId chef ID
-     * @return number of recipes
-     */
-    @Query(value = "{ 'chef.id' : ?0 }", count = true)
-    int countByChef(String chefId);
-
-    /**
      * Deletes a recipe by ID.
      * @param id recipe ID
      * @return number of deleted documents
@@ -131,15 +123,4 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
     })
     List<TrendAnalyticsDTO> findCategoryTrend(LocalDateTime recentDate, LocalDateTime previousDate);
 
-    /**
-     * Computes total number of saves for all recipes of a chef.
-     * @param chefId chef ID
-     * @return total saves
-     */
-    @Aggregation(pipeline = {
-            "{ '$match': { 'chef.id': ?0 } }",
-            "{ '$group': { '_id': null, 'total': { '$sum': '$num_saves' } } }",
-            "{ '$project': { '_id': 0, 'total': 1 } }"
-    })
-    Integer getTotalSaves(String chefId); //TODO: anche questa non viene usata
 }

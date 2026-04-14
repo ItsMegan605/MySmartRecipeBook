@@ -8,8 +8,6 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
-//TODO: bisogna cambiare perchè abbiamo scritto male REGISTERED
-
 /**
  * DTO for users registration with all mandatory fields
  */
@@ -18,7 +16,7 @@ import java.time.LocalDate;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegistedUserDTO {
+public class RegisteredUserDTO {
 
     @NotBlank(message = "Insert username")
     private String username;

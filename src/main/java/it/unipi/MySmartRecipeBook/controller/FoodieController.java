@@ -2,27 +2,22 @@ package it.unipi.MySmartRecipeBook.controller;
 
 import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
-import it.unipi.MySmartRecipeBook.dto.users.RegistedUserInfoDTO;
+import it.unipi.MySmartRecipeBook.dto.users.RegisteredUserInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.users.UpdateFoodieDTO;
-import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import it.unipi.MySmartRecipeBook.service.FoodieService;
 
 import jakarta.validation.Valid;
-import org.springframework.data.domain.Slice;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import it.unipi.MySmartRecipeBook.dto.ChefRankAnalyticsDTO;
 import it.unipi.MySmartRecipeBook.service.ChefService;
-import org.springframework.web.server.ResponseStatusException;
 
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.List;
 
 /**
  * Foodie's controller
@@ -47,7 +42,7 @@ public class FoodieController {
      * @return ResponseEntity ok message
      */
     @GetMapping("/info")
-    public ResponseEntity<RegistedUserInfoDTO> getInfo(){
+    public ResponseEntity<RegisteredUserInfoDTO> getInfo(){
 
         return ResponseEntity.ok(foodieService.getById());
     }
@@ -60,7 +55,7 @@ public class FoodieController {
      * @return ResponseEntity ok message
      */
     @PostMapping("/changeInfo")
-    public ResponseEntity<RegistedUserInfoDTO> changeInfo (@Valid @RequestBody UpdateFoodieDTO updates){
+    public ResponseEntity<RegisteredUserInfoDTO> changeInfo (@Valid @RequestBody UpdateFoodieDTO updates){
 
         if(updates.getBirthdate() != null && Period.between(updates.getBirthdate(), LocalDate.now()).getYears() < 15){
             throw new IllegalArgumentException("You must be at least 15 years old to use this service");

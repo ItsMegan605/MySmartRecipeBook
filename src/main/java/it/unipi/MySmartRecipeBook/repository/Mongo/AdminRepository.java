@@ -1,7 +1,7 @@
 package it.unipi.MySmartRecipeBook.repository.Mongo;
 
+import it.unipi.MySmartRecipeBook.model.Mongo.recipes.AdminPendingRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Admin;
-import it.unipi.MySmartRecipeBook.model.Mongo.recipes.PendingRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.PendingChef;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
@@ -28,7 +28,7 @@ public interface AdminRepository extends MongoRepository<Admin, String> {
      */
     @Query("{ '_id': ?0 }")
     @Update("{ '$push': { 'recipes_to_approve': ?1 } }")
-    void addRecipeToApprovals(String adminId, PendingRecipe recipe);
+    void addRecipeToApprovals(String adminId, AdminPendingRecipe recipe);
 
     /**
      * Removes a recipe from the approval list by its ID.

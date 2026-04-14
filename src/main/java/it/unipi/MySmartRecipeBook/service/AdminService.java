@@ -1,7 +1,6 @@
 package it.unipi.MySmartRecipeBook.service;
 
 import it.unipi.MySmartRecipeBook.dto.YearAnalyticsDTO;
-import it.unipi.MySmartRecipeBook.dto.PopularIngredientsDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.GraphRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.users.PendingChefDTO;
@@ -10,7 +9,7 @@ import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefRecipeSummary;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.OldRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Admin;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Chef;
-import it.unipi.MySmartRecipeBook.model.Mongo.recipes.PendingRecipe;
+import it.unipi.MySmartRecipeBook.model.Mongo.recipes.AdminPendingRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
 import it.unipi.MySmartRecipeBook.model.Neo4j.ChefNeo4j;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.PendingChef;
@@ -19,7 +18,6 @@ import it.unipi.MySmartRecipeBook.repository.Mongo.ChefRepository;
 import it.unipi.MySmartRecipeBook.repository.Mongo.FoodieRepository;
 import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.repository.Neo4j.ChefNeo4jRepository;
-import it.unipi.MySmartRecipeBook.repository.Neo4j.RecipeNeo4jRepository;
 import it.unipi.MySmartRecipeBook.utils.convertionFunctions.ChefUtilityFunctions;
 import it.unipi.MySmartRecipeBook.utils.convertionFunctions.RecipeUtilityFunctions;
 import it.unipi.MySmartRecipeBook.utils.parameters.Task;
@@ -92,14 +90,14 @@ public class AdminService {
 
         // Prendiamo l'elenco delle ricette in attesa di approvazione che abbiamo dentro l'admin e cerchiamo quella che
         // ha l'id indicato
-        List<PendingRecipe> recipesToApprove = admin.getRecipesToApprove();
+        List<AdminPendingRecipe> recipesToApprove = admin.getRecipesToApprove();
 
         if (recipesToApprove == null) {
             throw new NoSuchElementException("No recipe has to be approved");
         }
 
-        PendingRecipe recipeApproved = null;
-        for (PendingRecipe recipe : recipesToApprove) {
+        AdminPendingRecipe recipeApproved = null;
+        for (AdminPendingRecipe recipe : recipesToApprove) {
             if (recipe.getId().equals(recipeId)) {
                 recipeApproved = recipe;
                 break;
@@ -190,14 +188,14 @@ public class AdminService {
                 .orElseThrow(() -> new NoSuchElementException("Admin not found"));
 
         // Prendiamo la lista delle ricette in attesa di approvazione
-        List<PendingRecipe> recipesToApprove = admin.getRecipesToApprove();
+        List<AdminPendingRecipe> recipesToApprove = admin.getRecipesToApprove();
 
         if (recipesToApprove == null) {
             throw new NoSuchElementException("No recipe has to be approved");
         }
 
         String chefId = null;
-        for (PendingRecipe recipe : recipesToApprove) {
+        for (AdminPendingRecipe recipe : recipesToApprove) {
             if (recipe.getId().equals(recipeId)) {
                 chefId = recipe.getChef().getId();
                 break;
@@ -319,22 +317,22 @@ public class AdminService {
             return new SliceRecipeDTO(null, false, false);
         }
 
-        List<PendingRecipe> pendingRecipes = admin.getRecipesToApprove();
+        List<AdminPendingRecipe> adminPendingRecipes = admin.getRecipesToApprove();
 
         int start = (pageNumber - 1) * pageSizeAdmin;
-        int end = Math.min(pageNumber * pageSizeAdmin, pendingRecipes.size());
+        int end = Math.min(pageNumber * pageSizeAdmin, adminPendingRecipes.size());
 
-        if (start >= pendingRecipes.size()) {
+        if (start >= adminPendingRecipes.size()) {
             return new SliceRecipeDTO(null, false, true);
         }
 
         List<ChefPreviewRecipeDTO> content = new ArrayList<>();
-        for (PendingRecipe recipe : pendingRecipes.subList(start, end)) {
+        for (AdminPendingRecipe recipe : adminPendingRecipes.subList(start, end)) {
             content.add(chefUtilityFunctions.baseToChefDTO(recipe));
         }
 
         boolean hasPrevious = pageNumber > 1;
-        boolean hasNext = pendingRecipes.size() > end;
+        boolean hasNext = adminPendingRecipes.size() > end;
 
         return new SliceRecipeDTO(content, hasNext, hasPrevious);
     }
@@ -419,18 +417,6 @@ public class AdminService {
         return results;
     }
 
-
-    /**
-     * 
-     * @return
-     */
-    public List<PopularIngredientsDTO> getPopularIngredients() {
-        return chefNeo4jRepository.getPopularIngredientsStats(COMMON_INGREDIENTS);
-    }
-/*
-    public List<UsedIngredientsDTO> getLeastUsedIngredients() {
-        return recipeNeo4jRepository.getCommonIngredients(RARE_INGREDIENTS);
-    } */
 }
 
 

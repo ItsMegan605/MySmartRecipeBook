@@ -5,7 +5,7 @@ import it.unipi.MySmartRecipeBook.dto.InfoToDeleteDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.FoodiePreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
-import it.unipi.MySmartRecipeBook.dto.users.RegistedUserInfoDTO;
+import it.unipi.MySmartRecipeBook.dto.users.RegisteredUserInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.users.UpdateFoodieDTO;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefRecipeSummary;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Foodie;
@@ -18,7 +18,6 @@ import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.utils.convertionFunctions.FoodieUtilityFunctions;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.*;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -67,7 +66,7 @@ public class FoodieService {
      * @return
      */
 
-    public RegistedUserInfoDTO getById() {
+    public RegisteredUserInfoDTO getById() {
 
         UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -97,7 +96,7 @@ public class FoodieService {
      * @return
      */
 
-    public RegistedUserInfoDTO updateFoodie(UpdateFoodieDTO dto) {
+    public RegisteredUserInfoDTO updateFoodie(UpdateFoodieDTO dto) {
 
         UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()

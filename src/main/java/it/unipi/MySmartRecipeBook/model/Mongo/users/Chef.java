@@ -1,6 +1,6 @@
 package it.unipi.MySmartRecipeBook.model.Mongo.users;
 
-import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefPendingRecipe;
+import it.unipi.MySmartRecipeBook.model.Mongo.recipes.PendingRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefRecipeSummary;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.OldRecipe;
 import jakarta.validation.constraints.Past;
@@ -37,7 +37,7 @@ public class Chef extends RegisteredUser {
     private List<OldRecipe> oldRecipes;
 
     @Field("recipes_to_confirm")
-    private List<ChefPendingRecipe> recipesToConfirm;
+    private List<PendingRecipe> recipesToConfirm;
 
     @Field("popular_recipes")
     private List<ChefRecipeSummary> popularRecipes;
