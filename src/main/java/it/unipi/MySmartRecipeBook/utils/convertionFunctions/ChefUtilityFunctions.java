@@ -22,7 +22,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
+//TODO: in generale in inglese si usa conversion, non convertion, facciamo refractor?
 /**
  * Utility class for Chef-related entity and DTO conversions.
  */

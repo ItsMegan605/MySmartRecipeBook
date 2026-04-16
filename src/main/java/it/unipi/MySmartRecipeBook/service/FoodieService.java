@@ -32,7 +32,7 @@ import org.springframework.util.StringUtils;
 import java.util.*;
 
 /**
- *
+ * Foodie service with business logic
  */
 @Service
 public class FoodieService {
@@ -58,12 +58,9 @@ public class FoodieService {
         this.mongoTemplate = mongoTemplate;
     }
 
-
-    /*--------------- Retrieve foodie's informations ----------------*/
-
     /**
-     *
-     * @return
+     * Retrieve foodie's information
+     * @return the foodie's profile
      */
 
     public RegisteredUserInfoDTO getById() {
@@ -79,23 +76,11 @@ public class FoodieService {
     }
 
 
-    /*--------------- Change foodie's informations ----------------*/
-    /* This function allows a foodie to change its personal information, in particolar one or more among the following
-    fields:
-        - Name
-        - Surname
-        - Email
-        - Password
-        - Birthday
-
-     We don't allow a foodie to change his/her username for security reasons */
-
     /**
-     *
-     * @param dto
-     * @return
+     * This function allows a foodie to change his/her personal information, except the username
+     * @param dto - the foodie's dto
+     * @return the new changed information
      */
-
     public RegisteredUserInfoDTO updateFoodie(UpdateFoodieDTO dto) {
 
         UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
@@ -118,29 +103,23 @@ public class FoodieService {
         if (dto.getEmail() != null && StringUtils.hasText(dto.getEmail()))
             update.set("email", dto.getEmail());
 
-        /* Supponiamo che se si è loggato può cambiare la password senza fare ulteriori controlli? */
+        /* Supponiamo che se si è loggato può cambiare la password senza fare ulteriori controlli? */ //TODO
         if (dto.getPassword() != null && StringUtils.hasText(dto.getPassword()))
             update.set("password", passwordEncoder.encode(dto.getPassword()));
 
         if (dto.getBirthdate() != null)
             update.set("birthdate", dto.getBirthdate());
 
-        // c'è da fare il controllo che abbia almeno 10 anni
-
         FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
         Foodie foodie = mongoTemplate.findAndModify(query, update, options, Foodie.class);
 
-        // Ritorniamo le informazioni aggiornate che verranno mostrate nell'area personale
         return usersConvertions.entityToFoodieDTO(foodie);
     }
 
 
-    /*----------------- Delete foodie's Profile ------------------*/
-
     /**
-     *
+     * Delete foodie's profile
      */
-
     @Transactional
     public void deleteFoodie() {
 
@@ -159,10 +138,8 @@ public class FoodieService {
                 String recipeId = recipe.getId();
                 String chefId = recipe.getChef().getId();
 
-                // 1. Aggiungiamo l'ID alla lista di tutte le ricette
                 recipesId.add(recipeId);
 
-                // 2. Raggruppiamo l'ID della ricetta sotto il rispettivo chef
                 recipesByChefId.computeIfAbsent(chefId, k -> new ArrayList<>()).add(recipeId);
             }
         }
@@ -174,12 +151,11 @@ public class FoodieService {
     }
 
 
-    /*------------ Add a recipe to foodie's favourites  -------------*/
 
     /**
-     *
-     * @param foodieId
-     * @param recipeId
+     * Add a recipe to foodie's favourites
+     * @param foodieId - id of the foodie
+     * @param recipeId - the recipe id
      */
     @Transactional
     public void saveRecipe(String foodieId, String recipeId) {
@@ -188,12 +164,10 @@ public class FoodieService {
             throw new NoSuchElementException("No valid foodie");
         }
 
-        /* We retrieve all the recipe information from the recipe collection*/
         RecipeMongo recipe = recipeRepository.findById(recipeId)
                 .orElseThrow(() -> new NoSuchElementException("Recipe to save not found"));
 
-        // All'interno di questa entità viene memorizzata la data di salvataggio
-        FoodieRecipeSummary fullRecipe = usersConvertions.entityToReducedRecipe(recipe);
+        FoodieRecipeSummary fullRecipe = usersConvertions.entityToReducedRecipe(recipe); //Saving date
 
         foodieRepository.addRecipeToFavourites(foodieId, recipeId, fullRecipe);
 
@@ -202,13 +176,12 @@ public class FoodieService {
     }
 
 
-    /*------------ Remove a recipe from foodie's favourites  -------------*/
-    // VA FATTA PER FORZA CON VERSIONE PERCHè SE USIAMO LA LISTA "AGGIORNATA", NEL MENTRE POTREBBE ESSERCI STATO UN ALTRO
+//TODO: VA FATTA PER FORZA CON VERSIONE PERCHè SE USIAMO LA LISTA "AGGIORNATA", NEL MENTRE POTREBBE ESSERCI STATO UN ALTRO
     // THREAD CHE HA MODIFICATO I PREFERITI E ANDIAMO A SOVRASCRIVERLA
 
     /**
-     *
-     * @param recipeId
+     * Remove a recipe from foodie's favourites list
+     * @param recipeId - the recipe id
      */
     @Transactional
     public void removeSavedRecipe(String recipeId) {
@@ -239,15 +212,12 @@ public class FoodieService {
     }
 
 
-    /*------------ Show foodie's favourites recipes -------------*/
-
     /**
-     *
-     * @param category
-     * @param numPage
-     * @return
+     * Show foodie's favourites
+     * @param category - category of the recipe
+     * @param numPage - paging
+     * @return The page with the list of favourites
      */
-
     public SliceRecipeDTO getRecipeByCategory(String category, int numPage) {
 
         UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
@@ -264,7 +234,7 @@ public class FoodieService {
         if (numPage <= 0 || !FOODIE_FILTERS.contains(category)) {
             throw new IllegalArgumentException("Invalid parameters");
         }
-
+    //TODO: safe to delete?
         /*if (numPage == 1 && category.equals("saving-date")) {
             boolean hasNext = (foodie.getSavedRecipes().size() < 5) ? false : true;
 
@@ -306,6 +276,11 @@ public class FoodieService {
 
     }
 
+    /**
+     * Method to get a specific recipe from a foodie's saved list
+     * @param id - the recipe ID
+     * @return the requested recipe
+     */
     public ShowRecipeDTO getRecipeFoodieById(String id){
         UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()

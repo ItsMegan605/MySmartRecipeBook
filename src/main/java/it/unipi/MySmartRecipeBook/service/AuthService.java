@@ -20,7 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 /**
- *
+ * Authentication Service
  */
 @Service
 public class AuthService {
@@ -48,28 +48,23 @@ public class AuthService {
     }
 
 
-    /* ------------------- Register a new chef ----------------------- */
-
     /**
-     *
-     * @param chefDTO
+     * Registration of a new chef
+     * @param chefDTO - the chef's DTO
      */
 
     public void registerChef(RegisteredUserDTO chefDTO) {
 
-        // Controllo se lo username già esiste (sia nella collezione chefs che in quella foodies)
         if (chefRepository.existsByUsername(chefDTO.getUsername())
                 || foodieRepository.existsByUsername(chefDTO.getUsername())) {
-            throw new IllegalArgumentException("Username already taken"); //questa mi sa che va cambiata
+            throw new IllegalArgumentException("Username already taken"); //TODO: questa mi sa che va cambiata
         }
 
-        // Viene creata l'entità chef da inserire tra quelle in attesa di approvazione dell'admin
         PendingChef chef = chefUtils.createChefEntity(chefDTO);
 
         Admin admin = adminRepository.findByUsername("admin");
 
-        // Controlliamo che tra le richieste in attesa di essere approvate non ci sia un duplicato (controlliamo nome,
-        // cognome e data di nascita dello chef che si vuole registrare)
+
         if(admin.getChefsToApprove()!=null) {
             for (PendingChef targetChef : admin.getChefsToApprove()) {
                 if (chefUtils.chefAlreadyInserted(targetChef, chef)) {
@@ -78,41 +73,32 @@ public class AuthService {
             }
         }
 
-        // Aggiungiamo lo chef alla lista degli chef in attesa di approvazione da parte dell'admin
         adminRepository.addChefToApprovals(admin.getId(), chef);
     }
 
 
-
-    /* ------------------- Register a new foodie ----------------------- */
-
     /**
-     *
-     * @param foodieDTO
+     * Registration of a new foodie
+     * @param foodieDTO - foodie's DTO
      */
     public void registerFoodie(RegisteredUserDTO foodieDTO) {
 
-        // Controllo se lo username già esiste (sia nella collezione chefs che in quella foodies) - lo username è
-        // univoco in entrambe le collezioni
+
         if (chefRepository.existsByUsername(foodieDTO.getUsername())
                 || foodieRepository.existsByUsername(foodieDTO.getUsername())) {
             throw new IllegalArgumentException("Username already taken");
         }
 
-        // Viene creata l'entità foodie e viene aggiunta alla collection foodies
         Foodie foodie = foodieUtils.createFoodieEntity(foodieDTO);
         foodieRepository.save(foodie);
     }
 
 
-    /* ------------------- Login ----------------------- */
-
     /**
-     *
-     * @param request
-     * @return
+     * Login function
+     * @param request - the login request
+     * @return the token and authorization for the user
      */
-    // Richede username e password (LoginRequestDTO e mi restituisce il token con le altre informazioni
     public JwtResponseDTO authenticateUser(LoginRequestDTO request) {
 
         Authentication authentication = authenticationManager.authenticate(

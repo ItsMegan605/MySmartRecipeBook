@@ -24,7 +24,7 @@ import java.util.Optional;
 import static it.unipi.MySmartRecipeBook.utils.parameters.Categories.CATEGORIES;
 
 /**
- *
+ *Recipe Service and its business logic
  */
 @Service
 public class RecipeService {
@@ -56,9 +56,9 @@ public class RecipeService {
 
 
     /**
-     *
-     * @param id
-     * @return
+     * Method to get a recipe and its information
+     * @param id - recipe id
+     * @return the full recipe
      */
     public ShowRecipeDTO getRecipeById(String id){
 
@@ -68,7 +68,7 @@ public class RecipeService {
         return convertions.EntityToDto(full_recipe);
     }
 
-    // Si può veramente fare?
+    // Si può veramente fare? //TODO: togliere?
     /*public void deleteRecipe(String recipeId) {
         if (!recipeRepository.existsById(recipeId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Recipe not found");
@@ -78,10 +78,10 @@ public class RecipeService {
     }*/
 
     /**
-     *
-     * @param title
-     * @param pageNumber
-     * @return
+     * Method to search recipes by title, paginated.
+     * @param title - recipe title
+     * @param pageNumber - paging
+     * @return Recipe's list and their paging
      */
     public SliceRecipeDTO getRecipeByTitle(String title, int pageNumber){
 
@@ -94,18 +94,18 @@ public class RecipeService {
         if (matching_recipes.isEmpty()){
             throw new NoSuchElementException("Not found");
         }
-
+        
         List<UserPreviewRecipeDTO> recipesDTO = convertions.EntityToUserDto(matching_recipes.getContent());
         boolean hasNext = matching_recipes.hasNext();
         boolean hasPrevious = matching_recipes.hasPrevious();
 
-        return  new SliceRecipeDTO<>(recipesDTO, hasNext, hasPrevious);
+        return new SliceRecipeDTO<>(recipesDTO, hasNext, hasPrevious);
     }
 
     /**
-     *
-     * @param pageNumber
-     * @return
+     * Method for the newest recipes on the app
+     * @param pageNumber - paging
+     * @return the latest recipes and the pagination
      */
     public SliceRecipeDTO getNewestRecipe (int pageNumber){
 
@@ -119,14 +119,14 @@ public class RecipeService {
         List<UserPreviewRecipeDTO> recipesDTO = convertions.EntityToUserDto(pageResult.getContent());
         boolean hasNext = pageResult.hasNext();
         boolean hasPrevious = pageResult.hasPrevious();
-        return new SliceRecipeDTO(recipesDTO, hasNext, hasPrevious);
+        return new SliceRecipeDTO<>(recipesDTO, hasNext, hasPrevious);
     }
 
     /**
-     *
-     * @param pageNumber
-     * @param filter
-     * @return
+     * Method to filter the recipes by category
+     * @param pageNumber - paging
+     * @param filter - page filter
+     * @return recipes and filtering
      */
     public SliceRecipeDTO getByCategory (int pageNumber, String filter){
 
@@ -141,14 +141,14 @@ public class RecipeService {
         boolean hasNext = matching_list.hasNext();
         boolean hasPrevious = matching_list.hasPrevious();
 
-        return new SliceRecipeDTO(recipesDTO, hasNext, hasPrevious);
+        return new SliceRecipeDTO<>(recipesDTO, hasNext, hasPrevious);
     }
 
     /**
-     *
-     * @param pageNumber
-     * @param chefId
-     * @return
+     * Method to get recipes by chef
+     * @param pageNumber - paging
+     * @param chefId - id of the chef
+     * @return recipes and their paging
      */
     public SliceRecipeDTO getChefRecipePage(int pageNumber, String chefId){
 
@@ -160,14 +160,15 @@ public class RecipeService {
         Slice<RecipeMongo> matching_recipes = recipeRepository.findByChef_Id(chefId, pageable);
 
         if (matching_recipes.isEmpty()){
-            return new SliceRecipeDTO(List.of(), false, false);
+            return new SliceRecipeDTO<>(List.of(), false, false);
         }
 
         List<UserPreviewRecipeDTO> recipesDTO = convertions.EntityToUserDto(matching_recipes.getContent());
         boolean hasNext = matching_recipes.hasNext();
         boolean hasPrevious = matching_recipes.hasPrevious();
 
-        return new SliceRecipeDTO(recipesDTO, hasNext, hasPrevious);
+        return new SliceRecipeDTO<>(recipesDTO, hasNext, hasPrevious);
     }
 }
 
+//TODO: a sliceRecipe ho aggiunto <>

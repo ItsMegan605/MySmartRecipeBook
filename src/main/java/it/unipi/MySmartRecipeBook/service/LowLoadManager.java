@@ -21,12 +21,13 @@ import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- *
+ * Service for managing and executing background tasks when the CPU load is low.
+ * It utilizes a thread-safe queue to hold tasks and periodically checks the CPU load
+ * before processing them to ensure main application performance is not impacted.
  */
+
 @Service
 public class LowLoadManager {
-
-    /* Tipo di coda che è utile per evitare problemi di sincronizzazione con i thread */
     private static final Queue<TaskToDo> taskQueue = new ConcurrentLinkedQueue<>();
     private final RecipeMongoRepository recipeMongoRepository;
     private final ChefRepository chefRepository;
@@ -40,64 +41,65 @@ public class LowLoadManager {
     }
 
     /**
-     *
-     * @param type
-     * @param recipe
-     * @param chefId
+     * Adds a task involving a ChefRecipeSummary to the low-load processing queue.
+     * @param type - task type
+     * @param recipe - the recipe 
+     * @param chefId - id of the chef
      */
     public void addTask (Task.TaskType type, ChefRecipeSummary recipe, String chefId){
         TaskToDo task = new TaskToDo(type, recipe, chefId);
         taskQueue.add(task);
-        System.out.println("Task succesfully added to the queue");
+        System.out.println("Task successfully added to the queue");
     }
 
     /**
-     *
-     * @param type
-     * @param recipeId
-     * @param chefId
+     * Task linked to specific Chef and Recipe identifiers.
+     * @param type - task type
+     * @param recipeId - id of the recipe
+     * @param chefId - id for the chef
      */
     public void addTask (Task.TaskType type, String recipeId, String chefId){
         TaskToDo task = new TaskToDo(type, recipeId, chefId);
         taskQueue.add(task);
-        System.out.println("Task succesfully added to the queue");
+        System.out.println("Task successfully added to the queue");
     }
 
     /**
-     *
-     * @param type
-     * @param infoToDelete
+     * Task to delete and clean DB records with info to delete
+     * @param type - task type
+     * @param infoToDelete - information to delete
      */
     public void addTask (Task.TaskType type, InfoToDeleteDTO infoToDelete){
         TaskToDo task = new TaskToDo(type, infoToDelete);
         taskQueue.add(task);
-        System.out.println("Task succesfully added to the queue");
+        System.out.println("Task successfully added to the queue: managing of information to delete");
     }
 
     /**
-     *
-     * @param type
-     * @param recipeId
+     * Adds a generic task linked to a specific recipe identifier to the queue.
+     * @param type - task type
+     * @param recipeId - id for the recipe
      */
     public void addTask (Task.TaskType type, String recipeId){
         TaskToDo task = new TaskToDo(type, recipeId);
         taskQueue.add(task);
-        System.out.println("Task succesfully added to the queue");
+        System.out.println("Task successfully added to the queue: a new recipe will be added");
     }
 
     /**
-     *
-     * @param type
-     * @param recipe
+     * Graph synchronization with Neo4j
+     * @param type - task type
+     * @param recipe - the recipe
      */
     public void addTask (Task.TaskType type, GraphRecipeDTO recipe){
         TaskToDo task = new TaskToDo(type, recipe);
         taskQueue.add(task);
-        System.out.println("Task succesfully added to the queue");
+        System.out.println("Task successfully added to the queue: a new node will be created");
     }
 
     /**
-     *
+     * Scheduled consumer that evaluates system health
+     * and processes the task queue.
      */
     @Scheduled(fixedDelay = 10000)
     public void taskHandler(){
@@ -122,8 +124,9 @@ public class LowLoadManager {
     }
 
     /**
-     *
-     * @param task
+     * Task dispatcher. Routes the dequeued task to
+     * the appropriate internal method based on its TaskType enum.
+     * @param task - the task to execute
      */
     private void executeTask(TaskToDo task){
 
@@ -163,8 +166,9 @@ public class LowLoadManager {
     }
 
     /**
-     *
-     * @param task
+     * Eventual Consistency operations so that the graph db is updated.
+     * This method creates the new Neo4j nodes.
+     * @param task - the task to execute
      */
     private void createNeo4jRecipe(TaskToDo task) {
 
@@ -188,12 +192,12 @@ public class LowLoadManager {
     }
 
     /**
-     *
-     * @param task
+     * Batch decrement operation for recipe "saves" counters.
+     * @param task - the task to execute
      */
     private void decrementSavesCounters(TaskToDo task){
 
-        System.out.println("Decrement Saves Counters");
+        System.out.println("Decrementing Saves Counters");
         List<String> recipesId = task.getInfoToDelete().getRecipeIds();
 
         if(recipesId != null) {
@@ -210,6 +214,7 @@ public class LowLoadManager {
             for (String recipeId : chefRecipes) {
 
                 Integer numSaves = null;
+
                 for(ChefRecipeSummary recipe : targetChef.getNewRecipes()){
                     if(recipe.getId().equals(recipeId)){
                         recipe.setNumSaves(recipe.getNumSaves()-1);
@@ -218,6 +223,19 @@ public class LowLoadManager {
                         break;
                     }
                 }
+
+                if(numSaves == null){ //if not in the new recipes, look in the old ones
+                    for(OldRecipe recipe : targetChef.getOldRecipes()){
+                        if(recipe.getId().equals(recipeId)){
+                            recipe.setNumSaves(recipe.getNumSaves()-1);
+                            targetChef.setTotalSaves(targetChef.getTotalSaves()-1);
+                            numSaves = recipe.getNumSaves();
+                            break;
+                        }
+                    }
+                }
+                //TODO: questo l'ho cambiato perchè era duplicato e sistemato controllo
+                /*
                 if(numSaves == null){
                     for(ChefRecipeSummary recipe : targetChef.getNewRecipes()){
                         if(recipe.getId().equals(recipeId)){
@@ -227,7 +245,7 @@ public class LowLoadManager {
                             break;
                         }
                     }
-                }
+                }*/
 
                 if(numSaves > 40){
                     for(ChefRecipeSummary recipe : targetChef.getPopularRecipes()){
@@ -253,12 +271,13 @@ public class LowLoadManager {
     }
 
     /**
-     *
-     * @param task
+     * Decrements the popularity metrics when a foodie
+     * removes a recipe from their favorites.
+     * @param task - the task to execute
      */
     private void updateChefCounters(TaskToDo task) {
 
-        System.out.println("Update Chef Counters");
+        System.out.println("Update Chef Counters: removing from favorites");
 
         Chef targetChef = chefRepository.findById(task.getChefId()).get();
         targetChef.setTotalSaves(targetChef.getTotalSaves()-1);
@@ -289,18 +308,18 @@ public class LowLoadManager {
             targetChef.getPopularRecipes().remove(task.getRecipeMongo());
         }
 
-
-        /* Aggiorno il numero totale di saves nella collezione delle recipes */
+        //Updating the total saves in recipe's collection
         recipeMongoRepository.updateSavesCounter(task.getRecipeId(), -1);
     }
 
     /**
-     *
-     * @param task
+     * Increase popularity counter (num_saves)
+     * for the chef when a foodie adds a recipe to its favorites
+     * @param task - the task to execute
      */
     private void updateChefCountersSaves(TaskToDo task) {
 
-        System.out.println("Update Chef Counters");
+        System.out.println("Update Chef Counters: increasing saves numbers");
 
         Chef targetChef = chefRepository.findById(task.getChefId()).get();
         targetChef.setTotalSaves(targetChef.getTotalSaves()+1);
@@ -331,31 +350,29 @@ public class LowLoadManager {
             targetChef.getPopularRecipes().add(targetChef.getPopularRecipes().size()-1, task.getRecipeMongo());
         }
 
-        /* Aggiorno il numero totale di saves nella collezione delle recipes */
         recipeMongoRepository.updateSavesCounter(task.getRecipeId(), 1);
     }
 
     /**
-     *
-     * @param chefId
+     * Deletes all recipes associated with a specific chef from Neo4j.
+     * @param chefId - chef id
      */
-    /* In questa funzione c'è la Risk Acceptancec */
+    /* Risk Acceptance */ //TODO: io toglierei sto commentino
     private void deleteChefRecipes(String chefId){
-        System.out.println("Delete Chef Recipes");
+        System.out.println("Deleting Chef Recipes");
 
-        /* Pulizia su Neo4j*/
-        recipeNeo4jRepository.deleteChef(chefId);
+        recipeNeo4jRepository.deleteChef(chefId); //neo4j cleaning
 
-        /* Pulizia su Redis - non viene fatta quando sbattiamo sulla ricetta che non c'è più facciamo l'eliminazione */
-    }
+        /* Cleanup on Redis - this is not done eagerly; deletion occurs lazily when a cache miss/invalid state is encountered */    }
 
     /**
-     *
-     * @param recipeId
+     * Removes the recipe node and its corresponding
+     * edges/relationships from Neo4j.
+     * @param recipeId - id of the recipe
      */
     private void deleteRecipe(String recipeId){
 
-        System.out.println("Delete Recipe");
+        System.out.println("Deleting Recipe: " + recipeId);
         recipeNeo4jRepository.deleteRecipeById(recipeId);
 
     }

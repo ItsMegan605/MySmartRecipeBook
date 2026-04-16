@@ -42,13 +42,6 @@ public class AdminService {
     @Value("${app.recipe.pag-size-chef:5}")
     private int pageSizeAdmin;
 
-    /* filtro per gli ingredienti degli chef */
-
-    private static final List<String> COMMON_INGREDIENTS = Arrays.asList(
-            "salt", "water", "pepper", "baking soda",
-            "baking powder", "olive oil", "oil"
-    );
-
     private final RecipeUtilityFunctions recipeConvertions;
     private final ChefRepository chefRepository;
     private final AdminRepository adminRepository;
@@ -71,11 +64,9 @@ public class AdminService {
         this.chefUtilityFunctions = chefUtilityFunctions;
     }
 
-    /*------------------- Approve a pending recipe  --------------------*/
-
     /**
-     *
-     * @param recipeId
+     * Approve a pending recipe
+     * @param recipeId - recipe id
      */
     @Transactional
     public void saveRecipe(String recipeId) {
@@ -87,9 +78,7 @@ public class AdminService {
         Admin admin = adminRepository.findById(logged_admin.getId())
                 .orElseThrow(() -> new NoSuchElementException("Admin not found"));
 
-
-        // Prendiamo l'elenco delle ricette in attesa di approvazione che abbiamo dentro l'admin e cerchiamo quella che
-        // ha l'id indicato
+        //Get the pending recipe's list and we look for the specified id
         List<AdminPendingRecipe> recipesToApprove = admin.getRecipesToApprove();
 
         if (recipesToApprove == null) {
@@ -108,45 +97,34 @@ public class AdminService {
             throw new NoSuchElementException("Recipe not found among the ones that have to be approved");
         }
 
-
-        // Non vogliamo inserire una nuova ricetta che ha lo stesso titolo di un'altra
         if (recipeRepository.existsByTitle(recipeApproved.getTitle())) {
             throw new RuntimeException("Recipe already exists");
         }
 
-        // Quando l'admin approva una ricetta dobbiamo:
 
-        // 1_ Inserire la ricetta in Mongo così da avere anche l'id da inserire nella collezione dello chef
         RecipeMongo recipe = recipeConvertions.baseToMongoRecipe(recipeApproved);
         RecipeMongo savedRecipe = recipeRepository.save(recipe);
 
-        // 2_ Inserire la ricetta tra l'elenco di quelle scritte dallo chef, nalla collezione chefs
         addToChefRecipes(savedRecipe, recipeId);
-
-        // 3_ Rimuovere la ricetta da quelle in attesa di approvazione nell'admin
         adminRepository.removeRecipeFromApprovals(admin.getId(), recipeId);
 
-        // 4_ Inserire l'evento "inserimento ricetta in Neo4j" nella coda degli eventi che verranno gestiti quando
-        // l'utilizzazione della CPU è sotto il 30%
         GraphRecipeDTO graphRecipe = recipeConvertions.MongoToNeo4jGraph(savedRecipe);
         lowLoadManager.addTask(Task.TaskType.CREATE_RECIPE_NEO4J, graphRecipe);
 
     }
 
     /**
-     *
-     * @param recipe
-     * @param pendingRecipeId
+     * Adds a recipe to chef's page
+     * @param recipe - the recipe
+     * @param pendingRecipeId - the id of the pending recipe
      */
     private void addToChefRecipes(RecipeMongo recipe, String pendingRecipeId) {
 
-        // Controllo esistenza chef
         String chefId = recipe.getChef().getId();
 
         Chef chef = chefRepository.findById(chefId)
                 .orElseThrow(() -> new NoSuchElementException("Chef not found"));
 
-      //if it is a pending recipe
         if (chef.getRecipesToConfirm() != null) {
             chef.getRecipesToConfirm().removeIf(pending -> pending.getId().equals(pendingRecipeId));
         }
@@ -158,13 +136,13 @@ public class AdminService {
 
         chef.getNewRecipes().add(0, newChefRecipe);
 
-        if( chef.getNewRecipes().size() > 15 ) {//se consideriamo 3 pagine sono 15 ricette
+        if( chef.getNewRecipes().size() > 15 ) {
             ChefRecipeSummary oldestRecipe = chef.getNewRecipes().remove(14);
-            OldRecipe oldRecipe = new OldRecipe(oldestRecipe.getId(), oldestRecipe.getNumSaves());//tolgo ultimo elemento
-            chef.getOldRecipes().add(0, oldRecipe); //aggiungo alla lista delle ricette vecchie
+            OldRecipe oldRecipe = new OldRecipe(oldestRecipe.getId(), oldestRecipe.getNumSaves());
+            chef.getOldRecipes().add(0, oldRecipe);
         }
 
-        //aggiorno
+
         int totalRecipes = chef.getTotalRecipes() != null ? chef.getTotalRecipes() : 0;
         chef.setTotalRecipes(totalRecipes + 1);
         chefRepository.save(chef);
@@ -172,11 +150,9 @@ public class AdminService {
 
 
 
-    /*------------------- Discard a pending recipe  --------------------*/
-
     /**
-     *
-     * @param recipeId
+     * Discard a pending recipe
+     * @param recipeId - id of the recipe
      */
     public void discardRecipe(String recipeId) {
 
@@ -187,7 +163,6 @@ public class AdminService {
         Admin admin = adminRepository.findById(logged_admin.getId())
                 .orElseThrow(() -> new NoSuchElementException("Admin not found"));
 
-        // Prendiamo la lista delle ricette in attesa di approvazione
         List<AdminPendingRecipe> recipesToApprove = admin.getRecipesToApprove();
 
         if (recipesToApprove == null) {
@@ -202,11 +177,9 @@ public class AdminService {
             }
         }
 
-        // Delete the indicated recipe from the chef list of recipes waiting to be confirmed
         if (chefId == null) {
             throw new NoSuchElementException("Recipe not found among the ones that have to be approved");
         }
-        //ho invertito qui
         boolean recipeFoundAdmin = adminRepository.removeRecipeFromApprovals(admin.getId(), recipeId) > 0;
 
         if(recipeFoundAdmin) {
@@ -216,11 +189,10 @@ public class AdminService {
     }
 
 
-    /*------------------- Approve a pending chef registration request  --------------------*/
 
     /**
-     *
-     * @param chefUsername
+     * Approve a pending chef registration request
+     * @param chefUsername - username of the chef
      */
     public void approveChef(String chefUsername) {
 
@@ -249,11 +221,9 @@ public class AdminService {
         }
 
         Chef chefMongo = chefUtilityFunctions.pendingChefToChef(chef);
-        // Salvataggio del nuovo chef nella collection "chefs"
 
         Chef chefApproved = chefRepository.save(chefMongo);
 
-        // Rimozione dello chef dalla lista di quelli in attesa di approvazione
         adminRepository.removeChefFromApprovals(admin.getId(), chefUsername);
 
         ChefNeo4j chefNeo4j = new ChefNeo4j();
@@ -264,11 +234,9 @@ public class AdminService {
     }
 
 
-    /*------------------- Discard a pending chef registration request  --------------------*/
-
     /**
-     *
-     * @param chefUsername
+     * Discard a pending chef registration request
+     * @param chefUsername - chef's username
      */
     public void declineChef(String chefUsername) {
 
@@ -299,6 +267,11 @@ public class AdminService {
         adminRepository.removeChefFromApprovals(admin.getId(), chefUsername);
     }
 
+    /**
+     * Method to show the list of the pending recipes to be approved or discarded
+     * @param pageNumber - paging
+     * @return the paging with the list of recipes
+     */
 
     public SliceRecipeDTO showPendingRecipes(int pageNumber) {
 
@@ -314,7 +287,7 @@ public class AdminService {
         }
 
         if (admin.getRecipesToApprove() == null || admin.getRecipesToApprove().isEmpty()) {
-            return new SliceRecipeDTO(null, false, false);
+            return new SliceRecipeDTO<>(null, false, false);
         }
 
         List<AdminPendingRecipe> adminPendingRecipes = admin.getRecipesToApprove();
@@ -323,7 +296,7 @@ public class AdminService {
         int end = Math.min(pageNumber * pageSizeAdmin, adminPendingRecipes.size());
 
         if (start >= adminPendingRecipes.size()) {
-            return new SliceRecipeDTO(null, false, true);
+            return new SliceRecipeDTO<>(null, false, true);
         }
 
         List<ChefPreviewRecipeDTO> content = new ArrayList<>();
@@ -334,9 +307,14 @@ public class AdminService {
         boolean hasPrevious = pageNumber > 1;
         boolean hasNext = adminPendingRecipes.size() > end;
 
-        return new SliceRecipeDTO(content, hasNext, hasPrevious);
-    }
+        return new SliceRecipeDTO<>(content, hasNext, hasPrevious);
+    } //TODO: anche qui ho aggiunto <>
 
+    /**
+     * Method to show the list of the pending chefs
+     * @param pageNumber - paging
+     * @return the page with the list of pending chefs
+     */
     public SliceRecipeDTO showPendingChefs(int pageNumber) {
 
         UserPrincipal logged_admin = (UserPrincipal) SecurityContextHolder.getContext()
@@ -351,7 +329,7 @@ public class AdminService {
         }
 
         if (admin.getChefsToApprove() == null || admin.getChefsToApprove().isEmpty()) {
-            return new SliceRecipeDTO(null, false, false);
+            return new SliceRecipeDTO<>(null, false, false);
         }
 
         List<PendingChef> pendingChefs = admin.getChefsToApprove();
@@ -360,7 +338,7 @@ public class AdminService {
         int end = Math.min(pageNumber * pageSizeAdmin, pendingChefs.size());
 
         if (start >= pendingChefs.size()) {
-            return new SliceRecipeDTO(null, false, true);
+            return new SliceRecipeDTO<>(null, false, true);
         }
 
         List<PendingChefDTO> content = chefUtilityFunctions.PendingChefListToDTO(
@@ -369,26 +347,23 @@ public class AdminService {
         boolean hasPrevious = pageNumber > 1;
         boolean hasNext = pendingChefs.size() > end;
 
-        return new SliceRecipeDTO(content, hasNext, hasPrevious);
+        return new SliceRecipeDTO<>(content, hasNext, hasPrevious);
     }
 
 
-    /* counting of the monthly foodies */
-
     /**
-     *
-     * @return
+     * Monthly foodies count
+     * @return the monthly foodies subscribed to the app
      */
     public List<YearAnalyticsDTO> getMonthlyFoodies() {
 
         return foodieRepository.getMonthlyFoodiesStats();
     }
 
-    /*------------------- Emerging vs Declining Categories (Analytics) --------------------*/
 
     /**
-     *
-     * @return
+     * Emerging vs Declining Categories (Analytics)
+     * @return the list of the category trends
      */
     public List<TrendAnalyticsDTO> getCategoryTrends() {
 

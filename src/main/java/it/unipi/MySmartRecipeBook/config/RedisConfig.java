@@ -13,8 +13,8 @@ import redis.clients.jedis.JedisCluster;
 
 import java.time.Duration;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-//TODO: mettere in app properties i nodi
 
 /**
  * Redis cluster configuration code
@@ -23,21 +23,25 @@ import java.util.Set;
 @Configuration
 public class RedisConfig {
 
+    @Value("${app.redis.cluster.nodes}")
+    private List<String> nodes;
+
     /**
-     *Initializes and configures a JedisCluster.
+     * Initializes and configures a JedisCluster.
      * Defines the initial set of cluster nodes with proper connections.
      * @return a configured JedisCluster  ready to execute commands across the nodes.
      *
      */
-
     @Bean
     public JedisCluster jedisCluster() {
         //defined cluster nodes
         Set<HostAndPort> clusterNodes = new HashSet<>();
-        clusterNodes.add(new HostAndPort("127.0.0.1", 7004));
-        clusterNodes.add(new HostAndPort("127.0.0.1", 7005));
-        clusterNodes.add(new HostAndPort("127.0.0.1", 7006));
-
+        for (String node : nodes) {
+            String[] parts = node.split(":");
+            String host = parts[0];
+            int port = Integer.parseInt(parts[1]);
+            clusterNodes.add(new HostAndPort(host, port));
+        }
         JedisClientConfig clientConfig = DefaultJedisClientConfig.builder()
                 .timeoutMillis(2000)
                 .socketTimeoutMillis(2000)

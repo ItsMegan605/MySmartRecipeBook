@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- *
+ * Shopping List service with business logic
  */
 @Service
 public class ShoppingListService {
@@ -34,8 +34,8 @@ public class ShoppingListService {
     private static final String REDIS_KEY_PREFIX = "shoppingList:user:";
 
     /**
-     *
-     * @return
+     * Method to return the shopping list and its contents
+     * @return The shopping list
      */
     public IngredientsListDTO getShoppingList() {
 
@@ -47,9 +47,9 @@ public class ShoppingListService {
     }
 
     /**
-     *
-     * @param username
-     * @return
+     * Shopping list method to call it from user's profile
+     * @param username - foodie's username
+     * @return Ingredients of the shopping list
      */
     private IngredientsListDTO returnShoppingList(String username) {
 
@@ -63,12 +63,10 @@ public class ShoppingListService {
     }
 
 
-    /*--------------- Add ingredients to foodie shopping list  ----------------*/
-
     /**
-     *
-     * @param ingredients
-     * @return
+     * Method to add ingredients to foodie's shopping list
+     * @param ingredients - the ingredients that a foodie wants to add
+     * @return the updated shopping list with the new ingredients
      */
     public IngredientsListDTO addIngredients(List<String> ingredients) {
 
@@ -81,14 +79,10 @@ public class ShoppingListService {
         }
 
         ingredients.removeIf(ingredient -> !ingredientService.isValidIngredient(ingredient));
-        // In questo modo tutti gli ingredienti vengono sempre inseriti in minuscolo
         ingredients.replaceAll(String::toLowerCase);
 
         String key = REDIS_APP_NAMESPACE + REDIS_KEY_PREFIX + authFoodie.getUsername();
 
-
-        // Metodo di aggiunta univoco, degli elementi alla lista - controllo se ci sono ingredienti sennò mi rispsparmio
-        // la connessione a Redis
 
         if (!ingredients.isEmpty()) {
             jedisCluster.sadd(key, ingredients.toArray(new String[0]));
@@ -100,13 +94,10 @@ public class ShoppingListService {
         return returnShoppingList(authFoodie.getUsername());
     }
 
-
-    /*--------------- Remove ingredient from foodie shopping list  ----------------*/
-
     /**
-     *
-     * @param ingredient
-     * @return
+     * Method to remove ingredients from foodie's shopping list
+     * @param ingredient - the ingredient to be removed
+     * @return - the updated shopping list
      */
     public IngredientsListDTO removeIngredient(String ingredient) {
 

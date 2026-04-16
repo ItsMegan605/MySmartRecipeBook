@@ -22,7 +22,6 @@ import java.time.Period;
 /**
  * Foodie's controller
  */
-
 @RestController
 @RequestMapping("/api/foodies")
 @PreAuthorize("hasRole('FOODIE')")
