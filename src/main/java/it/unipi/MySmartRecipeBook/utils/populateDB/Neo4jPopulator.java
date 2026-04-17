@@ -5,7 +5,6 @@ import it.unipi.MySmartRecipeBook.model.Mongo.users.Chef;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
 import it.unipi.MySmartRecipeBook.model.Neo4j.ChefNeo4j;
 import it.unipi.MySmartRecipeBook.model.Neo4j.IngredientNeo4j;
-import it.unipi.MySmartRecipeBook.model.Neo4j.RecipeNeo4j;
 import it.unipi.MySmartRecipeBook.repository.Mongo.ChefRepository;
 import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.repository.Neo4j.ChefNeo4jRepository;
@@ -15,6 +14,7 @@ import it.unipi.MySmartRecipeBook.utils.conversionFunctions.RecipeUtilityFunctio
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
+import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.stereotype.Component;
 import redis.clients.jedis.JedisCluster;
 
@@ -42,12 +42,13 @@ public class Neo4jPopulator implements CommandLineRunner {
     private final ChefRepository chefRepository;
     private final IngredientNeo4jRepository ingredientNeo4jRepository;
     private final JedisCluster jedisCluster;
+    private final Neo4jClient neo4jClient;
 
 
     public Neo4jPopulator(RecipeMongoRepository recipeRepository, RecipeNeo4jRepository neo4jRepository,
                           RecipeUtilityFunctions recipeUtils, ChefNeo4jRepository chefNeo4jRepository,
                           ChefRepository chefRepository, IngredientNeo4jRepository ingredientNeo4jRepository,
-                          JedisCluster jedisCluster) {
+                          JedisCluster jedisCluster, Neo4jClient neo4jClient) {
         this.recipeRepository = recipeRepository;
         this.neo4jRepository = neo4jRepository;
         this.recipeUtils = recipeUtils;
@@ -55,6 +56,7 @@ public class Neo4jPopulator implements CommandLineRunner {
         this.chefRepository = chefRepository;
         this.ingredientNeo4jRepository = ingredientNeo4jRepository;
         this.jedisCluster = jedisCluster;
+        this.neo4jClient = neo4jClient;
     }
 
     /**
@@ -70,14 +72,17 @@ public class Neo4jPopulator implements CommandLineRunner {
         }
 
         //clear the graph
+        System.out.println("Cleaning Neo4j");
         neo4jRepository.deleteAll();
         chefNeo4jRepository.deleteAll();
         ingredientNeo4jRepository.deleteAll();
+
         System.out.println("Starting Neo4j population");
-
         //create ingredient node on neo4j
-        Set<String> ingredients = jedisCluster.smembers("MySmartRecipeBook:allowed_ingredients");
 
+        System.out.println("Creating ingredient nodes");
+
+        Set<String> ingredients = jedisCluster.smembers("MySmartRecipeBook:allowed_ingredients");
         List<IngredientNeo4j> ingredientsNeo4j = new ArrayList<>();
         for(String ingredient : ingredients){
             IngredientNeo4j ingredientNeo4j = new IngredientNeo4j();
@@ -87,6 +92,7 @@ public class Neo4jPopulator implements CommandLineRunner {
         ingredientNeo4jRepository.saveAll(ingredientsNeo4j);
 
         //create chef node excluding admin
+        System.out.println("Creating chef nodes");
         List<ChefNeo4j> chefsNeo4j = new ArrayList<>();
         List<Chef> chefs = chefRepository.findAll();
 
@@ -103,32 +109,32 @@ public class Neo4jPopulator implements CommandLineRunner {
         }
         chefNeo4jRepository.saveAll(chefsNeo4j);
 
+        neo4jClient.query("CREATE INDEX temp_recipe_id IF NOT EXISTS FOR (r:Recipe) ON (r.mongo_id)").run();
+        neo4jClient.query("CREATE INDEX temp_chef_id IF NOT EXISTS FOR (c:Chef) ON (c.mongo_id)").run();
+        neo4jClient.query("CREATE INDEX temp_ing_name IF NOT EXISTS FOR (i:Ingredient) ON (i.name)").run();
+
+        // Forza Neo4j ad attendere che gli indici siano online (solitamente istantaneo per grafi vuoti, ma è una best practice)
+        neo4jClient.query("CALL db.awaitIndexes()").run();
         // get the recipe list and create the recipe node
+        System.out.println("Creating recipe nodes");
+
         List<RecipeMongo> listRecipes = recipeRepository.findAll();
-
-        List<Map<String, String>> chefRecipeRelations = new ArrayList<>();
-        List<Map<String, String>> ingredientRecipeRelations = new ArrayList<>();
-
-        List<RecipeNeo4j> recipes = new ArrayList<>();
         for(RecipeMongo recipe : listRecipes){
-            RecipeNeo4j recipeNeo4j = recipeUtils.MongoToNeo4j(recipe);
-            recipeNeo4j.setMongoId(recipe.getId());
-            recipeNeo4j.setChef(null);
-            recipeNeo4j.setIngredients(new ArrayList<>());
-            recipes.add(recipeNeo4j);
 
-            chefRecipeRelations.add(Map.of("recipeId", recipe.getId(), "chefId", recipe.getChef().getId()));
-
+            List<String> recipeIngredients = new ArrayList<>();
             for(RecipeIngredient ingredient : recipe.getIngredients()) {
                 String ingredientName = ingredient.getName().toLowerCase().trim();
-                ingredientRecipeRelations.add(Map.of("recipeId", recipe.getId(), "ingredientName", ingredientName));
+                recipeIngredients.add(ingredientName);
             }
-            System.out.println("Waiting for population to end...");
+
+            neo4jRepository.createRecipe(recipe.getId(), recipe.getTitle(), recipe.getImageURL(), recipe.getCategory(),
+                    recipe.getChef().getId(), recipeIngredients);
 
         }
-        neo4jRepository.saveAll(recipes);
-        neo4jRepository.createChefRecipeRelations(chefRecipeRelations);
-        neo4jRepository.createIngredientRecipeRelations(ingredientRecipeRelations);
+
+        neo4jClient.query("DROP INDEX temp_recipe_id IF EXISTS").run();
+        neo4jClient.query("DROP INDEX temp_chef_id IF EXISTS").run();
+
         System.out.println("Finished Neo4j population");
     }
 }

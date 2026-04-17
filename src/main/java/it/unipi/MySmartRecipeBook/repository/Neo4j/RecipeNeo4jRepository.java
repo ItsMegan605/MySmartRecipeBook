@@ -63,7 +63,8 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
             "MERGE (c)-[:WROTE]->(r) " +
             "WITH r " +
             "UNWIND $ingredients AS ingName " +
-            "MATCH (i:Ingredient) WHERE toLower(trim(i.name)) = toLower(trim(ingName)) " +
+            "MATCH (i:Ingredient {name: ingName}) " +
+            //"MATCH (i:Ingredient) WHERE toLower(trim(i.name)) = toLower(trim(ingName)) " +
             "MERGE (r)<-[:USED_IN]-(i)")
     void createRecipe(String recipeId, String title, String imageURL, String category, String chefId, List<String> ingredients);
 
@@ -107,6 +108,5 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
             "MATCH (i:Ingredient {name: rel.ingredientName}) " +
             "MERGE (i)-[:USED_IN]->(r)")
     void createIngredientRecipeRelations(@Param("relations")List<Map<String, String>> relations);
-
 
 }

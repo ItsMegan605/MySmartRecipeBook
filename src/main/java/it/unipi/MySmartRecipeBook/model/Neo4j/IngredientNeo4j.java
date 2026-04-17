@@ -9,11 +9,11 @@ import lombok.Data;
  * Represents an Ingredient node in the Neo4j graph database.
  */
 @Data
-@Node("Ingredient")
+@Node("Ingredient") // Using "Ingredients" for consistency with graph labels
 public class IngredientNeo4j {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue // Auto-generated ID
     private Long id;
 
     private String name;
