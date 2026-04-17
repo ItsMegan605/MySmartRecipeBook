@@ -1,4 +1,4 @@
-package it.unipi.MySmartRecipeBook.utils.convertionFunctions;
+package it.unipi.MySmartRecipeBook.utils.conversionFunctions;
 
 import it.unipi.MySmartRecipeBook.dto.IngredientDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.FoodiePreviewRecipeDTO;

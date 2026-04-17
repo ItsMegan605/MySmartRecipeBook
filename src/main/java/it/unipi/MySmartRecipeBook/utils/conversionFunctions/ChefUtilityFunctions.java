@@ -1,4 +1,4 @@
-package it.unipi.MySmartRecipeBook.utils.convertionFunctions;
+package it.unipi.MySmartRecipeBook.utils.conversionFunctions;
 
 import it.unipi.MySmartRecipeBook.dto.IngredientDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.CreateRecipeDTO;
@@ -22,7 +22,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-//TODO: in generale in inglese si usa conversion, non convertion, facciamo refractor?
 /**
  * Utility class for Chef-related entity and DTO conversions.
  */

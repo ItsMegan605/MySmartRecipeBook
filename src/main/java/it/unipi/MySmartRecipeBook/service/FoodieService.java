@@ -15,7 +15,7 @@ import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import it.unipi.MySmartRecipeBook.utils.parameters.Task;
 import it.unipi.MySmartRecipeBook.repository.Mongo.FoodieRepository;
 import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
-import it.unipi.MySmartRecipeBook.utils.convertionFunctions.FoodieUtilityFunctions;
+import it.unipi.MySmartRecipeBook.utils.conversionFunctions.FoodieUtilityFunctions;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;

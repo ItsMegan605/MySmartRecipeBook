@@ -11,7 +11,7 @@ import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.repository.Neo4j.ChefNeo4jRepository;
 import it.unipi.MySmartRecipeBook.repository.Neo4j.IngredientNeo4jRepository;
 import it.unipi.MySmartRecipeBook.repository.Neo4j.RecipeNeo4jRepository;
-import it.unipi.MySmartRecipeBook.utils.convertionFunctions.RecipeUtilityFunctions;
+import it.unipi.MySmartRecipeBook.utils.conversionFunctions.RecipeUtilityFunctions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;

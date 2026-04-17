@@ -5,7 +5,7 @@ import it.unipi.MySmartRecipeBook.model.Mongo.recipes.FoodieRecipeSummary;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
 import it.unipi.MySmartRecipeBook.repository.Mongo.FoodieRepository;
 import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
-import it.unipi.MySmartRecipeBook.utils.convertionFunctions.FoodieUtilityFunctions;
+import it.unipi.MySmartRecipeBook.utils.conversionFunctions.FoodieUtilityFunctions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;

@@ -20,7 +20,7 @@ import it.unipi.MySmartRecipeBook.repository.Mongo.ChefRepository;
 
 import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
-import it.unipi.MySmartRecipeBook.utils.convertionFunctions.ChefUtilityFunctions;
+import it.unipi.MySmartRecipeBook.utils.conversionFunctions.ChefUtilityFunctions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -97,7 +97,7 @@ public class ChefService {
 
 
     /**
-     * This function allows a chef to change its personal information, in particular
+     * This function allows a chef to change his/her personal information, in particular
      * one or more among the following fields: Email, password and birthday
      * We don't allow a chef to change his/her username, name and surname for security reasons
      * @param dto We get the dto for the chef and check the authentication parameters
@@ -134,7 +134,7 @@ public class ChefService {
 
     /**
      * Delete chef's profile
-     * @param chefId Gets the chef's id in order to delet his/her profile and then the low load manager handles
+     * @param chefId Gets the chef's id in order to delete his/her profile and then the low load manager handles
      *               the deletion of the chef once the load of the cpu is lower than 30%
      * @throws NoSuchElementException if the chef doesn't exist
      */
@@ -326,7 +326,7 @@ public class ChefService {
     }
 
     /**
-     * Function to show the total recipe to a chef
+     * Function to show the total recipes to a chef
      * @param pageNumber Number of the page, each page has 5 recipes
      * @return the recipe's details
      *
@@ -445,14 +445,14 @@ public class ChefService {
 
     /**
      * Ranking with top 3 chefs
-     * @return the top chef's for each category in the application
+     * @return the top chef for each category in the application
      */
     public List<TopChefDTO> getTopChef() {
         return chefNeo4jRepository.findTop3ChefsByCategory(CATEGORIES);
     }
 
     /**
-     * Method for the chef's bayesian ranking
+     * Method for the chef's Bayesian ranking
      * @return the Bayesian Ranking of the chefs
      */
     public List<ChefRankAnalyticsDTO> getChefRankingForFoodie() {

@@ -16,6 +16,6 @@ it.unipi.MySmartRecipeBook.security
 it.unipi.MySmartRecipeBook.security.jwt
 it.unipi.MySmartRecipeBook.service
 it.unipi.MySmartRecipeBook.utils
-it.unipi.MySmartRecipeBook.utils.convertionFunctions
+it.unipi.MySmartRecipeBook.utils.conversionFunctions
 it.unipi.MySmartRecipeBook.utils.parameters
 it.unipi.MySmartRecipeBook.utils.populateDB

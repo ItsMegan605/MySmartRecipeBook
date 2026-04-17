@@ -7,15 +7,12 @@ import it.unipi.MySmartRecipeBook.dto.IngredientsListDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.RecipeSuggestionDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
-import it.unipi.MySmartRecipeBook.repository.Mongo.FoodieRepository;
 import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.repository.Neo4j.RecipeNeo4jRepository;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
-import it.unipi.MySmartRecipeBook.utils.convertionFunctions.RecipeUtilityFunctions;
-import org.springframework.http.HttpStatus;
+import it.unipi.MySmartRecipeBook.utils.conversionFunctions.RecipeUtilityFunctions;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 import redis.clients.jedis.JedisCluster;
 
 

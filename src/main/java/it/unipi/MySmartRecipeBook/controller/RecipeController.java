@@ -38,7 +38,7 @@ public class RecipeController {
 
     /**
      * Function to search a recipe by title in the home page (the research will be done searching sub-strings).
-     * Five recipes at the time will be shown
+     * Five recipes at a time will be shown
      * @param title
      * @param pageNumber
      * @see RecipeService#getRecipeByTitle(String, int) 

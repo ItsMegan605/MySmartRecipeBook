@@ -6,7 +6,7 @@ import it.unipi.MySmartRecipeBook.model.Mongo.recipes.OldRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
 import it.unipi.MySmartRecipeBook.repository.Mongo.ChefRepository;
 import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
-import it.unipi.MySmartRecipeBook.utils.convertionFunctions.ChefUtilityFunctions;
+import it.unipi.MySmartRecipeBook.utils.conversionFunctions.ChefUtilityFunctions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;

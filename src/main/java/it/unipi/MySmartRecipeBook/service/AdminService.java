@@ -18,8 +18,8 @@ import it.unipi.MySmartRecipeBook.repository.Mongo.ChefRepository;
 import it.unipi.MySmartRecipeBook.repository.Mongo.FoodieRepository;
 import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.repository.Neo4j.ChefNeo4jRepository;
-import it.unipi.MySmartRecipeBook.utils.convertionFunctions.ChefUtilityFunctions;
-import it.unipi.MySmartRecipeBook.utils.convertionFunctions.RecipeUtilityFunctions;
+import it.unipi.MySmartRecipeBook.utils.conversionFunctions.ChefUtilityFunctions;
+import it.unipi.MySmartRecipeBook.utils.conversionFunctions.RecipeUtilityFunctions;
 import it.unipi.MySmartRecipeBook.utils.parameters.Task;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 

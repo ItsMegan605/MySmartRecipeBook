@@ -1,25 +1,17 @@
 package it.unipi.MySmartRecipeBook.service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.unipi.MySmartRecipeBook.dto.recipe.*;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
-import it.unipi.MySmartRecipeBook.security.UserPrincipal;
-import it.unipi.MySmartRecipeBook.utils.convertionFunctions.RecipeUtilityFunctions;
+import it.unipi.MySmartRecipeBook.utils.conversionFunctions.RecipeUtilityFunctions;
 import org.springframework.beans.factory.annotation.Value;
 import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
 import org.springframework.data.domain.*;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 import redis.clients.jedis.JedisCluster;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 import static it.unipi.MySmartRecipeBook.utils.parameters.Categories.CATEGORIES;
 

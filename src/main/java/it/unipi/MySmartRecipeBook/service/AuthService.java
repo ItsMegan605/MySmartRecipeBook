@@ -12,8 +12,8 @@ import it.unipi.MySmartRecipeBook.repository.Mongo.FoodieRepository;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import it.unipi.MySmartRecipeBook.security.jwt.JwtUtils;
 
-import it.unipi.MySmartRecipeBook.utils.convertionFunctions.ChefUtilityFunctions;
-import it.unipi.MySmartRecipeBook.utils.convertionFunctions.FoodieUtilityFunctions;
+import it.unipi.MySmartRecipeBook.utils.conversionFunctions.ChefUtilityFunctions;
+import it.unipi.MySmartRecipeBook.utils.conversionFunctions.FoodieUtilityFunctions;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
