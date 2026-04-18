@@ -43,5 +43,5 @@ public abstract class RegisteredUser {
     private String password;
 
     @Past(message = "Birthdate must be in the past")
-    private LocalDate birthDate;
+    private LocalDate birthdate;
 }

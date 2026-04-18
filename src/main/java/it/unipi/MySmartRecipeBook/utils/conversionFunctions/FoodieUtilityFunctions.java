@@ -34,7 +34,7 @@ public class FoodieUtilityFunctions {
 
         foodie.setName(foodieDTO.getName());
         foodie.setSurname(foodieDTO.getSurname());
-        foodie.setBirthDate(foodieDTO.getBirthdate());
+        foodie.setBirthdate(foodieDTO.getBirthdate());
         foodie.setRegistrationDate(new Date());
 
         return foodie;
@@ -52,7 +52,7 @@ public class FoodieUtilityFunctions {
                 foodie.getName(),
                 foodie.getSurname(),
                 foodie.getEmail(),
-                foodie.getBirthDate()
+                foodie.getBirthdate()
         );
     }
 

@@ -1,12 +1,9 @@
-package it.unipi.MySmartRecipeBook.controller.RedisController;
+package it.unipi.MySmartRecipeBook.controller;
 
 import it.unipi.MySmartRecipeBook.dto.IngredientsListDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.RecipeSuggestionDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
-import it.unipi.MySmartRecipeBook.model.Mongo.recipes.FoodieRecipeSummary;
-import it.unipi.MySmartRecipeBook.repository.Neo4j.RecipeNeo4jRepository;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
-import it.unipi.MySmartRecipeBook.service.ShoppingListService;
 import it.unipi.MySmartRecipeBook.service.SmartFridgeService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
