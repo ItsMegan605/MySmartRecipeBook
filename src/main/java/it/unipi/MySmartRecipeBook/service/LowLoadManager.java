@@ -351,6 +351,7 @@ public class LowLoadManager {
         }
 
         recipeMongoRepository.updateSavesCounter(task.getRecipeId(), 1);
+        chefRepository.save(targetChef);
     }
 
     /**

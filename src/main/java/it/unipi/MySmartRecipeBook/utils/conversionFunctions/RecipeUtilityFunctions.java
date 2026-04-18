@@ -30,6 +30,7 @@ public class RecipeUtilityFunctions {
     public ShowRecipeDTO EntityToDto (RecipeMongo recipe){
 
         ShowRecipeDTO recipeDTO = new ShowRecipeDTO();
+        recipeDTO.setMongoId(recipe.getId());
         recipeDTO.setTitle(recipe.getTitle());
         recipeDTO.setPresentation(recipe.getPresentation());
         recipeDTO.setCategory(recipe.getCategory());
