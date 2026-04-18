@@ -36,14 +36,10 @@ public class RecipeService {
 
     private final RecipeMongoRepository recipeRepository;
     private final RecipeUtilityFunctions convertions;
-    private JedisCluster jedisCluster;
-    private final ObjectMapper objectMapper;
 
-    public RecipeService(RecipeMongoRepository recipeRepository, RecipeUtilityFunctions convertions,  JedisCluster jedisCluster, ObjectMapper objectMapper) {
+    public RecipeService(RecipeMongoRepository recipeRepository, RecipeUtilityFunctions convertions) {
         this.recipeRepository = recipeRepository;
         this.convertions = convertions;
-        this.jedisCluster = jedisCluster;
-        this.objectMapper = objectMapper;
     }
 
 

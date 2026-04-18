@@ -26,6 +26,9 @@ import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import jakarta.transaction.Transactional;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -69,6 +72,7 @@ public class AdminService {
      * @param recipeId - recipe id
      */
     @Transactional
+    @Retryable(value = {OptimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 500))
     public void saveRecipe(String recipeId) {
 
         UserPrincipal logged_admin = (UserPrincipal) SecurityContextHolder.getContext()
@@ -154,6 +158,7 @@ public class AdminService {
      * Discard a pending recipe
      * @param recipeId - id of the recipe
      */
+    @Transactional
     public void discardRecipe(String recipeId) {
 
         UserPrincipal logged_admin = (UserPrincipal) SecurityContextHolder.getContext()
@@ -194,6 +199,7 @@ public class AdminService {
      * Approve a pending chef registration request
      * @param chefUsername - username of the chef
      */
+    @Transactional
     public void approveChef(String chefUsername) {
 
         UserPrincipal logged_admin = (UserPrincipal) SecurityContextHolder.getContext()
@@ -356,7 +362,6 @@ public class AdminService {
      * @return the monthly foodies subscribed to the app
      */
     public List<YearAnalyticsDTO> getMonthlyFoodies() {
-
         return foodieRepository.getMonthlyFoodiesStats();
     }
 

@@ -87,26 +87,4 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
             "DETACH DELETE c, r")
     void deleteChef(String chefId);
 
-
-    /**
-     * Creates relationships between chefs and recipes.
-     * @param relations list of maps containing chefId and recipeId
-     */
-    @Query("UNWIND $relations AS rel " +
-            "MATCH (r:Recipe {mongo_id: rel.recipeId}) " +
-            "MATCH (c:Chef {mongo_id: rel.chefId}) " +
-            "MERGE (r)-[:WRITTEN_BY]->(c) " +
-            "MERGE (c)-[:WROTE]->(r)")
-    void createChefRecipeRelations(@Param("relations") List<Map<String, String>> relations);
-
-    /**
-     * Creates relationships between ingredients and recipes.
-     * @param relations list of maps containing ingredientName and recipeId
-     */
-    @Query("UNWIND $relations AS rel " +
-            "MATCH (r:Recipe {mongo_id: rel.recipeId}) " +
-            "MATCH (i:Ingredient {name: rel.ingredientName}) " +
-            "MERGE (i)-[:USED_IN]->(r)")
-    void createIngredientRecipeRelations(@Param("relations")List<Map<String, String>> relations);
-
 }

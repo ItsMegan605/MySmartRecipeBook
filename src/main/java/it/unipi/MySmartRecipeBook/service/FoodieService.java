@@ -179,9 +179,6 @@ public class FoodieService {
     }
 
 
-//TODO: VA FATTA PER FORZA CON VERSIONE PERCHè SE USIAMO LA LISTA "AGGIORNATA", NEL MENTRE POTREBBE ESSERCI STATO UN ALTRO
-    // THREAD CHE HA MODIFICATO I PREFERITI E ANDIAMO A SOVRASCRIVERLA
-
     /**
      * Remove a recipe from foodie's favourites list
      * @param recipeId - the recipe id
@@ -237,13 +234,6 @@ public class FoodieService {
         if (numPage <= 0 || !FOODIE_FILTERS.contains(category)) {
             throw new IllegalArgumentException("Invalid parameters");
         }
-    //TODO: safe to delete?
-        /*if (numPage == 1 && category.equals("saving-date")) {
-            boolean hasNext = (foodie.getSavedRecipes().size() < 5) ? false : true;
-
-            List<UserPreviewRecipeDTO> content = usersConvertions.foodieSummaryToUserPreview(foodie.getSavedRecipes());
-            return new SliceRecipeDTO(content, hasNext, false);
-        }*/
 
         List<FoodieRecipeSummary> recipesPreview = new ArrayList<>();
         if (CATEGORIES.contains(category)) {
@@ -284,6 +274,7 @@ public class FoodieService {
      * @param id - the recipe ID
      * @return the requested recipe
      */
+    // TODO: modificata dopo testing
     public ShowRecipeDTO getRecipeFoodieById(String id){
         UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -295,7 +286,7 @@ public class FoodieService {
         Optional<RecipeMongo> recipe = recipeRepository.findById(id);
 
         if(recipe.isEmpty()){
-            foodie.getSavedRecipes().remove(id);
+            foodieRepository.removeRecipeFromFavourites(foodie.getId(), id);
             throw new NoSuchElementException("Recipe not found");
         }
 

@@ -60,10 +60,10 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
     /**
      * Updates the save counter of a recipe.
      * @param recipeId recipe ID
-     * @param i increment value
+     * @param i increment or decrement value
      */
     @Query("{ '_id' : ?0 }")
-    @Update("{ '$inc' : { 'num_saves' : ?1 } }")
+    @Update("{ '$set' : { 'num_saves' : ?1 } }")
     void updateSavesCounter(String recipeId, int i);
 
     /**

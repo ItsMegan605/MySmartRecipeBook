@@ -11,6 +11,10 @@ import it.unipi.MySmartRecipeBook.utils.parameters.Task;
 import it.unipi.MySmartRecipeBook.repository.Mongo.ChefRepository;
 import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.repository.Neo4j.RecipeNeo4jRepository;
+import jakarta.transaction.Transactional;
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -170,7 +174,7 @@ public class LowLoadManager {
      * This method creates the new Neo4j nodes.
      * @param task - the task to execute
      */
-    private void createNeo4jRecipe(TaskToDo task) {
+    public void createNeo4jRecipe(TaskToDo task) {
 
         System.out.println("Creating Neo4j recipe");
         List<String> ingredientNames = new ArrayList<>();
@@ -195,7 +199,9 @@ public class LowLoadManager {
      * Batch decrement operation for recipe "saves" counters.
      * @param task - the task to execute
      */
-    private void decrementSavesCounters(TaskToDo task){
+    @Transactional
+    @Retryable(value = {OptimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 500))
+    public void decrementSavesCounters(TaskToDo task){
 
         System.out.println("Decrementing Saves Counters");
         List<String> recipesId = task.getInfoToDelete().getRecipeIds();
@@ -217,9 +223,9 @@ public class LowLoadManager {
 
                 for(ChefRecipeSummary recipe : targetChef.getNewRecipes()){
                     if(recipe.getId().equals(recipeId)){
+                        numSaves = recipe.getNumSaves();
                         recipe.setNumSaves(recipe.getNumSaves()-1);
                         targetChef.setTotalSaves(targetChef.getTotalSaves()-1);
-                        numSaves = recipe.getNumSaves();
                         break;
                     }
                 }
@@ -227,25 +233,13 @@ public class LowLoadManager {
                 if(numSaves == null){ //if not in the new recipes, look in the old ones
                     for(OldRecipe recipe : targetChef.getOldRecipes()){
                         if(recipe.getId().equals(recipeId)){
+                            numSaves = recipe.getNumSaves();
                             recipe.setNumSaves(recipe.getNumSaves()-1);
                             targetChef.setTotalSaves(targetChef.getTotalSaves()-1);
-                            numSaves = recipe.getNumSaves();
                             break;
                         }
                     }
                 }
-                //TODO: questo l'ho cambiato perchè era duplicato e sistemato controllo
-                /*
-                if(numSaves == null){
-                    for(ChefRecipeSummary recipe : targetChef.getNewRecipes()){
-                        if(recipe.getId().equals(recipeId)){
-                            recipe.setNumSaves(recipe.getNumSaves()-1);
-                            targetChef.setTotalSaves(targetChef.getTotalSaves()-1);
-                            numSaves = recipe.getNumSaves();
-                            break;
-                        }
-                    }
-                }*/
 
                 if(numSaves > 40){
                     for(ChefRecipeSummary recipe : targetChef.getPopularRecipes()){
@@ -275,7 +269,9 @@ public class LowLoadManager {
      * removes a recipe from their favorites.
      * @param task - the task to execute
      */
-    private void updateChefCounters(TaskToDo task) {
+    @Transactional
+    @Retryable(value = {OptimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 500))
+    public void updateChefCounters(TaskToDo task) {
 
         System.out.println("Update Chef Counters: removing from favorites");
 
@@ -308,6 +304,8 @@ public class LowLoadManager {
             targetChef.getPopularRecipes().remove(task.getRecipeMongo());
         }
 
+        chefRepository.save(targetChef);
+
         //Updating the total saves in recipe's collection
         recipeMongoRepository.updateSavesCounter(task.getRecipeId(), -1);
     }
@@ -317,6 +315,8 @@ public class LowLoadManager {
      * for the chef when a foodie adds a recipe to its favorites
      * @param task - the task to execute
      */
+    @Transactional
+    @Retryable(value = {OptimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 500))
     private void updateChefCountersSaves(TaskToDo task) {
 
         System.out.println("Update Chef Counters: increasing saves numbers");
@@ -359,7 +359,7 @@ public class LowLoadManager {
      * @param chefId - chef id
      */
     /* Risk Acceptance */ //TODO: io toglierei sto commentino
-    private void deleteChefRecipes(String chefId){
+    public void deleteChefRecipes(String chefId){
         System.out.println("Deleting Chef Recipes");
 
         recipeNeo4jRepository.deleteChef(chefId); //neo4j cleaning
@@ -371,7 +371,7 @@ public class LowLoadManager {
      * edges/relationships from Neo4j.
      * @param recipeId - id of the recipe
      */
-    private void deleteRecipe(String recipeId){
+    public void deleteRecipe(String recipeId){
 
         System.out.println("Deleting Recipe: " + recipeId);
         recipeNeo4jRepository.deleteRecipeById(recipeId);

@@ -26,17 +26,6 @@ import java.util.List;
 @AllArgsConstructor
 
 @Document(collection = "recipes")
-
-@CompoundIndexes({
-        // Index to filter by Chef (useful for queries on chef-specific recipes)
-        //@CompoundIndex(name = "chefDate_idx", def = "{'chef.id': 1, 'creation_date': -1}"),
-
-        // Index to filter by Chef and sort by popularity (number of saves)
-        //@CompoundIndex(name = "chefPopularity_idx", def = "{'chef.id': 1, 'num_saves': -1}"),
-
-        @CompoundIndex(name = "chef_idx", def = "{'chef.id': 1}")
-})
-
 public class RecipeMongo {
 
     @Id

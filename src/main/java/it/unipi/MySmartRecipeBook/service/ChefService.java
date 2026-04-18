@@ -3,26 +3,25 @@ package it.unipi.MySmartRecipeBook.service;
 import static it.unipi.MySmartRecipeBook.utils.parameters.Categories.*;
 
 import it.unipi.MySmartRecipeBook.dto.IngredientDTO;
-import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
-import it.unipi.MySmartRecipeBook.dto.users.ChefInfoDTO;
-import it.unipi.MySmartRecipeBook.dto.users.RegisteredUserInfoDTO;
-import it.unipi.MySmartRecipeBook.dto.users.TopChefDTO;
-import it.unipi.MySmartRecipeBook.dto.users.UpdateChefDTO;
-import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
-import it.unipi.MySmartRecipeBook.dto.recipe.CreateRecipeDTO;
+import it.unipi.MySmartRecipeBook.dto.recipe.*;
+import it.unipi.MySmartRecipeBook.dto.users.*;
+import it.unipi.MySmartRecipeBook.dto.ChefRankAnalyticsDTO;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.*;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Admin;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Chef;
+import it.unipi.MySmartRecipeBook.repository.Mongo.*;
 import it.unipi.MySmartRecipeBook.repository.Neo4j.ChefNeo4jRepository;
 import it.unipi.MySmartRecipeBook.utils.conversionFunctions.RecipeUtilityFunctions;
-import it.unipi.MySmartRecipeBook.utils.parameters.Task;
-import it.unipi.MySmartRecipeBook.repository.Mongo.AdminRepository;
-import it.unipi.MySmartRecipeBook.repository.Mongo.ChefRepository;
-
-import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
-import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import it.unipi.MySmartRecipeBook.utils.conversionFunctions.ChefUtilityFunctions;
+import it.unipi.MySmartRecipeBook.utils.parameters.Task;
+import it.unipi.MySmartRecipeBook.security.UserPrincipal;
+
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -30,9 +29,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import it.unipi.MySmartRecipeBook.dto.ChefRankAnalyticsDTO;
 
 
 import java.util.List;
@@ -41,7 +37,6 @@ import java.util.Optional;
 
 import org.bson.types.ObjectId;
 import org.springframework.util.StringUtils;
-
 
 /**
  * Service Function for the chef of the application
@@ -150,12 +145,9 @@ public class ChefService {
 
 
         recipeMongoRepository.deleteAllByChefId(chefId);
-
         chefRepository.delete(chef);
 
-
         lowLoadManager.addTask(Task.TaskType.DELETE_CHEF_RECIPE, chefId);
-
     }
 
     /**
@@ -215,7 +207,6 @@ public class ChefService {
         chefRepository.addRecipeToWaiting(chef.getId(), chefRecipe);
 
         return recipeConvertions.baseToChefDTO(savedRecipe);
-
     }
 
 
@@ -227,6 +218,7 @@ public class ChefService {
      * @throws NoSuchElementException if the chef or recipe is not found
      */
     @Transactional
+    @Retryable(value = {OptimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 500))
     public void deleteRecipe(String recipeId) {
 
         UserPrincipal authChef = (UserPrincipal) SecurityContextHolder.getContext()
@@ -311,8 +303,6 @@ public class ChefService {
 
         ObjectId chefObjectId = new ObjectId(chef.getId());
         boolean recipeFound = chefRepository.removeRecipeFromWaiting(chefObjectId, recipeId) > 0;
-
-
 
         if(recipeFound){
 

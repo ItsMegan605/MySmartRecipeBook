@@ -16,7 +16,6 @@ public class RecipeMatchService {
 
     private final RecipeNeo4jRepository recipeNeo4jRepository;
 
-    @Autowired
     public RecipeMatchService(RecipeNeo4jRepository recipeNeo4jRepository) {
         this.recipeNeo4jRepository = recipeNeo4jRepository;
     }
