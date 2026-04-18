@@ -2,6 +2,7 @@ package it.unipi.MySmartRecipeBook.model.Neo4j;
 
 import org.springframework.data.neo4j.core.schema.*;
 import lombok.Data;
+import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 
 import java.util.List;
 
@@ -13,7 +14,7 @@ import java.util.List;
 @Node("Recipe")
 public class RecipeNeo4j {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(generatorClass = UUIDStringGenerator.class)
     private Long neo4jId;
 
     @Property("mongo_id")

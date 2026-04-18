@@ -109,7 +109,6 @@ public class Neo4jPopulator implements CommandLineRunner {
         }
         chefNeo4jRepository.saveAll(chefsNeo4j);
 
-        neo4jClient.query("CREATE INDEX temp_recipe_id IF NOT EXISTS FOR (r:Recipe) ON (r.mongo_id)").run();
         neo4jClient.query("CREATE INDEX temp_chef_id IF NOT EXISTS FOR (c:Chef) ON (c.mongo_id)").run();
         neo4jClient.query("CREATE INDEX temp_ing_name IF NOT EXISTS FOR (i:Ingredient) ON (i.name)").run();
 
@@ -132,7 +131,6 @@ public class Neo4jPopulator implements CommandLineRunner {
 
         }
 
-        neo4jClient.query("DROP INDEX temp_recipe_id IF EXISTS").run();
         neo4jClient.query("DROP INDEX temp_chef_id IF EXISTS").run();
 
         System.out.println("Finished Neo4j population");

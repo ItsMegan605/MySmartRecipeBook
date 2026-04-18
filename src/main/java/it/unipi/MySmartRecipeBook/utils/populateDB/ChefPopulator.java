@@ -7,6 +7,7 @@ import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
 import it.unipi.MySmartRecipeBook.repository.Mongo.ChefRepository;
 import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.utils.conversionFunctions.ChefUtilityFunctions;
+import it.unipi.MySmartRecipeBook.utils.conversionFunctions.RecipeUtilityFunctions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
@@ -25,6 +26,7 @@ import java.util.List;
 @Component
 public class ChefPopulator implements CommandLineRunner {
 
+    private final RecipeUtilityFunctions recipeUtilityFunctions;
     @Value("${app.recipe.do-chef-recipes:false}")
     private boolean doChefRecipes;
 
@@ -36,10 +38,11 @@ public class ChefPopulator implements CommandLineRunner {
     private final ChefUtilityFunctions chefUtils;
 
     public ChefPopulator(ChefRepository chefRepository, RecipeMongoRepository recipeRepository,
-                         ChefUtilityFunctions chefUtils) {
+                         ChefUtilityFunctions chefUtils, RecipeUtilityFunctions recipeUtilityFunctions) {
         this.chefRepository = chefRepository;
         this.recipeRepository = recipeRepository;
         this.chefUtils = chefUtils;
+        this.recipeUtilityFunctions = recipeUtilityFunctions;
     }
 
     /**
@@ -62,7 +65,7 @@ public class ChefPopulator implements CommandLineRunner {
             List<RecipeMongo> chefRecipes =  recipeRepository.findByChef_IdOrderByCreationDateDesc(chef.getId());
 
             int limitNew = Math.min(chefRecipes.size(), pageSizeChef * 3);
-            List<ChefRecipeSummary> newRecipes = chefUtils.MongoListToChefListSummary(
+            List<ChefRecipeSummary> newRecipes = recipeUtilityFunctions.MongoListToChefListSummary(
                     chefRecipes.subList(0, limitNew)
             );
 
@@ -91,7 +94,7 @@ public class ChefPopulator implements CommandLineRunner {
             List<ChefRecipeSummary> popularRecipes = new ArrayList<>();
             for(RecipeMongo recipe: chefRecipes){
                 if(recipe.getNumSaves() != null && recipe.getNumSaves() >= 40){
-                    popularRecipes.add(chefUtils.recipeToChefRecipe(recipe));
+                    popularRecipes.add(recipeUtilityFunctions.recipeToChefRecipe(recipe));
                 }
             }
 

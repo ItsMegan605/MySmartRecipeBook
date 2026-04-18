@@ -6,6 +6,7 @@ import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
 import it.unipi.MySmartRecipeBook.repository.Mongo.FoodieRepository;
 import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.utils.conversionFunctions.FoodieUtilityFunctions;
+import it.unipi.MySmartRecipeBook.utils.conversionFunctions.RecipeUtilityFunctions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
@@ -20,6 +21,7 @@ import java.util.*;
 @Component
 public class FavouritesPopulator implements CommandLineRunner {
 
+    private final RecipeUtilityFunctions recipeUtilityFunctions;
     @Value("${app.recipe.do-population:false}")
     private boolean doPopulation;
 
@@ -29,10 +31,11 @@ public class FavouritesPopulator implements CommandLineRunner {
 
 
     public FavouritesPopulator(RecipeMongoRepository recipeRepository, FoodieRepository foodieRepository,
-                               FoodieUtilityFunctions foodieUtils) {
+                               FoodieUtilityFunctions foodieUtils, RecipeUtilityFunctions recipeUtilityFunctions) {
         this.recipeRepository = recipeRepository;
         this.foodieRepository = foodieRepository;
         this.foodieUtils = foodieUtils;
+        this.recipeUtilityFunctions = recipeUtilityFunctions;
     }
 
     /**
@@ -78,7 +81,7 @@ public class FavouritesPopulator implements CommandLineRunner {
                 if(chosenIndices.add(randomIndex)) {
 
                     RecipeMongo recipe = recipes.get(randomIndex);
-                    FoodieRecipeSummary fullRecipe = foodieUtils.entityToReducedRecipe(recipe);
+                    FoodieRecipeSummary fullRecipe = recipeUtilityFunctions.entityToReducedRecipe(recipe);
                     foodieRecipes.add(fullRecipe);
                     recipesId.add(recipe.getId());
 

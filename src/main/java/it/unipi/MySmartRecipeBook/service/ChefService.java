@@ -14,6 +14,7 @@ import it.unipi.MySmartRecipeBook.model.Mongo.recipes.*;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Admin;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Chef;
 import it.unipi.MySmartRecipeBook.repository.Neo4j.ChefNeo4jRepository;
+import it.unipi.MySmartRecipeBook.utils.conversionFunctions.RecipeUtilityFunctions;
 import it.unipi.MySmartRecipeBook.utils.parameters.Task;
 import it.unipi.MySmartRecipeBook.repository.Mongo.AdminRepository;
 import it.unipi.MySmartRecipeBook.repository.Mongo.ChefRepository;
@@ -59,6 +60,7 @@ public class ChefService {
     private final ChefNeo4jRepository chefNeo4jRepository;
     private final PasswordEncoder passwordEncoder;
     private final ChefUtilityFunctions chefConvertions;
+    private final RecipeUtilityFunctions recipeConvertions;
     private final AdminRepository adminRepository;
     private final RecipeMongoRepository recipeMongoRepository;
     private final LowLoadManager lowLoadManager;
@@ -66,9 +68,10 @@ public class ChefService {
     private final MongoTemplate mongoTemplate;
 
     public ChefService(ChefRepository chefRepository, ChefUtilityFunctions chefConvertions,
-                       PasswordEncoder passwordEncoder, AdminRepository adminRepository,
-                       RecipeMongoRepository recipeMongoRepository, LowLoadManager lowLoadManager,
-                       IngredientService ingredientService, MongoTemplate mongoTemplate, ChefNeo4jRepository chefNeo4jRepository) {
+                       RecipeUtilityFunctions recipeConvertions, PasswordEncoder passwordEncoder,
+                       AdminRepository adminRepository, RecipeMongoRepository recipeMongoRepository,
+                       LowLoadManager lowLoadManager, IngredientService ingredientService,
+                       MongoTemplate mongoTemplate, ChefNeo4jRepository chefNeo4jRepository) {
         this.chefRepository = chefRepository;
         this.chefConvertions = chefConvertions;
         this.passwordEncoder = passwordEncoder;
@@ -76,6 +79,7 @@ public class ChefService {
         this.recipeMongoRepository = recipeMongoRepository;
         this.lowLoadManager = lowLoadManager;
         this.ingredientService = ingredientService;
+        this.recipeConvertions = recipeConvertions;
         this.mongoTemplate = mongoTemplate;
         this.chefNeo4jRepository = chefNeo4jRepository;
     }
@@ -195,7 +199,7 @@ public class ChefService {
         }
 
         ChefInfoDTO chefDTO = new ChefInfoDTO(chef.getId(), chef.getName(), chef.getSurname());
-        AdminPendingRecipe savedRecipe = chefConvertions.createBaseRecipe(recipeDTO, chefDTO);
+        AdminPendingRecipe savedRecipe = recipeConvertions.createBaseRecipe(recipeDTO, chefDTO);
 
         if(admin.getRecipesToApprove() != null){
             for(AdminPendingRecipe recipe : admin.getRecipesToApprove()){
@@ -207,10 +211,10 @@ public class ChefService {
 
         adminRepository.addRecipeToApprovals(admin.getId(), savedRecipe);
 
-        PendingRecipe chefRecipe = chefConvertions.recipeToChefRecipe(savedRecipe);
+        PendingRecipe chefRecipe = recipeConvertions.recipeToChefRecipe(savedRecipe);
         chefRepository.addRecipeToWaiting(chef.getId(), chefRecipe);
 
-        return chefConvertions.baseToChefDTO(savedRecipe);
+        return recipeConvertions.baseToChefDTO(savedRecipe);
 
     }
 
@@ -252,7 +256,7 @@ public class ChefService {
                 if(chef.getOldRecipes() != null){
                     OldRecipe oldRecipe = chef.getOldRecipes().remove(0);
                     Optional<RecipeMongo> recipeMongo = recipeMongoRepository.findById(oldRecipe.getId());
-                    ChefRecipeSummary reducedRecipe = chefConvertions.recipeToChefRecipe(recipeMongo.get());
+                    ChefRecipeSummary reducedRecipe = recipeConvertions.recipeToChefRecipe(recipeMongo.get());
                     chef.getNewRecipes().add(reducedRecipe);
                 }
 
@@ -355,7 +359,7 @@ public class ChefService {
                 return new SliceRecipeDTO<>(null, false, false);
             }
 
-            content = chefConvertions.ChefListToSummaryList(chef.getNewRecipes().subList(start, end));
+            content = recipeConvertions.ChefListToSummaryList(chef.getNewRecipes().subList(start, end));
             hasPrevious = pageNumber == 1 ? false :  true;
         }
 
@@ -364,7 +368,7 @@ public class ChefService {
             List<OldRecipe> oldRecipes = chef.getOldRecipes().subList(start, end);
             List<String> ids = oldRecipes.stream().map(OldRecipe::getId).toList();
             List<RecipeMongo> recipes = recipeMongoRepository.findByIdIn(ids);
-            content = chefConvertions.MongoListToChefPreview(recipes);
+            content = recipeConvertions.MongoListToChefPreview(recipes);
         }
 
         boolean hasNext = (chef.getTotalRecipes() > end) ? true : false;
@@ -434,7 +438,7 @@ public class ChefService {
             return new SliceRecipeDTO<>(null, false, true);
         }
 
-        List<ChefPreviewRecipeDTO> content = chefConvertions.PendingChefListToChefPreview(
+        List<ChefPreviewRecipeDTO> content = recipeConvertions.PendingChefListToChefPreview(
                 pendingRecipes.subList(start, end));
 
         boolean hasPrevious = pageNumber > 1;

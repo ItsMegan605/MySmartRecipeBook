@@ -8,6 +8,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Property;
+import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 
 /**
  * Represents a Chef node in the Neo4j graph database.
@@ -19,8 +20,8 @@ import org.springframework.data.neo4j.core.schema.Property;
 @Node("Chef")
 public class ChefNeo4j {
 
-    @Id @GeneratedValue
-    private Long neo4jId;
+    @Id @GeneratedValue(generatorClass = UUIDStringGenerator.class)
+    private String neo4jId;
 
     @Property("mongo_id")
     private String mongoId;

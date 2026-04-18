@@ -301,7 +301,7 @@ public class AdminService {
 
         List<ChefPreviewRecipeDTO> content = new ArrayList<>();
         for (AdminPendingRecipe recipe : adminPendingRecipes.subList(start, end)) {
-            content.add(chefUtilityFunctions.baseToChefDTO(recipe));
+            content.add(recipeConvertions.baseToChefDTO(recipe));
         }
 
         boolean hasPrevious = pageNumber > 1;

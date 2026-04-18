@@ -12,6 +12,7 @@ import it.unipi.MySmartRecipeBook.model.Mongo.users.Foodie;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.FoodieRecipeSummary;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
+import it.unipi.MySmartRecipeBook.utils.conversionFunctions.RecipeUtilityFunctions;
 import it.unipi.MySmartRecipeBook.utils.parameters.Task;
 import it.unipi.MySmartRecipeBook.repository.Mongo.FoodieRepository;
 import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
@@ -37,6 +38,7 @@ import java.util.*;
 @Service
 public class FoodieService {
 
+    private final RecipeUtilityFunctions recipeUtilityFunctions;
     @Value("${app.recipe.pag-size-foodie:5}")
     private int pageSizeFoodie;
 
@@ -49,13 +51,14 @@ public class FoodieService {
 
     public FoodieService(FoodieRepository foodieRepository, RecipeMongoRepository recipeRepository,
                          PasswordEncoder passwordEncoder, FoodieUtilityFunctions usersConvertions,
-                         LowLoadManager lowLoadManager, MongoTemplate mongoTemplate) {
+                         LowLoadManager lowLoadManager, MongoTemplate mongoTemplate, RecipeUtilityFunctions recipeUtilityFunctions) {
         this.foodieRepository = foodieRepository;
         this.recipeRepository = recipeRepository;
         this.passwordEncoder = passwordEncoder;
         this.usersConvertions = usersConvertions;
         this.lowLoadManager = lowLoadManager;
         this.mongoTemplate = mongoTemplate;
+        this.recipeUtilityFunctions = recipeUtilityFunctions;
     }
 
     /**
@@ -167,11 +170,11 @@ public class FoodieService {
         RecipeMongo recipe = recipeRepository.findById(recipeId)
                 .orElseThrow(() -> new NoSuchElementException("Recipe to save not found"));
 
-        FoodieRecipeSummary fullRecipe = usersConvertions.entityToReducedRecipe(recipe); //Saving date
+        FoodieRecipeSummary fullRecipe = recipeUtilityFunctions.entityToReducedRecipe(recipe); //Saving date
 
         foodieRepository.addRecipeToFavourites(foodieId, recipeId, fullRecipe);
 
-        ChefRecipeSummary chefRecipe = usersConvertions.entityToChefRecipe(recipe);
+        ChefRecipeSummary chefRecipe = recipeUtilityFunctions.recipeToChefRecipe(recipe);
         lowLoadManager.addTask(Task.TaskType.SET_COUNTERS_ADD_FAVOURITE, chefRecipe, recipe.getChef().getId());
     }
 
@@ -271,7 +274,7 @@ public class FoodieService {
         boolean hasPrevious = numPage > 1;
         List<FoodieRecipeSummary> recipes = recipesPreview.subList(start, end);
 
-        List<FoodiePreviewRecipeDTO> content = usersConvertions.foodieSummaryToUserPreview(recipes);
+        List<FoodiePreviewRecipeDTO> content = recipeUtilityFunctions.foodieSummaryToUserPreview(recipes);
         return new SliceRecipeDTO(content, hasNext, hasPrevious);
 
     }
@@ -296,6 +299,6 @@ public class FoodieService {
             throw new NoSuchElementException("Recipe not found");
         }
 
-        return usersConvertions.EntityToDto(recipe.get());
+        return recipeUtilityFunctions.EntityToDto(recipe.get());
     }
 }

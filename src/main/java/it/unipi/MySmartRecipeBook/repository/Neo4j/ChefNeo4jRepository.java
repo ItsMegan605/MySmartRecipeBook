@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Repository for managing Chef nodes in Neo4j.
  */
-public interface ChefNeo4jRepository extends Neo4jRepository<ChefNeo4j, Long> {
+public interface ChefNeo4jRepository extends Neo4jRepository<ChefNeo4j, String> {
 
 
     /**
