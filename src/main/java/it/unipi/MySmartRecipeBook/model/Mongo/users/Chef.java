@@ -49,7 +49,4 @@ public class Chef extends RegisteredUser {
     @Field("tot_recipes")
     private Integer totalRecipes;
 
-    @Version
-    private Integer version;
-
 }

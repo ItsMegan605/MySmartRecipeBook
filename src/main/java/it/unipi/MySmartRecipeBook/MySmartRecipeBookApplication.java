@@ -6,7 +6,6 @@ import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-@EnableRetry
 @EnableScheduling
 public class MySmartRecipeBookApplication {
 

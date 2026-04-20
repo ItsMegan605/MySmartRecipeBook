@@ -12,9 +12,6 @@ import it.unipi.MySmartRecipeBook.repository.Mongo.ChefRepository;
 import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.repository.Neo4j.RecipeNeo4jRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.dao.OptimisticLockingFailureException;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -200,7 +197,6 @@ public class LowLoadManager {
      * @param task - the task to execute
      */
     @Transactional
-    @Retryable(value = {OptimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 500))
     public void decrementSavesCounters(TaskToDo task){
 
         System.out.println("Decrementing Saves Counters");
@@ -270,7 +266,6 @@ public class LowLoadManager {
      * @param task - the task to execute
      */
     @Transactional
-    @Retryable(value = {OptimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 500))
     public void updateChefCounters(TaskToDo task) {
 
         System.out.println("Update Chef Counters: removing from favorites");
@@ -316,8 +311,7 @@ public class LowLoadManager {
      * @param task - the task to execute
      */
     @Transactional
-    @Retryable(value = {OptimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 500))
-    private void updateChefCountersSaves(TaskToDo task) {
+    public void updateChefCountersSaves(TaskToDo task) {
 
         System.out.println("Update Chef Counters: increasing saves numbers");
 

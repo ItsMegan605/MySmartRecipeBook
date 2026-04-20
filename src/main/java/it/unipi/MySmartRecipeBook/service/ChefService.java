@@ -17,9 +17,6 @@ import it.unipi.MySmartRecipeBook.utils.parameters.Task;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.OptimisticLockingFailureException;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
@@ -218,7 +215,6 @@ public class ChefService {
      * @throws NoSuchElementException if the chef or recipe is not found
      */
     @Transactional
-    @Retryable(value = {OptimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 500))
     public void deleteRecipe(String recipeId) {
 
         UserPrincipal authChef = (UserPrincipal) SecurityContextHolder.getContext()
