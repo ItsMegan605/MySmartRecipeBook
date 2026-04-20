@@ -29,7 +29,7 @@ public class RegisteredUserInfoDTO {
     @NotBlank
     private String surname;
 
-    @Email
+    @Email (message = "Insert a valid email")
     @NotBlank
     private String email;
 

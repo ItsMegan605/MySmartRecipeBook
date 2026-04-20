@@ -27,7 +27,7 @@ public class RegisteredUserDTO {
     @NotBlank(message = "Insert surname")
     private String surname;
 
-    @Email
+    @Email(message = "Insert a valid email")
     @NotBlank(message = "Insert email")
     private String email;
 

@@ -19,7 +19,8 @@ public class UpdateChefDTO {
 
     private String password;
 
-    @Email
+    @Email (message = "Insert a valid email")
+    @NotBlank(message = "Insert email")
     private String email;
 
     @Past
