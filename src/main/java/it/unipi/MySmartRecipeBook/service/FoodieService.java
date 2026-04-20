@@ -86,6 +86,10 @@ public class FoodieService {
      */
     public RegisteredUserInfoDTO updateFoodie(UpdateFoodieDTO dto) {
 
+        if(dto == null || dto.isEmpty()){
+            throw new IllegalArgumentException("Invalid parameters");
+        }
+
         UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getPrincipal();
@@ -265,7 +269,7 @@ public class FoodieService {
         List<FoodieRecipeSummary> recipes = recipesPreview.subList(start, end);
 
         List<FoodiePreviewRecipeDTO> content = recipeUtilityFunctions.foodieSummaryToUserPreview(recipes);
-        return new SliceRecipeDTO(content, hasNext, hasPrevious);
+        return new SliceRecipeDTO<>(content, hasNext, hasPrevious);
 
     }
 

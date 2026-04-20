@@ -56,15 +56,6 @@ public class RecipeService {
         return convertions.EntityToDto(full_recipe);
     }
 
-    // Si può veramente fare? //TODO: togliere?
-    /*public void deleteRecipe(String recipeId) {
-        if (!recipeRepository.existsById(recipeId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Recipe not found");
-        }
-        recipeRepository.deleteById(recipeId);
-        /* Manca l'eliminazione da Neo4j e bisogna vedere se anche da Redis
-    }*/
-
     /**
      * Method to search recipes by title, paginated.
      * @param title - recipe title
@@ -159,4 +150,3 @@ public class RecipeService {
     }
 }
 
-//TODO: a sliceRecipe ho aggiunto <>

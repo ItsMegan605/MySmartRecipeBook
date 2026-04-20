@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
 
@@ -20,10 +21,14 @@ public class UpdateChefDTO {
     private String password;
 
     @Email (message = "Insert a valid email")
-    @NotBlank(message = "Insert email")
     private String email;
 
     @Past
     private LocalDate birthdate;
-    
+
+    public boolean isEmpty() {
+        return !StringUtils.hasText(this.email) &&
+                !StringUtils.hasText(this.password) &&
+                this.birthdate == null;
+    }
 }

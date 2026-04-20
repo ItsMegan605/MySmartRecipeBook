@@ -23,10 +23,6 @@ public class ChefUtilityFunctions {
         this.passwordEncoder = passwordEncoder;
     }
 
-    // TODO: commento abbandonato a se stesso
-    //when a user registers, in order to be registered we need to encypt the password and
-    //update the registration date
-
     /**
      * Converts a registration DTO into a PendingChef to insert in the admin document among the chef waiting to be accepted.
      * @param dto the registration data

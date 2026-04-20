@@ -352,7 +352,6 @@ public class LowLoadManager {
      * Deletes all recipes associated with a specific chef from Neo4j.
      * @param chefId - chef id
      */
-    /* Risk Acceptance */ //TODO: io toglierei sto commentino
     public void deleteChefRecipes(String chefId){
         System.out.println("Deleting Chef Recipes");
 

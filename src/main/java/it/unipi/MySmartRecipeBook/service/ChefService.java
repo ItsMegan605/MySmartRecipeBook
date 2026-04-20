@@ -102,6 +102,10 @@ public class ChefService {
      */
     public RegisteredUserInfoDTO updateChef(UpdateChefDTO dto) {
 
+        if(dto == null || dto.isEmpty()){
+            throw new IllegalArgumentException("Invalid parameters");
+        }
+
         UserPrincipal authChef = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getPrincipal();
@@ -177,9 +181,15 @@ public class ChefService {
 
         List<IngredientDTO> ingredients = recipeDTO.getIngredients();
         for(IngredientDTO ingredient : ingredients) {
+
             String ingredientName = ingredient.getName();
+            String ingredientQuantity = ingredient.getQuantity();
+
             if(!ingredientService.isValidIngredient(ingredientName)){
                 throw new IllegalArgumentException("'" + ingredientName + "': invalid ingredient");
+            }
+            else if(!ingredient.isValidQuantity()){
+                throw new IllegalArgumentException("Invalid or missing quantity");
             }
         }
 

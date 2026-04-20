@@ -68,6 +68,7 @@ public class AdminService {
      * Approve a pending recipe
      * @param recipeId - recipe id
      */
+    // TODO: inserire le eccezioni appropriate
     @Transactional
     public void saveRecipe(String recipeId) {
 
@@ -310,7 +311,7 @@ public class AdminService {
         boolean hasNext = adminPendingRecipes.size() > end;
 
         return new SliceRecipeDTO<>(content, hasNext, hasPrevious);
-    } //TODO: anche qui ho aggiunto <>
+    }
 
     /**
      * Method to show the list of the pending chefs

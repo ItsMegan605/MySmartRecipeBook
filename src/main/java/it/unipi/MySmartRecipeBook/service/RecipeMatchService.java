@@ -1,3 +1,5 @@
+//TODO: commentata completamente per vedere che non serve
+/*
 package it.unipi.MySmartRecipeBook.service;
 
 import it.unipi.MySmartRecipeBook.dto.recipe.RecipeSuggestionDTO;
@@ -7,10 +9,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-//TODO: questo mi sa che si può togliere del tutto
 /**
  * Service handling graph-based recipe matching operations in Neo4j.
- */
+
 @Service
 public class RecipeMatchService {
 
@@ -24,8 +25,7 @@ public class RecipeMatchService {
      * Finds recipe suggestions from Neo4j based on a list of ingredients.
      * @param ingredients - list of ingredients to match
      * @return a list of suggested recipes
-     */
+
     public List<RecipeSuggestionDTO> getSmartFridgeSuggestions(List<String> ingredients) {
         return recipeNeo4jRepository.findRecipesByIngredients(ingredients);
-    } //TODO: cpontrollare perchè non viene più usata
-}
+}*/

@@ -16,7 +16,6 @@ import java.util.Optional;
  * Repository for managing Chef documents in MongoDB.
  */
 
-//TODO: mettere version
 @Repository
 public interface ChefRepository extends MongoRepository<Chef, String> {
 

@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
 
@@ -33,4 +34,11 @@ public class UpdateFoodieDTO{
 
     private String password;
 
+    public boolean isEmpty() {
+        return !StringUtils.hasText(this.email) &&
+                !StringUtils.hasText(this.name) &&
+                !StringUtils.hasText(this.surname) &&
+                !StringUtils.hasText(this.password) &&
+                this.birthdate == null;
+    }
 }

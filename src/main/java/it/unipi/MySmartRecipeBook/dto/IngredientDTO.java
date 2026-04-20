@@ -16,4 +16,11 @@ import lombok.Setter;
 public class IngredientDTO {
     private String name;
     private String quantity;
+
+    public boolean isValidQuantity(){
+        if(this.quantity == null || this.quantity.isEmpty()){
+            return false;
+        }
+        return true;
+    }
 }
