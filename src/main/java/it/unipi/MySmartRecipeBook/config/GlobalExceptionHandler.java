@@ -14,6 +14,7 @@ import jakarta.validation.ConstraintViolationException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -175,6 +176,18 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<String> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Wrong credentials",
+                    content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class))
+            )
+    })
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<String> handleUserNotfoundException(UsernameNotFoundException unf) {
+    return ResponseEntity.badRequest().body("Wronng username and/or password");
     }
 
 
