@@ -3,13 +3,16 @@ package it.unipi.MySmartRecipeBook.model.Mongo.users;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.PendingRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefRecipeSummary;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.OldRecipe;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
 import org.springframework.data.annotation.Version;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -26,6 +29,11 @@ import java.util.List;
 @Document(collection = "chefs")
 
 public class Chef extends RegisteredUser {
+
+    @Indexed(unique = true)
+    @NotBlank(message = "Username is required")
+    @Size(max = 20)
+    private String username;
 
     @Field("reg_date")
     @Past

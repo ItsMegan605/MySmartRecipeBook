@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import java.util.HashMap;
@@ -163,6 +164,19 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
         return ResponseEntity.badRequest().body("HTTP request is not readable: format error");
     }
+
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Wrong request",
+                    content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class))
+            )
+    })
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<String> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
 
 
 }

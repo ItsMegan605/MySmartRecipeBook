@@ -24,8 +24,9 @@ import it.unipi.MySmartRecipeBook.utils.parameters.Task;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 
 import jakarta.transaction.Transactional;
-import org.bson.types.ObjectId;
+//import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -68,7 +69,6 @@ public class AdminService {
      * Approve a pending recipe
      * @param recipeId - recipe id
      */
-    // TODO: inserire le eccezioni appropriate
     @Transactional
     public void saveRecipe(String recipeId) {
 
@@ -99,7 +99,7 @@ public class AdminService {
         }
 
         if (recipeRepository.existsByTitle(recipeApproved.getTitle())) {
-            throw new RuntimeException("Recipe already exists");
+            throw new DataIntegrityViolationException("Recipe already exists");
         }
 
 
@@ -185,8 +185,8 @@ public class AdminService {
         boolean recipeFoundAdmin = adminRepository.removeRecipeFromApprovals(admin.getId(), recipeId) > 0;
 
         if(recipeFoundAdmin) {
-            ObjectId chefObjectId = new ObjectId(chefId);
-            chefRepository.removeRecipeFromWaiting(chefObjectId, recipeId);
+            //ObjectId chefObjectId = new ObjectId(chefId);
+            chefRepository.removeRecipeFromWaiting(chefId, recipeId);
         }
     }
 

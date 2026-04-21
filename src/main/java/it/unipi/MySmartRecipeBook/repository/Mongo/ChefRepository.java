@@ -40,6 +40,7 @@ public interface ChefRepository extends MongoRepository<Chef, String> {
      */
     boolean existsByUsername(String username);
 
+    // TODO: ricontrollare query
     /**
      * Removes a recipe from the pending list.
      * @param chefId chef ID
@@ -48,7 +49,7 @@ public interface ChefRepository extends MongoRepository<Chef, String> {
      */
     @Query("{ '_id': ?0 }")
     @Update("{ '$pull': { 'recipes_to_confirm': { 'id': ?1 } } }")
-    Integer removeRecipeFromWaiting(Object chefId, String recipeId);
+    Integer removeRecipeFromWaiting(String chefId, String recipeId);
 
     /**
      * Adds a recipe to the pending list.

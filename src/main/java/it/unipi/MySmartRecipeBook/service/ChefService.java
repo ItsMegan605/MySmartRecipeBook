@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-import org.bson.types.ObjectId;
+//import org.bson.types.ObjectId;
 import org.springframework.util.StringUtils;
 
 /**
@@ -309,8 +309,8 @@ public class ChefService {
             throw new NoSuchElementException("No recipes waiting to be confirmed");
         }
 
-        ObjectId chefObjectId = new ObjectId(chef.getId());
-        boolean recipeFound = chefRepository.removeRecipeFromWaiting(chefObjectId, recipeId) > 0;
+        //ObjectId chefObjectId = new ObjectId(chef.getId());
+        boolean recipeFound = chefRepository.removeRecipeFromWaiting(chef.getId(), recipeId) > 0;
 
         if(recipeFound){
 

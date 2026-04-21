@@ -14,6 +14,7 @@ import it.unipi.MySmartRecipeBook.security.jwt.JwtUtils;
 
 import it.unipi.MySmartRecipeBook.utils.conversionFunctions.ChefUtilityFunctions;
 import it.unipi.MySmartRecipeBook.utils.conversionFunctions.FoodieUtilityFunctions;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -57,7 +58,7 @@ public class AuthService {
 
         if (chefRepository.existsByUsername(chefDTO.getUsername())
                 || foodieRepository.existsByUsername(chefDTO.getUsername())) {
-            throw new IllegalArgumentException("Username already taken"); //TODO: questa mi sa che va cambiata
+            throw new DataIntegrityViolationException("Username already taken");
         }
 
         PendingChef chef = chefUtils.createChefEntity(chefDTO);

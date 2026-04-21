@@ -110,7 +110,7 @@ public class Neo4jPopulator implements CommandLineRunner {
         chefNeo4jRepository.saveAll(chefsNeo4j);
 
         neo4jClient.query("CREATE INDEX temp_chef_id IF NOT EXISTS FOR (c:Chef) ON (c.mongo_id)").run();
-        neo4jClient.query("CREATE INDEX temp_ing_name IF NOT EXISTS FOR (i:Ingredient) ON (i.name)").run();
+        neo4jClient.query("CREATE INDEX ingredient_name IF NOT EXISTS FOR (i:Ingredient) ON (i.name)").run();
 
         // Forza Neo4j ad attendere che gli indici siano online (solitamente istantaneo per grafi vuoti, ma è una best practice)
         neo4jClient.query("CALL db.awaitIndexes()").run();

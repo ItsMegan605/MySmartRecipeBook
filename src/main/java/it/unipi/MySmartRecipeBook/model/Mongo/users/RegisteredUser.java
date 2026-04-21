@@ -8,7 +8,6 @@ import lombok.AllArgsConstructor;
 import java.time.LocalDate;
 import jakarta.validation.constraints.*;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
 
 /**
  * Base class representing a registered user in the system with all common attributes
@@ -21,11 +20,6 @@ public abstract class RegisteredUser {
 
     @Id
     private String id;
-
-    @Indexed(unique = true)
-    @NotBlank(message = "Username is required")
-    @Size(max = 20)
-    private String username;
 
     @NotBlank(message = "First name is required")
     private String name;
