@@ -118,5 +118,4 @@ public class AuthService {
                 userPrincipal.getAuthorities()
         );
     }
-    // TODO: se sbaglio le credenziali mi viene internal server error occurred ... deve apparire semplicemente credenziali sbgaliate
 }

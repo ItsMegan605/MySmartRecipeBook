@@ -41,7 +41,7 @@ public class UserDetailsServiceImp implements UserDetailsService {
      * @throws UsernameNotFoundException if the user is not found
      */
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) {
 
         /*
          * The admin user is not managed as a standard role in the database,
