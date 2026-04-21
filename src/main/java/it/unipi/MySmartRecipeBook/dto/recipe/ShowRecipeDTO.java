@@ -42,8 +42,9 @@ public class ShowRecipeDTO  {
     @JsonProperty("creation_date")
     private LocalDate creationDate;
 
-    //private String chef;
-     /* @JsonProperty("chef_id")
+    private String chef;
+
+    @JsonProperty("chef_id")
     private String chefId;
-   */
+
 }
