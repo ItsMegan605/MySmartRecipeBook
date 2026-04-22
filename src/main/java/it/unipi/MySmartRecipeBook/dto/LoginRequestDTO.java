@@ -10,9 +10,9 @@ import lombok.Getter;
 @Getter
 public class LoginRequestDTO {
 
-    @NotBlank
+    @NotBlank(message = "Must be a valid username")
     private String username;
 
-    @NotBlank
+    @NotBlank(message = "Must be a valid password")
     private String password;
 }

@@ -3,7 +3,6 @@ package it.unipi.MySmartRecipeBook.event;
 import it.unipi.MySmartRecipeBook.dto.InfoToDeleteDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.GraphRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefRecipeSummary;
-import it.unipi.MySmartRecipeBook.utils.parameters.Task;
 import lombok.Getter;
 
 /**

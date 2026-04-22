@@ -14,6 +14,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class YearAnalyticsDTO {
+
+    // TODO: ricordare perchè si fa così perchè è veramente brutto
     @Field ("_id") //for mongo query
     private Integer year;
 

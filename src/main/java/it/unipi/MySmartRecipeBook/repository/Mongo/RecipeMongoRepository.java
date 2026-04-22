@@ -63,7 +63,7 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
      * @param i increment or decrement value
      */
     @Query("{ '_id' : ?0 }")
-    @Update("{ '$set' : { 'num_saves' : ?1 } }")
+    @Update("{ '$inc' : { 'num_saves' : ?1 } }")
     void updateSavesCounter(String recipeId, int i);
 
     /**

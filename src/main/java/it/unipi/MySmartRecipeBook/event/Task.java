@@ -1,4 +1,4 @@
-package it.unipi.MySmartRecipeBook.utils.parameters;
+package it.unipi.MySmartRecipeBook.event;
 
 /**
  * Enumerate for task types

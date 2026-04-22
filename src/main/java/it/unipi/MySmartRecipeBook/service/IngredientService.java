@@ -21,7 +21,7 @@ public class IngredientService {
      * @return true if the ingredient is valid, false otherwise
      */
     public boolean isValidIngredient(String ingredientName) {
-        if (ingredientName == null || ingredientName.trim().isEmpty()) {
+        if (ingredientName == null || ingredientName.isBlank()) {
             return false;
         }
         return jedisCluster.sismember(INGREDIENTS_REDIS_KEY, ingredientName.toLowerCase().trim());

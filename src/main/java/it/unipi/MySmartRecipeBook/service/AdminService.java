@@ -20,7 +20,7 @@ import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.repository.Neo4j.ChefNeo4jRepository;
 import it.unipi.MySmartRecipeBook.utils.conversionFunctions.ChefUtilityFunctions;
 import it.unipi.MySmartRecipeBook.utils.conversionFunctions.RecipeUtilityFunctions;
-import it.unipi.MySmartRecipeBook.utils.parameters.Task;
+import it.unipi.MySmartRecipeBook.event.Task;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 
 import jakarta.transaction.Transactional;
@@ -364,7 +364,7 @@ public class AdminService {
 
 
     /**
-     * Emerging vs Declining Categories (Analytics)
+     * Emerging vs Declining Parameters (Analytics)
      * @return the list of the category trends
      */
     public List<TrendAnalyticsDTO> getCategoryTrends() {

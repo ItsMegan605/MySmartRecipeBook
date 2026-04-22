@@ -7,7 +7,7 @@ import it.unipi.MySmartRecipeBook.event.TaskToDo;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefRecipeSummary;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.OldRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Chef;
-import it.unipi.MySmartRecipeBook.utils.parameters.Task;
+import it.unipi.MySmartRecipeBook.event.Task;
 import it.unipi.MySmartRecipeBook.repository.Mongo.ChefRepository;
 import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.repository.Neo4j.RecipeNeo4jRepository;
@@ -316,13 +316,15 @@ public class LowLoadManager {
         System.out.println("Update Chef Counters: increasing saves numbers");
 
         Chef targetChef = chefRepository.findById(task.getChefId()).get();
-        targetChef.setTotalSaves(targetChef.getTotalSaves()+1);
+        int totSaves = targetChef.getTotalSaves() == null ? 0 : targetChef.getTotalSaves();
+        targetChef.setTotalSaves(totSaves+1);
 
         Integer numSaves = null;
         for(ChefRecipeSummary recipe : targetChef.getNewRecipes()){
             if(recipe.getId().equals(task.getRecipeId())){
-                recipe.setNumSaves(recipe.getNumSaves()+1);
-                numSaves = recipe.getNumSaves();
+                int oldNumSaves = recipe.getNumSaves() == null ? 0 : recipe.getNumSaves();
+                recipe.setNumSaves(oldNumSaves+1);
+                numSaves = oldNumSaves+1;
                 break;
             }
         }
@@ -330,8 +332,9 @@ public class LowLoadManager {
         if(numSaves == null){
             for(OldRecipe recipe : targetChef.getOldRecipes()){
                 if(recipe.getId().equals(task.getRecipeId())){
-                    recipe.setNumSaves(recipe.getNumSaves()+1);
-                    numSaves = recipe.getNumSaves();
+                    int oldNumSaves = recipe.getNumSaves() == null ? 0 : recipe.getNumSaves();
+                    recipe.setNumSaves(oldNumSaves+1);
+                    numSaves = oldNumSaves+1;
                     break;
                 }
             }

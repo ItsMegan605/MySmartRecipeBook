@@ -18,6 +18,8 @@ import redis.clients.jedis.JedisCluster;
 
 import java.util.*;
 
+import static it.unipi.MySmartRecipeBook.utils.parameters.Parameters.FILTERED_INGREDIENTS;
+
 /**
  * Service managing Smart Fridge operations and business logic
  */
@@ -91,8 +93,9 @@ public class SmartFridgeService {
         if(ingredients == null) {
             throw new IllegalArgumentException("No ingredients inserted");
         }
+
+        ingredients.replaceAll(ingredient -> ingredient.strip().toLowerCase());
         ingredients.removeIf(ingredient -> !ingredientService.isValidIngredient(ingredient));
-        ingredients.replaceAll(String::toLowerCase);
 
         String key = REDIS_APP_NAMESPACE + REDIS_FRIDGE_PREFIX + authFoodie.getUsername();
 
@@ -101,7 +104,7 @@ public class SmartFridgeService {
             jedisCluster.del(REDIS_APP_NAMESPACE +REDIS_RECIPES_PREFIX + authFoodie.getUsername());
         }
         else{
-            System.out.println("No ingredients inserted");
+            throw new IllegalArgumentException("No valid ingredients inserted");
         }
         return returnSmartFridge(authFoodie.getUsername());
     }
@@ -118,11 +121,12 @@ public class SmartFridgeService {
                 .getAuthentication()
                 .getPrincipal();
 
+        ingredient = ingredient.strip().toLowerCase();
 
-        if(ingredientService.isValidIngredient(ingredient.toLowerCase())) {
+        if(ingredientService.isValidIngredient(ingredient)) {
             String key = REDIS_APP_NAMESPACE + REDIS_FRIDGE_PREFIX + authFoodie.getUsername();
-            jedisCluster.srem(key, ingredient.toLowerCase());
-            updateCacheAfterRemoval(authFoodie.getUsername(), ingredient.toLowerCase());
+            jedisCluster.srem(key, ingredient);
+            updateCacheAfterRemoval(authFoodie.getUsername(), ingredient);
         }
 
         return getSmartFridge();
@@ -133,12 +137,11 @@ public class SmartFridgeService {
      * @param username - foodie's username
      * @return the recipes suggested
      */
-
+// TODO: mettere show recipe dto perchè sennò ne appaiono 5000
     public List<RecipeSuggestionDTO> getRecommendations(String username) {
         String cacheKey = REDIS_APP_NAMESPACE +REDIS_RECIPES_PREFIX + username;
 
         String json = jedisCluster.get(cacheKey);
-        System.out.println(cacheKey);
         if (json != null) {
             try {
                 return objectMapper.readValue(json, new TypeReference<List<RecipeSuggestionDTO>>(){});
@@ -150,8 +153,13 @@ public class SmartFridgeService {
         IngredientsListDTO ingredientsListDTO = getSmartFridge();
         Set<String> ingredientsSet = ingredientsListDTO.getIngredients();
 
+        for(String ingredient : FILTERED_INGREDIENTS){
+           ingredientsSet.remove(ingredient);
+        }
+
+        // TODO: controllare eccezione
         if (ingredientsSet == null || ingredientsSet.size() < 3) {
-            return new ArrayList<>();
+            throw new IllegalArgumentException("Insert at least 3 ingredients");
         }
 
         List<String> ingredients = new ArrayList<>(ingredientsSet);
@@ -164,6 +172,10 @@ public class SmartFridgeService {
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
+        }
+
+        if(suggestions == null){
+            throw new IllegalArgumentException("No recipe matching ingredients");
         }
 
         return suggestions;
@@ -218,7 +230,6 @@ public class SmartFridgeService {
      * @param id - id of the recipe
      * @return the recipe
      */
-
     public ShowRecipeDTO getFridgeRecipeById(String id){
 
         Optional<RecipeMongo> full_recipe = recipeRepository.findById(id);
@@ -227,9 +238,10 @@ public class SmartFridgeService {
             UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
                     .getAuthentication()
                     .getPrincipal();
+
             String fridgeKey = "MySmartRecipeBook:smartFridge:suggestions:" + authFoodie.getUsername();
             String suggestedRecipes = jedisCluster.get(fridgeKey);
-            if( suggestedRecipes != null) {
+            if(suggestedRecipes != null) {
                 try {
                     List<RecipeSuggestionDTO> cachedRecipes = objectMapper.readValue(suggestedRecipes, new TypeReference<List<RecipeSuggestionDTO>>(){});
                     Boolean removedRecipe = cachedRecipes.removeIf(recipe -> recipe.getId().equals(id));

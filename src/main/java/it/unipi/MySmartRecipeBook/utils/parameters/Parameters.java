@@ -3,9 +3,9 @@ package it.unipi.MySmartRecipeBook.utils.parameters;
 import java.util.List;
 
 /**
- * Categories used globally in the codes
+ * Parameters used globally in the codes
  */
-public class Categories {
+public class Parameters {
 
     //static to make them global
     public static final List<String> CATEGORIES = List.of(
@@ -24,4 +24,7 @@ public class Categories {
             "saving-date"
     );
 
+    public static final List<String> FILTERED_INGREDIENTS = List.of(
+            "salt", "water", "pepper", "oil"
+    );
 }

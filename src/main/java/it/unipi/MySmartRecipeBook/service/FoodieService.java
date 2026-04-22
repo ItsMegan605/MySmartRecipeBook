@@ -1,6 +1,6 @@
 package it.unipi.MySmartRecipeBook.service;
 
-import static it.unipi.MySmartRecipeBook.utils.parameters.Categories.*;
+import static it.unipi.MySmartRecipeBook.utils.parameters.Parameters.*;
 import it.unipi.MySmartRecipeBook.dto.InfoToDeleteDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.FoodiePreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
@@ -13,7 +13,7 @@ import it.unipi.MySmartRecipeBook.model.Mongo.recipes.FoodieRecipeSummary;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import it.unipi.MySmartRecipeBook.utils.conversionFunctions.RecipeUtilityFunctions;
-import it.unipi.MySmartRecipeBook.utils.parameters.Task;
+import it.unipi.MySmartRecipeBook.event.Task;
 import it.unipi.MySmartRecipeBook.repository.Mongo.FoodieRepository;
 import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.utils.conversionFunctions.FoodieUtilityFunctions;
@@ -167,8 +167,19 @@ public class FoodieService {
     @Transactional
     public void saveRecipe(String foodieId, String recipeId) {
 
-        if (!foodieRepository.existsById(foodieId)) {
-            throw new NoSuchElementException("No valid foodie");
+        // TODO: controllare eccezioni (x2)
+        Foodie foodie = foodieRepository.findById(foodieId)
+                .orElseThrow(() -> new NoSuchElementException("Foodie not found"));
+
+        List<FoodieRecipeSummary> recipes = foodie.getSavedRecipes();
+
+        if(recipes != null){
+            boolean alreadySaved = recipes.stream()
+                    .anyMatch(saved -> saved.getId().equals(recipeId));
+
+            if(alreadySaved){
+                throw  new NoSuchElementException("Recipe already saved");
+            }
         }
 
         RecipeMongo recipe = recipeRepository.findById(recipeId)
@@ -212,6 +223,8 @@ public class FoodieService {
 
         if (targetChefId != null) {
             lowLoadManager.addTask(Task.TaskType.SET_COUNTERS_REMOVE_FAVOURITE, recipeId, targetChefId);
+        } else {
+            throw new  NoSuchElementException("Recipe not found for the specified foodie");
         }
     }
 

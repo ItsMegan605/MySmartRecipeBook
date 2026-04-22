@@ -1,6 +1,6 @@
 package it.unipi.MySmartRecipeBook.service;
 
-import static it.unipi.MySmartRecipeBook.utils.parameters.Categories.*;
+import static it.unipi.MySmartRecipeBook.utils.parameters.Parameters.*;
 
 import it.unipi.MySmartRecipeBook.dto.IngredientDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.*;
@@ -13,7 +13,7 @@ import it.unipi.MySmartRecipeBook.repository.Mongo.*;
 import it.unipi.MySmartRecipeBook.repository.Neo4j.ChefNeo4jRepository;
 import it.unipi.MySmartRecipeBook.utils.conversionFunctions.RecipeUtilityFunctions;
 import it.unipi.MySmartRecipeBook.utils.conversionFunctions.ChefUtilityFunctions;
-import it.unipi.MySmartRecipeBook.utils.parameters.Task;
+import it.unipi.MySmartRecipeBook.event.Task;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -275,10 +275,14 @@ public class ChefService {
             }
         }
 
-        for(ChefRecipeSummary popularRecipe : chef.getPopularRecipes()){
-            if(popularRecipe.getId().equals(recipeId)){
-                chef.getPopularRecipes().remove(popularRecipe);
-                break;
+
+        List<ChefRecipeSummary> popularRecipes = chef.getPopularRecipes();
+        if(popularRecipes != null){
+            for(ChefRecipeSummary popularRecipe : popularRecipes){
+                if(popularRecipe.getId().equals(recipeId)){
+                    chef.getPopularRecipes().remove(popularRecipe);
+                    break;
+                }
             }
         }
 
