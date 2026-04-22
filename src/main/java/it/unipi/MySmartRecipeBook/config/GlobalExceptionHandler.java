@@ -167,17 +167,30 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body("HTTP request is not readable: format error");
     }
 
+    /**
+     * Method to handle the data integrity
+     * @param ex - name of the exception
+     * @return the message of the exception
+     */
+
     @ApiResponses({
             @ApiResponse(
-                    responseCode = "400",
-                    description = "Wrong request",
+                    responseCode = "409",
+                    description = "Data Integrity Violation / Conflict",
                     content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class))
             )
     })
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<String> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
+
+    /**
+     * Exception for the user's username while logging in the application
+     * @param unf - exception name
+     * @return The message
+     */
+
 
     @ApiResponses({
             @ApiResponse(
@@ -188,9 +201,14 @@ public class GlobalExceptionHandler {
     })
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<String> handleUserNotfoundException(UsernameNotFoundException unf) {
-    return ResponseEntity.badRequest().body(unf.getMessage());
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(unf.getMessage());
     }
 
+    /**
+     * Exception to handle wrong credentials in the application
+     * @param bce - Name of the exception
+     * @return The message
+     */
     @ApiResponses({
             @ApiResponse(
                     responseCode = "401",

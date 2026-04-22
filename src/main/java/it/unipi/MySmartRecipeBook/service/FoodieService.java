@@ -19,6 +19,7 @@ import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.utils.conversionFunctions.FoodieUtilityFunctions;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -110,7 +111,8 @@ public class FoodieService {
         if (dto.getEmail() != null && StringUtils.hasText(dto.getEmail()))
             update.set("email", dto.getEmail());
 
-        /* Supponiamo che se si è loggato può cambiare la password senza fare ulteriori controlli? */ //TODO
+        /* Supponiamo che se si è loggato può cambiare la password senza fare ulteriori controlli? */
+        //TODO
         if (dto.getPassword() != null && StringUtils.hasText(dto.getPassword()))
             update.set("password", passwordEncoder.encode(dto.getPassword()));
 
@@ -167,7 +169,6 @@ public class FoodieService {
     @Transactional
     public void saveRecipe(String foodieId, String recipeId) {
 
-        // TODO: controllare eccezioni (x2)
         Foodie foodie = foodieRepository.findById(foodieId)
                 .orElseThrow(() -> new NoSuchElementException("Foodie not found"));
 
@@ -178,14 +179,14 @@ public class FoodieService {
                     .anyMatch(saved -> saved.getId().equals(recipeId));
 
             if(alreadySaved){
-                throw  new NoSuchElementException("Recipe already saved");
+                throw  new DataIntegrityViolationException("Recipe already saved");
             }
         }
 
         RecipeMongo recipe = recipeRepository.findById(recipeId)
                 .orElseThrow(() -> new NoSuchElementException("Recipe to save not found"));
 
-        FoodieRecipeSummary fullRecipe = recipeUtilityFunctions.entityToReducedRecipe(recipe); //Saving date
+        FoodieRecipeSummary fullRecipe = recipeUtilityFunctions.entityToReducedRecipe(recipe);
 
         foodieRepository.addRecipeToFavourites(foodieId, recipeId, fullRecipe);
 
@@ -271,7 +272,7 @@ public class FoodieService {
 
         int start = (numPage - 1) * pageSizeFoodie;
         if (start >= recipesPreview.size()) {
-            throw new IllegalArgumentException("Invalid page number");
+            throw new IllegalArgumentException("Invalid page number"); //TODO: forse qui ci va un altro tipo di controllo
         }
 
         recipesPreview.sort(Comparator.comparing(FoodieRecipeSummary::getSavingDate).reversed());
@@ -291,7 +292,6 @@ public class FoodieService {
      * @param id - the recipe ID
      * @return the requested recipe
      */
-    // TODO: modificata dopo testing
     public ShowRecipeDTO getRecipeFoodieById(String id){
         UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()

@@ -1,4 +1,4 @@
-TODO: da togliere?
+TODO: da togliere? - secondo me non serve perchè alla fine serve per redis e non da noia
 absinthe
 acai powder
 achiote paste

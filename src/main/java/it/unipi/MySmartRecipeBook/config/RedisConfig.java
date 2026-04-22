@@ -56,4 +56,6 @@ public class RedisConfig {
         return new JedisCluster(clusterNodes, clientConfig, 5, Duration.ofSeconds(2), poolConfig);
     }
     // TODO: C'è un modo per farlo partire anche senza redis perchè comunque mi aspetto che l'applicazione  funzioni anche se non va redis
+    //si ok ma non garantisci le funzionalità principali dell'applicazione secondo me, è come ci disse il
+    //duca per il cluster o il pool
 }

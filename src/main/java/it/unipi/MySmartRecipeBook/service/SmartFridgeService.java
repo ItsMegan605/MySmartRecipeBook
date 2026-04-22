@@ -67,7 +67,6 @@ public class SmartFridgeService {
      * @param username - foodie's username
      * @return the ingredients list
      */
-
     private IngredientsListDTO returnSmartFridge(String username) {
 
         String key = REDIS_APP_NAMESPACE + REDIS_FRIDGE_PREFIX + username;
@@ -156,8 +155,8 @@ public class SmartFridgeService {
         for(String ingredient : FILTERED_INGREDIENTS){
            ingredientsSet.remove(ingredient);
         }
-
-        // TODO: controllare eccezione
+        //TODO: il problema di questa è solo da da un errore anche se non lo è proprio
+        //forse restituire la lista vuta?
         if (ingredientsSet == null || ingredientsSet.size() < 3) {
             throw new IllegalArgumentException("Insert at least 3 ingredients");
         }

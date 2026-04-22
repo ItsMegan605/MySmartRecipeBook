@@ -16,7 +16,8 @@ import java.util.List;
 public class YearAnalyticsDTO {
 
     // TODO: ricordare perchè si fa così perchè è veramente brutto
-    @Field ("_id") //for mongo query
+    //brutto in che senso? dipende come vogliamo far vedere la query
+    @Field ("_id")
     private Integer year;
 
     @JsonProperty("total_registered_foodies")

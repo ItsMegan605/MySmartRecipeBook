@@ -171,12 +171,12 @@ public class ChefService {
         Chef chef = chefRepository.findById(authChef.getId())
                 .orElseThrow(() -> new NoSuchElementException("Chef not found"));
 
-        if(!CATEGORIES.contains(recipeDTO.getCategory())){
-            throw new IllegalArgumentException("'" + recipeDTO.getCategory() + "': invalid category");
+        if (recipeDTO.getCategory() == null || !CATEGORIES.contains(recipeDTO.getCategory())) {
+            throw new IllegalArgumentException("Invalid or missing category");
         }
 
-        if(!DIFFICULTIES.contains(recipeDTO.getDifficulty())){
-            throw new IllegalArgumentException("'" + recipeDTO.getDifficulty() + "': invalid difficulty");
+        if (recipeDTO.getDifficulty() == null || !DIFFICULTIES.contains(recipeDTO.getDifficulty())) {
+            throw new IllegalArgumentException("Invalid or missing difficulty");
         }
 
         List<IngredientDTO> ingredients = recipeDTO.getIngredients();
@@ -191,6 +191,11 @@ public class ChefService {
             else if(!ingredient.isValidQuantity()){
                 throw new IllegalArgumentException("Invalid or missing quantity");
             }
+
+        }
+
+        if(!recipeDTO.validPrepTime()) {
+            throw new IllegalArgumentException("Invalid or missing preparation time");
         }
 
         Admin admin = adminRepository.findByUsername("admin");
