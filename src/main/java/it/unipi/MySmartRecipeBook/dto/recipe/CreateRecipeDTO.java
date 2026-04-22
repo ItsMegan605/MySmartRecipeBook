@@ -48,4 +48,11 @@ public class CreateRecipeDTO{
     @NotBlank(message = "Insert preparation")
     private String preparation;
 
+
+    public boolean validPrepTime () {
+        if (this.prepTime == null || this.prepTime.isEmpty()) {
+            return false;
+        }
+        return this.prepTime.matches("^\\d+(\\.\\d+)?\\s+[a-zA-Z]+$");
+    }
 }
