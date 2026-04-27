@@ -93,6 +93,7 @@ public class GlobalExceptionHandler {
      * Exception: global  handler for any unexpected Exception
      * not caught by specific handlers.
      * */
+
     @ApiResponses({
             @ApiResponse(
                     responseCode = "500",
@@ -102,8 +103,15 @@ public class GlobalExceptionHandler {
     })
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception e) {
+        Throwable cause = e.getCause();
+        while (cause != null) {
+            if (cause instanceof IllegalArgumentException) {
+                return ResponseEntity.badRequest().body(cause.getMessage());
+            }
+            cause = cause.getCause();
+        }
         return ResponseEntity.internalServerError().body("Internal Server Error occurred while using the application");
-    }
+    } //TODO: decidere cosa vogliamo fare perchè così stampa solo il mess ma su java non vedo nulla
 
     /**
      *  IllegalArgumentException: illegal argument inserted

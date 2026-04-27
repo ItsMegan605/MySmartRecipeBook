@@ -38,6 +38,8 @@ public class RecipeUtilityFunctions {
         recipeDTO.setDifficulty(recipe.getDifficulty());
         recipeDTO.setImageURL(recipe.getImageURL());
         recipeDTO.setPreparation(recipe.getPreparation());
+        recipeDTO.setChefId(recipe.getChef().getId());
+        recipeDTO.setChef(recipe.getChef().getName() + " " + recipe.getChef().getSurname());
 
         List<IngredientDTO> ingredients = new ArrayList<>();
         for(RecipeIngredient ingredient : recipe.getIngredients()){

@@ -24,7 +24,7 @@ public class RecipeController {
     
 
     /**
-     * When we click on a recipe preview all the details must be shown
+     * Shows all the details of a specified recipe.
      * @param id user id
      * @see RecipeService#getRecipeById(String)
      * @return ResponseEntity ok message 
