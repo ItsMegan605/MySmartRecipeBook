@@ -1,11 +1,16 @@
 package it.unipi.MySmartRecipeBook.service;
 
 import it.unipi.MySmartRecipeBook.dto.recipe.*;
+import it.unipi.MySmartRecipeBook.model.Mongo.recipes.OldRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
+import it.unipi.MySmartRecipeBook.model.Mongo.users.Chef;
+import it.unipi.MySmartRecipeBook.repository.Mongo.ChefRepository;
+import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import it.unipi.MySmartRecipeBook.utils.conversionFunctions.RecipeUtilityFunctions;
 import org.springframework.beans.factory.annotation.Value;
 import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
 import org.springframework.data.domain.*;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,10 +38,13 @@ public class RecipeService {
 
 
     private final RecipeMongoRepository recipeRepository;
+    private final ChefRepository chefRepository;
     private final RecipeUtilityFunctions convertions;
 
-    public RecipeService(RecipeMongoRepository recipeRepository, RecipeUtilityFunctions convertions) {
+    public RecipeService(RecipeMongoRepository recipeRepository, ChefRepository chefRepository,
+                         RecipeUtilityFunctions convertions) {
         this.recipeRepository = recipeRepository;
+        this.chefRepository = chefRepository;
         this.convertions = convertions;
     }
 
@@ -127,24 +135,35 @@ public class RecipeService {
      * @param chefId - id of the chef
      * @return recipes and their paging
      */
-    public SliceRecipeDTO getChefRecipePage(int pageNumber, String chefId){
+    public SliceRecipeDTO getChefRecipePage (int pageNumber, String chefId){
 
-        if(pageNumber <= 0){
-            throw new IllegalArgumentException("Invalid parameters");
+        Chef chef = chefRepository.findById(chefId)
+                .orElseThrow(() -> new NoSuchElementException("Chef not found"));
+
+        int start = (pageNumber-1)*pageSizeChef;
+        int end = pageNumber*pageSizeChef;
+        List<ChefPreviewRecipeDTO> content;
+        boolean hasPrevious = true;
+        if(pageNumber <= 3){
+
+            if (chef.getNewRecipes() == null || chef.getNewRecipes().isEmpty()) {
+                return new SliceRecipeDTO<>(null, false, false);
+            }
+
+            content = convertions.ChefListToSummaryList(chef.getNewRecipes().subList(start, end));
+            hasPrevious = pageNumber == 1 ? false :  true;
         }
 
-        Pageable pageable = PageRequest.of(pageNumber - 1, pageSizeChef, Sort.by("totalSaves").descending());
-        Slice<RecipeMongo> matching_recipes = recipeRepository.findByChef_Id(chefId, pageable);
+        else{
 
-        if (matching_recipes.isEmpty()){
-            return new SliceRecipeDTO<>(List.of(), false, false);
+            List<OldRecipe> oldRecipes = chef.getOldRecipes().subList(start, end);
+            List<String> ids = oldRecipes.stream().map(OldRecipe::getId).toList();
+            List<RecipeMongo> recipes = recipeRepository.findByIdIn(ids);
+            content = convertions.MongoListToChefPreview(recipes);
         }
 
-        List<UserPreviewRecipeDTO> recipesDTO = convertions.EntityToUserDto(matching_recipes.getContent());
-        boolean hasNext = matching_recipes.hasNext();
-        boolean hasPrevious = matching_recipes.hasPrevious();
-
-        return new SliceRecipeDTO<>(recipesDTO, hasNext, hasPrevious);
+        boolean hasNext = (chef.getTotalRecipes() > end) ? true : false;
+        return  new SliceRecipeDTO<>(content, hasNext, hasPrevious);
     }
 }
 

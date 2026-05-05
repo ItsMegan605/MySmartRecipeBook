@@ -88,6 +88,10 @@ public class RecipeController {
     @GetMapping("/chef")
     public ResponseEntity<SliceRecipeDTO> getChefRecipes (@RequestParam(defaultValue = "1") int pageNumber, @RequestParam String chefId){
 
+        if(pageNumber <= 0){
+            throw new IllegalArgumentException("Invalid parameters");
+        }
+
         SliceRecipeDTO recipe_list = recipeService.getChefRecipePage(pageNumber, chefId);
         return ResponseEntity.ok(recipe_list);
     }
