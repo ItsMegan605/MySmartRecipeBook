@@ -86,6 +86,9 @@ public class WebSecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/recipes/**").permitAll()
                         .requestMatchers("/error").permitAll()
 
+                        // SWAGGER endpoints
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+
                         // CHEF - recipe management
                         .requestMatchers(HttpMethod.POST, "/api/recipes/**").hasRole("CHEF")
                         .requestMatchers(HttpMethod.PUT, "/api/recipes/**").hasRole("CHEF")

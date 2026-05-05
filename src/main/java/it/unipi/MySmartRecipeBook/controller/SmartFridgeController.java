@@ -1,5 +1,9 @@
 package it.unipi.MySmartRecipeBook.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import it.unipi.MySmartRecipeBook.dto.IngredientsListDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.RecipeSuggestionDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
@@ -16,6 +20,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/fridge")
+@Tag(name = "Smart Fridge", description = "Endpoints for managing the smart fridge and getting recipe recommendations")
 public class SmartFridgeController {
 
 
@@ -31,6 +36,8 @@ public class SmartFridgeController {
      * @return the Smart fridge contents
      */
     @GetMapping("/get")
+    @Operation(summary = "Get the smart fridge")
+    @ApiResponse(responseCode = "200")
     public ResponseEntity<IngredientsListDTO> getList() {
 
         IngredientsListDTO ingredientsListDTO = smartFridgeService.getSmartFridge();
@@ -44,6 +51,8 @@ public class SmartFridgeController {
      */
 
     @PostMapping("/add")
+    @Operation(summary = "Add ingredients to the fridge")
+    @ApiResponse(responseCode = "200")
     public ResponseEntity<?> addIngredient(@RequestBody List<String> ingredients) {
         IngredientsListDTO ingredientsListDTO = smartFridgeService.addIngredients(ingredients);
         return ResponseEntity.ok().body(ingredientsListDTO);
@@ -56,6 +65,8 @@ public class SmartFridgeController {
      */
 
     @PostMapping("/remove")
+    @Operation(summary = "Remove ingredients from the fridge")
+    @ApiResponse(responseCode = "200")
     public ResponseEntity<?> removeIngredient(@RequestBody String ingredient ) {
         IngredientsListDTO ingredientsListDTO = smartFridgeService.removeIngredient(ingredient);
         return ResponseEntity.ok(ingredientsListDTO);
@@ -67,6 +78,11 @@ public class SmartFridgeController {
      * @return the Smart fridge's recipes suggestions
      */
     @GetMapping("/recommendations")
+    @Operation(summary = "Get recipe recommendations based on fridge contents")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "204")
+    })
     public ResponseEntity<List<RecipeSuggestionDTO>> getRecommendations() {
         UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -88,6 +104,8 @@ public class SmartFridgeController {
      */
 
     @GetMapping("/recipe/{id}")
+    @Operation(summary = "Get recipe details from the fridge")
+    @ApiResponse(responseCode = "200")
     public ResponseEntity<ShowRecipeDTO> getRecipe(@PathVariable String id){
         ShowRecipeDTO recipe = smartFridgeService.getFridgeRecipeById(id);
         return ResponseEntity.ok(recipe);

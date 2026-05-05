@@ -1,5 +1,9 @@
 package it.unipi.MySmartRecipeBook.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegisteredUserInfoDTO;
@@ -25,6 +29,7 @@ import java.time.Period;
 @RestController
 @RequestMapping("/api/foodies")
 @PreAuthorize("hasRole('FOODIE')")
+@Tag(name = "Foodie", description = "Endpoints for managing Foodie profiles and their favorite recipes")
 public class FoodieController {
 
     private final FoodieService foodieService;
@@ -41,6 +46,8 @@ public class FoodieController {
      * @return ResponseEntity ok message
      */
     @GetMapping("/info")
+    @Operation(summary = "Retrieve foodie's information")
+    @ApiResponse(responseCode = "200")
     public ResponseEntity<RegisteredUserInfoDTO> getInfo(){
 
         return ResponseEntity.ok(foodieService.getById());
@@ -54,6 +61,11 @@ public class FoodieController {
      * @return ResponseEntity ok message
      */
     @PostMapping("/changeInfo")
+    @Operation(summary = "Change foodie's information")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400")
+    })
     public ResponseEntity<RegisteredUserInfoDTO> changeInfo (@Valid @RequestBody UpdateFoodieDTO updates){
 
         if(updates.getBirthdate() != null && Period.between(updates.getBirthdate(), LocalDate.now()).getYears() < 15){
@@ -70,6 +82,8 @@ public class FoodieController {
      * @return ResponseEntity with message
      */
     @DeleteMapping("/deleteProfile")
+    @Operation(summary = "Delete foodie's profile")
+    @ApiResponse(responseCode = "200")
     public ResponseEntity<String> deleteProfile() {
 
         foodieService.deleteFoodie();
@@ -84,6 +98,8 @@ public class FoodieController {
      * @return ResponseEntity with message
      */
     @PostMapping("/addFavourite/{recipeId}")
+    @Operation(summary = "Add a recipe to foodie's favourites")
+    @ApiResponse(responseCode = "200")
     public ResponseEntity<String> saveRecipe (@PathVariable String recipeId) {
 
         UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
@@ -102,6 +118,8 @@ public class FoodieController {
      * @return ResponseEntity ok message
      */
     @DeleteMapping("/removeFavourite/{recipeId}")
+    @Operation(summary = "Remove a recipe from foodie's favourites")
+    @ApiResponse(responseCode = "200")
     public ResponseEntity<String> removeSavedRecipe(@PathVariable String recipeId) {
 
         foodieService.removeSavedRecipe(recipeId);
@@ -117,6 +135,8 @@ public class FoodieController {
      * @return ResponseEntity ok message
      */
     @GetMapping("/getRecipe/{category}/{numPage}")
+    @Operation(summary = "Order favourite recipes by category filter")
+    @ApiResponse(responseCode = "200")
     public ResponseEntity<SliceRecipeDTO> getRecipeByCategory (@PathVariable String category,
                                                                             @PathVariable int numPage) {
         SliceRecipeDTO recipeList = foodieService.getRecipeByCategory(category, numPage);
@@ -130,6 +150,8 @@ public class FoodieController {
      * @return a ResponseEntity containing the ShowRecipeDTO with the recipe details
      */
     @GetMapping("/recipe/{id}")
+    @Operation(summary = "Get the details of a specific recipe for a foodie")
+    @ApiResponse(responseCode = "200")
     public ResponseEntity<ShowRecipeDTO> getRecipeById (@PathVariable String id){
         ShowRecipeDTO recipe = foodieService.getRecipeFoodieById(id);
         return ResponseEntity.ok(recipe);
@@ -142,6 +164,8 @@ public class FoodieController {
      * @return ResponseEntity ok message
      */
     @GetMapping("/chefsRanking")
+    @Operation(summary = "Get Bayesian Chef Ranking visible to foodies")
+    @ApiResponse(responseCode = "200")
     public ResponseEntity<java.util.List<ChefRankAnalyticsDTO>> getChefRanking() {
 
         return ResponseEntity.ok(

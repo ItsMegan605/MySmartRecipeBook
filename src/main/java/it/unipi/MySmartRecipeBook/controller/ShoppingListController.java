@@ -1,5 +1,8 @@
 package it.unipi.MySmartRecipeBook.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import it.unipi.MySmartRecipeBook.dto.IngredientsListDTO;
 import it.unipi.MySmartRecipeBook.service.ShoppingListService;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +16,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/shopping")
+@Tag(name = "Shopping List", description = "Endpoints for managing the user's shopping list")
 public class ShoppingListController {
 
     private ShoppingListService shoppingListService;
@@ -27,6 +31,8 @@ public class ShoppingListController {
      * @return The shopping list and its contents
      */
     @GetMapping("/get")
+    @Operation(summary = "Get shopping list", description = "Retrieves the current user's shopping list.")
+    @ApiResponse(responseCode = "200")
     public ResponseEntity<IngredientsListDTO> getList() {
 
         IngredientsListDTO ingredientsListDTO = shoppingListService.getShoppingList();
@@ -41,6 +47,8 @@ public class ShoppingListController {
      * @return The result of the shopping list with the new items
      */
     @PostMapping("/add")
+    @Operation(summary = "Add ingredients", description = "Adds ingredients to the shopping list.")
+    @ApiResponse(responseCode = "200")
     public ResponseEntity<?> addItems(@RequestBody List<String> items) {
 
         IngredientsListDTO list = shoppingListService.addIngredients(items);
@@ -55,6 +63,8 @@ public class ShoppingListController {
      */
 
     @PostMapping("/remove")
+    @Operation(summary = "Remove ingredients", description = "Removes ingredients to the shopping list.")
+    @ApiResponse(responseCode = "200")
     public ResponseEntity<IngredientsListDTO> removeItem(@RequestBody String ingredient) {
 
         IngredientsListDTO list = shoppingListService.removeIngredient(ingredient);

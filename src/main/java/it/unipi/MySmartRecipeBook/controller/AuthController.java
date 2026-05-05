@@ -1,5 +1,9 @@
 package it.unipi.MySmartRecipeBook.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import it.unipi.MySmartRecipeBook.dto.LoginRequestDTO;
 import it.unipi.MySmartRecipeBook.dto.JwtResponseDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegisteredUserDTO;
@@ -17,6 +21,7 @@ import java.time.Period;
  */
 @RestController
 @RequestMapping("/api/auth")
+@Tag(name = "Authentication", description = "Endpoints for user registration and login")
 public class AuthController {
 
     private final AuthService authService;
@@ -33,6 +38,11 @@ public class AuthController {
      */
 
     @PostMapping("/register/chef")
+    @Operation(summary = "Register a new chef")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400")
+    })
     public ResponseEntity<String> registerChef (@Valid @RequestBody RegisteredUserDTO dto){
 
         if(Period.between(dto.getBirthdate(), LocalDate.now()).getYears() < 15){
@@ -50,6 +60,11 @@ public class AuthController {
      */
 
     @PostMapping("/register/foodie")
+    @Operation(summary = "Register a new foodie")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400")
+    })
     public ResponseEntity<String> registerFoodie (@Valid @RequestBody RegisteredUserDTO dto){
 
         if(Period.between(dto.getBirthdate(), LocalDate.now()).getYears() < 15){
@@ -66,6 +81,8 @@ public class AuthController {
      */
 
     @PostMapping("/login")
+    @Operation(summary = "User login")
+    @ApiResponse(responseCode = "200")
     public ResponseEntity<JwtResponseDTO> login (@Valid @RequestBody LoginRequestDTO request){
 
         return ResponseEntity.ok(authService.authenticateUser(request));

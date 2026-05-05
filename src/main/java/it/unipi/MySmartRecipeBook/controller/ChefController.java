@@ -1,5 +1,9 @@
 package it.unipi.MySmartRecipeBook.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegisteredUserInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.users.TopChefDTO;
@@ -25,6 +29,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/chefs")
 @PreAuthorize("hasRole('CHEF')")
+@Tag(name = "Chef", description = "Endpoints for managing Chef profiles and their recipes")
 public class ChefController {
 
     private final ChefService chefService;
@@ -40,6 +45,8 @@ public class ChefController {
      * @return ResponseEntity ok message
      */
     @GetMapping("/info")
+    @Operation(summary = "Retrieve the chef's information")
+    @ApiResponse(responseCode = "200")
     public ResponseEntity<RegisteredUserInfoDTO> getInformation() {
 
         String username = SecurityContextHolder.getContext()
@@ -56,6 +63,11 @@ public class ChefController {
      * @return ResponseEntity ok message
      */
     @PostMapping("/changeInfo")
+    @Operation(summary = "Change chef's information")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400")
+    })
     public ResponseEntity<RegisteredUserInfoDTO> updateInformation (@Valid @RequestBody UpdateChefDTO updates){
 
         if(updates.getBirthdate() != null && Period.between(updates.getBirthdate(), LocalDate.now()).getYears() < 15){
@@ -70,6 +82,8 @@ public class ChefController {
      * @return ResponseEntity with message
      */
     @DeleteMapping("/deleteProfile")
+    @Operation(summary = "Delete chef's profile")
+    @ApiResponse(responseCode = "200")
     public ResponseEntity<String> deleteProfile() {
 
         String username = SecurityContextHolder.getContext()
@@ -87,6 +101,11 @@ public class ChefController {
      * @return ResponseEntity ok message
      */
     @PostMapping("/addNewRecipe")
+    @Operation(summary = "Submit a new recipe")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400")
+    })
     public ResponseEntity<ChefPreviewRecipeDTO> saveRecipe (@Valid @RequestBody CreateRecipeDTO dto){
 
         ChefPreviewRecipeDTO recipe = chefService.createRecipe(dto);
@@ -100,6 +119,8 @@ public class ChefController {
      * @return Response entity ok message 
      */
     @GetMapping("/showWaiting/{page}")
+    @Operation(summary = "Show chef's pending recipes")
+    @ApiResponse(responseCode = "200")
     public ResponseEntity<SliceRecipeDTO> showPendingRecipes (@PathVariable("page") int page){
         SliceRecipeDTO recipeList = chefService.showPendingRecipes(page);
         return ResponseEntity.ok(recipeList);
@@ -113,6 +134,8 @@ public class ChefController {
      * @return ResponseEntity ok message
      */
     @DeleteMapping("/removeWaiting/{id}")
+    @Operation(summary = "Remove a pending recipe")
+    @ApiResponse(responseCode = "200")
     public ResponseEntity<String> removeRecipe (@PathVariable("id") String recipeId){
 
         chefService.removeRecipe(recipeId);
@@ -127,6 +150,8 @@ public class ChefController {
      * @return ResponseEntity with message
      */
     @DeleteMapping("/deleteRecipe/{id}")
+    @Operation(summary = "Delete an existing recipe")
+    @ApiResponse(responseCode = "200")
     public ResponseEntity<String> deleteRecipe (@PathVariable("id") String recipeId){
 
         chefService.deleteRecipe(recipeId);
@@ -141,6 +166,8 @@ public class ChefController {
      * @return ResponseEntity ok message
      */
     @GetMapping("/show/{page}")
+    @Operation(summary = "Show published recipes")
+    @ApiResponse(responseCode = "200")
     public ResponseEntity<SliceRecipeDTO> showRecipe (@PathVariable("page") int page){
         SliceRecipeDTO recipeList = chefService.showRecipes(page);
         return ResponseEntity.ok(recipeList);
@@ -153,6 +180,8 @@ public class ChefController {
      * @return ResponseEntity ok message
      */
     @GetMapping("/popular/{pageNumber}")
+    @Operation(summary = "Show popular recipes")
+    @ApiResponse(responseCode = "200")
     public ResponseEntity<SliceRecipeDTO> popularRecipe (@PathVariable("pageNumber") int pageNumber){
         SliceRecipeDTO recipeList = chefService.showPopularRecipes(pageNumber);
         return ResponseEntity.ok(recipeList);
@@ -164,6 +193,8 @@ public class ChefController {
      * @return ResponseEntity ok message
      */
     @GetMapping("/getTopChef")
+    @Operation(summary = "Show top 3 chefs per category")
+    @ApiResponse(responseCode = "200")
     public ResponseEntity<List<TopChefDTO>> getTopChef() {
         List<TopChefDTO> topChefs = chefService.getTopChef();
         return ResponseEntity.ok(topChefs);
