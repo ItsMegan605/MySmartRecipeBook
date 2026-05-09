@@ -18,31 +18,25 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PendingRecipe {
-
-
     @Field("id")
     String id;
-
     private String title;
 
     @Field("presentation")
     private String presentation;
-
     private String category;
 
     @Field("prep_time")
     private String prepTime;
-
     private String preparation;
-
     private String difficulty;
 
     @Field("image_url")
     private String imageURL;
-
     private List<RecipeIngredient> ingredients;
 
     @Field("creation_date")
     private LocalDateTime creationDate;
 
 }
+

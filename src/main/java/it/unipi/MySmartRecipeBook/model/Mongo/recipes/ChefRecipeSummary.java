@@ -32,3 +32,5 @@ public class ChefRecipeSummary {
     @Field("num_saves")
     private Integer numSaves;
 }
+
+

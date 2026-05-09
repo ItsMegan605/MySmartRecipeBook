@@ -36,3 +36,4 @@ public class FoodieRecipeSummary {
     @Field("chef")
     private ReducedChef chef;
 }
+

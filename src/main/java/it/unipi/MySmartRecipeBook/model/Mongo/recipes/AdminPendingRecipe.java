@@ -24,3 +24,4 @@ public class AdminPendingRecipe extends PendingRecipe {
     private ReducedChef chef;
 
 }
+

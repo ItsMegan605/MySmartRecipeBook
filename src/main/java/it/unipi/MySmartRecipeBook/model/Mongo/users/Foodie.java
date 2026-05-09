@@ -34,3 +34,5 @@ public class Foodie extends RegisteredUser {
     private List<FoodieRecipeSummary> savedRecipes;
 
 }
+
+

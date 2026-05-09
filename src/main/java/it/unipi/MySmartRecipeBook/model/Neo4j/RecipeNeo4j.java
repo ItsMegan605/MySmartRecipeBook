@@ -1,7 +1,7 @@
 package it.unipi.MySmartRecipeBook.model.Neo4j;
 
+import lombok.*;
 import org.springframework.data.neo4j.core.schema.*;
-import lombok.Data;
 import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 
 import java.util.List;
@@ -10,7 +10,10 @@ import java.util.List;
  * Represents a Recipe node in the Neo4j graph database with the
  * relationship between it and chefs and ingredients
  */
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Node("Recipe")
 public class RecipeNeo4j {
 
@@ -25,7 +28,6 @@ public class RecipeNeo4j {
     private String imageURL;
 
     private String category;
-
 
     @Relationship(type = "USED_IN", direction = Relationship.Direction.INCOMING)
     private List<IngredientNeo4j> ingredients;
