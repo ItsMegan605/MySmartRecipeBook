@@ -213,37 +213,6 @@ public class RecipeUtilityFunctions {
         return recipeNeo4j;
     }
 
-    //TODO: controllare perchè non viene usata
-    /**
-     * Converts a RecipeMongo entity into a RecipeNeo4j node entity.
-     * @param recipe the mongo recipe
-     * @return the Neo4j recipe entity
-     */
-    public RecipeNeo4j MongoToNeo4j(RecipeMongo recipe){
-
-        RecipeNeo4j recipeNeo4j = new RecipeNeo4j();
-        recipeNeo4j.setMongoId(recipe.getId());
-        recipeNeo4j.setTitle(recipe.getTitle());
-
-        List<IngredientNeo4j> ingredients = new ArrayList<>();
-        for(RecipeIngredient ingredient : recipe.getIngredients()){
-            IngredientNeo4j ingredientDTO = new IngredientNeo4j();
-            ingredientDTO.setName(ingredient.getName());
-            ingredients.add(ingredientDTO);
-        }
-        recipeNeo4j.setIngredients(ingredients);
-
-        ChefNeo4j chef = new ChefNeo4j();
-        chef.setMongoId(recipe.getChef().getId());
-        chef.setName(recipe.getChef().getName());
-        chef.setSurname(recipe.getChef().getSurname());
-        recipeNeo4j.setChef(chef);
-
-        recipeNeo4j.setImageURL(recipe.getImageURL());
-        recipeNeo4j.setCategory(recipe.getCategory());
-
-        return recipeNeo4j;
-    }
 
     /**
      * Creates a AdminPendingRecipe from a creation DTO and Chef info.

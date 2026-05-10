@@ -252,19 +252,11 @@ public class SmartFridgeService {
             String fridgeKey = "MySmartRecipeBook:smartFridge:suggestions:" + authFoodie.getUsername();
             String suggestedRecipes = jedisCluster.get(fridgeKey);
             if(suggestedRecipes != null) {
-                try {
+                try { //TODO: da ritestare
                     List<RecipeSuggestionDTO> cachedRecipes = objectMapper.readValue(suggestedRecipes, new TypeReference<List<RecipeSuggestionDTO>>(){});
-                    Boolean removedRecipe = cachedRecipes.removeIf(recipe -> recipe.getId().equals(id));
+                    cachedRecipes.removeIf(recipe -> recipe.getId().equals(id));
 
                     jedisCluster.set(fridgeKey, objectMapper.writeValueAsString(cachedRecipes));
-
-                    /* if(removedRecipe) { //TODO: capire se safe da togliere
-                        if(cachedRecipes.isEmpty()){
-                            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Recipes not found");
-                        } else  {
-                            jedisCluster.set(fridgeKey, objectMapper.writeValueAsString(cachedRecipes));
-                        }
-                    }*/
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();
                 }
