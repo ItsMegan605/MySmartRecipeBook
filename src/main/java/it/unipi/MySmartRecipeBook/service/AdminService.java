@@ -3,6 +3,7 @@ package it.unipi.MySmartRecipeBook.service;
 import it.unipi.MySmartRecipeBook.dto.YearAnalyticsDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.GraphRecipeDTO;
+import it.unipi.MySmartRecipeBook.dto.recipe.PendingRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.users.PendingChefDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefRecipeSummary;
@@ -302,9 +303,9 @@ public class AdminService {
             return new SliceRecipeDTO<>(null, false, true);
         }
 
-        List<ChefPreviewRecipeDTO> content = new ArrayList<>();
+        List<PendingRecipeDTO> content = new ArrayList<>();
         for (AdminPendingRecipe recipe : adminPendingRecipes.subList(start, end)) {
-            content.add(recipeConvertions.baseToChefDTO(recipe));
+            content.add(recipeConvertions.pendingRecipeToAdminDTO(recipe));
         }
 
         boolean hasPrevious = pageNumber > 1;
