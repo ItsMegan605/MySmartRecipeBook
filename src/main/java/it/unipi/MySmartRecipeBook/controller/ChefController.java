@@ -4,13 +4,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import it.unipi.MySmartRecipeBook.dto.recipe.PendingRecipeChefDTO;
-import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
+import it.unipi.MySmartRecipeBook.dto.recipe.*;
 import it.unipi.MySmartRecipeBook.dto.users.RegisteredUserInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.users.TopChefDTO;
 import it.unipi.MySmartRecipeBook.dto.users.UpdateChefDTO;
-import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
-import it.unipi.MySmartRecipeBook.dto.recipe.CreateRecipeDTO;
 import it.unipi.MySmartRecipeBook.service.ChefService;
 
 import jakarta.validation.Valid;
@@ -187,17 +184,11 @@ public class ChefController {
         return ResponseEntity.ok(recipeList);
     }
 
-    /**
-     * Show top 3 chefs per Category
-     * @see ChefService#getTopChef()
-     * @return ResponseEntity ok message
-     */
-    @GetMapping("/getTopChef")
-    @Operation(summary = "Show top 3 chefs per category")
-    @ApiResponse(responseCode = "200")
-    public ResponseEntity<List<TopChefDTO>> getTopChef() {
-        List<TopChefDTO> topChefs = chefService.getTopChef();
-        return ResponseEntity.ok(topChefs);
-    }
 
+    // TODO: swagger, java doc e test
+    @GetMapping("/details/pending/{recipeId}")
+    public ResponseEntity<ShowRecipeDTO> getRecipeDetails (@PathVariable String recipeId){
+        ShowRecipeDTO recipe = chefService.getRecipeDetails(recipeId);
+        return ResponseEntity.ok(recipe);
+    }
 }

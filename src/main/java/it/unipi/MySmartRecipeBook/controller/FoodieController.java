@@ -6,7 +6,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
+import it.unipi.MySmartRecipeBook.dto.users.ChefPreviewDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegisteredUserInfoDTO;
+import it.unipi.MySmartRecipeBook.dto.users.TopChefDTO;
 import it.unipi.MySmartRecipeBook.dto.users.UpdateFoodieDTO;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import it.unipi.MySmartRecipeBook.service.FoodieService;
@@ -22,6 +24,7 @@ import it.unipi.MySmartRecipeBook.service.ChefService;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.List;
 
 /**
  * Foodie's controller
@@ -154,6 +157,24 @@ public class FoodieController {
         return ResponseEntity.ok(recipe);
     }
 
+    // TODO: swagger annotation
+    @GetMapping("/matchingChef")
+    public ResponseEntity<List<ChefPreviewDTO>> getChef (@RequestParam String chefName){
+        List<ChefPreviewDTO> chefList = foodieService.getChefList(chefName);
+        return ResponseEntity.ok(chefList);
+    }
 
+    /**
+     * Show top 3 chefs per Category
+     * @see ChefService#getTopChef()
+     * @return ResponseEntity ok message
+     */
+    @GetMapping("/TopChef")
+    @Operation(summary = "Show top 3 chefs per category")
+    @ApiResponse(responseCode = "200")
+    public ResponseEntity<List<TopChefDTO>> getTopChef() {
+        List<TopChefDTO> topChefs = foodieService.getTopChef();
+        return ResponseEntity.ok(topChefs);
+    }
 
 }

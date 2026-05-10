@@ -5,8 +5,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.unipi.MySmartRecipeBook.dto.*;
+import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.users.PendingChefDTO;
+import it.unipi.MySmartRecipeBook.dto.users.RegisteredUserInfoDTO;
+import it.unipi.MySmartRecipeBook.model.Mongo.users.PendingChef;
 import it.unipi.MySmartRecipeBook.service.AdminService;
 import it.unipi.MySmartRecipeBook.service.ChefService;
 import org.springframework.http.ResponseEntity;
@@ -164,6 +167,16 @@ public class AdminController {
         return ResponseEntity.ok(
                 adminService.getBayesianRanking()
         );
+    }
+
+    @GetMapping("/details/chef/{chefId}")
+    public ResponseEntity<RegisteredUserInfoDTO> seeChefDetails (@PathVariable String chefId){
+        return ResponseEntity.ok(adminService.seeChefDetails(chefId));
+    }
+
+    @GetMapping("/details/recipe/{recipeId}")
+    public ResponseEntity<ShowRecipeDTO> seeRecipeDetails (@PathVariable String recipeId){
+        return ResponseEntity.ok(adminService.seeRecipeDetails(recipeId));
     }
 }
 

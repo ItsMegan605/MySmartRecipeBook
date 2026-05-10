@@ -6,11 +6,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
+import it.unipi.MySmartRecipeBook.dto.users.ChefPreviewDTO;
 import it.unipi.MySmartRecipeBook.service.RecipeService;
 
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 /**
@@ -115,4 +118,6 @@ public class RecipeController {
         SliceRecipeDTO recipe_list = recipeService.getChefRecipePage(pageNumber, chefId);
         return ResponseEntity.ok(recipe_list);
     }
+
+
 }

@@ -5,13 +5,19 @@ import it.unipi.MySmartRecipeBook.dto.InfoToDeleteDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.FoodiePreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
+import it.unipi.MySmartRecipeBook.dto.users.ChefPreviewDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegisteredUserInfoDTO;
+import it.unipi.MySmartRecipeBook.dto.users.TopChefDTO;
 import it.unipi.MySmartRecipeBook.dto.users.UpdateFoodieDTO;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefRecipeSummary;
+import it.unipi.MySmartRecipeBook.model.Mongo.users.Chef;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Foodie;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.FoodieRecipeSummary;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
+import it.unipi.MySmartRecipeBook.repository.Mongo.ChefRepository;
+import it.unipi.MySmartRecipeBook.repository.Neo4j.ChefNeo4jRepository;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
+import it.unipi.MySmartRecipeBook.utils.conversionFunctions.ChefUtilityFunctions;
 import it.unipi.MySmartRecipeBook.utils.conversionFunctions.RecipeUtilityFunctions;
 import it.unipi.MySmartRecipeBook.event.Task;
 import it.unipi.MySmartRecipeBook.repository.Mongo.FoodieRepository;
@@ -49,10 +55,14 @@ public class FoodieService {
     private final FoodieUtilityFunctions usersConvertions;
     private final LowLoadManager lowLoadManager;
     private final MongoTemplate mongoTemplate;
+    private final ChefNeo4jRepository chefNeo4jRepository;
+    private final ChefUtilityFunctions chefConvertions;
+    private final ChefRepository chefRepository;
 
     public FoodieService(FoodieRepository foodieRepository, RecipeMongoRepository recipeRepository,
                          PasswordEncoder passwordEncoder, FoodieUtilityFunctions usersConvertions,
-                         LowLoadManager lowLoadManager, MongoTemplate mongoTemplate, RecipeUtilityFunctions recipeUtilityFunctions) {
+                         LowLoadManager lowLoadManager, MongoTemplate mongoTemplate, RecipeUtilityFunctions recipeUtilityFunctions,
+                         ChefNeo4jRepository chefNeo4jRepository, ChefUtilityFunctions chefConvertions, ChefRepository chefRepository) {
         this.foodieRepository = foodieRepository;
         this.recipeRepository = recipeRepository;
         this.passwordEncoder = passwordEncoder;
@@ -60,6 +70,9 @@ public class FoodieService {
         this.lowLoadManager = lowLoadManager;
         this.mongoTemplate = mongoTemplate;
         this.recipeUtilityFunctions = recipeUtilityFunctions;
+        this.chefNeo4jRepository = chefNeo4jRepository;
+        this.chefConvertions = chefConvertions;
+        this.chefRepository = chefRepository;
     }
 
     /**
@@ -306,5 +319,23 @@ public class FoodieService {
         }
 
         return recipeUtilityFunctions.EntityToDto(recipe.get());
+    }
+
+    public List<ChefPreviewDTO> getChefList (String chefName){
+        List<Chef> chefs = chefRepository.findBySurnameContainingIgnoreCase(chefName);
+
+        if(chefs.isEmpty()){
+            throw new NoSuchElementException("Not matching chefs found");
+        }
+        List<ChefPreviewDTO> chefsDTO = chefConvertions.chefModelToChefDTO(chefs);
+        return chefsDTO;
+    }
+
+    /**
+     * Ranking with top 3 chefs
+     * @return the top chef for each category in the application
+     */
+    public List<TopChefDTO> getTopChef() {
+        return chefNeo4jRepository.findTop3ChefsByCategory(CATEGORIES);
     }
 }

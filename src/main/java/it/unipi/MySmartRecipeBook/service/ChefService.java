@@ -9,6 +9,7 @@ import it.unipi.MySmartRecipeBook.dto.ChefRankAnalyticsDTO;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.*;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Admin;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Chef;
+import it.unipi.MySmartRecipeBook.model.Mongo.users.PendingChef;
 import it.unipi.MySmartRecipeBook.repository.Mongo.*;
 import it.unipi.MySmartRecipeBook.repository.Neo4j.ChefNeo4jRepository;
 import it.unipi.MySmartRecipeBook.utils.conversionFunctions.RecipeUtilityFunctions;
@@ -445,6 +446,7 @@ public class ChefService {
         if (start >= pendingRecipes.size()) {
             return new SliceRecipeDTO<>(null, false, true);
         }
+    //TODO: da testare la funzione tot
         List<PendingRecipeChefDTO> content = recipeConvertions.ChefPreviewToPendingChefRecipe(
                 pendingRecipes.subList(start, end));
 
@@ -454,14 +456,39 @@ public class ChefService {
         return new SliceRecipeDTO<>(content, hasNext, hasPrevious);
     }
 
+
+
     /**
-     * Ranking with top 3 chefs
-     * @return the top chef for each category in the application
+     * Method for the chef's Bayesian ranking
+     * @return the Bayesian Ranking of the chefs
      */
-    public List<TopChefDTO> getTopChef() {
-        return chefNeo4jRepository.findTop3ChefsByCategory(CATEGORIES);
+    public List<ChefRankAnalyticsDTO> getChefRankingForFoodie() {
+        return chefRepository.chefBayesianRanking();
     }
 
 
+    public ShowRecipeDTO getRecipeDetails(String recipeId){
+        UserPrincipal authChef = (UserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
 
+        Chef chef = chefRepository.findById(authChef.getId())
+                .orElseThrow(() -> new NoSuchElementException("Chef not found"));
+
+        List<PendingRecipe> pendingRecipes = chef.getRecipesToConfirm();
+        PendingRecipe targetRecipe = null;
+        for(PendingRecipe pendingRecipe : pendingRecipes){
+            if(pendingRecipe.getId().equals(recipeId)){
+                targetRecipe = pendingRecipe;
+            }
+        }
+        if(targetRecipe == null){
+            throw new NoSuchElementException("Recipe not found");
+        }
+
+        ShowRecipeDTO recipe = recipeConvertions.PendingToDetails(targetRecipe);
+        recipe.setChef(chef.getName() + " " + chef.getSurname());
+        recipe.setChefId(chef.getId());
+        return recipe;
+    }
 }

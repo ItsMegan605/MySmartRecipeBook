@@ -5,6 +5,7 @@ import it.unipi.MySmartRecipeBook.dto.recipe.*;
 import it.unipi.MySmartRecipeBook.dto.users.ChefInfoDTO;
 import it.unipi.MySmartRecipeBook.model.Mongo.ingredients.RecipeIngredient;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.*;
+import it.unipi.MySmartRecipeBook.model.Mongo.users.Admin;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.ReducedChef;
 import it.unipi.MySmartRecipeBook.model.Neo4j.ChefNeo4j;
 import it.unipi.MySmartRecipeBook.model.Neo4j.IngredientNeo4j;
@@ -28,6 +29,58 @@ public class RecipeUtilityFunctions {
      * @return the detailed recipe DTO
      */
     public ShowRecipeDTO EntityToDto (RecipeMongo recipe){
+
+        ShowRecipeDTO recipeDTO = new ShowRecipeDTO();
+        recipeDTO.setMongoId(recipe.getId());
+        recipeDTO.setTitle(recipe.getTitle());
+        recipeDTO.setPresentation(recipe.getPresentation());
+        recipeDTO.setCategory(recipe.getCategory());
+        recipeDTO.setPrepTime(recipe.getPrepTime());
+        recipeDTO.setDifficulty(recipe.getDifficulty());
+        recipeDTO.setImageURL(recipe.getImageURL());
+        recipeDTO.setPreparation(recipe.getPreparation());
+        recipeDTO.setChefId(recipe.getChef().getId());
+        recipeDTO.setChef(recipe.getChef().getName() + " " + recipe.getChef().getSurname());
+
+        List<IngredientDTO> ingredients = new ArrayList<>();
+        for(RecipeIngredient ingredient : recipe.getIngredients()){
+            IngredientDTO ingredientDTO = new IngredientDTO();
+            ingredientDTO.setName(ingredient.getName());
+            ingredientDTO.setQuantity(ingredient.getQuantity());
+            ingredients.add(ingredientDTO);
+        }
+        recipeDTO.setIngredients(ingredients);
+        recipeDTO.setCreationDate(recipe.getCreationDate().toLocalDate());
+
+        return recipeDTO;
+    }
+
+    public ShowRecipeDTO PendingToDetails (PendingRecipe recipe){
+
+        ShowRecipeDTO recipeDTO = new ShowRecipeDTO();
+        recipeDTO.setMongoId(recipe.getId());
+        recipeDTO.setTitle(recipe.getTitle());
+        recipeDTO.setPresentation(recipe.getPresentation());
+        recipeDTO.setCategory(recipe.getCategory());
+        recipeDTO.setPrepTime(recipe.getPrepTime());
+        recipeDTO.setDifficulty(recipe.getDifficulty());
+        recipeDTO.setImageURL(recipe.getImageURL());
+        recipeDTO.setPreparation(recipe.getPreparation());
+
+        List<IngredientDTO> ingredients = new ArrayList<>();
+        for(RecipeIngredient ingredient : recipe.getIngredients()){
+            IngredientDTO ingredientDTO = new IngredientDTO();
+            ingredientDTO.setName(ingredient.getName());
+            ingredientDTO.setQuantity(ingredient.getQuantity());
+            ingredients.add(ingredientDTO);
+        }
+        recipeDTO.setIngredients(ingredients);
+        recipeDTO.setCreationDate(recipe.getCreationDate().toLocalDate());
+
+        return recipeDTO;
+    }
+
+    public ShowRecipeDTO adminRecipeToDetails (AdminPendingRecipe recipe){
 
         ShowRecipeDTO recipeDTO = new ShowRecipeDTO();
         recipeDTO.setMongoId(recipe.getId());
@@ -254,7 +307,7 @@ public class RecipeUtilityFunctions {
     }
 
     /**
-     * Converts a AdminPendingRecipe into a PendingRecipeChefDTO using a temporary ID.
+     * Converts a AdminPendingRecipe into a ChefPreviewRecipeDTO using a temporary ID.
      * @param recipe the pending recipe
      * @return the preview DTO
      */
@@ -364,9 +417,9 @@ public class RecipeUtilityFunctions {
     }
 
     /**
-     * Converts a list of PendingRecipes  into a list of  PendingRecipeChefDTO
-     * * @param recipes - list of pending recipes to be converted
-     * @return - pending recipes dto list
+     * //TODO scrivere doc
+     * @param recipes
+     * @return
      */
     public List<PendingRecipeChefDTO> ChefPreviewToPendingChefRecipe(List<PendingRecipe> recipes) {
         List<PendingRecipeChefDTO> recipesPreview = new ArrayList<>();
@@ -379,6 +432,7 @@ public class RecipeUtilityFunctions {
             recipesPreview.add(dto);
         }
         return recipesPreview;
+
     }
 
     /**

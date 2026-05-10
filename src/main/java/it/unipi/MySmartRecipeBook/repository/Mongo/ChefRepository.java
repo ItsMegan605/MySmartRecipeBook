@@ -27,6 +27,13 @@ public interface ChefRepository extends MongoRepository<Chef, String> {
     Optional<Chef> findByUsername(String username);
 
     /**
+     * Finds the list of chefs whose surname contains the target sub-string
+     * @param surname the chef surname
+     * @return list of Chef entity
+     */
+    List<Chef> findBySurnameContainingIgnoreCase(String surname);
+
+    /**
      * Checks if a chef exists by ID.
      * @param id chef ID
      * @return true if exists

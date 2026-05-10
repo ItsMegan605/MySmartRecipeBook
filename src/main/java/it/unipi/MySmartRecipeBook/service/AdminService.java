@@ -2,11 +2,9 @@ package it.unipi.MySmartRecipeBook.service;
 
 import it.unipi.MySmartRecipeBook.dto.ChefRankAnalyticsDTO;
 import it.unipi.MySmartRecipeBook.dto.YearAnalyticsDTO;
-import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
-import it.unipi.MySmartRecipeBook.dto.recipe.GraphRecipeDTO;
-import it.unipi.MySmartRecipeBook.dto.recipe.PendingRecipeDTO;
+import it.unipi.MySmartRecipeBook.dto.recipe.*;
 import it.unipi.MySmartRecipeBook.dto.users.PendingChefDTO;
-import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
+import it.unipi.MySmartRecipeBook.dto.users.RegisteredUserInfoDTO;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefRecipeSummary;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.OldRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Admin;
@@ -355,6 +353,57 @@ public class AdminService {
         return new SliceRecipeDTO<>(content, hasNext, hasPrevious);
     }
 
+    // TODO: java doc, swagger e test
+    public RegisteredUserInfoDTO seeChefDetails(String chefId){
+
+        UserPrincipal logged_admin = (UserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        Admin admin = adminRepository.findById(logged_admin.getId())
+                .orElseThrow(() -> new NoSuchElementException("Admin not found"));
+
+        List<PendingChef> pendingChefs = admin.getChefsToApprove();
+        PendingChef targetChef = null;
+        for(PendingChef chef : pendingChefs){
+            if(chef.getId().equals(chefId)){
+                targetChef = chef;
+            }
+        }
+
+        if(targetChef == null){
+            throw new NoSuchElementException("Chef not found");
+        }
+
+        RegisteredUserInfoDTO chefDetails = chefUtilityFunctions.pendingChefToChefDetails(targetChef);
+        return chefDetails;
+    }
+
+    // TODO: java doc, swagger e test
+    public ShowRecipeDTO seeRecipeDetails(String recipeId){
+
+        UserPrincipal logged_admin = (UserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        Admin admin = adminRepository.findById(logged_admin.getId())
+                .orElseThrow(() -> new NoSuchElementException("Admin not found"));
+
+        List<AdminPendingRecipe> pendingRecipes = admin.getRecipesToApprove();
+        AdminPendingRecipe targetRecipe = null;
+        for(AdminPendingRecipe recipe : pendingRecipes){
+            if(recipe.getId().equals(recipeId)){
+                targetRecipe = recipe;
+            }
+        }
+
+        if(targetRecipe == null){
+            throw new NoSuchElementException("Recipe not found");
+        }
+
+        ShowRecipeDTO recipeDetails = recipeConvertions.adminRecipeToDetails(targetRecipe);
+        return recipeDetails;
+    }
 
     /**
      * Monthly foodies count

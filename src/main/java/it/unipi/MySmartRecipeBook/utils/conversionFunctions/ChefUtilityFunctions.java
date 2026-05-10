@@ -1,5 +1,6 @@
 package it.unipi.MySmartRecipeBook.utils.conversionFunctions;
 
+import it.unipi.MySmartRecipeBook.dto.users.ChefPreviewDTO;
 import it.unipi.MySmartRecipeBook.dto.users.PendingChefDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegisteredUserDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegisteredUserInfoDTO;
@@ -112,4 +113,28 @@ public class ChefUtilityFunctions {
         return result;
     }
 
+    public List<ChefPreviewDTO> chefModelToChefDTO(List<Chef> chefs) {
+        List<ChefPreviewDTO> chefsDTO = new ArrayList<>();
+        for(Chef chef: chefs){
+            ChefPreviewDTO chefDTO = new ChefPreviewDTO();
+            chefDTO.setId(chef.getId());
+            chefDTO.setFullName(chef.getName()+ " " + chef.getSurname());
+            chefDTO.setTotRecipes(chef.getTotalRecipes());
+            chefDTO.setRegistrationDate(chefDTO.getRegistrationDate());
+            chefDTO.setTotSaves(chef.getTotalSaves());
+            chefsDTO.add(chefDTO);
+        }
+        return chefsDTO;
+    }
+
+    public RegisteredUserInfoDTO pendingChefToChefDetails (PendingChef chef){
+
+        return new RegisteredUserInfoDTO(
+                chef.getUsername(),
+                chef.getName(),
+                chef.getSurname(),
+                chef.getEmail(),
+                chef.getBirthdate()
+        );
+    }
 }

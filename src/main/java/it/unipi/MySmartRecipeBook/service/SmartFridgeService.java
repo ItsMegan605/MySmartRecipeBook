@@ -4,13 +4,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.unipi.MySmartRecipeBook.dto.IngredientsListDTO;
+import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.RecipeSuggestionDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
+import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
 import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.repository.Neo4j.RecipeNeo4jRepository;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import it.unipi.MySmartRecipeBook.utils.conversionFunctions.RecipeUtilityFunctions;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.JedisCluster;
@@ -26,6 +29,8 @@ import static it.unipi.MySmartRecipeBook.utils.parameters.Parameters.FILTERED_IN
 @Service
 public class SmartFridgeService {
 
+    @Value("${app.recipe.pag-size-chef:5}")
+    private int pageSize;
 
     private JedisCluster jedisCluster;
     private RecipeMongoRepository recipeRepository;
@@ -137,13 +142,13 @@ public class SmartFridgeService {
      * @return the recipes suggested
      */
 // TODO: mettere show recipe dto perchè sennò ne appaiono 5000
-    public List<RecipeSuggestionDTO> getRecommendations(String username) {
+    public SliceRecipeDTO getRecommendations(String username, int pageNum) {
         String cacheKey = REDIS_APP_NAMESPACE +REDIS_RECIPES_PREFIX + username;
 
         String json = jedisCluster.get(cacheKey);
         if (json != null) {
             try {
-                return objectMapper.readValue(json, new TypeReference<List<RecipeSuggestionDTO>>(){});
+                return objectMapper.readValue(json, new TypeReference<SliceRecipeDTO>(){});
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
@@ -176,7 +181,15 @@ public class SmartFridgeService {
             throw new IllegalArgumentException("No recipe matching ingredients");
         }
 
-        return suggestions;
+        int start = (pageNum-1)*pageSize;
+        int end = pageNum*pageSize;
+
+        boolean hasPrevious = pageNum == 1 ? false :  true;
+        boolean hasNext = (suggestions.size() > end) ? true : false;
+
+        List<RecipeSuggestionDTO> content = suggestions.subList(start, end);
+
+        return new SliceRecipeDTO<>(content, hasPrevious, hasNext);
     }
 
     /**

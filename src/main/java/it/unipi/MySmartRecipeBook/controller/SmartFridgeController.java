@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import it.unipi.MySmartRecipeBook.dto.IngredientsListDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.RecipeSuggestionDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
+import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import it.unipi.MySmartRecipeBook.service.SmartFridgeService;
 import org.springframework.http.ResponseEntity;
@@ -77,20 +78,20 @@ public class SmartFridgeController {
      * @see SmartFridgeService#getRecommendations(String)
      * @return the Smart fridge's recipes suggestions
      */
-    @GetMapping("/recommendations")
+    @GetMapping("/recommendations/{pageNum}")
     @Operation(summary = "Get recipe recommendations based on fridge contents")
     @ApiResponses({
             @ApiResponse(responseCode = "200"),
             @ApiResponse(responseCode = "204")
     })
-    public ResponseEntity<List<RecipeSuggestionDTO>> getRecommendations() {
+    public ResponseEntity<SliceRecipeDTO> getRecommendations(@PathVariable int pageNum) {
         UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getPrincipal();
 
-        List<RecipeSuggestionDTO> recipes = smartFridgeService.getRecommendations(authFoodie.getUsername());
+        SliceRecipeDTO recipes = smartFridgeService.getRecommendations(authFoodie.getUsername(), pageNum);
 
-        if (recipes.isEmpty()) {
+        if (recipes.getContent().isEmpty()) {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(recipes);
