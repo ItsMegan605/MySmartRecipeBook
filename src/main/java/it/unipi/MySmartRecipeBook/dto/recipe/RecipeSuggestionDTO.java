@@ -13,7 +13,6 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-// TODO: modificare questo DTO, non dovrebbe comparire l'intera ricetta ma solo l'anteprima
 public class RecipeSuggestionDTO implements Serializable {
 
     private String id;

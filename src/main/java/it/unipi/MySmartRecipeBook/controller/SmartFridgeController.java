@@ -64,8 +64,8 @@ public class SmartFridgeController {
      * @see SmartFridgeService#removeIngredient(String) 
      * @return returns the Smart fridge without the removed ingredients.
      */
-
-    @PostMapping("/remove")
+    //TODO: aggiorna screen swagger anche per shopping list
+    @DeleteMapping("/remove")
     @Operation(summary = "Remove ingredients from the fridge")
     @ApiResponse(responseCode = "200")
     public ResponseEntity<?> removeIngredient(@RequestBody String ingredient ) {
@@ -75,7 +75,7 @@ public class SmartFridgeController {
 
     /**
      * Get Method to get recommendations when we add ingredients and we want a recipe suggestion
-     * @see SmartFridgeService#getRecommendations(String)
+     * @see SmartFridgeService#getRecommendations(String, int)
      * @return the Smart fridge's recipes suggestions
      */
     @GetMapping("/recommendations/{pageNum}")

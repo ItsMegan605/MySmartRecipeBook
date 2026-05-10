@@ -35,10 +35,6 @@ public class Chef extends RegisteredUser {
     @Size(max = 20)
     private String username;
 
-    @Field("reg_date")
-    @Past
-    private LocalDate registrationDate;
-
     @Field("new_recipes")
     private List<ChefRecipeSummary> newRecipes;
 

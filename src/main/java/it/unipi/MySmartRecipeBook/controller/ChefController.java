@@ -185,7 +185,7 @@ public class ChefController {
     }
 
 
-    // TODO: swagger, java doc e test
+    // TODO: swagger, java doc
     @GetMapping("/details/pending/{recipeId}")
     public ResponseEntity<ShowRecipeDTO> getRecipeDetails (@PathVariable String recipeId){
         ShowRecipeDTO recipe = chefService.getRecipeDetails(recipeId);

@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -22,6 +24,4 @@ public class ChefPreviewDTO {
     @JsonProperty("tot_saves")
     private Integer totSaves;
 
-    @JsonProperty("registration_date")
-    private String registrationDate;
 }

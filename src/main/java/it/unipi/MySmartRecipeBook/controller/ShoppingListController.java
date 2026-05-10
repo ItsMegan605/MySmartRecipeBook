@@ -62,7 +62,7 @@ public class ShoppingListController {
      * @see ShoppingListService#removeIngredient(String)
      */
 
-    @PostMapping("/remove")
+    @DeleteMapping("/remove")
     @Operation(summary = "Remove ingredients", description = "Removes ingredients to the shopping list.")
     @ApiResponse(responseCode = "200")
     public ResponseEntity<IngredientsListDTO> removeItem(@RequestBody String ingredient) {

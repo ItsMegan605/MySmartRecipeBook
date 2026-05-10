@@ -40,7 +40,6 @@ public class ChefUtilityFunctions {
         chef.setPassword(passwordEncoder.encode(dto.getPassword()));
 
         chef.setBirthdate(dto.getBirthdate());
-        chef.setRegistrationDate(LocalDate.now());
 
         return chef;
     }
@@ -88,14 +87,12 @@ public class ChefUtilityFunctions {
     public Chef pendingChefToChef (PendingChef chef){
 
         Chef chefMongo = new Chef();
-        chefMongo.setId(chef.getId());
         chefMongo.setUsername(chef.getUsername());
         chefMongo.setPassword(chef.getPassword());
         chefMongo.setName(chef.getName());
         chefMongo.setSurname(chef.getSurname());
         chefMongo.setEmail(chef.getEmail());
         chefMongo.setBirthdate(chef.getBirthdate());
-        chefMongo.setRegistrationDate(chef.getRegistrationDate());
         return chefMongo;
     }
 
@@ -120,7 +117,6 @@ public class ChefUtilityFunctions {
             chefDTO.setId(chef.getId());
             chefDTO.setFullName(chef.getName()+ " " + chef.getSurname());
             chefDTO.setTotRecipes(chef.getTotalRecipes());
-            chefDTO.setRegistrationDate(chefDTO.getRegistrationDate());
             chefDTO.setTotSaves(chef.getTotalSaves());
             chefsDTO.add(chefDTO);
         }

@@ -189,7 +189,7 @@ public class ChefService {
             if(!ingredientService.isValidIngredient(ingredientName)){
                 throw new IllegalArgumentException("'" + ingredientName + "': invalid ingredient");
             }
-            else if(!ingredient.isValidQuantity()){
+            else if(!ingredient.checkQuantity()){
                 throw new IllegalArgumentException("Invalid or missing quantity");
             }
 
@@ -446,7 +446,6 @@ public class ChefService {
         if (start >= pendingRecipes.size()) {
             return new SliceRecipeDTO<>(null, false, true);
         }
-    //TODO: da testare la funzione tot
         List<PendingRecipeChefDTO> content = recipeConvertions.ChefPreviewToPendingChefRecipe(
                 pendingRecipes.subList(start, end));
 

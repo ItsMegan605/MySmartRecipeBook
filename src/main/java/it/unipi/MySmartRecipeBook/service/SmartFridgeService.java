@@ -141,7 +141,6 @@ public class SmartFridgeService {
      * @param username - foodie's username
      * @return the recipes suggested
      */
-// TODO: mettere show recipe dto perchè sennò ne appaiono 5000
     public SliceRecipeDTO getRecommendations(String username, int pageNum) {
         String cacheKey = REDIS_APP_NAMESPACE +REDIS_RECIPES_PREFIX + username;
 
@@ -189,7 +188,7 @@ public class SmartFridgeService {
 
         List<RecipeSuggestionDTO> content = suggestions.subList(start, end);
 
-        return new SliceRecipeDTO<>(content, hasPrevious, hasNext);
+        return new SliceRecipeDTO<>(content, hasNext, hasPrevious);
     }
 
     /**

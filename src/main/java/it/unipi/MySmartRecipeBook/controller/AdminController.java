@@ -168,10 +168,10 @@ public class AdminController {
                 adminService.getBayesianRanking()
         );
     }
-
-    @GetMapping("/details/chef/{chefId}")
-    public ResponseEntity<RegisteredUserInfoDTO> seeChefDetails (@PathVariable String chefId){
-        return ResponseEntity.ok(adminService.seeChefDetails(chefId));
+    //TODO: javadoc etc
+    @GetMapping("/details/chef/{username}")
+    public ResponseEntity<RegisteredUserInfoDTO> seeChefDetails (@PathVariable String username){
+        return ResponseEntity.ok(adminService.seeChefDetails(username));
     }
 
     @GetMapping("/details/recipe/{recipeId}")

@@ -21,8 +21,6 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class PendingChef {
 
-    private String id;
-
     @NotBlank(message = "Username is required")
     @Size(max = 20)
     private String username;
@@ -45,7 +43,5 @@ public class PendingChef {
     @Past(message = "Birthdate must be in the past")
     private LocalDate birthdate;
 
-    @Field("reg_date")
-    private LocalDate registrationDate;
 
 }

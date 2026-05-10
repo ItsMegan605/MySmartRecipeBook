@@ -353,8 +353,8 @@ public class AdminService {
         return new SliceRecipeDTO<>(content, hasNext, hasPrevious);
     }
 
-    // TODO: java doc, swagger e test
-    public RegisteredUserInfoDTO seeChefDetails(String chefId){
+    // TODO: java doc, swagger
+    public RegisteredUserInfoDTO seeChefDetails(String username){
 
         UserPrincipal logged_admin = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -366,7 +366,7 @@ public class AdminService {
         List<PendingChef> pendingChefs = admin.getChefsToApprove();
         PendingChef targetChef = null;
         for(PendingChef chef : pendingChefs){
-            if(chef.getId().equals(chefId)){
+            if(chef.getUsername().equals(username)){
                 targetChef = chef;
             }
         }
@@ -379,7 +379,7 @@ public class AdminService {
         return chefDetails;
     }
 
-    // TODO: java doc, swagger e test
+    // TODO: java doc, swagger
     public ShowRecipeDTO seeRecipeDetails(String recipeId){
 
         UserPrincipal logged_admin = (UserPrincipal) SecurityContextHolder.getContext()
