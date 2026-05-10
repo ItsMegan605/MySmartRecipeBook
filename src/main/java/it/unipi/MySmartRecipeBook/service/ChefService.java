@@ -162,7 +162,7 @@ public class ChefService {
      * @return DTO with a recipe preview to show the chef while he/she waits for the approval
      */
     @Transactional
-    public ChefPreviewRecipeDTO createRecipe(CreateRecipeDTO recipeDTO) {
+    public PendingRecipeChefDTO createRecipe(CreateRecipeDTO recipeDTO) {
 
         UserPrincipal authChef = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -445,7 +445,6 @@ public class ChefService {
         if (start >= pendingRecipes.size()) {
             return new SliceRecipeDTO<>(null, false, true);
         }
-    //TODO: da testare la funzione tot
         List<PendingRecipeChefDTO> content = recipeConvertions.ChefPreviewToPendingChefRecipe(
                 pendingRecipes.subList(start, end));
 
@@ -463,12 +462,6 @@ public class ChefService {
         return chefNeo4jRepository.findTop3ChefsByCategory(CATEGORIES);
     }
 
-    /**
-     * Method for the chef's Bayesian ranking
-     * @return the Bayesian Ranking of the chefs
-     */
-    public List<ChefRankAnalyticsDTO> getChefRankingForFoodie() {
-        return chefRepository.chefBayesianRanking();
-    }
+
 
 }

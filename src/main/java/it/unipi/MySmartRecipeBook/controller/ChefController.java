@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import it.unipi.MySmartRecipeBook.dto.recipe.PendingRecipeChefDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegisteredUserInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.users.TopChefDTO;
@@ -105,9 +106,9 @@ public class ChefController {
             @ApiResponse(responseCode = "200"),
             @ApiResponse(responseCode = "400")
     })
-    public ResponseEntity<ChefPreviewRecipeDTO> saveRecipe (@Valid @RequestBody CreateRecipeDTO dto){
+    public ResponseEntity<PendingRecipeChefDTO> saveRecipe (@Valid @RequestBody CreateRecipeDTO dto){
 
-        ChefPreviewRecipeDTO recipe = chefService.createRecipe(dto);
+        PendingRecipeChefDTO recipe = chefService.createRecipe(dto);
         return ResponseEntity.ok(recipe);
     }
 

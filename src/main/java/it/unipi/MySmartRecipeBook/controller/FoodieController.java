@@ -155,18 +155,5 @@ public class FoodieController {
     }
 
 
-    /**
-     * Bayesian Chef Ranking visible to Foodies
-     * @see ChefService#getChefRankingForFoodie()
-     * @return ResponseEntity ok message
-     */
-    @GetMapping("/chefsRanking")
-    @Operation(summary = "Get Bayesian Chef Ranking visible to foodies")
-    @ApiResponse(responseCode = "200")
-    public ResponseEntity<java.util.List<ChefRankAnalyticsDTO>> getChefRanking() {
 
-        return ResponseEntity.ok(
-                chefService.getChefRankingForFoodie()
-        );
-    }
 }

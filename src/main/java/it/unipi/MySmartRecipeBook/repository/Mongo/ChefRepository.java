@@ -40,7 +40,7 @@ public interface ChefRepository extends MongoRepository<Chef, String> {
      */
     boolean existsByUsername(String username);
 
-    // TODO: ricontrollare query
+
     /**
      * Removes a recipe from the pending list.
      * @param chefId chef ID

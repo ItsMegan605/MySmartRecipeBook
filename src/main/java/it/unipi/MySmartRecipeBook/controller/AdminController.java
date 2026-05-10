@@ -8,6 +8,7 @@ import it.unipi.MySmartRecipeBook.dto.*;
 import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.users.PendingChefDTO;
 import it.unipi.MySmartRecipeBook.service.AdminService;
+import it.unipi.MySmartRecipeBook.service.ChefService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -148,6 +149,21 @@ public class AdminController {
     @ApiResponse(responseCode = "200")
     public ResponseEntity<List<TrendAnalyticsDTO>> getCategoryTrends() {
         return ResponseEntity.ok(adminService.getCategoryTrends());
+    }
+
+    /**
+     * Bayesian Chef Ranking visible to Foodies
+     * @see AdminService#getBayesianRanking()
+     * @return ResponseEntity ok message
+     */
+    @GetMapping("/chefsRanking")
+    @Operation(summary = "Get Bayesian Chef Ranking visible to foodies")
+    @ApiResponse(responseCode = "200")
+    public ResponseEntity<java.util.List<ChefRankAnalyticsDTO>> getChefRanking() {
+
+        return ResponseEntity.ok(
+                adminService.getBayesianRanking()
+        );
     }
 }
 

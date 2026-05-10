@@ -1,5 +1,6 @@
 package it.unipi.MySmartRecipeBook.service;
 
+import it.unipi.MySmartRecipeBook.dto.ChefRankAnalyticsDTO;
 import it.unipi.MySmartRecipeBook.dto.YearAnalyticsDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.GraphRecipeDTO;
@@ -393,6 +394,14 @@ public class AdminService {
         }
 
         return results;
+    }
+
+    /**
+     * Method for the chef's Bayesian ranking
+     * @return the Bayesian Ranking of the chefs
+     */
+    public List<ChefRankAnalyticsDTO> getBayesianRanking() {
+        return chefRepository.chefBayesianRanking();
     }
 
 }

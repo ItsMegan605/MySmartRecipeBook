@@ -84,7 +84,6 @@ public interface FoodieRepository extends MongoRepository<Foodie, String> {
      * Computes monthly statistics of registered foodies.
      * @return list of YearAnalyticsDTO
      */
-    //TODO: ritestare
     @Aggregation(pipeline = {
             "{ $group: { " +
                     "        _id: { $dateToString: { format: '%Y-%m', date: '$registration_date' } }, " +
