@@ -111,8 +111,6 @@ public class FoodieService {
         if (dto.getEmail() != null && StringUtils.hasText(dto.getEmail()))
             update.set("email", dto.getEmail());
 
-        /* Supponiamo che se si è loggato può cambiare la password senza fare ulteriori controlli? */
-        //TODO
         if (dto.getPassword() != null && StringUtils.hasText(dto.getPassword()))
             update.set("password", passwordEncoder.encode(dto.getPassword()));
 
@@ -272,7 +270,7 @@ public class FoodieService {
 
         int start = (numPage - 1) * pageSizeFoodie;
         if (start >= recipesPreview.size()) {
-            throw new IllegalArgumentException("Invalid page number"); //TODO: forse qui ci va un altro tipo di controllo
+            throw new IllegalArgumentException("Invalid page number");
         }
 
         recipesPreview.sort(Comparator.comparing(FoodieRecipeSummary::getSavingDate).reversed());

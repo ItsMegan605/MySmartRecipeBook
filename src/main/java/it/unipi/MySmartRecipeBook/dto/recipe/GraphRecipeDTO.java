@@ -12,12 +12,10 @@ import java.util.List;
  * DTO representing a recipe for Neo4j.
  * It includes the category field to satisfy the queries.
  */
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-
 public class GraphRecipeDTO {
 
     String id;

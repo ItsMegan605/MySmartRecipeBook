@@ -160,6 +160,7 @@ public class RecipeUtilityFunctions {
         return recipeNeo4j;
     }
 
+    //TODO: controllare perchè non viene usata
     /**
      * Converts a RecipeMongo entity into a RecipeNeo4j node entity.
      * @param recipe the mongo recipe
@@ -320,23 +321,6 @@ public class RecipeUtilityFunctions {
         return chefRecipes;
     }
 
-    /**
-     * Converts a list of PendingRecipe entities into a list of ChefPreviewRecipeDTOs.
-     * @param recipes the list of chef pending recipes
-     * @return the list of preview DTOs
-     */
-    public List<ChefPreviewRecipeDTO> PendingChefListToChefPreview(List<PendingRecipe> recipes) {
-        List<ChefPreviewRecipeDTO> result = new ArrayList<>();
-        for (PendingRecipe recipe : recipes) {
-            ChefPreviewRecipeDTO dto = new ChefPreviewRecipeDTO();
-            dto.setId(recipe.getId());
-            dto.setTitle(recipe.getTitle());
-            dto.setImageURL(recipe.getImageURL());
-            dto.setCreationDate(recipe.getCreationDate().toLocalDate());
-            result.add(dto);
-        }
-        return result;
-    }
 
     /**
      * Converts a RecipeMongo entity into a FoodieRecipeSummary for saved recipes.
@@ -377,5 +361,40 @@ public class RecipeUtilityFunctions {
         }
 
         return recipes;
+    }
+
+    /**
+     * //TODO scrivere doc
+     * @param recipes
+     * @return
+     */
+    public List<PendingRecipeChefDTO> ChefPreviewToPendingChefRecipe(List<PendingRecipe> recipes) {
+        List<PendingRecipeChefDTO> recipesPreview = new ArrayList<>();
+        for (PendingRecipe recipe : recipes) {
+            PendingRecipeChefDTO dto = new PendingRecipeChefDTO();
+            dto.setId(recipe.getId());
+            dto.setTitle(recipe.getTitle());
+            dto.setImageURL(recipe.getImageURL());
+            dto.setCreationDate(recipe.getCreationDate().toLocalDate());
+            recipesPreview.add(dto);
+        }
+        return recipesPreview;
+
+    }
+
+    /**
+     * Converts an AdminPendingRecipe into an PendingRecipeDTO.
+     * @param recipe the pending recipe
+     * @return the pending recipe DTO
+     */
+    public PendingRecipeDTO pendingRecipeToAdminDTO(AdminPendingRecipe recipe) {
+
+        PendingRecipeDTO recipeDTO = new PendingRecipeDTO();
+        recipeDTO.setId(recipe.getId());
+        recipeDTO.setTitle(recipe.getTitle());
+        recipeDTO.setChef(recipe.getChef().getName() + " " + recipe.getChef().getSurname());
+        recipeDTO.setCreationDate(recipe.getCreationDate().toLocalDate());
+        recipeDTO.setChefId(recipe.getChef().getId());
+        return recipeDTO;
     }
 }

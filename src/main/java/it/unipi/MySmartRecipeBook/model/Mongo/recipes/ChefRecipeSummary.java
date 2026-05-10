@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ChefRecipeSummary {
 
-
     @Field("id")
     private String id;
 

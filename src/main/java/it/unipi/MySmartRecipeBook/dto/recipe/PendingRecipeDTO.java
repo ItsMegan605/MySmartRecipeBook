@@ -17,9 +17,14 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class PendingRecipeDTO {
 
+    private String id;
+
     private String title;
 
     private String chef;
+
+    @JsonProperty("chef_id")
+    private String chefId;
 
     @JsonProperty("creation_date")
     private LocalDate creationDate;

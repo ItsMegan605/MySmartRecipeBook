@@ -111,7 +111,7 @@ public class GlobalExceptionHandler {
             cause = cause.getCause();
         }
         return ResponseEntity.internalServerError().body("Internal Server Error occurred while using the application");
-    } //TODO: decidere cosa vogliamo fare perchè così stampa solo il mess ma su java non vedo nulla
+    }
 
     /**
      *  IllegalArgumentException: illegal argument inserted
@@ -125,7 +125,7 @@ public class GlobalExceptionHandler {
     })
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
-        return ResponseEntity.badRequest().body(e.getMessage()); //Returns the custom message defined when the exception was thrown
+        return ResponseEntity.badRequest().body(e.getMessage());
     }
 
     /**

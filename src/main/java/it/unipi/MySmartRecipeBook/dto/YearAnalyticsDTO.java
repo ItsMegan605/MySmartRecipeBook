@@ -15,9 +15,6 @@ import java.util.List;
 @NoArgsConstructor
 public class YearAnalyticsDTO {
 
-    // TODO: ricordare perchè si fa così perchè è veramente brutto
-    //brutto in che senso? dipende come vogliamo far vedere la query
-    @Field ("_id")
     private Integer year;
 
     @JsonProperty("total_registered_foodies")

@@ -155,8 +155,7 @@ public class SmartFridgeService {
         for(String ingredient : FILTERED_INGREDIENTS){
            ingredientsSet.remove(ingredient);
         }
-        //TODO: il problema di questa è solo da da un errore anche se non lo è proprio
-        //forse restituire la lista vuta?
+
         if (ingredientsSet == null || ingredientsSet.size() < 3) {
             throw new IllegalArgumentException("Insert at least 3 ingredients");
         }

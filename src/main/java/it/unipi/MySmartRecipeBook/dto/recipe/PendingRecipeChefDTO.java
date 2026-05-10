@@ -6,16 +6,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 
 /**
- * DTO for the foodie's recipe preview
- * NOTE: the preview of a recipe has just the id, image,chef's name and his/her id
+ * DTO for the chef's pending recipe
  */
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class FoodiePreviewRecipeDTO {
+public class PendingRecipeChefDTO {
 
     @JsonProperty("id")
     private String id;
@@ -25,10 +25,7 @@ public class FoodiePreviewRecipeDTO {
     @JsonProperty("image_URL")
     private String imageURL;
 
-    @JsonProperty("chef_name")
-    private String chefName;
+    @JsonProperty("creation_date")
+    private LocalDate creationDate;
 
-    @JsonProperty("chef_id")
-    private String chefId;
 }
-

@@ -75,7 +75,6 @@ public class FoodieController {
         return ResponseEntity.ok(foodieService.updateFoodie(updates));
     }
 
-
     /**
      * Delete foodie's Profile
      * @see FoodieService#deleteFoodie()
@@ -89,7 +88,6 @@ public class FoodieController {
         foodieService.deleteFoodie();
         return ResponseEntity.ok("Foodie has been successfully deleted");
     }
-
 
     /**
      * Add a recipe to foodie's favourites
@@ -109,7 +107,6 @@ public class FoodieController {
         foodieService.saveRecipe(authFoodie.getId(), recipeId);
         return ResponseEntity.ok("Recipe has been successfully added to favourites");
     }
-
 
     /**
      * Remove a recipe from foodie's favourites

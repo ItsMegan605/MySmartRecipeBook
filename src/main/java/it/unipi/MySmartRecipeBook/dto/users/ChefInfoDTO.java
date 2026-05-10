@@ -9,11 +9,10 @@ import lombok.Setter;
 /**
  * DTO containing basic Chef information.
  */
-
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class ChefInfoDTO {
     private String id;
     private String name;

@@ -10,14 +10,10 @@ import lombok.Setter;
 /**
  * Recipe's preview for foodies
  */
-
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-
-
 public class UserPreviewRecipeDTO {
 
     @JsonProperty("id")

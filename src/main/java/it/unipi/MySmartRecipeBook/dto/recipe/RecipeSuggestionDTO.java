@@ -9,8 +9,8 @@ import java.util.List;
 /**
  * DTO for recipe's suggestions in the smart fridge
  */
-
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class RecipeSuggestionDTO implements Serializable {
@@ -28,8 +28,9 @@ public class RecipeSuggestionDTO implements Serializable {
 
     @JsonProperty("chef_id")
     private String chefId;
-    private int matchCount; //Number of matched ingredients in the fridge
-    private List<String> matchedIngredients; //list of matched ingredients
+
+    private int matchCount;
+    private List<String> matchedIngredients;
 
     public String getChef() {
         if (chefName == null && chefSurname == null) {
@@ -38,11 +39,6 @@ public class RecipeSuggestionDTO implements Serializable {
         return chefName + " " + chefSurname;
     }
 
-    /**
-     * Parses the full chef name string to populate
-     * the individual name and surname fields.
-     * @param chef the full name of the chef
-     */
     public void setChef(String chef) {
         if (chef != null) {
             String[] parts = chef.split(" ", 2);

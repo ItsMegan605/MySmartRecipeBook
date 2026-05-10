@@ -38,7 +38,6 @@ public class ChefController {
         this.chefService = chefService;
     }
 
-    
     /**
      * Method to Retrieve the chef's information
      * @see ChefService#getByUsername(String)

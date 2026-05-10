@@ -14,8 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MonthAnalyticsDTO {
-
-    @Field("_id")
+    
     private String month;
 
     @JsonProperty("Total of new monthly Foodies")

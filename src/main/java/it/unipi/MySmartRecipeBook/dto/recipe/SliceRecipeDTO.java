@@ -10,7 +10,6 @@ import java.util.List;
 /**
  * DTO for recipe's paging
  */
-
 @Getter
 @Setter
 @NoArgsConstructor

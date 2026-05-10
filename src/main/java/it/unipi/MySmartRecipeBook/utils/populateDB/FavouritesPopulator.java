@@ -72,12 +72,10 @@ public class FavouritesPopulator implements CommandLineRunner {
             List<FoodieRecipeSummary> foodieRecipes = new ArrayList<>();
             List<String> recipesId = new ArrayList<>();
 
-            // Loop until the target number of favorite recipes is reached
             while(addedRecipes < numRecipes){
 
-                int randomIndex = random.nextInt(recipes.size()); //random number
+                int randomIndex = random.nextInt(recipes.size());
 
-                //If the random index hasn't been chosen yet, process the recipe
                 if(chosenIndices.add(randomIndex)) {
 
                     RecipeMongo recipe = recipes.get(randomIndex);

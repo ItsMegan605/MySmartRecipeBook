@@ -154,8 +154,8 @@ public class ChefService {
     }
 
     /**
-     * Function called by the chef to write a new recipe: the recipe is on a waiting list at the beginning and it will
-     * wait for admin's approval.
+     * Function called by the chef to write a new recipe: the recipe is on a waiting list at the
+     * beginning, it will wait for admin's approval.
      *
      * @param recipeDTO DTO with all the mandatory fields inserted by the chef when he writes the recipe
      * @throws NoSuchElementException if the chef is not found, if the admin is not found and if one of the fields is wrong/missing
@@ -411,7 +411,8 @@ public class ChefService {
         boolean hasNext = (chef.getPopularRecipes().size() > end) ? true : false;
 
         List<ChefRecipeSummary> chefList = chef.getPopularRecipes().subList(start, end);
-        return  new SliceRecipeDTO<>(chefList, hasNext, hasPrevious);
+        List<ChefPreviewRecipeDTO> previewList = recipeConvertions.ChefListToSummaryList(chefList);
+        return new SliceRecipeDTO<>(previewList, hasNext, hasPrevious);
     }
 
     /**
@@ -444,8 +445,8 @@ public class ChefService {
         if (start >= pendingRecipes.size()) {
             return new SliceRecipeDTO<>(null, false, true);
         }
-
-        List<ChefPreviewRecipeDTO> content = recipeConvertions.PendingChefListToChefPreview(
+    //TODO: da testare la funzione tot
+        List<PendingRecipeChefDTO> content = recipeConvertions.ChefPreviewToPendingChefRecipe(
                 pendingRecipes.subList(start, end));
 
         boolean hasPrevious = pageNumber > 1;

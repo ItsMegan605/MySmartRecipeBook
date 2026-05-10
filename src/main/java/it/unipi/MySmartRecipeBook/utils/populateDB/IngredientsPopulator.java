@@ -19,7 +19,6 @@ import java.nio.charset.StandardCharsets;
 public class IngredientsPopulator implements CommandLineRunner {
 
     private JedisCluster jedisCluster;
-    //ingredient's key
     private static final String INGREDIENTS_REDIS_KEY = "MySmartRecipeBook:allowed_ingredients";
     @Value("${app.recipe.do-redis-population:false}")
     private boolean doRedisPopulation;
@@ -43,22 +42,20 @@ public class IngredientsPopulator implements CommandLineRunner {
         System.out.println("check redis state");
 
         try {
-            //Checks if the key already exists
             if (jedisCluster.exists(INGREDIENTS_REDIS_KEY)) {
                 System.out.println("Ingredients list already exists on redis");
                 return;
             }
 
             System.out.println("Uploading the list");
-            ClassPathResource resource = new ClassPathResource("ingredients.txt"); //file in resources folder
+            ClassPathResource resource = new ClassPathResource("ingredients.txt");
 
             try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
 
                 String ingredient;
-                while ((ingredient = reader.readLine()) != null) { //read line by line until EOF
+                while ((ingredient = reader.readLine()) != null) {
                     if (!ingredient.trim().isEmpty()) {
-                        //sadd= redis command
                         jedisCluster.sadd(INGREDIENTS_REDIS_KEY, ingredient.toLowerCase().trim());
                     }
                 }

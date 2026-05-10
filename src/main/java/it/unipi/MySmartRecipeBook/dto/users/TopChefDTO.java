@@ -9,10 +9,10 @@ import lombok.Setter;
  *  DTO to get the top chef in a certain category
  */
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class TopChefDTO{
    private String name;
    private String surname;

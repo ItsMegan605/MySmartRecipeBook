@@ -84,26 +84,29 @@ public interface FoodieRepository extends MongoRepository<Foodie, String> {
      * Computes monthly statistics of registered foodies.
      * @return list of YearAnalyticsDTO
      */
+    //TODO: ritestare
     @Aggregation(pipeline = {
-
-            //Group by month
             "{ $group: { " +
                     "        _id: { $dateToString: { format: '%Y-%m', date: '$registration_date' } }, " +
                     "        year: { $first: { $dateToString: { format: '%Y', date: '$registration_date' } } }, " +
                     "        number: { $sum: 1 } " +
                     "} }",
 
-            //Sort (this order will be preserved in the next push)
             "{ $sort: { 'year': -1, 'number': -1 } }",
 
-            //Group by year
             "{ $group: { " +
                     "        _id: '$year', " +
                     "        totalRegisteredFoodies: { $sum: '$number' }, " +
-                    "        monthAnalyticsDTOList: { $push: { _id: '$_id', totalFoodies: '$number' } } " +
+                    "        monthAnalyticsDTOList: { $push: { month: '$_id', totalFoodies: '$number' } } " +
                     "} }",
 
-            //Final sorting
+            "{ $project: { " +
+                    "        _id: 0, " +
+                    "        year: { $toInt: '$_id' }, " +
+                    "        totalRegisteredFoodies: 1, " +
+                    "        monthAnalyticsDTOList: 1 " +
+                    "} }",
+
             "{$sort :  {'year' :  -1}}"
     })
     List<YearAnalyticsDTO> getMonthlyFoodiesStats();

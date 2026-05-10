@@ -14,7 +14,6 @@ import java.util.List;
 /**
  * DTO used to show the complete details of a recipe.
  */
-
 @Getter
 @Setter
 @AllArgsConstructor
