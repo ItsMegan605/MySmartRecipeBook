@@ -44,7 +44,6 @@ public class ChefUtilityFunctions {
         return chef;
     }
 
-
     /**
      * Converts a Chef entity to a DTO to show in the chef's personal page.
      * Password is not shown for security
@@ -61,7 +60,6 @@ public class ChefUtilityFunctions {
                 chef.getBirthdate()
         );
     }
-
 
     /**
      * Checks if a chef registration request already exists based on personal data or username.
@@ -110,6 +108,11 @@ public class ChefUtilityFunctions {
         return result;
     }
 
+    /**
+     * Converts a list of Chef entities into a list of ChefPreviewDTOs.
+     * @param chefs the list of Chef entities to convert
+     * @return a list of ChefPreviewDTO containing the chef preview details
+     */
     public List<ChefPreviewDTO> chefModelToChefDTO(List<Chef> chefs) {
         List<ChefPreviewDTO> chefsDTO = new ArrayList<>();
         for(Chef chef: chefs){
@@ -123,6 +126,11 @@ public class ChefUtilityFunctions {
         return chefsDTO;
     }
 
+    /**
+     * Converts a PendingChef entity to a RegisteredUserInfoDTO to display detailed information.
+     * @param chef the pending chef entity
+     * @return the detailed registered user info DTO
+     */
     public RegisteredUserInfoDTO pendingChefToChefDetails (PendingChef chef){
 
         return new RegisteredUserInfoDTO(

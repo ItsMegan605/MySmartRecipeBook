@@ -53,7 +53,6 @@ public class AuthService {
      * Registration of a new chef
      * @param chefDTO - the chef's DTO
      */
-
     public void registerChef(RegisteredUserDTO chefDTO) {
 
         if (chefRepository.existsByUsername(chefDTO.getUsername())

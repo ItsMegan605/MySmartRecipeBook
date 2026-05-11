@@ -156,8 +156,7 @@ public class ChefService {
 
     /**
      * Function called by the chef to write a new recipe: the recipe is on a waiting list at the
-     * beginning, it will wait for admin's approval.
-     *
+     * beginning waiting for admin's approval.
      * @param recipeDTO DTO with all the mandatory fields inserted by the chef when he writes the recipe
      * @throws NoSuchElementException if the chef is not found, if the admin is not found and if one of the fields is wrong/missing
      * @return DTO with a recipe preview to show the chef while he/she waits for the approval
@@ -319,7 +318,7 @@ public class ChefService {
             throw new NoSuchElementException("No recipes waiting to be confirmed");
         }
 
-        //ObjectId chefObjectId = new ObjectId(chef.getId());
+        //ObjectId chefObjectId = new ObjectId(chef.getId()); //TODO: possiamo togliere?
         boolean recipeFound = chefRepository.removeRecipeFromWaiting(chef.getId(), recipeId) > 0;
 
         if(recipeFound){

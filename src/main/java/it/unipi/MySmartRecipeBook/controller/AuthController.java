@@ -36,7 +36,6 @@ public class AuthController {
      * @see AuthService#registerChef(RegisteredUserDTO)
      * @return ResponseEntity with message
      */
-
     @PostMapping("/register/chef")
     @Operation(summary = "Register a new chef")
     @ApiResponses({
@@ -58,7 +57,6 @@ public class AuthController {
      * @see AuthService#registerFoodie(RegisteredUserDTO)
      * @return ResponseEntity with message
      */
-
     @PostMapping("/register/foodie")
     @Operation(summary = "Register a new foodie")
     @ApiResponses({
@@ -79,7 +77,6 @@ public class AuthController {
      * @param request
      * @return ResponseEntity ok message
      */
-
     @PostMapping("/login")
     @Operation(summary = "User login")
     @ApiResponse(responseCode = "200")

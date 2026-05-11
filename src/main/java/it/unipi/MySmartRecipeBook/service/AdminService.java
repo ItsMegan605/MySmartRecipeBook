@@ -353,7 +353,11 @@ public class AdminService {
         return new SliceRecipeDTO<>(content, hasNext, hasPrevious);
     }
 
-    // TODO: java doc, swagger
+    /**
+     * Retrieves the detailed information of a pending chef from the admin's approval list.
+     * @param username - username of the pending chef to search for
+     * @return a DTO containing the detailed profile information of the requested chef
+     */
     public RegisteredUserInfoDTO seeChefDetails(String username){
 
         UserPrincipal logged_admin = (UserPrincipal) SecurityContextHolder.getContext()
@@ -379,7 +383,11 @@ public class AdminService {
         return chefDetails;
     }
 
-    // TODO: java doc, swagger
+    /**
+     * Retrieves the detailed information of a pending recipe from the admin's approval list.
+     * @param recipeId the unique identifier of the pending recipe
+     * @return a DTO containing the full details of the requested recipe
+     */
     public ShowRecipeDTO seeRecipeDetails(String recipeId){
 
         UserPrincipal logged_admin = (UserPrincipal) SecurityContextHolder.getContext()

@@ -23,7 +23,6 @@ import java.util.List;
 /**
  * Chef's controller
  */
-
 @RestController
 @RequestMapping("/api/chefs")
 @PreAuthorize("hasRole('CHEF')")
@@ -184,9 +183,15 @@ public class ChefController {
         return ResponseEntity.ok(recipeList);
     }
 
-
-    // TODO: swagger, java doc
+    /**
+     * Get method to retrieve detailed information about a specific pending recipe.
+     * @param recipeId - pending recipeID
+     * @see ChefService#getRecipeDetails(String)
+     * @return ResponseEntity containing the pending recipe's details
+     */
     @GetMapping("/details/pending/{recipeId}")
+    @Operation(summary = "Get pending recipe details")
+    @ApiResponse(responseCode = "200")
     public ResponseEntity<ShowRecipeDTO> getRecipeDetails (@PathVariable String recipeId){
         ShowRecipeDTO recipe = chefService.getRecipeDetails(recipeId);
         return ResponseEntity.ok(recipe);

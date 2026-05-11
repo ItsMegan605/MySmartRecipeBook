@@ -26,7 +26,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * It utilizes a thread-safe queue to hold tasks and periodically checks the CPU load
  * before processing them to ensure main application performance is not impacted.
  */
-
 @Service
 public class LowLoadManager {
     private static final Queue<TaskToDo> taskQueue = new ConcurrentLinkedQueue<>();

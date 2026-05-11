@@ -157,8 +157,15 @@ public class FoodieController {
         return ResponseEntity.ok(recipe);
     }
 
-    // TODO: swagger annotation
+    /**
+     * Get method to search for chefs by name.
+     * @param chefName - name of the chef
+     * @see FoodieService#getChefList(String)
+     * @return ResponseEntity containing a list of chef previews matching the search criteria
+     */
     @GetMapping("/matchingChef")
+    @Operation(summary = "Search for chefs by name")
+    @ApiResponse(responseCode = "200")
     public ResponseEntity<List<ChefPreviewDTO>> getChef (@RequestParam String chefName){
         List<ChefPreviewDTO> chefList = foodieService.getChefList(chefName);
         return ResponseEntity.ok(chefList);

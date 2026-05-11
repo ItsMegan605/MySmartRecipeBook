@@ -168,13 +168,29 @@ public class AdminController {
                 adminService.getBayesianRanking()
         );
     }
-    //TODO: javadoc etc
+
+    /**
+     * Get method to retrieve detailed information about a specific chef.
+     * @param username the username of the chef
+     * @see AdminService#seeChefDetails(String)
+     * @return ResponseEntity containing the chef's details
+     */
     @GetMapping("/details/chef/{username}")
+    @Operation(summary = "Get chef details")
+    @ApiResponse(responseCode = "200")
     public ResponseEntity<RegisteredUserInfoDTO> seeChefDetails (@PathVariable String username){
         return ResponseEntity.ok(adminService.seeChefDetails(username));
     }
 
+    /**
+     * Get method to retrieve detailed information about a specific recipe.
+     * @param recipeId - recipe ID
+     * @see AdminService#seeRecipeDetails(String)
+     * @return ResponseEntity containing the recipe's details
+     */
     @GetMapping("/details/recipe/{recipeId}")
+    @Operation(summary = "Get recipe details")
+    @ApiResponse(responseCode = "200")
     public ResponseEntity<ShowRecipeDTO> seeRecipeDetails (@PathVariable String recipeId){
         return ResponseEntity.ok(adminService.seeRecipeDetails(recipeId));
     }

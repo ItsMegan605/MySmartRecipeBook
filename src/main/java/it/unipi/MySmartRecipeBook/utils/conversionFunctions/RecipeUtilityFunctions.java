@@ -55,6 +55,11 @@ public class RecipeUtilityFunctions {
         return recipeDTO;
     }
 
+    /**
+     * Converts a PendingRecipe entity into a ShowRecipeDTO for detailed viewing.
+     * @param recipe the pending recipe
+     * @return the detailed recipe DTO
+     */
     public ShowRecipeDTO PendingToDetails (PendingRecipe recipe){
 
         ShowRecipeDTO recipeDTO = new ShowRecipeDTO();
@@ -80,6 +85,11 @@ public class RecipeUtilityFunctions {
         return recipeDTO;
     }
 
+    /**
+     * Converts an AdminPendingRecipe entity into a ShowRecipeDTO for detailed viewing.
+     * @param recipe the admin pending recipe
+     * @return the detailed recipe DTO
+     */
     public ShowRecipeDTO adminRecipeToDetails (AdminPendingRecipe recipe){
 
         ShowRecipeDTO recipeDTO = new ShowRecipeDTO();
@@ -386,9 +396,9 @@ public class RecipeUtilityFunctions {
     }
 
     /**
-     * //TODO scrivere doc
-     * @param recipes
-     * @return
+     * Converts a list of pending recipes into a list of pending recipe DTOs for the chef preview.
+     * @param recipes the list of pending recipes to convert
+     * @return a list of PendingRecipeChefDTO containing the preview details
      */
     public List<PendingRecipeChefDTO> ChefPreviewToPendingChefRecipe(List<PendingRecipe> recipes) {
         List<PendingRecipeChefDTO> recipesPreview = new ArrayList<>();

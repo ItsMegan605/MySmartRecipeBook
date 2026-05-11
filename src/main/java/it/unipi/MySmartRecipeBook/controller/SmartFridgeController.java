@@ -50,7 +50,6 @@ public class SmartFridgeController {
      * @see SmartFridgeService#addIngredients(List) 
      * @return the Smart fridge and the new added ingredients
      */
-
     @PostMapping("/add")
     @Operation(summary = "Add ingredients to the fridge")
     @ApiResponse(responseCode = "200")
@@ -64,7 +63,6 @@ public class SmartFridgeController {
      * @see SmartFridgeService#removeIngredient(String) 
      * @return returns the Smart fridge without the removed ingredients.
      */
-    //TODO: aggiorna screen swagger anche per shopping list
     @DeleteMapping("/remove")
     @Operation(summary = "Remove ingredients from the fridge")
     @ApiResponse(responseCode = "200")
@@ -103,7 +101,6 @@ public class SmartFridgeController {
      * @see SmartFridgeService#getFridgeRecipeById(String)
      * @return a ResponseEntity.ok with the recipe details
      */
-
     @GetMapping("/recipe/{id}")
     @Operation(summary = "Get recipe details from the fridge")
     @ApiResponse(responseCode = "200")

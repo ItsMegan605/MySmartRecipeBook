@@ -68,7 +68,7 @@ public class SmartFridgeService {
     }
 
     /**
-     *  Method to return the smart fridge for the foodie
+     * Method to return the smart fridge for the foodie
      * @param username - foodie's username
      * @return the ingredients list
      */
@@ -167,7 +167,6 @@ public class SmartFridgeService {
         List<String> ingredients = new ArrayList<>(ingredientsSet);
         List<RecipeSuggestionDTO> suggestions = recipeNeo4jRepository.findRecipesByIngredients(ingredients);
 
-        //Cache the retrieved suggestions
         if (!suggestions.isEmpty()) {
             try {
                 jedisCluster.set(cacheKey, objectMapper.writeValueAsString(suggestions));
@@ -216,7 +215,6 @@ public class SmartFridgeService {
                          }
                      }
 
-                    //keep the recipe only if we still have 3 matched ingredients
                     if (recipe.getMatchedIngredients().size() >= 3) {
                         updatedList.add(recipe);
                     }

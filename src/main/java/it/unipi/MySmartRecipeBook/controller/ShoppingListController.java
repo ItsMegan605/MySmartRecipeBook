@@ -61,7 +61,6 @@ public class ShoppingListController {
      * @return The result of the shopping list without the removed items
      * @see ShoppingListService#removeIngredient(String)
      */
-
     @DeleteMapping("/remove")
     @Operation(summary = "Remove ingredients", description = "Removes ingredients to the shopping list.")
     @ApiResponse(responseCode = "200")
