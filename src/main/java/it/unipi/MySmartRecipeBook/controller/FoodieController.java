@@ -173,7 +173,7 @@ public class FoodieController {
 
     /**
      * Show top 3 chefs per Category
-     * @see ChefService#
+     * @see FoodieService#getTopChef()
      * @return ResponseEntity ok message
      */
     @GetMapping("/TopChef")

@@ -4,6 +4,7 @@ package it.unipi.MySmartRecipeBook.event;
  * Enumerate for task types
  */
 public class Task {
+
     public enum TaskType{
         SET_COUNTERS_FOODIE_DELETE,
         SET_COUNTERS_ADD_FAVOURITE,

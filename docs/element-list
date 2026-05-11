@@ -1,7 +1,6 @@
 it.unipi.MySmartRecipeBook
 it.unipi.MySmartRecipeBook.config
 it.unipi.MySmartRecipeBook.controller
-it.unipi.MySmartRecipeBook.controller.RedisController
 it.unipi.MySmartRecipeBook.dto
 it.unipi.MySmartRecipeBook.dto.recipe
 it.unipi.MySmartRecipeBook.dto.users
@@ -15,7 +14,6 @@ it.unipi.MySmartRecipeBook.repository.Neo4j
 it.unipi.MySmartRecipeBook.security
 it.unipi.MySmartRecipeBook.security.jwt
 it.unipi.MySmartRecipeBook.service
-it.unipi.MySmartRecipeBook.utils
 it.unipi.MySmartRecipeBook.utils.conversionFunctions
 it.unipi.MySmartRecipeBook.utils.parameters
 it.unipi.MySmartRecipeBook.utils.populateDB
