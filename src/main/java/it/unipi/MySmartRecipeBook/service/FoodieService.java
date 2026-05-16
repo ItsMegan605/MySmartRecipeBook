@@ -321,8 +321,8 @@ public class FoodieService {
         return recipeUtilityFunctions.EntityToDto(recipe.get());
     }
 
-    public List<ChefPreviewDTO> getChefList (String chefName){
-        List<Chef> chefs = chefRepository.findBySurnameContainingIgnoreCase(chefName);
+    public List<ChefPreviewDTO> getChefList (String chefSurname){
+        List<Chef> chefs = chefRepository.findBySurnameContainingIgnoreCase(chefSurname);
 
         if(chefs.isEmpty()){
             throw new NoSuchElementException("Not matching chefs found");
