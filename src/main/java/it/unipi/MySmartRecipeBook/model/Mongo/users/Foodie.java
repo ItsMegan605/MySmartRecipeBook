@@ -25,6 +25,7 @@ public class Foodie extends RegisteredUser {
 
     @NotBlank(message = "Username is required")
     @Size(max = 20)
+    @Indexed(unique = true)
     private String username;
 
     @Field("registration_date")
