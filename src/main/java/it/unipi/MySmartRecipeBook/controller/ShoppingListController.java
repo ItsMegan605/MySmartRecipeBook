@@ -19,7 +19,7 @@ import java.util.List;
 @Tag(name = "Shopping List", description = "Endpoints for managing the user's shopping list")
 public class ShoppingListController {
 
-    private ShoppingListService shoppingListService;
+    private final ShoppingListService shoppingListService;
 
     public ShoppingListController(ShoppingListService shoppingListService){
         this.shoppingListService = shoppingListService;

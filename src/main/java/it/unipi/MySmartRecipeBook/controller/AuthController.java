@@ -32,7 +32,7 @@ public class AuthController {
 
     /**
      * Endpoint for chef registration request
-     * @param dto
+     * @param dto - dto of the user
      * @see AuthService#registerChef(RegisteredUserDTO)
      * @return ResponseEntity with message
      */
@@ -74,7 +74,7 @@ public class AuthController {
 
     /**
      * Login endpoint for both chef and foodie
-     * @param request
+     * @param request - login request
      * @return ResponseEntity ok message
      */
     @PostMapping("/login")

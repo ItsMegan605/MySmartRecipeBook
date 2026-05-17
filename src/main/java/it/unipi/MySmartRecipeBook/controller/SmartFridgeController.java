@@ -25,7 +25,7 @@ import java.util.List;
 public class SmartFridgeController {
 
 
-    private SmartFridgeService smartFridgeService;
+    private final SmartFridgeService smartFridgeService;
 
     public SmartFridgeController(SmartFridgeService smartFridgeService) {
         this.smartFridgeService = smartFridgeService;
@@ -72,7 +72,7 @@ public class SmartFridgeController {
     }
 
     /**
-     * Get Method to get recommendations when we add ingredients and we want a recipe suggestion
+     * Get Method to get recommendations when we add ingredients, and we want a recipe suggestion
      * @see SmartFridgeService#getRecommendations(String, int)
      * @return the Smart fridge's recipes suggestions
      */
@@ -82,12 +82,12 @@ public class SmartFridgeController {
             @ApiResponse(responseCode = "200"),
             @ApiResponse(responseCode = "204")
     })
-    public ResponseEntity<SliceRecipeDTO> getRecommendations(@PathVariable int pageNum) {
+    public ResponseEntity<SliceRecipeDTO<RecipeSuggestionDTO>> getRecommendations(@PathVariable int pageNum) {
         UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getPrincipal();
 
-        SliceRecipeDTO recipes = smartFridgeService.getRecommendations(authFoodie.getUsername(), pageNum);
+        SliceRecipeDTO<RecipeSuggestionDTO> recipes = smartFridgeService.getRecommendations(authFoodie.getUsername(), pageNum);
 
         if (recipes.getContent().isEmpty()) {
             return ResponseEntity.noContent().build();
@@ -99,7 +99,7 @@ public class SmartFridgeController {
      * Get method to retrieve a recipe's information from the fridge
      * @param id identifier of the requested recipe
      * @see SmartFridgeService#getFridgeRecipeById(String)
-     * @return a ResponseEntity.ok with the recipe details
+     * @return a ResponseEntity. Ok with the recipe details
      */
     @GetMapping("/recipe/{id}")
     @Operation(summary = "Get recipe details from the fridge")

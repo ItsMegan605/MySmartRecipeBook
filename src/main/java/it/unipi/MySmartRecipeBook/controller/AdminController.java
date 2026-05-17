@@ -5,13 +5,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.unipi.MySmartRecipeBook.dto.*;
+import it.unipi.MySmartRecipeBook.dto.recipe.PendingRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.users.PendingChefDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegisteredUserInfoDTO;
-import it.unipi.MySmartRecipeBook.model.Mongo.users.PendingChef;
 import it.unipi.MySmartRecipeBook.service.AdminService;
-import it.unipi.MySmartRecipeBook.service.ChefService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,7 +31,7 @@ public class AdminController {
 
     /**
      * Post Method to approve a pending recipe
-     * @param recipeId
+     * @param recipeId - id of the recipe
      * @see AdminService#saveRecipe(String)
      * @return ResponseEntity with approval message
      */
@@ -50,7 +49,7 @@ public class AdminController {
 
     /**
      * Delete Method to discard a pending recipe
-     * @param recipeId
+     * @param recipeId - id of the recipe
      * @see AdminService#discardRecipe(String)
      * @return ResponseEntity with  message
      */
@@ -67,7 +66,7 @@ public class AdminController {
 
     /**
      * Post method to approve a chef
-     * @param chefUsername
+     * @param chefUsername - chef username
      * @see AdminService#approveChef(String)
      * @return ResponseEntity with  message
      */
@@ -84,7 +83,7 @@ public class AdminController {
 
     /**
      * Post method to discard a chef's request to register
-     * @param chefUsername
+     * @param chefUsername - chef username
      * @see AdminService#declineChef(String)
      * @return ResponseEntity with  message
      */
@@ -108,11 +107,10 @@ public class AdminController {
     @GetMapping("/showRecipes/{page}")
     @Operation(summary = "Get pending recipes", description = "Retrieves a paginated list of all recipes currently awaiting admin approval.")
     @ApiResponse(responseCode = "200")
-    public ResponseEntity<SliceRecipeDTO> showRecipe (@PathVariable("page") int page){
-        SliceRecipeDTO recipeList = adminService.showPendingRecipes(page);
+    public ResponseEntity<SliceRecipeDTO<PendingRecipeDTO>> showRecipe (@PathVariable int page){
+        SliceRecipeDTO<PendingRecipeDTO> recipeList = adminService.showPendingRecipes(page);
         return ResponseEntity.ok(recipeList);
     }
-
     /**
      * Get method for a paginated list of chef registration requests that are pending admin approval.
      * @param page the page number to retrieve
@@ -122,14 +120,13 @@ public class AdminController {
     @GetMapping("/showChefs/{page}")
     @Operation(summary = "Get pending chef requests", description = "Retrieves a paginated list of users who have requested to become chefs and are awaiting approval.")
     @ApiResponse(responseCode = "200")
-    public ResponseEntity<SliceRecipeDTO> showChefs (@PathVariable("page") int page){
-        SliceRecipeDTO chefList = adminService.showPendingChefs(page);
+    public ResponseEntity<SliceRecipeDTO<PendingChefDTO>> showChefs (@PathVariable int page){
+        SliceRecipeDTO<PendingChefDTO> chefList = adminService.showPendingChefs(page);
         return ResponseEntity.ok(chefList);
     }
 
     /**
      * Get method to get the number of users that registered in past months
-     * @return
      * @see AdminService#getMonthlyFoodies()
      * @return ResponseEntity with ok message
      */

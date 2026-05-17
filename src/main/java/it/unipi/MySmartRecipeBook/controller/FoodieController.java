@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import it.unipi.MySmartRecipeBook.dto.recipe.FoodiePreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.users.ChefPreviewDTO;
@@ -18,8 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import it.unipi.MySmartRecipeBook.dto.ChefRankAnalyticsDTO;
-import it.unipi.MySmartRecipeBook.service.ChefService;
 
 
 import java.time.LocalDate;
@@ -36,11 +35,9 @@ import java.util.List;
 public class FoodieController {
 
     private final FoodieService foodieService;
-    private final ChefService chefService;
 
-    public FoodieController(FoodieService foodieService, ChefService chefService) {
+    public FoodieController(FoodieService foodieService) {
         this.foodieService = foodieService;
-        this.chefService = chefService;
     }
 
     /**
@@ -94,7 +91,7 @@ public class FoodieController {
 
     /**
      * Add a recipe to foodie's favourites
-     * @param recipeId
+     * @param recipeId - recipeID
      * @see FoodieService#saveRecipe(String, String)
      * @return ResponseEntity with message
      */
@@ -113,7 +110,7 @@ public class FoodieController {
 
     /**
      * Remove a recipe from foodie's favourites
-     * @param recipeId
+     * @param recipeId - recipeID
      * @see FoodieService#removeSavedRecipe(String)
      * @return ResponseEntity ok message
      */
@@ -129,23 +126,23 @@ public class FoodieController {
 
     /**
      * Order favourites recipes by filter
-     * @param category
-     * @param numPage
+     * @param category - recipe category
+     * @param numPage - pageNumber
      * @see FoodieService#getRecipeByCategory(String, int)
      * @return ResponseEntity ok message
      */
     @GetMapping("/getRecipe/{category}/{numPage}")
     @Operation(summary = "Order favourite recipes by category filter")
     @ApiResponse(responseCode = "200")
-    public ResponseEntity<SliceRecipeDTO> getRecipeByCategory (@PathVariable String category,
-                                                                            @PathVariable int numPage) {
-        SliceRecipeDTO recipeList = foodieService.getRecipeByCategory(category, numPage);
+    public ResponseEntity<SliceRecipeDTO<FoodiePreviewRecipeDTO>> getRecipeByCategory (@PathVariable String category,
+                                                                                       @PathVariable int numPage) {
+        SliceRecipeDTO<FoodiePreviewRecipeDTO> recipeList = foodieService.getRecipeByCategory(category, numPage);
         return ResponseEntity.ok(recipeList);
     }
 
     /**
      * Get method to get the details of a specific recipe for a Foodie.
-     * @param id
+     * @param id - id
      * @see FoodieService#getRecipeFoodieById(String)
      * @return a ResponseEntity containing the ShowRecipeDTO with the recipe details
      */
@@ -183,5 +180,6 @@ public class FoodieController {
         List<TopChefDTO> topChefs = foodieService.getTopChef();
         return ResponseEntity.ok(topChefs);
     }
+
 
 }

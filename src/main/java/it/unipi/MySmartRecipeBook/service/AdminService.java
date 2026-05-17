@@ -66,6 +66,28 @@ public class AdminService {
     }
 
     /**
+     * Get the pending chef
+     * @param username - of the chef
+     * @param admin - admin
+     * @return - the chef
+     */
+    private PendingChef getPendingChef(String username, Admin admin) {
+        List<PendingChef> chefsToApprove = admin.getChefsToApprove();
+
+        if (chefsToApprove == null) {
+            throw new NoSuchElementException("No chef has to be approved");
+        }
+
+        for (PendingChef chef : chefsToApprove) {
+            if (chef.getUsername().equals(username)) {
+                return chef;
+            }
+        }
+
+        throw new NoSuchElementException("Chef to approve not found");
+    }
+
+    /**
      * Approve a pending recipe
      * @param recipeId - recipe id
      */
@@ -162,7 +184,6 @@ public class AdminService {
      */
     @Transactional
     public void discardRecipe(String recipeId) {
-
         UserPrincipal logged_admin = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getPrincipal();
@@ -170,27 +191,12 @@ public class AdminService {
         Admin admin = adminRepository.findById(logged_admin.getId())
                 .orElseThrow(() -> new NoSuchElementException("Admin not found"));
 
-        List<AdminPendingRecipe> recipesToApprove = admin.getRecipesToApprove();
+        AdminPendingRecipe recipe = getAdminPendingRecipe(recipeId, admin);
+        String chefId = recipe.getChef().getId();
 
-        if (recipesToApprove == null) {
-            throw new NoSuchElementException("No recipe has to be approved");
-        }
-
-        String chefId = null;
-        for (AdminPendingRecipe recipe : recipesToApprove) {
-            if (recipe.getId().equals(recipeId)) {
-                chefId = recipe.getChef().getId();
-                break;
-            }
-        }
-
-        if (chefId == null) {
-            throw new NoSuchElementException("Recipe not found among the ones that have to be approved");
-        }
         boolean recipeFoundAdmin = adminRepository.removeRecipeFromApprovals(admin.getId(), recipeId) > 0;
 
         if(recipeFoundAdmin) {
-            //ObjectId chefObjectId = new ObjectId(chefId);
             chefRepository.removeRecipeFromWaiting(chefId, recipeId);
         }
     }
@@ -211,22 +217,7 @@ public class AdminService {
         Admin admin = adminRepository.findById(logged_admin.getId())
                 .orElseThrow(() -> new NoSuchElementException("Admin not found"));
 
-        List<PendingChef> chefToApprove = admin.getChefsToApprove();
-        if (chefToApprove == null) {
-            throw new NoSuchElementException("No chef has to be approved");
-        }
-
-        PendingChef chef = null;
-        for (PendingChef approvedChef : chefToApprove) {
-            if (approvedChef.getUsername().equals(chefUsername)) {
-                chef = approvedChef;
-                break;
-            }
-        }
-
-        if (chef == null) {
-            throw new NoSuchElementException("Chef to approve not found");
-        }
+        PendingChef chef = getPendingChef(chefUsername, admin);
 
         Chef chefMongo = chefUtilityFunctions.pendingChefToChef(chef);
 
@@ -255,22 +246,7 @@ public class AdminService {
         Admin admin = adminRepository.findById(logged_admin.getId())
                 .orElseThrow(() -> new NoSuchElementException("Admin not found"));
 
-        List<PendingChef> chefToApprove = admin.getChefsToApprove();
-        if (chefToApprove == null) {
-            throw new NoSuchElementException("No chef has to be approved");
-        }
-
-        PendingChef chef = null;
-        for (PendingChef newChef : chefToApprove) {
-            if (newChef.getUsername().equals(chefUsername)) {
-                chef = newChef;
-                break;
-            }
-        }
-
-        if (chef == null) {
-            throw new NoSuchElementException("Chef to approve not found");
-        }
+        getPendingChef(chefUsername, admin);
 
         adminRepository.removeChefFromApprovals(admin.getId(), chefUsername);
     }
@@ -372,17 +348,7 @@ public class AdminService {
         Admin admin = adminRepository.findById(logged_admin.getId())
                 .orElseThrow(() -> new NoSuchElementException("Admin not found"));
 
-        List<PendingChef> pendingChefs = admin.getChefsToApprove();
-        PendingChef targetChef = null;
-        for(PendingChef chef : pendingChefs){
-            if(chef.getUsername().equals(username)){
-                targetChef = chef;
-            }
-        }
-
-        if(targetChef == null){
-            throw new NoSuchElementException("Chef not found");
-        }
+        PendingChef targetChef = getPendingChef(username, admin);
 
         return chefUtilityFunctions.pendingChefToChefDetails(targetChef);
     }
@@ -401,18 +367,7 @@ public class AdminService {
         Admin admin = adminRepository.findById(logged_admin.getId())
                 .orElseThrow(() -> new NoSuchElementException("Admin not found"));
 
-        List<AdminPendingRecipe> pendingRecipes = admin.getRecipesToApprove();
-        AdminPendingRecipe targetRecipe = null;
-        for(AdminPendingRecipe recipe : pendingRecipes){
-            if(recipe.getId().equals(recipeId)){
-                targetRecipe = recipe;
-            }
-        }
-
-        if(targetRecipe == null){
-            throw new NoSuchElementException("Recipe not found");
-        }
-
+        AdminPendingRecipe targetRecipe = getAdminPendingRecipe(recipeId, admin);
         return recipeConvertions.adminRecipeToDetails(targetRecipe);
     }
 
@@ -461,6 +416,7 @@ public class AdminService {
      * @return the Bayesian Ranking of the chefs
      */
     public List<ChefRankAnalyticsDTO> getBayesianRanking() {
+
         return chefRepository.chefBayesianRanking();
     }
 

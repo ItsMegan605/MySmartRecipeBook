@@ -1,6 +1,7 @@
 package it.unipi.MySmartRecipeBook.service;
 
 import static it.unipi.MySmartRecipeBook.utils.parameters.Parameters.*;
+
 import it.unipi.MySmartRecipeBook.dto.InfoToDeleteDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.FoodiePreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
@@ -133,6 +134,9 @@ public class FoodieService {
         FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
         Foodie foodie = mongoTemplate.findAndModify(query, update, options, Foodie.class);
 
+        if (foodie == null) {
+            throw new NoSuchElementException("Foodie not found");
+        }
         return usersConvertions.entityToFoodieDTO(foodie);
     }
 
@@ -247,7 +251,7 @@ public class FoodieService {
      * @param numPage - paging
      * @return The page with the list of favourites
      */
-    public SliceRecipeDTO getRecipeByCategory(String category, int numPage) {
+    public SliceRecipeDTO<FoodiePreviewRecipeDTO> getRecipeByCategory(String category, int numPage) {
 
         UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -327,8 +331,7 @@ public class FoodieService {
         if(chefs.isEmpty()){
             throw new NoSuchElementException("Not matching chefs found");
         }
-        List<ChefPreviewDTO> chefsDTO = chefConvertions.chefModelToChefDTO(chefs);
-        return chefsDTO;
+        return chefConvertions.chefModelToChefDTO(chefs);
     }
 
     /**
@@ -336,6 +339,8 @@ public class FoodieService {
      * @return the top chef for each category in the application
      */
     public List<TopChefDTO> getTopChef() {
+
         return chefNeo4jRepository.findTop3ChefsByCategory(CATEGORIES);
     }
+
 }

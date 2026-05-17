@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.access.AccessDeniedException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -84,9 +83,8 @@ public class GlobalExceptionHandler {
             )
     })
     @ExceptionHandler(TypeMismatchException.class)
-    public ResponseEntity<String> handleTypeMismatchException(TypeMismatchException e) {
+    public ResponseEntity<String> handleTypeMismatchException() {
         return  ResponseEntity.badRequest().body("invalid field");
-
     }
 
     /**
@@ -155,7 +153,7 @@ public class GlobalExceptionHandler {
             )
     })
     @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
-    public ResponseEntity<String> handleAccessDeniedException(AccessDeniedException ex) {
+    public ResponseEntity<String> handleAccessDeniedException() {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied: you don't have rights for this operation");
     }
 
@@ -171,7 +169,7 @@ public class GlobalExceptionHandler {
             )
     })
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<String> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+    public ResponseEntity<String> handleHttpMessageNotReadableException() {
         return ResponseEntity.badRequest().body("HTTP request is not readable: format error");
     }
 
@@ -214,7 +212,6 @@ public class GlobalExceptionHandler {
 
     /**
      * Exception to handle wrong credentials in the application
-     * @param bce - Name of the exception
      * @return The message
      */
     @ApiResponses({
@@ -225,7 +222,7 @@ public class GlobalExceptionHandler {
             )
     })
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<String> handleBadCredentialsException(BadCredentialsException bce){
+    public ResponseEntity<String> handleBadCredentialsException(){
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Username or password are not valid");
     }
 

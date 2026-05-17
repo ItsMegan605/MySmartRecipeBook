@@ -52,7 +52,7 @@ public class ChefController {
 
     /**
      * Change chef's information
-     * @param updates
+     * @param updates - update chef info
      * @see ChefService#updateChef(UpdateChefDTO)
      * @return ResponseEntity ok message
      */
@@ -90,7 +90,7 @@ public class ChefController {
 
     /**
      * Method to handle a new recipe
-     * @param dto
+     * @param dto - recipe DTO
      * @see ChefService#createRecipe(CreateRecipeDTO)
      * @return ResponseEntity ok message
      */
@@ -108,14 +108,14 @@ public class ChefController {
 
     /**
      * Get Method to show the chef's pending recipes
-     * @param page
+     * @param page - the page
      * @see ChefService#showPendingRecipes(int) 
      * @return Response entity ok message 
      */
     @GetMapping("/showWaiting/{page}")
     @Operation(summary = "Show chef's pending recipes")
     @ApiResponse(responseCode = "200")
-    public ResponseEntity<SliceRecipeDTO<PendingRecipeChefDTO>> showPendingRecipes (@PathVariable("page") int page){
+    public ResponseEntity<SliceRecipeDTO<PendingRecipeChefDTO>> showPendingRecipes (@PathVariable int page){
         SliceRecipeDTO<PendingRecipeChefDTO> recipeList = chefService.showPendingRecipes(page);
         return ResponseEntity.ok(recipeList);
     }
@@ -123,7 +123,7 @@ public class ChefController {
 
     /**
      * Remove a recipe that is waiting to be confirmed
-     * @param recipeId
+     * @param recipeId - recipe ID
      * @see ChefService#removeRecipe(String)
      * @return ResponseEntity ok message
      */
@@ -139,7 +139,7 @@ public class ChefController {
 
     /**
      * Method to delete a recipe that already exists
-     * @param recipeId
+     * @param recipeId - recipe ID
      * @see ChefService#deleteRecipe(String)
      * @return ResponseEntity with message
      */
@@ -155,29 +155,29 @@ public class ChefController {
 
     /**
      * Show a recipe to a chef
-     * @param page
+     * @param page - the page
      * @see ChefService#showRecipes(int)
      * @return ResponseEntity ok message
      */
     @GetMapping("/show/{page}")
     @Operation(summary = "Show published recipes")
     @ApiResponse(responseCode = "200")
-    public ResponseEntity<SliceRecipeDTO> showRecipe (@PathVariable("page") int page){
-        SliceRecipeDTO recipeList = chefService.showRecipes(page);
+    public ResponseEntity<SliceRecipeDTO<ChefPreviewRecipeDTO>> showRecipe (@PathVariable int page){
+        SliceRecipeDTO<ChefPreviewRecipeDTO> recipeList = chefService.showRecipes(page);
         return ResponseEntity.ok(recipeList);
     }
 
     /**
      * Show to the chef his/her popular recipes
-     * @param pageNumber
+     * @param pageNumber - page number
      * @see ChefService#showPopularRecipes(int)
      * @return ResponseEntity ok message
      */
     @GetMapping("/popular/{pageNumber}")
     @Operation(summary = "Show popular recipes")
     @ApiResponse(responseCode = "200")
-    public ResponseEntity<SliceRecipeDTO> popularRecipe (@PathVariable("pageNumber") int pageNumber){
-        SliceRecipeDTO recipeList = chefService.showPopularRecipes(pageNumber);
+    public ResponseEntity<SliceRecipeDTO<ChefPreviewRecipeDTO>> popularRecipe (@PathVariable int pageNumber){
+        SliceRecipeDTO<ChefPreviewRecipeDTO> recipeList = chefService.showPopularRecipes(pageNumber);
         return ResponseEntity.ok(recipeList);
     }
 

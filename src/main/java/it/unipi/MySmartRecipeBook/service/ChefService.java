@@ -5,7 +5,6 @@ import static it.unipi.MySmartRecipeBook.utils.parameters.Parameters.*;
 import it.unipi.MySmartRecipeBook.dto.IngredientDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.*;
 import it.unipi.MySmartRecipeBook.dto.users.*;
-import it.unipi.MySmartRecipeBook.dto.ChefRankAnalyticsDTO;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.*;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Admin;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Chef;
@@ -125,6 +124,9 @@ public class ChefService {
         FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
         Chef chef = mongoTemplate.findAndModify(query, update, options, Chef.class);
 
+        if (chef == null) {
+            throw new NoSuchElementException("Chef not found");
+        }
         return chefConvertions.chefToChefInfo(chef);
     }
 
@@ -447,17 +449,11 @@ public class ChefService {
     }
 
 
-
     /**
-     * Method for the chef's Bayesian ranking
-     * @return the Bayesian Ranking of the chefs
+     * Method to get the Recipe detaiòs
+     * @param recipeId - recipe id
+     * @return the recipe
      */
-    // TODO: perchè cazzo non si usa
-    public List<ChefRankAnalyticsDTO> getChefRankingForFoodie() {
-        return chefRepository.chefBayesianRanking();
-    }
-
-
     public ShowRecipeDTO getRecipeDetails(String recipeId){
         UserPrincipal authChef = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
