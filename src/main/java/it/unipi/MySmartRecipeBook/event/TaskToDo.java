@@ -36,7 +36,7 @@ public class TaskToDo {
      * Constructor for tasks involving the creation or update of a Chef's recipe summary.
      * @param type type of action that must be executed
      * @param recipeMongo the summary of the recipe to be processed
-     * @param chefId Id of the chef
+     * @param chefId ID of the chef
      */
     public TaskToDo(Task.TaskType type, ChefRecipeSummary recipeMongo, String chefId) {
         this.type = type;
@@ -51,7 +51,7 @@ public class TaskToDo {
      * Constructor for tasks requiring both a recipe ID and a chef ID.
      * @param type type of action that must be executed
      * @param recipeId id of the recipe
-     * @param chefId Id of the chef
+     * @param chefId ID of the chef
      */
     public TaskToDo(Task.TaskType type, String recipeId, String chefId) {
         this.type = type;
