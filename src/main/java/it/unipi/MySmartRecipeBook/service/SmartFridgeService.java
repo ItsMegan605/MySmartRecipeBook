@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.unipi.MySmartRecipeBook.dto.IngredientsListDTO;
-import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.RecipeSuggestionDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
@@ -18,7 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.JedisCluster;
 
-
+// TODO: sostituire printStackTrace() con eccezione opportuna
 import java.util.*;
 
 import static it.unipi.MySmartRecipeBook.utils.parameters.Parameters.FILTERED_INGREDIENTS;
@@ -32,12 +31,12 @@ public class SmartFridgeService {
     @Value("${app.recipe.pag-size-chef:5}")
     private int pageSize;
 
-    private JedisCluster jedisCluster;
-    private RecipeMongoRepository recipeRepository;
-    private RecipeNeo4jRepository recipeNeo4jRepository;
-    private IngredientService ingredientService;
-    private ObjectMapper objectMapper;
-    private RecipeUtilityFunctions conversion;
+    private final JedisCluster jedisCluster;
+    private final RecipeMongoRepository recipeRepository;
+    private final RecipeNeo4jRepository recipeNeo4jRepository;
+    private final IngredientService ingredientService;
+    private final ObjectMapper objectMapper;
+    private final RecipeUtilityFunctions conversion;
 
     public SmartFridgeService(JedisCluster jedisCluster, RecipeMongoRepository recipeRepository,
                               RecipeNeo4jRepository recipeNeo4jRepository, IngredientService ingredientService,
@@ -141,13 +140,13 @@ public class SmartFridgeService {
      * @param username - foodie's username
      * @return the recipes suggested
      */
-    public SliceRecipeDTO getRecommendations(String username, int pageNum) {
+    public SliceRecipeDTO<RecipeSuggestionDTO> getRecommendations(String username, int pageNum) {
         String cacheKey = REDIS_APP_NAMESPACE +REDIS_RECIPES_PREFIX + username;
 
         String json = jedisCluster.get(cacheKey);
         if (json != null) {
             try {
-                return objectMapper.readValue(json, new TypeReference<SliceRecipeDTO>(){});
+                return objectMapper.readValue(json, new TypeReference<>(){});
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
@@ -167,23 +166,24 @@ public class SmartFridgeService {
         List<String> ingredients = new ArrayList<>(ingredientsSet);
         List<RecipeSuggestionDTO> suggestions = recipeNeo4jRepository.findRecipesByIngredients(ingredients);
 
-        if (!suggestions.isEmpty()) {
-            try {
-                jedisCluster.set(cacheKey, objectMapper.writeValueAsString(suggestions));
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-        }
-
-        if(suggestions == null){
+        if(suggestions.isEmpty()){
             throw new IllegalArgumentException("No recipe matching ingredients");
         }
+
+
+        try {
+            jedisCluster.set(cacheKey, objectMapper.writeValueAsString(suggestions));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+
 
         int start = (pageNum-1)*pageSize;
         int end = pageNum*pageSize;
 
-        boolean hasPrevious = pageNum == 1 ? false :  true;
-        boolean hasNext = (suggestions.size() > end) ? true : false;
+        boolean hasPrevious = pageNum != 1;
+        boolean hasNext = suggestions.size() > end;
 
         List<RecipeSuggestionDTO> content = suggestions.subList(start, end);
 
@@ -201,7 +201,7 @@ public class SmartFridgeService {
 
         if (json != null) {
             try {
-                List<RecipeSuggestionDTO> cachedRecipes = objectMapper.readValue(json, new TypeReference<List<RecipeSuggestionDTO>>(){});
+                List<RecipeSuggestionDTO> cachedRecipes = objectMapper.readValue(json, new TypeReference<>(){});
                 List<RecipeSuggestionDTO> updatedList = new ArrayList<>();
 
                 for (RecipeSuggestionDTO recipe : cachedRecipes) {
@@ -251,7 +251,7 @@ public class SmartFridgeService {
             String suggestedRecipes = jedisCluster.get(fridgeKey);
             if(suggestedRecipes != null) {
                 try {
-                    List<RecipeSuggestionDTO> cachedRecipes = objectMapper.readValue(suggestedRecipes, new TypeReference<List<RecipeSuggestionDTO>>(){});
+                    List<RecipeSuggestionDTO> cachedRecipes = objectMapper.readValue(suggestedRecipes, new TypeReference<>(){});
                     cachedRecipes.removeIf(recipe -> recipe.getId().equals(id));
 
                     jedisCluster.set(fridgeKey, objectMapper.writeValueAsString(cachedRecipes));

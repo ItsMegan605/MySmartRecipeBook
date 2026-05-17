@@ -5,11 +5,7 @@ import it.unipi.MySmartRecipeBook.dto.recipe.*;
 import it.unipi.MySmartRecipeBook.dto.users.ChefInfoDTO;
 import it.unipi.MySmartRecipeBook.model.Mongo.ingredients.RecipeIngredient;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.*;
-import it.unipi.MySmartRecipeBook.model.Mongo.users.Admin;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.ReducedChef;
-import it.unipi.MySmartRecipeBook.model.Neo4j.ChefNeo4j;
-import it.unipi.MySmartRecipeBook.model.Neo4j.IngredientNeo4j;
-import it.unipi.MySmartRecipeBook.model.Neo4j.RecipeNeo4j;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;

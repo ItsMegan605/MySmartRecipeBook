@@ -9,7 +9,6 @@ import it.unipi.MySmartRecipeBook.model.Mongo.users.PendingChef;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 /**

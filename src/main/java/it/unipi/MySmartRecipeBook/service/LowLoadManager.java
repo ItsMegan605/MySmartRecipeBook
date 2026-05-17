@@ -12,6 +12,7 @@ import it.unipi.MySmartRecipeBook.repository.Mongo.ChefRepository;
 import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.repository.Neo4j.RecipeNeo4jRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -28,16 +29,19 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 @Service
 public class LowLoadManager {
+    @Lazy
     private static final Queue<TaskToDo> taskQueue = new ConcurrentLinkedQueue<>();
     private final RecipeMongoRepository recipeMongoRepository;
     private final ChefRepository chefRepository;
     private final RecipeNeo4jRepository recipeNeo4jRepository;
+    private final LowLoadManager lowLoadManager;
 
     public LowLoadManager(RecipeMongoRepository recipeMongoRepository, ChefRepository chefRepository,
-                          RecipeNeo4jRepository recipeNeo4jRepository) {
+                          RecipeNeo4jRepository recipeNeo4jRepository, LowLoadManager lowLoadManager) {
         this.recipeMongoRepository = recipeMongoRepository;
         this.chefRepository = chefRepository;
         this.recipeNeo4jRepository = recipeNeo4jRepository;
+        this.lowLoadManager = lowLoadManager;
     }
 
     /**
@@ -133,19 +137,19 @@ public class LowLoadManager {
         try{
             switch (task.getType()){
                 case SET_COUNTERS_FOODIE_DELETE:
-                    decrementSavesCounters(task);
+                    lowLoadManager.decrementSavesCounters(task);
                     break;
 
                 case SET_COUNTERS_ADD_FAVOURITE:
-                    updateChefCountersSaves(task);
+                    lowLoadManager.updateChefCountersSaves(task);
                     break;
 
                 case SET_COUNTERS_REMOVE_FAVOURITE:
-                    updateChefCounters(task);
+                    lowLoadManager.updateChefCounters(task);
                     break;
 
                 case CREATE_RECIPE_NEO4J:
-                    createNeo4jRecipe(task);
+                    lowLoadManager.createNeo4jRecipe(task);
                     break;
 
                 case DELETE_CHEF_RECIPE:
@@ -210,7 +214,8 @@ public class LowLoadManager {
         Map<String, List<String>> recipesByChefId = task.getInfoToDelete().getChefRecipeList();
 
         recipesByChefId.forEach((chefId, chefRecipes) -> {
-            Chef targetChef = chefRepository.findById(chefId).get();
+            Chef targetChef = chefRepository.findById(chefId)
+                    .orElseThrow(() -> new NoSuchElementException("Chef not found"));
 
             for (String recipeId : chefRecipes) {
 
@@ -236,6 +241,10 @@ public class LowLoadManager {
                     }
                 }
 
+                if(numSaves == null){
+                    throw new NoSuchElementException("No recipe found");
+                }
+
                 if(numSaves > 40){
                     for(ChefRecipeSummary recipe : targetChef.getPopularRecipes()){
                         if(recipe.getId().equals(recipeId)){
@@ -248,7 +257,7 @@ public class LowLoadManager {
                 else if(numSaves == 40){
                     for(ChefRecipeSummary recipe : targetChef.getPopularRecipes()){
                         if(recipe.getId().equals(recipeId)){
-                            targetChef.getPopularRecipes().remove(recipe.getId());
+                            targetChef.getPopularRecipes().remove(recipe);
                             break;
                         }
                     }
@@ -269,7 +278,8 @@ public class LowLoadManager {
 
         System.out.println("Update Chef Counters: removing from favorites");
 
-        Chef targetChef = chefRepository.findById(task.getChefId()).get();
+        Chef targetChef = chefRepository.findById(task.getChefId())
+                        .orElseThrow(() -> new NoSuchElementException("Chef not found"));
         targetChef.setTotalSaves(targetChef.getTotalSaves()-1);
 
         Integer numSaves = null;
@@ -289,6 +299,10 @@ public class LowLoadManager {
                     break;
                 }
             }
+        }
+
+        if(numSaves == null){
+            throw new NoSuchElementException("No recipe found");
         }
 
         if(numSaves > 40){
@@ -314,7 +328,8 @@ public class LowLoadManager {
 
         System.out.println("Update Chef Counters: increasing saves numbers");
 
-        Chef targetChef = chefRepository.findById(task.getChefId()).get();
+        Chef targetChef = chefRepository.findById(task.getChefId())
+                .orElseThrow(() -> new NoSuchElementException("Chef not found"));
         int totSaves = targetChef.getTotalSaves() == null ? 0 : targetChef.getTotalSaves();
         targetChef.setTotalSaves(totSaves+1);
 
@@ -337,6 +352,10 @@ public class LowLoadManager {
                     break;
                 }
             }
+        }
+
+        if(numSaves == null){
+            throw new NoSuchElementException("No recipe found");
         }
 
         if(numSaves > 40){

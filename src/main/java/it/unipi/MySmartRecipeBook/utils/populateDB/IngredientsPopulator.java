@@ -18,7 +18,7 @@ import java.nio.charset.StandardCharsets;
 @Component
 public class IngredientsPopulator implements CommandLineRunner {
 
-    private JedisCluster jedisCluster;
+    private final JedisCluster jedisCluster;
     private static final String INGREDIENTS_REDIS_KEY = "MySmartRecipeBook:allowed_ingredients";
     @Value("${app.recipe.do-redis-population:false}")
     private boolean doRedisPopulation;

@@ -6,7 +6,6 @@ import it.unipi.MySmartRecipeBook.model.Mongo.recipes.OldRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
 import it.unipi.MySmartRecipeBook.repository.Mongo.ChefRepository;
 import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
-import it.unipi.MySmartRecipeBook.utils.conversionFunctions.ChefUtilityFunctions;
 import it.unipi.MySmartRecipeBook.utils.conversionFunctions.RecipeUtilityFunctions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -35,13 +34,11 @@ public class ChefPopulator implements CommandLineRunner {
 
     private final ChefRepository chefRepository;
     private final RecipeMongoRepository recipeRepository;
-    private final ChefUtilityFunctions chefUtils;
 
     public ChefPopulator(ChefRepository chefRepository, RecipeMongoRepository recipeRepository,
-                         ChefUtilityFunctions chefUtils, RecipeUtilityFunctions recipeUtilityFunctions) {
+                         RecipeUtilityFunctions recipeUtilityFunctions) {
         this.chefRepository = chefRepository;
         this.recipeRepository = recipeRepository;
-        this.chefUtils = chefUtils;
         this.recipeUtilityFunctions = recipeUtilityFunctions;
     }
 

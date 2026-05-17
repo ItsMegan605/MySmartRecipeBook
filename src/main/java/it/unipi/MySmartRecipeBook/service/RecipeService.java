@@ -5,7 +5,6 @@ import it.unipi.MySmartRecipeBook.model.Mongo.recipes.OldRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Chef;
 import it.unipi.MySmartRecipeBook.repository.Mongo.ChefRepository;
-import it.unipi.MySmartRecipeBook.utils.conversionFunctions.ChefUtilityFunctions;
 import it.unipi.MySmartRecipeBook.utils.conversionFunctions.RecipeUtilityFunctions;
 import org.springframework.beans.factory.annotation.Value;
 import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
@@ -39,14 +38,12 @@ public class RecipeService {
     private final RecipeMongoRepository recipeRepository;
     private final ChefRepository chefRepository;
     private final RecipeUtilityFunctions convertions;
-    private final ChefUtilityFunctions chefConvertions;
 
     public RecipeService(RecipeMongoRepository recipeRepository, ChefRepository chefRepository,
-                         RecipeUtilityFunctions convertions, ChefUtilityFunctions chefConvertions) {
+                         RecipeUtilityFunctions convertions) {
         this.recipeRepository = recipeRepository;
         this.chefRepository = chefRepository;
         this.convertions = convertions;
-        this.chefConvertions = chefConvertions;
     }
 
 
@@ -63,13 +60,19 @@ public class RecipeService {
         return convertions.EntityToDto(full_recipe);
     }
 
+    // TODO: Javadoc
+    private SliceRecipeDTO<UserPreviewRecipeDTO> buildSliceDto(Slice<RecipeMongo> sliceResult) {
+        List<UserPreviewRecipeDTO> recipesDTO = convertions.EntityToUserDto(sliceResult.getContent());
+        return new SliceRecipeDTO<>(recipesDTO, sliceResult.hasNext(), sliceResult.hasPrevious());
+    }
+
     /**
      * Method to search recipes by title, paginated.
      * @param title - recipe title
      * @param pageNumber - paging
      * @return Recipe's list and their paging
      */
-    public SliceRecipeDTO getRecipeByTitle(String title, int pageNumber){
+    public SliceRecipeDTO<UserPreviewRecipeDTO> getRecipeByTitle(String title, int pageNumber){
 
         if(pageNumber <= 0){
             throw new IllegalArgumentException("Invalid page number");
@@ -80,12 +83,8 @@ public class RecipeService {
         if (matching_recipes.isEmpty()){
             throw new NoSuchElementException("Not found");
         }
-        
-        List<UserPreviewRecipeDTO> recipesDTO = convertions.EntityToUserDto(matching_recipes.getContent());
-        boolean hasNext = matching_recipes.hasNext();
-        boolean hasPrevious = matching_recipes.hasPrevious();
 
-        return new SliceRecipeDTO<>(recipesDTO, hasNext, hasPrevious);
+        return buildSliceDto(matching_recipes);
     }
 
     /**
@@ -93,7 +92,7 @@ public class RecipeService {
      * @param pageNumber - paging
      * @return the latest recipes and the pagination
      */
-    public SliceRecipeDTO getNewestRecipe (int pageNumber){
+    public SliceRecipeDTO<UserPreviewRecipeDTO> getNewestRecipe (int pageNumber){
 
         if(pageNumber <= 0){
             throw new IllegalArgumentException("Invalid page number");
@@ -102,10 +101,7 @@ public class RecipeService {
         Pageable pageable = PageRequest.of(pageNumber - 1, pageSizeHome, Sort.by("creationDate").descending());
         Slice <RecipeMongo> pageResult = recipeRepository.findAll(pageable);
 
-        List<UserPreviewRecipeDTO> recipesDTO = convertions.EntityToUserDto(pageResult.getContent());
-        boolean hasNext = pageResult.hasNext();
-        boolean hasPrevious = pageResult.hasPrevious();
-        return new SliceRecipeDTO<>(recipesDTO, hasNext, hasPrevious);
+        return buildSliceDto(pageResult);
     }
 
     /**
@@ -114,7 +110,7 @@ public class RecipeService {
      * @param filter - page filter
      * @return recipes and filtering
      */
-    public SliceRecipeDTO getByCategory (int pageNumber, String filter){
+    public SliceRecipeDTO<UserPreviewRecipeDTO> getByCategory (int pageNumber, String filter){
 
         if(pageNumber <= 0 || !CATEGORIES.contains(filter)){
             throw new IllegalArgumentException("Invalid parameters");
@@ -123,11 +119,7 @@ public class RecipeService {
         Pageable pageable = PageRequest.of(pageNumber - 1, pageSizeCategory, Sort.by("creationDate").descending());
         Slice<RecipeMongo> matching_list = recipeRepository.findByCategory(filter, pageable);
 
-        List<UserPreviewRecipeDTO> recipesDTO = convertions.EntityToUserDto(matching_list.getContent());
-        boolean hasNext = matching_list.hasNext();
-        boolean hasPrevious = matching_list.hasPrevious();
-
-        return new SliceRecipeDTO<>(recipesDTO, hasNext, hasPrevious);
+        return buildSliceDto(matching_list);
     }
 
     /**
@@ -136,7 +128,7 @@ public class RecipeService {
      * @param chefId - id of the chef
      * @return recipes and their paging
      */
-    public SliceRecipeDTO getChefRecipePage (int pageNumber, String chefId){
+    public SliceRecipeDTO<ChefPreviewRecipeDTO> getChefRecipePage (int pageNumber, String chefId){
 
         Chef chef = chefRepository.findById(chefId)
                 .orElseThrow(() -> new NoSuchElementException("Chef not found"));
@@ -152,7 +144,7 @@ public class RecipeService {
             }
 
             content = convertions.ChefListToSummaryList(chef.getNewRecipes().subList(start, end));
-            hasPrevious = pageNumber == 1 ? false :  true;
+            hasPrevious = pageNumber != 1;
         }
 
         else{
@@ -163,10 +155,9 @@ public class RecipeService {
             content = convertions.MongoListToChefPreview(recipes);
         }
 
-        boolean hasNext = (chef.getTotalRecipes() > end) ? true : false;
-        return  new SliceRecipeDTO<>(content, hasNext, hasPrevious);
+        boolean hasNext = chef.getTotalRecipes() > end;
+        return new SliceRecipeDTO<>(content, hasNext, hasPrevious);
     }
-
 
 }
 

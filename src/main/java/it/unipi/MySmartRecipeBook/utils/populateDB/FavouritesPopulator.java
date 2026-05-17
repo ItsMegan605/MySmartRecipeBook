@@ -5,7 +5,6 @@ import it.unipi.MySmartRecipeBook.model.Mongo.recipes.FoodieRecipeSummary;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
 import it.unipi.MySmartRecipeBook.repository.Mongo.FoodieRepository;
 import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
-import it.unipi.MySmartRecipeBook.utils.conversionFunctions.FoodieUtilityFunctions;
 import it.unipi.MySmartRecipeBook.utils.conversionFunctions.RecipeUtilityFunctions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -27,14 +26,12 @@ public class FavouritesPopulator implements CommandLineRunner {
 
     private final RecipeMongoRepository recipeRepository;
     private final FoodieRepository foodieRepository;
-    private final FoodieUtilityFunctions foodieUtils;
 
 
     public FavouritesPopulator(RecipeMongoRepository recipeRepository, FoodieRepository foodieRepository,
-                               FoodieUtilityFunctions foodieUtils, RecipeUtilityFunctions recipeUtilityFunctions) {
+                               RecipeUtilityFunctions recipeUtilityFunctions) {
         this.recipeRepository = recipeRepository;
         this.foodieRepository = foodieRepository;
-        this.foodieUtils = foodieUtils;
         this.recipeUtilityFunctions = recipeUtilityFunctions;
     }
 
@@ -60,7 +57,7 @@ public class FavouritesPopulator implements CommandLineRunner {
             return;
         }
 
-        int bound = recipes.size() < 200 ?  recipes.size() : 200;
+        int bound = Math.min(recipes.size(), 200);
         Random random = new Random();
         for(Foodie foodie : foodies){
             //choose a random number of recipes to save as favourites
