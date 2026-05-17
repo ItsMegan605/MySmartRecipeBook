@@ -34,7 +34,7 @@ public class TaskToDo {
 
     /**
      * Constructor for tasks involving the creation or update of a Chef's recipe summary.
-     * @param type
+     * @param type type of action that must be executed
      * @param recipeMongo the summary of the recipe to be processed
      * @param chefId Id of the chef
      */
@@ -49,7 +49,7 @@ public class TaskToDo {
 
     /**
      * Constructor for tasks requiring both a recipe ID and a chef ID.
-     * @param type
+     * @param type type of action that must be executed
      * @param recipeId id of the recipe
      * @param chefId Id of the chef
      */
@@ -64,7 +64,7 @@ public class TaskToDo {
 
     /**
      * Constructor for tasks requiring only a recipe ID.
-     * @param type
+     * @param type type of action that must be executed
      * @param recipeId id of the recipe
      */
     public TaskToDo(Task.TaskType type, String recipeId) {
@@ -78,7 +78,7 @@ public class TaskToDo {
 
     /**
      * Constructor for tasks involving graph database operations for a specific recipe.
-     * @param type
+     * @param type type of action that must be executed
      * @param recipe the DTO containing the recipe details for the graph
      */
     public TaskToDo(Task.TaskType type, GraphRecipeDTO recipe) {

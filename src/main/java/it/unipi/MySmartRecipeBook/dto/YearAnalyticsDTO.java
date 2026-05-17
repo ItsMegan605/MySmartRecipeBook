@@ -2,7 +2,6 @@ package it.unipi.MySmartRecipeBook.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.List;
 

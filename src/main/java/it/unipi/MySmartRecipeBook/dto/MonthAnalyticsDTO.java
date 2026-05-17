@@ -2,9 +2,7 @@ package it.unipi.MySmartRecipeBook.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.util.List;
 
 /**
  * DTO to get the monthly subscribed foodies

@@ -18,9 +18,6 @@ public class IngredientDTO {
     private String quantity;
 
     public boolean checkQuantity(){
-        if(this.quantity == null || this.quantity.isEmpty()){
-            return false;
-        }
-        return true;
+        return (!(this.quantity == null || this.quantity.isEmpty()));
     }
 }

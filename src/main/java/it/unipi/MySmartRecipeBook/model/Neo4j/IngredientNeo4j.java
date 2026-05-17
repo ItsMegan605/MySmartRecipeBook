@@ -17,7 +17,7 @@ import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 public class IngredientNeo4j {
 
     @Id
-    @GeneratedValue(generatorClass = UUIDStringGenerator.class) // Auto-generated ID
+    @GeneratedValue(generatorClass = UUIDStringGenerator.class)
     private String id;
 
     private String name;
