@@ -241,8 +241,8 @@ public class SmartFridgeService {
     public ShowRecipeDTO getFridgeRecipeById(String id){
 
         Optional<RecipeMongo> full_recipe = recipeRepository.findById(id);
-        if(full_recipe.isEmpty()){
 
+        if(full_recipe.isEmpty()){
             UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
                     .getAuthentication()
                     .getPrincipal();
@@ -250,16 +250,17 @@ public class SmartFridgeService {
             String fridgeKey = "MySmartRecipeBook:smartFridge:suggestions:" + authFoodie.getUsername();
             String suggestedRecipes = jedisCluster.get(fridgeKey);
             if(suggestedRecipes != null) {
-                try { //TODO: da ritestare
+                try {
                     List<RecipeSuggestionDTO> cachedRecipes = objectMapper.readValue(suggestedRecipes, new TypeReference<List<RecipeSuggestionDTO>>(){});
                     cachedRecipes.removeIf(recipe -> recipe.getId().equals(id));
 
                     jedisCluster.set(fridgeKey, objectMapper.writeValueAsString(cachedRecipes));
+
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();
                 }
             }
-            throw new NoSuchElementException( "Recipe not found");
+            throw new NoSuchElementException("Recipe not found");
         }
         return conversion.EntityToDto(full_recipe.get());
     }

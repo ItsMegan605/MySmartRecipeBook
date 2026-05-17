@@ -80,6 +80,25 @@ public class AdminService {
                 .orElseThrow(() -> new NoSuchElementException("Admin not found"));
 
         //Get the pending recipe's list and we look for the specified id
+        AdminPendingRecipe recipeApproved = getAdminPendingRecipe(recipeId, admin);
+
+        if (recipeRepository.existsByTitle(recipeApproved.getTitle())) {
+            throw new DataIntegrityViolationException("Recipe already exists");
+        }
+
+
+        RecipeMongo recipe = recipeConvertions.baseToMongoRecipe(recipeApproved);
+        RecipeMongo savedRecipe = recipeRepository.save(recipe);
+
+        addToChefRecipes(savedRecipe, recipeId);
+        adminRepository.removeRecipeFromApprovals(admin.getId(), recipeId);
+
+        GraphRecipeDTO graphRecipe = recipeConvertions.MongoToNeo4jGraph(savedRecipe);
+        lowLoadManager.addTask(Task.TaskType.CREATE_RECIPE_NEO4J, graphRecipe);
+
+    }
+
+    private static AdminPendingRecipe getAdminPendingRecipe(String recipeId, Admin admin) {
         List<AdminPendingRecipe> recipesToApprove = admin.getRecipesToApprove();
 
         if (recipesToApprove == null) {
@@ -97,21 +116,7 @@ public class AdminService {
         if (recipeApproved == null) {
             throw new NoSuchElementException("Recipe not found among the ones that have to be approved");
         }
-
-        if (recipeRepository.existsByTitle(recipeApproved.getTitle())) {
-            throw new DataIntegrityViolationException("Recipe already exists");
-        }
-
-
-        RecipeMongo recipe = recipeConvertions.baseToMongoRecipe(recipeApproved);
-        RecipeMongo savedRecipe = recipeRepository.save(recipe);
-
-        addToChefRecipes(savedRecipe, recipeId);
-        adminRepository.removeRecipeFromApprovals(admin.getId(), recipeId);
-
-        GraphRecipeDTO graphRecipe = recipeConvertions.MongoToNeo4jGraph(savedRecipe);
-        lowLoadManager.addTask(Task.TaskType.CREATE_RECIPE_NEO4J, graphRecipe);
-
+        return recipeApproved;
     }
 
     /**
@@ -276,7 +281,7 @@ public class AdminService {
      * @return the paging with the list of recipes
      */
 
-    public SliceRecipeDTO showPendingRecipes(int pageNumber) {
+    public SliceRecipeDTO<PendingRecipeDTO> showPendingRecipes(int pageNumber) {
 
         UserPrincipal logged_admin = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -318,7 +323,7 @@ public class AdminService {
      * @param pageNumber - paging
      * @return the page with the list of pending chefs
      */
-    public SliceRecipeDTO showPendingChefs(int pageNumber) {
+    public SliceRecipeDTO<PendingChefDTO> showPendingChefs(int pageNumber) {
 
         UserPrincipal logged_admin = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -379,8 +384,7 @@ public class AdminService {
             throw new NoSuchElementException("Chef not found");
         }
 
-        RegisteredUserInfoDTO chefDetails = chefUtilityFunctions.pendingChefToChefDetails(targetChef);
-        return chefDetails;
+        return chefUtilityFunctions.pendingChefToChefDetails(targetChef);
     }
 
     /**
@@ -409,8 +413,7 @@ public class AdminService {
             throw new NoSuchElementException("Recipe not found");
         }
 
-        ShowRecipeDTO recipeDetails = recipeConvertions.adminRecipeToDetails(targetRecipe);
-        return recipeDetails;
+        return recipeConvertions.adminRecipeToDetails(targetRecipe);
     }
 
     /**

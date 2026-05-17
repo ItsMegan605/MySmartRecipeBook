@@ -10,17 +10,19 @@ public class Parameters {
     //static to make them global
     public static final List<String> CATEGORIES = List.of(
             "Vegan", "Dairy-free", "Egg-free", "Gluten-free",
-            "Main courses", "Second courses", "Desserts"
+            "Main courses", "Second courses", "Desserts", "Appetizers",
+            "Drinks and beverages", "Sauces"
     );
 
     public static final List<String> DIFFICULTIES = List.of(
-            "Very easy", "Easy", "Average", "Hard", "Very hard"
+            "Very easy", "Easy", "Medium", "Difficult", "Very difficult"
     );
 
     public static final List<String> FOODIE_FILTERS = List.of(
             "Vegan", "Dairy-free", "Egg-free", "Gluten-free",
-            "Main courses", "Second courses", "Desserts",
-            "Very easy", "Easy", "Average", "Hard", "Very hard",
+            "Main courses", "Second courses", "Desserts", "Appetizers",
+            "Drinks and beverages", "Sauces",
+            "Very easy", "Easy", "Medium", "Difficult", "Very difficult",
             "saving-date"
     );
 

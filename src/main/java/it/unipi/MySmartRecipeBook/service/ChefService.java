@@ -9,9 +9,7 @@ import it.unipi.MySmartRecipeBook.dto.ChefRankAnalyticsDTO;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.*;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Admin;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Chef;
-import it.unipi.MySmartRecipeBook.model.Mongo.users.PendingChef;
 import it.unipi.MySmartRecipeBook.repository.Mongo.*;
-import it.unipi.MySmartRecipeBook.repository.Neo4j.ChefNeo4jRepository;
 import it.unipi.MySmartRecipeBook.utils.conversionFunctions.RecipeUtilityFunctions;
 import it.unipi.MySmartRecipeBook.utils.conversionFunctions.ChefUtilityFunctions;
 import it.unipi.MySmartRecipeBook.event.Task;
@@ -31,7 +29,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 //import org.bson.types.ObjectId;
 import org.springframework.util.StringUtils;
@@ -50,7 +47,6 @@ public class ChefService {
 
 
     private final ChefRepository chefRepository;
-    private final ChefNeo4jRepository chefNeo4jRepository;
     private final PasswordEncoder passwordEncoder;
     private final ChefUtilityFunctions chefConvertions;
     private final RecipeUtilityFunctions recipeConvertions;
@@ -64,7 +60,7 @@ public class ChefService {
                        RecipeUtilityFunctions recipeConvertions, PasswordEncoder passwordEncoder,
                        AdminRepository adminRepository, RecipeMongoRepository recipeMongoRepository,
                        LowLoadManager lowLoadManager, IngredientService ingredientService,
-                       MongoTemplate mongoTemplate, ChefNeo4jRepository chefNeo4jRepository) {
+                       MongoTemplate mongoTemplate) {
         this.chefRepository = chefRepository;
         this.chefConvertions = chefConvertions;
         this.passwordEncoder = passwordEncoder;
@@ -74,7 +70,6 @@ public class ChefService {
         this.ingredientService = ingredientService;
         this.recipeConvertions = recipeConvertions;
         this.mongoTemplate = mongoTemplate;
-        this.chefNeo4jRepository = chefNeo4jRepository;
     }
 
 
@@ -126,8 +121,6 @@ public class ChefService {
 
         if (dto.getBirthdate() != null)
             update.set("birthdate", dto.getBirthdate());
-
-        
 
         FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
         Chef chef = mongoTemplate.findAndModify(query, update, options, Chef.class);
@@ -183,7 +176,6 @@ public class ChefService {
         for(IngredientDTO ingredient : ingredients) {
 
             String ingredientName = ingredient.getName();
-            String ingredientQuantity = ingredient.getQuantity();
 
             if(!ingredientService.isValidIngredient(ingredientName)){
                 throw new IllegalArgumentException("'" + ingredientName + "': invalid ingredient");
@@ -260,8 +252,9 @@ public class ChefService {
 
                 if(chef.getOldRecipes() != null){
                     OldRecipe oldRecipe = chef.getOldRecipes().remove(0);
-                    Optional<RecipeMongo> recipeMongo = recipeMongoRepository.findById(oldRecipe.getId());
-                    ChefRecipeSummary reducedRecipe = recipeConvertions.recipeToChefRecipe(recipeMongo.get());
+                    RecipeMongo recipeMongo = recipeMongoRepository.findById(oldRecipe.getId())
+                            .orElseThrow(() -> new NoSuchElementException("Recipe not found"));
+                    ChefRecipeSummary reducedRecipe = recipeConvertions.recipeToChefRecipe(recipeMongo);
                     chef.getNewRecipes().add(reducedRecipe);
                 }
 
@@ -270,7 +263,7 @@ public class ChefService {
             }
         }
 
-        if(findRecipe == false){
+        if(!findRecipe){
             for(OldRecipe oldRecipe : chef.getOldRecipes()){
                 if(oldRecipe.getId().equals(recipeId)){
                     chef.setTotalSaves(chef.getTotalSaves() - oldRecipe.getNumSaves());
@@ -341,7 +334,7 @@ public class ChefService {
      * @return the recipe's details
      *
      */
-    public SliceRecipeDTO showRecipes (int pageNumber){
+    public SliceRecipeDTO<ChefPreviewRecipeDTO> showRecipes (int pageNumber){
 
         UserPrincipal authChef = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -366,7 +359,7 @@ public class ChefService {
             }
 
             content = recipeConvertions.ChefListToSummaryList(chef.getNewRecipes().subList(start, end));
-            hasPrevious = pageNumber == 1 ? false :  true;
+            hasPrevious = pageNumber != 1;
         }
 
         else{
@@ -377,7 +370,7 @@ public class ChefService {
             content = recipeConvertions.MongoListToChefPreview(recipes);
         }
 
-        boolean hasNext = (chef.getTotalRecipes() > end) ? true : false;
+        boolean hasNext = chef.getTotalRecipes() > end;
         return  new SliceRecipeDTO<>(content, hasNext, hasPrevious);
     }
 
@@ -386,7 +379,7 @@ public class ChefService {
      * @param pageNumber - paging
      * @return - paging with the list of recipes
      */
-    public SliceRecipeDTO showPopularRecipes(int pageNumber){
+    public SliceRecipeDTO<ChefPreviewRecipeDTO> showPopularRecipes(int pageNumber){
 
         UserPrincipal authChef = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -406,8 +399,8 @@ public class ChefService {
         int start = (pageNumber-1)*pageSizeChef;
         int end = pageNumber*pageSizeChef;
 
-        boolean hasPrevious = pageNumber == 1 ? false : true;
-        boolean hasNext = (chef.getPopularRecipes().size() > end) ? true : false;
+        boolean hasPrevious = pageNumber != 1;
+        boolean hasNext = chef.getPopularRecipes().size() > end;
 
         List<ChefRecipeSummary> chefList = chef.getPopularRecipes().subList(start, end);
         List<ChefPreviewRecipeDTO> previewList = recipeConvertions.ChefListToSummaryList(chefList);
@@ -419,7 +412,7 @@ public class ChefService {
      * @param pageNumber - paging
      * @return the page with the list of pending recipes
      */
-    public SliceRecipeDTO showPendingRecipes(int pageNumber) {
+    public SliceRecipeDTO<PendingRecipeChefDTO> showPendingRecipes(int pageNumber) {
 
         UserPrincipal authChef = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -459,6 +452,7 @@ public class ChefService {
      * Method for the chef's Bayesian ranking
      * @return the Bayesian Ranking of the chefs
      */
+    // TODO: perchè cazzo non si usa
     public List<ChefRankAnalyticsDTO> getChefRankingForFoodie() {
         return chefRepository.chefBayesianRanking();
     }

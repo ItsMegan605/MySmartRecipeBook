@@ -23,6 +23,7 @@ import java.util.List;
 @Document(collection = "foodies")
 public class Foodie extends RegisteredUser {
 
+    @Indexed(unique = true)
     @NotBlank(message = "Username is required")
     @Size(max = 20)
     @Indexed(unique = true)

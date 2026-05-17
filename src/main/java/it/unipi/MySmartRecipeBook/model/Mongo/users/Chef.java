@@ -30,7 +30,7 @@ import java.util.List;
 
 public class Chef extends RegisteredUser {
 
-    @Indexed(unique = true)
+
     @NotBlank(message = "Username is required")
     @Size(max = 20)
     private String username;

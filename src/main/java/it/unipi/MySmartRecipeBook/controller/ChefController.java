@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.unipi.MySmartRecipeBook.dto.recipe.*;
 import it.unipi.MySmartRecipeBook.dto.users.RegisteredUserInfoDTO;
-import it.unipi.MySmartRecipeBook.dto.users.TopChefDTO;
 import it.unipi.MySmartRecipeBook.dto.users.UpdateChefDTO;
 import it.unipi.MySmartRecipeBook.service.ChefService;
 
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.List;
 
 /**
  * Chef's controller
@@ -117,8 +115,8 @@ public class ChefController {
     @GetMapping("/showWaiting/{page}")
     @Operation(summary = "Show chef's pending recipes")
     @ApiResponse(responseCode = "200")
-    public ResponseEntity<SliceRecipeDTO> showPendingRecipes (@PathVariable("page") int page){
-        SliceRecipeDTO recipeList = chefService.showPendingRecipes(page);
+    public ResponseEntity<SliceRecipeDTO<PendingRecipeChefDTO>> showPendingRecipes (@PathVariable("page") int page){
+        SliceRecipeDTO<PendingRecipeChefDTO> recipeList = chefService.showPendingRecipes(page);
         return ResponseEntity.ok(recipeList);
     }
 
