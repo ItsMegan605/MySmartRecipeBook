@@ -43,14 +43,6 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
     List<RecipeMongo> findByChef_IdOrderByCreationDateDesc(String chefId);
 
     /**
-     * Finds recipes by chef ID with pagination.
-     * @param chefId chef ID
-     * @param pageable pagination information
-     * @return slice of recipes
-     */
-    Slice<RecipeMongo> findByChef_Id(String chefId, Pageable pageable);
-
-    /**
      * Finds recipes by a list of IDs.
      * @param ids list of recipe IDs
      * @return list of recipes

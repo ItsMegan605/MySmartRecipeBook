@@ -10,7 +10,6 @@ import java.util.Optional;
 
 /**
  * Implementation of Spring Security's UserDetailsService.
- *
  * This service is responsible for retrieving user information
  * from the database during the authentication process.
  */
@@ -29,7 +28,6 @@ public class UserDetailsServiceImp implements UserDetailsService {
 
     /**
      * Loads a user by username.
-     *
      * This method is automatically called during login.
      * Spring Security uses it to:
      * - retrieve the user from the database

@@ -16,7 +16,6 @@ public interface ChefNeo4jRepository extends Neo4jRepository<ChefNeo4j, String> 
 
     /**
      * Retrieves the top 3 chefs for each given category.
-     *
      * Query logic: filter recipes by category, group them and count + sorting
 
      * @param categories list of categories

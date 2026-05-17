@@ -45,7 +45,6 @@ public class WebSecurityConfig {
 
     /**
      * Configures the authentication provider.
-     *
      * Uses:
      * - UserDetailsService to load user data
      * - PasswordEncoder to verify passwords

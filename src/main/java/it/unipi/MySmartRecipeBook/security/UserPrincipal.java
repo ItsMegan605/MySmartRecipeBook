@@ -12,10 +12,8 @@ import java.util.Collections;
 
 /**
  * Represents the authenticated user inside Spring Security.
- *
  * This class implements UserDetails and adapts application-specific
  * user data (Chef, Foodie, Admin) into a format usable by Spring Security.
- *
  * Each time a user logs in, Spring Security creates a UserPrincipal
  * instance containing user information and roles.
  */

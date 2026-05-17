@@ -107,7 +107,6 @@ public class JwtUtils {
 
     /**
      * Validates the JWT token.
-     *
      * It checks:
      * - token signature validity
      * - token expiration

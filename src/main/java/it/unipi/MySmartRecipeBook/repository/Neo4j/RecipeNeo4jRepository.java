@@ -4,11 +4,9 @@ import it.unipi.MySmartRecipeBook.dto.recipe.RecipeSuggestionDTO;
 import it.unipi.MySmartRecipeBook.model.Neo4j.RecipeNeo4j;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Repository for managing Recipe nodes in Neo4j.
@@ -19,7 +17,6 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
 
     /**
      * Finds recipe suggestions based on available ingredients (Smart Fridge use case).
-     *
      * Query logic:
      * - match recipes that use given ingredients
      * - count how many ingredients match

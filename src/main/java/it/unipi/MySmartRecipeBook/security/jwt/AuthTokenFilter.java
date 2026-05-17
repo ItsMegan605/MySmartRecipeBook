@@ -11,20 +11,17 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
-import it.unipi.MySmartRecipeBook.security.jwt.JwtUtils;
 
 import java.io.IOException;
 import java.util.List;
 
 /**
  * This filter is executed for every HTTP request in the application.
- *
  * Its responsibilities are:
  * 1. Extract the JWT token from the Authorization header
  * 2. Validate the token
  * 3. Extract user information from the token
  * 4. Set the authenticated user into Spring Security's SecurityContext
- *
  * It extends OncePerRequestFilter to guarantee that the filter
  * is executed only once per request.
  */
