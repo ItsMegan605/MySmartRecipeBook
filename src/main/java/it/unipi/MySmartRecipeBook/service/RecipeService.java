@@ -60,7 +60,11 @@ public class RecipeService {
         return convertions.EntityToDto(full_recipe);
     }
 
-    // TODO: Javadoc
+    /**
+     * Converts a slice of recipe entities into a paginated DTO of user previews.
+     * @param sliceResult - the slice of RecipeMongo entities to convert
+     * @return SliceRecipeDTO containing the converted preview DTOs and pagination flags
+     */
     private SliceRecipeDTO<UserPreviewRecipeDTO> buildSliceDto(Slice<RecipeMongo> sliceResult) {
         List<UserPreviewRecipeDTO> recipesDTO = convertions.EntityToUserDto(sliceResult.getContent());
         return new SliceRecipeDTO<>(recipesDTO, sliceResult.hasNext(), sliceResult.hasPrevious());

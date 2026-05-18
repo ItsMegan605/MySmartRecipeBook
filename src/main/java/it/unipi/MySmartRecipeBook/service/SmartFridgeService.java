@@ -177,8 +177,6 @@ public class SmartFridgeService {
             e.printStackTrace();
         }
 
-
-
         int start = (pageNum-1)*pageSize;
         int end = pageNum*pageSize;
 

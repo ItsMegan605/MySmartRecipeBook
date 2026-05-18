@@ -12,6 +12,7 @@ import it.unipi.MySmartRecipeBook.repository.Mongo.ChefRepository;
 import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.repository.Neo4j.RecipeNeo4jRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -34,14 +35,17 @@ public class LowLoadManager {
     private final RecipeMongoRepository recipeMongoRepository;
     private final ChefRepository chefRepository;
     private final RecipeNeo4jRepository recipeNeo4jRepository;
-    private final LowLoadManager lowLoadManager;
+
+    @Autowired
+    @Lazy
+    private LowLoadManager lowLoadManager;
 
     public LowLoadManager(RecipeMongoRepository recipeMongoRepository, ChefRepository chefRepository,
-                          RecipeNeo4jRepository recipeNeo4jRepository, LowLoadManager lowLoadManager) {
+                          RecipeNeo4jRepository recipeNeo4jRepository) {//LowLoadManager lowLoadManager)
         this.recipeMongoRepository = recipeMongoRepository;
         this.chefRepository = chefRepository;
         this.recipeNeo4jRepository = recipeNeo4jRepository;
-        this.lowLoadManager = lowLoadManager;
+        //this.lowLoadManager = lowLoadManager;
     }
 
     /**
