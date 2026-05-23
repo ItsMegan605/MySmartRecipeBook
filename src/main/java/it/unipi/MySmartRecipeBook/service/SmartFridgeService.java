@@ -15,7 +15,9 @@ import it.unipi.MySmartRecipeBook.utils.conversionFunctions.RecipeUtilityFunctio
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisCluster;
+import redis.clients.jedis.JedisSentinelPool;
 
 // TODO: sostituire printStackTrace() con eccezione opportuna
 import java.util.*;
@@ -31,17 +33,17 @@ public class SmartFridgeService {
     @Value("${app.recipe.pag-size-chef:5}")
     private int pageSize;
 
-    private final JedisCluster jedisCluster;
+    private final JedisSentinelPool jedisSentinelPool;
     private final RecipeMongoRepository recipeRepository;
     private final RecipeNeo4jRepository recipeNeo4jRepository;
     private final IngredientService ingredientService;
     private final ObjectMapper objectMapper;
     private final RecipeUtilityFunctions conversion;
 
-    public SmartFridgeService(JedisCluster jedisCluster, RecipeMongoRepository recipeRepository,
+    public SmartFridgeService(JedisSentinelPool jedisSentinelPool, RecipeMongoRepository recipeRepository,
                               RecipeNeo4jRepository recipeNeo4jRepository, IngredientService ingredientService,
                               ObjectMapper objectMapper, RecipeUtilityFunctions conversion){
-        this.jedisCluster = jedisCluster;
+        this.jedisSentinelPool = jedisSentinelPool;
         this.recipeRepository = recipeRepository;
         this.recipeNeo4jRepository = recipeNeo4jRepository;
         this.ingredientService = ingredientService;
@@ -75,7 +77,10 @@ public class SmartFridgeService {
 
         String key = REDIS_APP_NAMESPACE + REDIS_FRIDGE_PREFIX + username;
 
-        Set<String> ingredients = jedisCluster.smembers(key);
+        Set<String> ingredients;
+        try (Jedis jedis = jedisSentinelPool.getResource()) {
+            ingredients = jedis.smembers(key);
+        }
         IngredientsListDTO ingredientsListDTO = new IngredientsListDTO();
         ingredientsListDTO.setIngredients(ingredients);
 
@@ -103,8 +108,10 @@ public class SmartFridgeService {
         String key = REDIS_APP_NAMESPACE + REDIS_FRIDGE_PREFIX + authFoodie.getUsername();
 
         if (!ingredients.isEmpty()) {
-            jedisCluster.sadd(key, ingredients.toArray(new String[0]));
-            jedisCluster.del(REDIS_APP_NAMESPACE +REDIS_RECIPES_PREFIX + authFoodie.getUsername());
+            try (Jedis jedis = jedisSentinelPool.getResource()) {
+                jedis.sadd(key, ingredients.toArray(new String[0]));
+                jedis.del(REDIS_APP_NAMESPACE +REDIS_RECIPES_PREFIX + authFoodie.getUsername());
+            }
         }
         else{
             throw new IllegalArgumentException("No valid ingredients inserted");
@@ -128,7 +135,9 @@ public class SmartFridgeService {
 
         if(ingredientService.isValidIngredient(ingredient)) {
             String key = REDIS_APP_NAMESPACE + REDIS_FRIDGE_PREFIX + authFoodie.getUsername();
-            jedisCluster.srem(key, ingredient);
+            try (Jedis jedis = jedisSentinelPool.getResource()) {
+                jedis.srem(key, ingredient);
+            }
             updateCacheAfterRemoval(authFoodie.getUsername(), ingredient);
         }
 
@@ -142,8 +151,11 @@ public class SmartFridgeService {
      */
     public SliceRecipeDTO<RecipeSuggestionDTO> getRecommendations(String username, int pageNum) {
         String cacheKey = REDIS_APP_NAMESPACE +REDIS_RECIPES_PREFIX + username;
+        String json;
+        try (Jedis jedis = jedisSentinelPool.getResource()) {
+            json = jedis.get(cacheKey);
+        }
 
-        String json = jedisCluster.get(cacheKey);
         if (json != null) {
             try {
                 return objectMapper.readValue(json, new TypeReference<>(){});
@@ -172,7 +184,10 @@ public class SmartFridgeService {
 
 
         try {
-            jedisCluster.set(cacheKey, objectMapper.writeValueAsString(suggestions));
+            try (Jedis jedis = jedisSentinelPool.getResource()) {
+                jedis.set(cacheKey, objectMapper.writeValueAsString(suggestions));
+            }
+
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
@@ -195,38 +210,40 @@ public class SmartFridgeService {
      */
     private void updateCacheAfterRemoval(String username, String removedIngredient) {
         String cacheKey = REDIS_APP_NAMESPACE +REDIS_RECIPES_PREFIX + username;
-        String json = jedisCluster.get(cacheKey);
+        try (Jedis jedis = jedisSentinelPool.getResource()){
+            String json = jedis.get(cacheKey);
 
-        if (json != null) {
-            try {
-                List<RecipeSuggestionDTO> cachedRecipes = objectMapper.readValue(json, new TypeReference<>(){});
-                List<RecipeSuggestionDTO> updatedList = new ArrayList<>();
+            if (json != null) {
+                try {
+                    List<RecipeSuggestionDTO> cachedRecipes = objectMapper.readValue(json, new TypeReference<>(){});
+                    List<RecipeSuggestionDTO> updatedList = new ArrayList<>();
 
-                for (RecipeSuggestionDTO recipe : cachedRecipes) {
+                    for (RecipeSuggestionDTO recipe : cachedRecipes) {
 
-                     List<String> listIngredient = recipe.getMatchedIngredients();
-                     for (String ingredient : listIngredient) {
-                         if (ingredient.equals(removedIngredient)) {
-                             recipe.setMatchCount(recipe.getMatchCount() - 1 );
-                             listIngredient.remove(ingredient);
-                             break;
-                         }
-                     }
+                        List<String> listIngredient = recipe.getMatchedIngredients();
+                        for (String ingredient : listIngredient) {
+                            if (ingredient.equals(removedIngredient)) {
+                                recipe.setMatchCount(recipe.getMatchCount() - 1 );
+                                listIngredient.remove(ingredient);
+                                break;
+                            }
+                        }
 
-                    if (recipe.getMatchedIngredients().size() >= 3) {
-                        updatedList.add(recipe);
+                        if (recipe.getMatchedIngredients().size() >= 3) {
+                            updatedList.add(recipe);
+                        }
                     }
-                }
 
-                if (updatedList.isEmpty()) {
-                    jedisCluster.del(cacheKey);
-                } else {
-                    updatedList.sort(Comparator.comparingInt(RecipeSuggestionDTO::getMatchCount).reversed());
-                    jedisCluster.set(cacheKey, objectMapper.writeValueAsString(updatedList));
-                }
+                    if (updatedList.isEmpty()) {
+                        jedis.del(cacheKey);
+                    } else {
+                        updatedList.sort(Comparator.comparingInt(RecipeSuggestionDTO::getMatchCount).reversed());
+                        jedis.set(cacheKey, objectMapper.writeValueAsString(updatedList));
+                    }
 
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -246,16 +263,19 @@ public class SmartFridgeService {
                     .getPrincipal();
 
             String fridgeKey = "MySmartRecipeBook:smartFridge:suggestions:" + authFoodie.getUsername();
-            String suggestedRecipes = jedisCluster.get(fridgeKey);
-            if(suggestedRecipes != null) {
-                try {
-                    List<RecipeSuggestionDTO> cachedRecipes = objectMapper.readValue(suggestedRecipes, new TypeReference<>(){});
-                    cachedRecipes.removeIf(recipe -> recipe.getId().equals(id));
+            try (Jedis jedis = jedisSentinelPool.getResource()) {
+                String suggestedRecipes = jedis.get(fridgeKey);
+                if (suggestedRecipes != null) {
+                    try {
+                        List<RecipeSuggestionDTO> cachedRecipes = objectMapper.readValue(suggestedRecipes, new TypeReference<>() {
+                        });
+                        cachedRecipes.removeIf(recipe -> recipe.getId().equals(id));
 
-                    jedisCluster.set(fridgeKey, objectMapper.writeValueAsString(cachedRecipes));
+                        jedis.set(fridgeKey, objectMapper.writeValueAsString(cachedRecipes));
 
-                } catch (JsonProcessingException e) {
-                    e.printStackTrace();
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
             throw new NoSuchElementException("Recipe not found");

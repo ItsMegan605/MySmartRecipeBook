@@ -6,7 +6,9 @@ import it.unipi.MySmartRecipeBook.dto.IngredientsListDTO;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisCluster;
+import redis.clients.jedis.JedisSentinelPool;
 
 
 import java.util.List;
@@ -18,11 +20,12 @@ import java.util.Set;
 @Service
 public class ShoppingListService {
 
-    private final JedisCluster jedisCluster;
+    private final JedisSentinelPool jedisSentinelPool;
+
     private final IngredientService ingredientService;
 
-    public ShoppingListService(JedisCluster jedisCluster, IngredientService ingredientService) {
-        this.jedisCluster = jedisCluster;
+    public ShoppingListService(JedisSentinelPool jedisSentinelPool, IngredientService ingredientService) {
+        this.jedisSentinelPool = jedisSentinelPool;
         this.ingredientService = ingredientService;
     }
 
@@ -52,7 +55,10 @@ public class ShoppingListService {
 
         String key = REDIS_APP_NAMESPACE + REDIS_KEY_PREFIX + username;
 
-        Set<String> ingredients = jedisCluster.smembers(key);
+        Set<String> ingredients;
+        try (Jedis jedis = jedisSentinelPool.getResource()) {
+            ingredients = jedis.smembers(key);
+        }
         IngredientsListDTO ingredientsListDTO = new IngredientsListDTO();
         ingredientsListDTO.setIngredients(ingredients);
 
@@ -82,7 +88,9 @@ public class ShoppingListService {
 
 
         if (!ingredients.isEmpty()) {
-            jedisCluster.sadd(key, ingredients.toArray(new String[0]));
+            try (Jedis jedis = jedisSentinelPool.getResource()) {
+                jedis.sadd(key, ingredients.toArray(new String[0]));
+            }
         }
         else{
             throw new IllegalArgumentException("No valid ingredient inserted");
@@ -105,7 +113,9 @@ public class ShoppingListService {
 
         if(ingredientService.isValidIngredient(ingredient.toLowerCase())) {
             String key = REDIS_APP_NAMESPACE + REDIS_KEY_PREFIX + authFoodie.getUsername();
-            jedisCluster.srem(key, ingredient.toLowerCase());
+            try (Jedis jedis = jedisSentinelPool.getResource()) {
+                jedis.srem(key, ingredient.toLowerCase());
+            }
         }
 
         return returnShoppingList(authFoodie.getUsername());

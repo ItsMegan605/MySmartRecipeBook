@@ -1,57 +1,42 @@
 package it.unipi.MySmartRecipeBook.config;
 
-import
-        org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import redis.clients.jedis.Connection;
-import redis.clients.jedis.DefaultJedisClientConfig;
-import redis.clients.jedis.HostAndPort;
-import redis.clients.jedis.JedisClientConfig;
-import redis.clients.jedis.JedisCluster;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisSentinelPool;
 
-import java.time.Duration;
+import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
- * Redis cluster configuration code
+ * Redis Master -slace configuration
  */
-
 @Configuration
 public class RedisConfig {
 
-    @Value("${app.redis.cluster.nodes}")
-    private List<String> nodes;
+    @Value("${app.redis.sentinel.nodes}")
+    private String[] sentinelNodes;
+
+    @Value("${app.redis.sentinel.master}")
+    private String masterName;
 
     /**
-     * Initializes and configures a JedisCluster.
-     * Defines the initial set of cluster nodes with proper connections.
-     * @return a configured JedisCluster  ready to execute commands across the nodes.
-     *
+     * Redis configuration for master slave
+     * @return
      */
     @Bean
-    public JedisCluster jedisCluster() {
-        Set<HostAndPort> clusterNodes = new HashSet<>();
-        for (String node : nodes) {
-            String[] parts = node.split(":");
-            String host = parts[0];
-            int port = Integer.parseInt(parts[1]);
-            clusterNodes.add(new HostAndPort(host, port));
-        }
-        JedisClientConfig clientConfig = DefaultJedisClientConfig.builder()
-                .timeoutMillis(2000)
-                .socketTimeoutMillis(2000)
-                .build();
+    public JedisSentinelPool jedisSentinelPool() {
+        Set<String> sentinels = new HashSet<>(Arrays.asList(sentinelNodes));
 
-        GenericObjectPoolConfig<Connection> poolConfig = new GenericObjectPoolConfig<>();
+        GenericObjectPoolConfig<Jedis> poolConfig = new GenericObjectPoolConfig<>();
         poolConfig.setMaxTotal(10);
         poolConfig.setMaxIdle(5);
         poolConfig.setMinIdle(1);
         poolConfig.setJmxEnabled(false);
 
-        return new JedisCluster(clusterNodes, clientConfig, 5, Duration.ofSeconds(2), poolConfig);
+        return new JedisSentinelPool(masterName, sentinels, poolConfig, 2000);
     }
 }
