@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisSentinelPool;
 
 // TODO: sostituire printStackTrace() con eccezione opportuna
@@ -160,7 +159,7 @@ public class SmartFridgeService {
             try {
                 return objectMapper.readValue(json, new TypeReference<>(){});
             } catch (JsonProcessingException e) {
-                e.printStackTrace();
+               throw new RuntimeException("Error occurred while using the application");
             }
         }
         //If the recipe is not cached, check if there are at least 3 matched ingredients
@@ -189,7 +188,7 @@ public class SmartFridgeService {
             }
 
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Error occurred while using the application");
         }
 
         int start = (pageNum-1)*pageSize;
@@ -242,7 +241,7 @@ public class SmartFridgeService {
                     }
 
                 } catch (JsonProcessingException e) {
-                    e.printStackTrace();
+                    throw new RuntimeException("Error occurred while using the application");
                 }
             }
         }
@@ -274,7 +273,7 @@ public class SmartFridgeService {
                         jedis.set(fridgeKey, objectMapper.writeValueAsString(cachedRecipes));
 
                     } catch (JsonProcessingException e) {
-                        e.printStackTrace();
+                        throw new RuntimeException("Error occurred while using the application");
                     }
                 }
             }

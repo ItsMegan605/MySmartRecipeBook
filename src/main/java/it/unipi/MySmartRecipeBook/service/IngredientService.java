@@ -1,7 +1,8 @@
 package it.unipi.MySmartRecipeBook.service;
 
 import org.springframework.stereotype.Service;
-import redis.clients.jedis.JedisCluster;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisSentinelPool;
 
 
 /**
@@ -9,13 +10,12 @@ import redis.clients.jedis.JedisCluster;
  */
 @Service
 public class IngredientService {
-    private final JedisCluster jedisCluster;
+    private final JedisSentinelPool jedisSentinelPool;
     private static final String INGREDIENTS_REDIS_KEY = "MySmartRecipeBook:allowed_ingredients";
 
-    public IngredientService(JedisCluster jedisCluster) {
-        this.jedisCluster = jedisCluster;
+    public IngredientService(JedisSentinelPool jedisSentinelPool) {
+        this.jedisSentinelPool = jedisSentinelPool;
     }
-
     /**
      * This method is to ensure the validity of the ingredients inserted
      * @param ingredientName - the ingredient name
@@ -25,6 +25,8 @@ public class IngredientService {
         if (ingredientName == null || ingredientName.isBlank()) {
             return false;
         }
-        return jedisCluster.sismember(INGREDIENTS_REDIS_KEY, ingredientName.toLowerCase().trim());
+        try (Jedis jedis = jedisSentinelPool.getResource()) {
+            return jedis.sismember(INGREDIENTS_REDIS_KEY, ingredientName.toLowerCase().trim());
+        }
     }
 }

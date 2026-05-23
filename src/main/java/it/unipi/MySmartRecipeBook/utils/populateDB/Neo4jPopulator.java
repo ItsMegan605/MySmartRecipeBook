@@ -16,7 +16,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.stereotype.Component;
-import redis.clients.jedis.JedisCluster;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisSentinelPool;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,21 +41,21 @@ public class Neo4jPopulator implements CommandLineRunner {
     public final ChefNeo4jRepository chefNeo4jRepository;
     private final ChefRepository chefRepository;
     private final IngredientNeo4jRepository ingredientNeo4jRepository;
-    private final JedisCluster jedisCluster;
+    private final JedisSentinelPool jedisSentinelPool;
     private final Neo4jClient neo4jClient;
 
 
     public Neo4jPopulator(RecipeMongoRepository recipeRepository, RecipeNeo4jRepository neo4jRepository,
                           RecipeUtilityFunctions recipeUtils, ChefNeo4jRepository chefNeo4jRepository,
                           ChefRepository chefRepository, IngredientNeo4jRepository ingredientNeo4jRepository,
-                          JedisCluster jedisCluster, Neo4jClient neo4jClient) {
+                          JedisSentinelPool jedisSentinelPool, Neo4jClient neo4jClient) {
         this.recipeRepository = recipeRepository;
         this.neo4jRepository = neo4jRepository;
         this.recipeUtils = recipeUtils;
         this.chefNeo4jRepository = chefNeo4jRepository;
         this.chefRepository = chefRepository;
         this.ingredientNeo4jRepository = ingredientNeo4jRepository;
-        this.jedisCluster = jedisCluster;
+        this.jedisSentinelPool = jedisSentinelPool;
         this.neo4jClient = neo4jClient;
     }
 
@@ -80,7 +81,10 @@ public class Neo4jPopulator implements CommandLineRunner {
         //create ingredient node on neo4j
         System.out.println("Creating ingredient nodes");
 
-        Set<String> ingredients = jedisCluster.smembers("MySmartRecipeBook:allowed_ingredients");
+        Set<String> ingredients;
+        try (Jedis jedis = jedisSentinelPool.getResource()) {
+            ingredients = jedis.smembers("MySmartRecipeBook:allowed_ingredients");
+        }
         List<IngredientNeo4j> ingredientsNeo4j = new ArrayList<>();
         for(String ingredient : ingredients){
             IngredientNeo4j ingredientNeo4j = new IngredientNeo4j();

@@ -5,7 +5,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
-import redis.clients.jedis.JedisCluster;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisSentinelPool;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -18,13 +19,13 @@ import java.nio.charset.StandardCharsets;
 @Component
 public class IngredientsPopulator implements CommandLineRunner {
 
-    private final JedisCluster jedisCluster;
+    private final JedisSentinelPool jedisSentinelPool;
     private static final String INGREDIENTS_REDIS_KEY = "MySmartRecipeBook:allowed_ingredients";
     @Value("${app.recipe.do-redis-population:false}")
     private boolean doRedisPopulation;
 
-    public IngredientsPopulator(JedisCluster jedisCluster) {
-        this.jedisCluster = jedisCluster;
+    public IngredientsPopulator(JedisSentinelPool jedisSentinelPool) {
+        this.jedisSentinelPool = jedisSentinelPool;
     }
 
     /**
@@ -41,8 +42,8 @@ public class IngredientsPopulator implements CommandLineRunner {
 
         System.out.println("check redis state");
 
-        try {
-            if (jedisCluster.exists(INGREDIENTS_REDIS_KEY)) {
+        try(Jedis jedis = jedisSentinelPool.getResource()){
+            if (jedis.exists(INGREDIENTS_REDIS_KEY)) {
                 System.out.println("Ingredients list already exists on redis");
                 return;
             }
@@ -56,7 +57,7 @@ public class IngredientsPopulator implements CommandLineRunner {
                 String ingredient;
                 while ((ingredient = reader.readLine()) != null) {
                     if (!ingredient.trim().isEmpty()) {
-                        jedisCluster.sadd(INGREDIENTS_REDIS_KEY, ingredient.toLowerCase().trim());
+                        jedis.sadd(INGREDIENTS_REDIS_KEY, ingredient.toLowerCase().trim());
                     }
                 }
             }
