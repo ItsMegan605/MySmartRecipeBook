@@ -241,7 +241,8 @@ public class ChefService {
             throw new NoSuchElementException("No recipes found");
         }
 
-        if(recipeMongoRepository.deleteRecipeById(recipeId) == 0){
+        RecipeMongo deletedRecipe = recipeMongoRepository.deleteRecipeById(recipeId);
+        if(deletedRecipe == null){
             throw new NoSuchElementException("Recipe not found");
         }
 
@@ -253,8 +254,8 @@ public class ChefService {
                 newRecipes.remove(recipe);
 
                 if(chef.getOldRecipes() != null){
-                    OldRecipe oldRecipe = chef.getOldRecipes().remove(0);
-                    RecipeMongo recipeMongo = recipeMongoRepository.findById(oldRecipe.getId())
+                    String oldRecipeId = chef.getOldRecipes().remove(0);
+                    RecipeMongo recipeMongo = recipeMongoRepository.findById(oldRecipeId)
                             .orElseThrow(() -> new NoSuchElementException("Recipe not found"));
                     ChefRecipeSummary reducedRecipe = recipeConvertions.recipeToChefRecipe(recipeMongo);
                     chef.getNewRecipes().add(reducedRecipe);
@@ -266,10 +267,10 @@ public class ChefService {
         }
 
         if(!findRecipe){
-            for(OldRecipe oldRecipe : chef.getOldRecipes()){
-                if(oldRecipe.getId().equals(recipeId)){
-                    chef.setTotalSaves(chef.getTotalSaves() - oldRecipe.getNumSaves());
-                    chef.getOldRecipes().remove(oldRecipe);
+            for(String oldRecipeId : chef.getOldRecipes()){
+                if(oldRecipeId.equals(recipeId)){
+                    chef.setTotalSaves(chef.getTotalSaves() - deletedRecipe.getNumSaves());
+                    chef.getOldRecipes().remove(oldRecipeId);
                     break;
                 }
             }
@@ -366,9 +367,8 @@ public class ChefService {
 
         else{
 
-            List<OldRecipe> oldRecipes = chef.getOldRecipes().subList(start, end);
-            List<String> ids = oldRecipes.stream().map(OldRecipe::getId).toList();
-            List<RecipeMongo> recipes = recipeMongoRepository.findByIdIn(ids);
+            List<String> oldRecipesIds = chef.getOldRecipes().subList(start, end);
+            List<RecipeMongo> recipes = recipeMongoRepository.findByIdIn(oldRecipesIds);
             content = recipeConvertions.MongoListToChefPreview(recipes);
         }
 

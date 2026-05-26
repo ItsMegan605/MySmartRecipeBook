@@ -2,7 +2,6 @@ package it.unipi.MySmartRecipeBook.utils.populateDB;
 
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Chef;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefRecipeSummary;
-import it.unipi.MySmartRecipeBook.model.Mongo.recipes.OldRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
 import it.unipi.MySmartRecipeBook.repository.Mongo.ChefRepository;
 import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
@@ -75,17 +74,16 @@ public class ChefPopulator implements CommandLineRunner {
                 }
             }
 
-            List<OldRecipe> oldRecipes = new ArrayList<>();
+            List<String> oldRecipesIds = new ArrayList<>();
             List<RecipeMongo> oldRecipesMongo = chefRecipes.subList(limitNew, chefRecipes.size());
             for(RecipeMongo recipeMongo : oldRecipesMongo){
-               OldRecipe oldRecipe = new OldRecipe(recipeMongo.getId(), recipeMongo.getNumSaves());
-               oldRecipes.add(oldRecipe);
-               if(oldRecipe.getNumSaves() != null){
-                    totalSaves += oldRecipe.getNumSaves();
+               oldRecipesIds.add(recipeMongo.getId());
+               if(recipeMongo.getNumSaves() != null){
+                    totalSaves += recipeMongo.getNumSaves();
                }
             }
 
-            chef.setOldRecipes(oldRecipes);
+            chef.setOldRecipes(oldRecipesIds);
             chef.setTotalSaves(totalSaves);
 
             List<ChefRecipeSummary> popularRecipes = new ArrayList<>();

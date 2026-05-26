@@ -1,7 +1,6 @@
 package it.unipi.MySmartRecipeBook.service;
 
 import it.unipi.MySmartRecipeBook.dto.recipe.*;
-import it.unipi.MySmartRecipeBook.model.Mongo.recipes.OldRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Chef;
 import it.unipi.MySmartRecipeBook.repository.Mongo.ChefRepository;
@@ -153,9 +152,8 @@ public class RecipeService {
 
         else{
 
-            List<OldRecipe> oldRecipes = chef.getOldRecipes().subList(start, end);
-            List<String> ids = oldRecipes.stream().map(OldRecipe::getId).toList();
-            List<RecipeMongo> recipes = recipeRepository.findByIdIn(ids);
+            List<String> oldRecipesIds = chef.getOldRecipes().subList(start, end);
+            List<RecipeMongo> recipes = recipeRepository.findByIdIn(oldRecipesIds);
             content = convertions.MongoListToChefPreview(recipes);
         }
 

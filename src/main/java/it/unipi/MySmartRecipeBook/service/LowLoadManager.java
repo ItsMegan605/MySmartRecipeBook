@@ -5,12 +5,13 @@ import it.unipi.MySmartRecipeBook.dto.IngredientDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.GraphRecipeDTO;
 import it.unipi.MySmartRecipeBook.event.TaskToDo;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefRecipeSummary;
-import it.unipi.MySmartRecipeBook.model.Mongo.recipes.OldRecipe;
+import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Chef;
 import it.unipi.MySmartRecipeBook.event.Task;
 import it.unipi.MySmartRecipeBook.repository.Mongo.ChefRepository;
 import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
 import it.unipi.MySmartRecipeBook.repository.Neo4j.RecipeNeo4jRepository;
+import it.unipi.MySmartRecipeBook.utils.conversionFunctions.RecipeUtilityFunctions;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -39,6 +40,8 @@ public class LowLoadManager {
     @Autowired
     @Lazy
     private LowLoadManager lowLoadManager;
+
+    private RecipeUtilityFunctions recipeUtilityFunctions;
 
     public LowLoadManager(RecipeMongoRepository recipeMongoRepository, ChefRepository chefRepository,
                           RecipeNeo4jRepository recipeNeo4jRepository) {//LowLoadManager lowLoadManager)
@@ -200,7 +203,7 @@ public class LowLoadManager {
     }
 
     /**
-     * Batch decrement operation for recipe "saves" counters.
+     * Batch decrement operation for recipe "saves" counters, when a foodie deltes its profile .
      * @param task - the task to execute
      */
     @Transactional
@@ -223,44 +226,37 @@ public class LowLoadManager {
 
             for (String recipeId : chefRecipes) {
 
-                Integer numSaves = null;
+                boolean found = false;
 
                 for(ChefRecipeSummary recipe : targetChef.getNewRecipes()){
                     if(recipe.getId().equals(recipeId)){
-                        numSaves = recipe.getNumSaves();
+                        found = true;
                         recipe.setNumSaves(recipe.getNumSaves()-1);
                         targetChef.setTotalSaves(targetChef.getTotalSaves()-1);
                         break;
                     }
                 }
 
-                if(numSaves == null){ //if not in the new recipes, look in the old ones
-                    for(OldRecipe recipe : targetChef.getOldRecipes()){
-                        if(recipe.getId().equals(recipeId)){
-                            numSaves = recipe.getNumSaves();
-                            recipe.setNumSaves(recipe.getNumSaves()-1);
+                if(!found){ //if not in the new recipes, look in the old ones
+                    for(String oldRecipeId : targetChef.getOldRecipes()){
+                        if(oldRecipeId.equals(recipeId)){
+                            found = true;
                             targetChef.setTotalSaves(targetChef.getTotalSaves()-1);
                             break;
                         }
                     }
                 }
 
-                if(numSaves == null){
+                if(!found){
                     throw new NoSuchElementException("No recipe found");
                 }
 
-                if(numSaves > 40){
-                    for(ChefRecipeSummary recipe : targetChef.getPopularRecipes()){
-                        if(recipe.getId().equals(recipeId)){
-                            recipe.setNumSaves(recipe.getNumSaves()-1);
-                            targetChef.getPopularRecipes().sort(Comparator.comparing(ChefRecipeSummary::getNumSaves).reversed());
-                            break;
-                        }
-                    }
-                }
-                else if(numSaves == 40){
-                    for(ChefRecipeSummary recipe : targetChef.getPopularRecipes()){
-                        if(recipe.getId().equals(recipeId)){
+
+                for(ChefRecipeSummary recipe : targetChef.getPopularRecipes()){
+                    if(recipe.getId().equals(recipeId)){
+                        recipe.setNumSaves(recipe.getNumSaves()-1);
+
+                        if(recipe.getNumSaves() < 40){
                             targetChef.getPopularRecipes().remove(recipe);
                             break;
                         }
@@ -286,34 +282,37 @@ public class LowLoadManager {
                         .orElseThrow(() -> new NoSuchElementException("Chef not found"));
         targetChef.setTotalSaves(targetChef.getTotalSaves()-1);
 
-        Integer numSaves = null;
+        boolean found = false;
         for(ChefRecipeSummary recipe : targetChef.getNewRecipes()){
             if(recipe.getId().equals(task.getRecipeId())){
-                numSaves = recipe.getNumSaves();
+                found = true;
                 recipe.setNumSaves(recipe.getNumSaves()-1);
                 break;
             }
         }
 
-        if(numSaves == null){
-            for(OldRecipe recipe : targetChef.getOldRecipes()){
-                if(recipe.getId().equals(task.getRecipeId())){
-                    numSaves = recipe.getNumSaves();
-                    recipe.setNumSaves(recipe.getNumSaves()-1);
+        if(!found){
+            for(String oldRecipeId : targetChef.getOldRecipes()){
+                if(oldRecipeId.equals(task.getRecipeId())){
+                    found = true;
                     break;
                 }
             }
         }
 
-        if(numSaves == null){
+        if(!found){
             throw new NoSuchElementException("No recipe found");
         }
 
-        if(numSaves > 40){
-            targetChef.getPopularRecipes().sort(Comparator.comparing(ChefRecipeSummary::getNumSaves).reversed());
-        }
-        else if(numSaves == 40) {
-            targetChef.getPopularRecipes().remove(task.getRecipeMongo());
+        for(ChefRecipeSummary recipe : targetChef.getPopularRecipes()){
+            if(recipe.getId().equals(task.getRecipeId())){
+                recipe.setNumSaves(recipe.getNumSaves()-1);
+
+                if(recipe.getNumSaves() < 40){
+                    targetChef.getPopularRecipes().remove(recipe);
+                    break;
+                }
+            }
         }
 
         chefRepository.save(targetChef);
@@ -337,39 +336,47 @@ public class LowLoadManager {
         int totSaves = targetChef.getTotalSaves() == null ? 0 : targetChef.getTotalSaves();
         targetChef.setTotalSaves(totSaves+1);
 
-        Integer numSaves = null;
+        boolean found = false;
         for(ChefRecipeSummary recipe : targetChef.getNewRecipes()){
             if(recipe.getId().equals(task.getRecipeId())){
                 int oldNumSaves = recipe.getNumSaves() == null ? 0 : recipe.getNumSaves();
                 recipe.setNumSaves(oldNumSaves+1);
-                numSaves = oldNumSaves+1;
+                found = true;
                 break;
             }
         }
 
-        if(numSaves == null){
-            for(OldRecipe recipe : targetChef.getOldRecipes()){
-                if(recipe.getId().equals(task.getRecipeId())){
-                    int oldNumSaves = recipe.getNumSaves() == null ? 0 : recipe.getNumSaves();
-                    recipe.setNumSaves(oldNumSaves+1);
-                    numSaves = oldNumSaves+1;
+        if(!found){
+            for(String recipeId : targetChef.getOldRecipes()){
+                if(recipeId.equals(task.getRecipeId())){
+                    found = true;
                     break;
                 }
             }
         }
 
-        if(numSaves == null){
+        if(!found){
             throw new NoSuchElementException("No recipe found");
         }
 
-        if(numSaves > 40){
+        RecipeMongo recipe = recipeMongoRepository.findById(task.getRecipeId())
+                        .orElseThrow(() -> new NoSuchElementException("No recipe found"));
+        recipe.setNumSaves(recipe.getNumSaves()+1);
+
+        if(recipe.getNumSaves() == 40){
+            ChefRecipeSummary recipeToAdd = recipeUtilityFunctions.recipeToChefRecipe(recipe);
+            targetChef.getPopularRecipes().add(recipeToAdd);
             targetChef.getPopularRecipes().sort(Comparator.comparing(ChefRecipeSummary::getNumSaves).reversed());
         }
-        else if(numSaves == 40) {
-            targetChef.getPopularRecipes().add(targetChef.getPopularRecipes().size()-1, task.getRecipeMongo());
+        else if (recipe.getNumSaves() > 40){
+            for (ChefRecipeSummary popularRecipe : targetChef.getPopularRecipes()) {
+                if (popularRecipe.getId().equals(recipe.getId())) {
+                    popularRecipe.setNumSaves(popularRecipe.getNumSaves()+1);
+                    break;
+                }
+            }
+            targetChef.getPopularRecipes().sort(Comparator.comparing(ChefRecipeSummary::getNumSaves).reversed());
         }
-
-        recipeMongoRepository.updateSavesCounter(task.getRecipeId(), 1);
         chefRepository.save(targetChef);
     }
 

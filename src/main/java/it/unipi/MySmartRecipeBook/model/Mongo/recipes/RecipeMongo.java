@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.index.TextIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -30,6 +31,7 @@ public class RecipeMongo {
     private String id;
 
     @Indexed(unique = true)
+    @TextIndexed
     private String title;
 
     @Field("presentation")

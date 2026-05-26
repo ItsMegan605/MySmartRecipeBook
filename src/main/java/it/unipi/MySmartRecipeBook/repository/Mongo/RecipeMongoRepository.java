@@ -76,7 +76,7 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
      * @param id recipe ID
      * @return number of deleted documents
      */
-    Long deleteRecipeById(String id);
+    RecipeMongo deleteRecipeById(String id);
 
     /**
      * Computes category trends based on recent and previous time windows:

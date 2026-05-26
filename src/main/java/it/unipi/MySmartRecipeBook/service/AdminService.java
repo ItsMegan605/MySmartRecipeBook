@@ -6,7 +6,6 @@ import it.unipi.MySmartRecipeBook.dto.recipe.*;
 import it.unipi.MySmartRecipeBook.dto.users.PendingChefDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegisteredUserInfoDTO;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefRecipeSummary;
-import it.unipi.MySmartRecipeBook.model.Mongo.recipes.OldRecipe;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Admin;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Chef;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.AdminPendingRecipe;
@@ -166,8 +165,7 @@ public class AdminService {
 
         if( chef.getNewRecipes().size() > 15 ) {
             ChefRecipeSummary oldestRecipe = chef.getNewRecipes().remove(14);
-            OldRecipe oldRecipe = new OldRecipe(oldestRecipe.getId(), oldestRecipe.getNumSaves());
-            chef.getOldRecipes().add(0, oldRecipe);
+            chef.getOldRecipes().add(0, oldestRecipe.getId());
         }
 
 
