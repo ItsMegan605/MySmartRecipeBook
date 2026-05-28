@@ -149,6 +149,7 @@ public class ChefService {
         lowLoadManager.addTask(Task.TaskType.DELETE_CHEF_RECIPE, chefId);
     }
 
+    // TODO: TESTARE
     /**
      * Function called by the chef to write a new recipe: the recipe is on a waiting list at the
      * beginning waiting for admin's approval.
@@ -199,24 +200,18 @@ public class ChefService {
         }
 
         ChefInfoDTO chefDTO = new ChefInfoDTO(chef.getId(), chef.getName(), chef.getSurname());
-        AdminPendingRecipe savedRecipe = recipeConvertions.createBaseRecipe(recipeDTO, chefDTO);
+        RecipeMongo recipeToAdd = recipeConvertions.dtoToModel(recipeDTO, chefDTO);
+        RecipeMongo recipeAdded = recipeMongoRepository.save(recipeToAdd);
 
-        if(admin.getRecipesToApprove() != null){
-            for(AdminPendingRecipe recipe : admin.getRecipesToApprove()){
-                if(recipe.getTitle().equals(recipeDTO.getTitle())){
-                    throw new IllegalArgumentException("Recipe already waiting to be approved");
-                }
-            }
-        }
-
+        AdminPendingRecipe savedRecipe = recipeConvertions.createBaseRecipe(recipeDTO, chefDTO, recipeAdded.getId());
         adminRepository.addRecipeToApprovals(admin.getId(), savedRecipe);
 
-        PendingRecipe chefRecipe = recipeConvertions.recipeToChefRecipe(savedRecipe);
+        PendingRecipe chefRecipe = recipeConvertions.recipeToChefRecipe(savedRecipe, recipeAdded.getId());
         chefRepository.addRecipeToWaiting(chef.getId(), chefRecipe);
 
         return recipeConvertions.baseToChefDTO(savedRecipe);
     }
-
+    // TODO: serve un mockup quando la ricetta viene messa tra le pending dello chef
 
 
     /**
@@ -293,7 +288,7 @@ public class ChefService {
         lowLoadManager.addTask(Task.TaskType.DELETE_RECIPE, recipeId);
     }
 
-
+    // TODO: da testare
     /**
      * Remove a recipe from the list of recipes waiting to be confirmed
      * @param recipeId gets the recipe ID of the recipe that is waiting to be approved
@@ -314,21 +309,20 @@ public class ChefService {
             throw new NoSuchElementException("No recipes waiting to be confirmed");
         }
 
-        boolean recipeFound = chefRepository.removeRecipeFromWaiting(chef.getId(), recipeId) > 0;
+        // TODO: decidere cosa fare nel caso in cui non c'è la ricetta, sia per l'admin che per lo chef
+        chefRepository.removeRecipeFromWaiting(chef.getId(), recipeId);
 
-        if(recipeFound){
-
-            Admin admin = adminRepository.findByUsername("admin");
-            if(admin == null){
-                throw new NoSuchElementException("Admin not found");
-            }
-
-            if(admin.getRecipesToApprove() == null){
-                throw new NoSuchElementException("No recipes waiting to be approved");
-            }
-
-            adminRepository.removeRecipeFromApprovals(admin.getId(), recipeId);
+        Admin admin = adminRepository.findByUsername("admin");
+        if(admin == null){
+            throw new NoSuchElementException("Admin not found");
         }
+
+        if(admin.getRecipesToApprove() == null){
+            throw new NoSuchElementException("No recipes waiting to be approved");
+        }
+
+        adminRepository.removeRecipeFromApprovals(admin.getId(), recipeId);
+        recipeMongoRepository.deleteById(recipeId);
     }
 
     /**
@@ -450,11 +444,11 @@ public class ChefService {
 
 
     /**
-     * Method to get the Recipe detaiòs
+     * Method to get the Recipe details
      * @param recipeId - recipe id
      * @return the recipe
      */
-    public ShowRecipeDTO getRecipeDetails(String recipeId){
+    /*public ShowRecipeDTO getRecipeDetails(String recipeId){
         UserPrincipal authChef = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getPrincipal();
@@ -477,5 +471,27 @@ public class ChefService {
         recipe.setChef(chef.getName() + " " + chef.getSurname());
         recipe.setChefId(chef.getId());
         return recipe;
+    }*/
+    public ShowRecipeDTO getRecipeDetails(String recipeId){
+        UserPrincipal authChef = (UserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        Chef chef = chefRepository.findById(authChef.getId())
+                .orElseThrow(() -> new NoSuchElementException("Chef not found"));
+
+        RecipeMongo recipe = recipeMongoRepository.findById(recipeId)
+                .orElseThrow(() -> new NoSuchElementException("Recipe not found"));
+
+        if (!recipe.getStatus().equals("PENDING")) {
+            throw new NoSuchElementException("Not pending recipe");
+        }
+
+        if(!recipe.getChef().getId().equals(chef.getId())){
+            throw new NoSuchElementException("Recipe not found");
+        }
+
+        ShowRecipeDTO recipePreview = recipeConvertions.EntityToDto(recipe);
+        return recipePreview;
     }
 }

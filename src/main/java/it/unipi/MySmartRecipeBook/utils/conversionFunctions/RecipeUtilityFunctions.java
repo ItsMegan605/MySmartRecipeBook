@@ -56,37 +56,23 @@ public class RecipeUtilityFunctions {
      * @param recipe the pending recipe
      * @return the detailed recipe DTO
      */
-    public ShowRecipeDTO PendingToDetails (PendingRecipe recipe){
+    /*public ShowRecipeDTO PendingToDetails (PendingRecipe recipe){
 
         ShowRecipeDTO recipeDTO = new ShowRecipeDTO();
         recipeDTO.setMongoId(recipe.getId());
         recipeDTO.setTitle(recipe.getTitle());
-        recipeDTO.setPresentation(recipe.getPresentation());
-        recipeDTO.setCategory(recipe.getCategory());
-        recipeDTO.setPrepTime(recipe.getPrepTime());
-        recipeDTO.setDifficulty(recipe.getDifficulty());
         recipeDTO.setImageURL(recipe.getImageURL());
-        recipeDTO.setPreparation(recipe.getPreparation());
-
-        List<IngredientDTO> ingredients = new ArrayList<>();
-        for(RecipeIngredient ingredient : recipe.getIngredients()){
-            IngredientDTO ingredientDTO = new IngredientDTO();
-            ingredientDTO.setName(ingredient.getName());
-            ingredientDTO.setQuantity(ingredient.getQuantity());
-            ingredients.add(ingredientDTO);
-        }
-        recipeDTO.setIngredients(ingredients);
         recipeDTO.setCreationDate(recipe.getCreationDate().toLocalDate());
 
         return recipeDTO;
-    }
+    }*/
 
     /**
      * Converts an AdminPendingRecipe entity into a ShowRecipeDTO for detailed viewing.
      * @param recipe the admin pending recipe
      * @return the detailed recipe DTO
      */
-    public ShowRecipeDTO adminRecipeToDetails (AdminPendingRecipe recipe){
+    /*public ShowRecipeDTO adminRecipeToDetails (AdminPendingRecipe recipe){
 
         ShowRecipeDTO recipeDTO = new ShowRecipeDTO();
         recipeDTO.setMongoId(recipe.getId());
@@ -111,7 +97,7 @@ public class RecipeUtilityFunctions {
         recipeDTO.setCreationDate(recipe.getCreationDate().toLocalDate());
 
         return recipeDTO;
-    }
+    }*/
 
     /**
      * Converts a list of RecipeMongo entities into a list of UserPreviewRecipeDTOs.
@@ -122,6 +108,7 @@ public class RecipeUtilityFunctions {
 
         List<UserPreviewRecipeDTO> recipesDTO = new ArrayList<>();
         for(RecipeMongo recipe : recipes) {
+
             UserPreviewRecipeDTO recipeDTO = new UserPreviewRecipeDTO();
             recipeDTO.setId(recipe.getId());
             recipeDTO.setTitle(recipe.getTitle());
@@ -174,7 +161,7 @@ public class RecipeUtilityFunctions {
      * @param recipe the pending recipe
      * @return the final mongo recipe
      */
-    public RecipeMongo baseToMongoRecipe(AdminPendingRecipe recipe){
+    /* public RecipeMongo baseToMongoRecipe(AdminPendingRecipe recipe){
 
         RecipeMongo full_recipe = new RecipeMongo();
         full_recipe.setTitle(recipe.getTitle());
@@ -190,7 +177,7 @@ public class RecipeUtilityFunctions {
         full_recipe.setNumSaves(0);
 
         return full_recipe;
-    }
+    }*/
 
     /**
      * Converts a RecipeMongo entity into a GraphRecipeDTO for Neo4j synchronization.
@@ -226,26 +213,12 @@ public class RecipeUtilityFunctions {
      * @param chefDTO the chef information
      * @return the AdminPendingRecipe entity
      */
-    public AdminPendingRecipe createBaseRecipe (CreateRecipeDTO dto, ChefInfoDTO chefDTO){
+    public AdminPendingRecipe createBaseRecipe (CreateRecipeDTO dto, ChefInfoDTO chefDTO, String recipeId){
 
         AdminPendingRecipe recipe = new AdminPendingRecipe();
-        recipe.setId(java.util.UUID.randomUUID().toString());
+        recipe.setId(recipeId);
         recipe.setTitle(dto.getTitle());
-        recipe.setCategory(dto.getCategory());
-        recipe.setPreparation(dto.getPreparation());
-        recipe.setPrepTime(dto.getPrepTime());
-        recipe.setDifficulty(dto.getDifficulty());
-        recipe.setPresentation(dto.getPresentation());
         recipe.setImageURL(dto.getImageURL());
-
-        List<RecipeIngredient> ingredients = new ArrayList<>();
-        for(IngredientDTO ingredientDTO : dto.getIngredients()){
-            RecipeIngredient ingredient = new RecipeIngredient();
-            ingredient.setName(ingredientDTO.getName());
-            ingredient.setQuantity(ingredientDTO.getQuantity());
-            ingredients.add(ingredient);
-        }
-        recipe.setIngredients(ingredients);
         recipe.setCreationDate(LocalDateTime.now());
 
         ReducedChef chef = new ReducedChef();
@@ -254,7 +227,6 @@ public class RecipeUtilityFunctions {
         chef.setSurname(chefDTO.getSurname());
 
         recipe.setChef(chef);
-
         return recipe;
     }
 
@@ -264,18 +236,12 @@ public class RecipeUtilityFunctions {
      * @param recipe the pending recipe
      * @return the chef pending recipe summary
      */
-    public PendingRecipe recipeToChefRecipe (AdminPendingRecipe recipe){
+    public PendingRecipe recipeToChefRecipe (AdminPendingRecipe recipe, String recipeId){
 
         PendingRecipe full_recipe = new PendingRecipe();
-        full_recipe.setId(recipe.getId());
+        full_recipe.setId(recipeId);
         full_recipe.setTitle(recipe.getTitle());
-        full_recipe.setPresentation(recipe.getPresentation());
-        full_recipe.setCategory(recipe.getCategory());
-        full_recipe.setPrepTime(recipe.getPrepTime());
-        full_recipe.setPreparation(recipe.getPreparation());
-        full_recipe.setDifficulty(recipe.getDifficulty());
         full_recipe.setImageURL(recipe.getImageURL());
-        full_recipe.setIngredients(recipe.getIngredients());
         full_recipe.setCreationDate(recipe.getCreationDate());
 
         return full_recipe;
@@ -424,5 +390,36 @@ public class RecipeUtilityFunctions {
         recipeDTO.setCreationDate(recipe.getCreationDate().toLocalDate());
         recipeDTO.setChefId(recipe.getChef().getId());
         return recipeDTO;
+    }
+
+
+    public RecipeMongo dtoToModel (CreateRecipeDTO recipeDto, ChefInfoDTO chefInfo) {
+
+        RecipeMongo recipe = new RecipeMongo();
+        recipe.setTitle(recipeDto.getTitle());
+        recipe.setPresentation(recipeDto.getPresentation());
+        recipe.setCategory(recipeDto.getCategory());
+        recipe.setPrepTime(recipeDto.getPrepTime());
+        recipe.setDifficulty(recipeDto.getDifficulty());
+        recipe.setImageURL(recipeDto.getImageURL());
+        recipe.setPreparation(recipeDto.getPreparation());
+
+        ReducedChef chef = new ReducedChef();
+        chef.setId(chefInfo.getId());
+        chef.setName(chefInfo.getName());
+        chef.setSurname(chefInfo.getSurname());
+
+        List<RecipeIngredient> ingredients = new ArrayList<>();
+        for(IngredientDTO ingredientDTO : recipeDto.getIngredients()){
+            RecipeIngredient ingredient = new RecipeIngredient();
+            ingredient.setName(ingredientDTO.getName());
+            ingredient.setQuantity(ingredientDTO.getQuantity());
+            ingredients.add(ingredient);
+        }
+        recipe.setIngredients(ingredients);
+        recipe.setCreationDate(LocalDateTime.now());
+        recipe.setStatus("PENDING");
+
+        return recipe;
     }
 }

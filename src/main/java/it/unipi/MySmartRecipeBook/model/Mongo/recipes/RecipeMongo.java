@@ -59,4 +59,6 @@ public class RecipeMongo {
 
     @Field("num_saves")
     private Integer numSaves;
+
+    private String status;
 }

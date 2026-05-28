@@ -23,9 +23,7 @@ import it.unipi.MySmartRecipeBook.event.Task;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 
 import jakarta.transaction.Transactional;
-//import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -100,21 +98,16 @@ public class AdminService {
         Admin admin = adminRepository.findById(logged_admin.getId())
                 .orElseThrow(() -> new NoSuchElementException("Admin not found"));
 
-        //Get the pending recipe's list and we look for the specified id
-        AdminPendingRecipe recipeApproved = getAdminPendingRecipe(recipeId, admin);
+        getAdminPendingRecipe(recipeId, admin);
+        RecipeMongo recipeToModify = recipeRepository.findById(recipeId)
+                        .orElseThrow(()-> new NoSuchElementException("Recipe not found"));
 
-        if (recipeRepository.existsByTitle(recipeApproved.getTitle())) {
-            throw new DataIntegrityViolationException("Recipe already exists");
-        }
+        recipeToModify.setStatus("APPROVED");
+        recipeRepository.save(recipeToModify);
 
-
-        RecipeMongo recipe = recipeConvertions.baseToMongoRecipe(recipeApproved);
-        RecipeMongo savedRecipe = recipeRepository.save(recipe);
-
-        addToChefRecipes(savedRecipe, recipeId);
         adminRepository.removeRecipeFromApprovals(admin.getId(), recipeId);
 
-        GraphRecipeDTO graphRecipe = recipeConvertions.MongoToNeo4jGraph(savedRecipe);
+        GraphRecipeDTO graphRecipe = recipeConvertions.MongoToNeo4jGraph(recipeToModify);
         lowLoadManager.addTask(Task.TaskType.CREATE_RECIPE_NEO4J, graphRecipe);
 
     }
@@ -143,9 +136,8 @@ public class AdminService {
     /**
      * Adds a recipe to chef's page
      * @param recipe - the recipe
-     * @param pendingRecipeId - the id of the pending recipe
      */
-    private void addToChefRecipes(RecipeMongo recipe, String pendingRecipeId) {
+    private void addToChefRecipes(RecipeMongo recipe) {
 
         String chefId = recipe.getChef().getId();
 
@@ -153,8 +145,9 @@ public class AdminService {
                 .orElseThrow(() -> new NoSuchElementException("Chef not found"));
 
         if (chef.getRecipesToConfirm() != null) {
-            chef.getRecipesToConfirm().removeIf(pending -> pending.getId().equals(pendingRecipeId));
+            chef.getRecipesToConfirm().removeIf(pendingRecipe -> pendingRecipe.getId().equals(recipe.getId()));
         }
+
         ChefRecipeSummary newChefRecipe = recipeConvertions.recipeToChefRecipe(recipe);
 
         if(chef.getNewRecipes() == null) {
@@ -197,6 +190,8 @@ public class AdminService {
         if(recipeFoundAdmin) {
             chefRepository.removeRecipeFromWaiting(chefId, recipeId);
         }
+
+        recipeRepository.deleteById(recipeId);
     }
 
 
@@ -365,11 +360,17 @@ public class AdminService {
         Admin admin = adminRepository.findById(logged_admin.getId())
                 .orElseThrow(() -> new NoSuchElementException("Admin not found"));
 
-        AdminPendingRecipe targetRecipe = getAdminPendingRecipe(recipeId, admin);
-        return recipeConvertions.adminRecipeToDetails(targetRecipe);
+        RecipeMongo recipe = recipeRepository.findById(recipeId)
+                .orElseThrow(() -> new NoSuchElementException("Recipe not found"));
+
+        if(!recipe.getStatus().equals("PENDING")){
+            throw new NoSuchElementException("Recipe not found");
+        }
+
+        return recipeConvertions.EntityToDto(recipe);
     }
 
-    /**
+    /**à
      * Monthly foodies count
      * @return the monthly foodies subscribed to the app
      */

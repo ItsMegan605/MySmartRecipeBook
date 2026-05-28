@@ -82,11 +82,10 @@ public class RecipeService {
         }
 
         Pageable pageable = PageRequest.of(pageNumber - 1, pageSizeTitle);
-        Slice<RecipeMongo> matching_recipes = recipeRepository.findByTitleContainingIgnoreCase(title, pageable);
+        Slice<RecipeMongo> matching_recipes = recipeRepository.findRecipesByTitle(title, "APPROVED", pageable);
         if (matching_recipes.isEmpty()){
             throw new NoSuchElementException("Not found");
         }
-
         return buildSliceDto(matching_recipes);
     }
 
@@ -120,7 +119,7 @@ public class RecipeService {
         }
 
         Pageable pageable = PageRequest.of(pageNumber - 1, pageSizeCategory, Sort.by("creationDate").descending());
-        Slice<RecipeMongo> matching_list = recipeRepository.findByCategory(filter, pageable);
+        Slice<RecipeMongo> matching_list = recipeRepository.findByCategory(filter, "APPROVED", pageable);
 
         return buildSliceDto(matching_list);
     }

@@ -21,11 +21,13 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
 
     /**
      * Finds recipes by title (case insensitive) with pagination.
-     * @param titleFragment part of the title
+     * @param title substring that is part of the title
      * @param pageable pagination information
      * @return slice of recipes
      */
-    Slice<RecipeMongo> findByTitleContainingIgnoreCase(String titleFragment, Pageable pageable);
+    @Query("{ 'status': ?1, 'title': { '$regex': ?0, '$options': 'i' } }")
+    Slice<RecipeMongo> findRecipesByTitle(String title, String status, Pageable pageable);
+
 
     /**
      * Finds recipes by category with pagination.
@@ -33,7 +35,8 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
      * @param pageable pagination information
      * @return slice of recipes
      */
-    Slice<RecipeMongo> findByCategory(String category, Pageable pageable);
+    @Query("{ 'status': ?1, 'category': ?1 }")
+    Slice<RecipeMongo> findByCategory(String category, String status, Pageable pageable);
 
     /**
      * Finds all recipes of a chef ordered by creation date (descending).
@@ -64,12 +67,9 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
      */
     void deleteAllByChefId(String chefId);
 
-    /**
-     * Checks if a recipe exists by title.
-     * @param title recipe title
-     * @return true if exists
-     */
-    boolean existsByTitle(String title);
+    @Query("{ '_id' : ?0 }")
+    @Update("{ '$set' : { 'status' : 'APPROVED' }}")
+    void setStatus(String recipeId);
 
     /**
      * Deletes a recipe by ID.
