@@ -348,6 +348,8 @@ public class RecipeUtilityFunctions {
         chef.setName(chefInfo.getName());
         chef.setSurname(chefInfo.getSurname());
 
+        recipe.setChef(chef);
+
         List<RecipeIngredient> ingredients = new ArrayList<>();
         for(IngredientDTO ingredientDTO : recipeDto.getIngredients()){
             RecipeIngredient ingredient = new RecipeIngredient();

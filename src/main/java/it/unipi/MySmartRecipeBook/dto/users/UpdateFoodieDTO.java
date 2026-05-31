@@ -23,8 +23,8 @@ public class UpdateFoodieDTO{
     private String name;
 
     private String surname;
-
-    @Email
+    
+    @Email (message = "Insert a valid email")
     private String email;
 
     @Past

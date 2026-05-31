@@ -53,8 +53,9 @@ public class RecipeService {
      */
     public ShowRecipeDTO getRecipeById(String id){
 
-        RecipeMongo full_recipe = recipeRepository.findById(id)
+        RecipeMongo full_recipe = recipeRepository.findApprovedById(id)
                 .orElseThrow(() -> new NoSuchElementException("Recipe not found"));
+
 
         return convertions.EntityToDto(full_recipe);
     }

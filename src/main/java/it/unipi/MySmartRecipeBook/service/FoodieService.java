@@ -198,7 +198,7 @@ public class FoodieService {
             }
         }
 
-        RecipeMongo recipe = recipeRepository.findById(recipeId)
+        RecipeMongo recipe = recipeRepository.findApprovedById(recipeId)
                 .orElseThrow(() -> new NoSuchElementException("Recipe to save not found"));
 
         FoodieRecipeSummary fullRecipe = recipeUtilityFunctions.entityToReducedRecipe(recipe);

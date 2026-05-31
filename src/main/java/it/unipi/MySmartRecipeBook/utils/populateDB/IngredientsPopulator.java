@@ -20,11 +20,12 @@ import java.nio.charset.StandardCharsets;
 public class IngredientsPopulator implements CommandLineRunner {
 
     private final JedisSentinelPool jedisSentinelPool;
-    private static final String INGREDIENTS_REDIS_KEY = "MySmartRecipeBook:allowed_ingredients";
+    private static final String INGREDIENTS_REDIS_KEY = "Allowed_ingredients";
     @Value("${app.recipe.do-redis-population:false}")
     private boolean doRedisPopulation;
 
     public IngredientsPopulator(JedisSentinelPool jedisSentinelPool) {
+
         this.jedisSentinelPool = jedisSentinelPool;
     }
 

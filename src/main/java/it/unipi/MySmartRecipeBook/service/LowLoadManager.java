@@ -316,7 +316,6 @@ public class LowLoadManager {
         }
 
         chefRepository.save(targetChef);
-
         //Updating the total saves in recipe's collection
         recipeMongoRepository.updateSavesCounter(task.getRecipeId(), -1);
     }
@@ -361,7 +360,10 @@ public class LowLoadManager {
 
         RecipeMongo recipe = recipeMongoRepository.findById(task.getRecipeId())
                         .orElseThrow(() -> new NoSuchElementException("No recipe found"));
-        recipe.setNumSaves(recipe.getNumSaves()+1);
+        int numSaves = recipe.getNumSaves() == null ? 0 : recipe.getNumSaves();
+        recipe.setNumSaves(numSaves+1);
+        recipeMongoRepository.save(recipe);
+
 
         if(recipe.getNumSaves() == 40){
             ChefRecipeSummary recipeToAdd = recipeUtilityFunctions.recipeToChefRecipe(recipe);

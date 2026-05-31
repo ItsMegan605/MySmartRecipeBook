@@ -12,12 +12,21 @@ import it.unipi.MySmartRecipeBook.dto.TrendAnalyticsDTO;
 import org.springframework.data.mongodb.repository.Aggregation;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Repository for managing RecipeMongo documents in MongoDB.
  */
 @Repository
 public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, String> {
+
+    /**
+     * Recipe status
+     * @param id - recipe id
+     * @return recipe details if approved
+     */
+    @Query("{ '_id': ?0, 'status': 'APPROVED' }")
+    Optional<RecipeMongo> findApprovedById(String id);
 
     /**
      * Finds recipes by title (case insensitive) with pagination.

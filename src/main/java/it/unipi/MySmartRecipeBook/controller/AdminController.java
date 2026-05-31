@@ -87,7 +87,7 @@ public class AdminController {
      * @see AdminService#declineChef(String)
      * @return ResponseEntity with  message
      */
-    @PostMapping("/discardChef/{username}")
+    @DeleteMapping("/discardChef/{username}")
     @Operation(summary = "Decline a chef registration")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200"),

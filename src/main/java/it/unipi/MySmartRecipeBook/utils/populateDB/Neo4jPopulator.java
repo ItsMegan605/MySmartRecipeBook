@@ -83,7 +83,7 @@ public class Neo4jPopulator implements CommandLineRunner {
 
         Set<String> ingredients;
         try (Jedis jedis = jedisSentinelPool.getResource()) {
-            ingredients = jedis.smembers("MySmartRecipeBook:allowed_ingredients");
+            ingredients = jedis.smembers("Allowed_ingredients");
         }
         List<IngredientNeo4j> ingredientsNeo4j = new ArrayList<>();
         for(String ingredient : ingredients){
