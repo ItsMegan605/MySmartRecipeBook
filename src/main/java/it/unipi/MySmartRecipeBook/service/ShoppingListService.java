@@ -7,7 +7,6 @@ import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisSentinelPool;
 
 

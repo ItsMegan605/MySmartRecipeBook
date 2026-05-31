@@ -204,8 +204,6 @@ public class ChefService {
 
         return recipeConvertions.baseToChefDTO(savedRecipe);
     }
-    // TODO: serve un mockup quando la ricetta viene messa tra le pending dello chef
-
 
     /**
      * function to delete a recipe: once deleted it must update the total recipes of a chef and later
@@ -302,16 +300,11 @@ public class ChefService {
             throw new NoSuchElementException("No recipes waiting to be confirmed");
         }
 
-        // TODO: decidere cosa fare nel caso in cui non c'è la ricetta, sia per l'admin che per lo chef
         chefRepository.removeRecipeFromWaiting(chef.getId(), recipeId);
 
         Admin admin = adminRepository.findByUsername("admin");
         if(admin == null){
             throw new NoSuchElementException("Admin not found");
-        }
-
-        if(admin.getRecipesToApprove() == null){
-            throw new NoSuchElementException("No recipes waiting to be approved");
         }
 
         adminRepository.removeRecipeFromApprovals(admin.getId(), recipeId);

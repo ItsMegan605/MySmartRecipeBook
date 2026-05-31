@@ -17,7 +17,10 @@ public class IngredientDTO {
     private String name;
     private String quantity;
 
-    // TODO: MEGANNNNNN
+    /**
+     * Helper method to check ingredients quantity
+     * @return - validation of the quantity
+     */
     public boolean checkQuantity(){
 
         return (!(this.quantity == null || this.quantity.isEmpty()));
