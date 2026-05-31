@@ -12,7 +12,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Redis Master -slace configuration
+ * Redis Master - slace configuration
  */
 @Configuration
 public class RedisConfig {
@@ -25,7 +25,7 @@ public class RedisConfig {
 
     /**
      * Redis configuration for master slave
-     * @return
+     * @return configured istance of JedisSentinelPool
      */
     @Bean
     public JedisSentinelPool jedisSentinelPool() {

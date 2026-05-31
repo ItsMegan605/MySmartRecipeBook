@@ -17,7 +17,9 @@ public class IngredientDTO {
     private String name;
     private String quantity;
 
+    // TODO: MEGANNNNNN
     public boolean checkQuantity(){
+
         return (!(this.quantity == null || this.quantity.isEmpty()));
     }
 }

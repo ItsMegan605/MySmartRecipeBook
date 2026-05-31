@@ -19,13 +19,13 @@ import java.util.Collections;
  */
 public class UserPrincipal implements UserDetails {
 
-    private String password;
+    private final String password;
 
-    private String id;
+    private final String id;
 
-    private String username;
+    private final String username;
 
-    private Collection<? extends GrantedAuthority> authorities;
+    private final Collection<? extends GrantedAuthority> authorities;
 
     public UserPrincipal(String id, String username, String password,
                          Collection<? extends GrantedAuthority> authorities) {

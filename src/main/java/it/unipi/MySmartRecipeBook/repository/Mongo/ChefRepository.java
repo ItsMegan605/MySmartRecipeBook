@@ -52,7 +52,6 @@ public interface ChefRepository extends MongoRepository<Chef, String> {
      * Removes a recipe from the pending list.
      * @param chefId chef ID
      * @param recipeId recipe ID
-     * @return number of modified documents
      */
     @Query("{ '_id': ?0 }")
     @Update("{ '$pull': { 'recipes_to_confirm': { 'id': ?1 } } }")

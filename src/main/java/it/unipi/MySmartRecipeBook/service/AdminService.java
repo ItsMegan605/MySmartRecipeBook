@@ -106,6 +106,7 @@ public class AdminService {
         recipeRepository.save(recipeToModify);
 
         adminRepository.removeRecipeFromApprovals(admin.getId(), recipeId);
+        addToChefRecipes(recipeToModify);
 
         GraphRecipeDTO graphRecipe = recipeConvertions.MongoToNeo4jGraph(recipeToModify);
         lowLoadManager.addTask(Task.TaskType.CREATE_RECIPE_NEO4J, graphRecipe);
@@ -360,6 +361,13 @@ public class AdminService {
         Admin admin = adminRepository.findById(logged_admin.getId())
                 .orElseThrow(() -> new NoSuchElementException("Admin not found"));
 
+        boolean found = admin.getRecipesToApprove().stream()
+                .anyMatch(recipe -> recipe.getId().equals(recipeId));
+
+        if (!found) {
+            throw new NoSuchElementException("Recipe not found among admin pending recipes");
+        }
+
         RecipeMongo recipe = recipeRepository.findById(recipeId)
                 .orElseThrow(() -> new NoSuchElementException("Recipe not found"));
 
@@ -370,7 +378,7 @@ public class AdminService {
         return recipeConvertions.EntityToDto(recipe);
     }
 
-    /**à
+    /**
      * Monthly foodies count
      * @return the monthly foodies subscribed to the app
      */

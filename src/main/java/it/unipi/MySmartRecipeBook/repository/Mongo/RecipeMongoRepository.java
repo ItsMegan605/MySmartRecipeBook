@@ -67,10 +67,6 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
      */
     void deleteAllByChefId(String chefId);
 
-    @Query("{ '_id' : ?0 }")
-    @Update("{ '$set' : { 'status' : 'APPROVED' }}")
-    void setStatus(String recipeId);
-
     /**
      * Deletes a recipe by ID.
      * @param id recipe ID

@@ -41,14 +41,14 @@ public class LowLoadManager {
     @Lazy
     private LowLoadManager lowLoadManager;
 
-    private RecipeUtilityFunctions recipeUtilityFunctions;
+    private final RecipeUtilityFunctions recipeUtilityFunctions;
 
     public LowLoadManager(RecipeMongoRepository recipeMongoRepository, ChefRepository chefRepository,
-                          RecipeNeo4jRepository recipeNeo4jRepository) {//LowLoadManager lowLoadManager)
+                          RecipeNeo4jRepository recipeNeo4jRepository, RecipeUtilityFunctions recipeUtilityFunctions) {
         this.recipeMongoRepository = recipeMongoRepository;
         this.chefRepository = chefRepository;
         this.recipeNeo4jRepository = recipeNeo4jRepository;
-        //this.lowLoadManager = lowLoadManager;
+        this.recipeUtilityFunctions = recipeUtilityFunctions;
     }
 
     /**

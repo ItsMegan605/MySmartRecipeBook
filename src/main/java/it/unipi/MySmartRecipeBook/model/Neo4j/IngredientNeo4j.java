@@ -13,7 +13,7 @@ import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Node("Ingredient") // Using "Ingredients" for consistency with graph labels
+@Node("Ingredient")
 public class IngredientNeo4j {
 
     @Id

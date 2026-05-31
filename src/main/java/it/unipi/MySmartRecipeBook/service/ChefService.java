@@ -17,11 +17,6 @@ import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.data.mongodb.core.FindAndModifyOptions;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -53,13 +48,11 @@ public class ChefService {
     private final RecipeMongoRepository recipeMongoRepository;
     private final LowLoadManager lowLoadManager;
     private final IngredientService ingredientService;
-    private final MongoTemplate mongoTemplate;
 
     public ChefService(ChefRepository chefRepository, ChefUtilityFunctions chefConvertions,
                        RecipeUtilityFunctions recipeConvertions, PasswordEncoder passwordEncoder,
                        AdminRepository adminRepository, RecipeMongoRepository recipeMongoRepository,
-                       LowLoadManager lowLoadManager, IngredientService ingredientService,
-                       MongoTemplate mongoTemplate) {
+                       LowLoadManager lowLoadManager, IngredientService ingredientService) {
         this.chefRepository = chefRepository;
         this.chefConvertions = chefConvertions;
         this.passwordEncoder = passwordEncoder;
@@ -68,7 +61,6 @@ public class ChefService {
         this.lowLoadManager = lowLoadManager;
         this.ingredientService = ingredientService;
         this.recipeConvertions = recipeConvertions;
-        this.mongoTemplate = mongoTemplate;
     }
 
 
@@ -105,27 +97,28 @@ public class ChefService {
                 .getAuthentication()
                 .getPrincipal();
 
-        if(!chefRepository.existsById(authChef.getId())){
-            throw new NoSuchElementException("Chef not found");
+        Chef chef = chefRepository.findById(authChef.getId())
+                .orElseThrow(() -> new NoSuchElementException("Chef not found"));
+
+        boolean modified = false;
+
+        if (dto.getEmail() != null && StringUtils.hasText(dto.getEmail())){
+            chef.setEmail(dto.getEmail());
+            modified = true;
         }
 
-        Query query = new Query(Criteria.where("id").is(authChef.getId()));
+        if (dto.getPassword() != null && StringUtils.hasText(dto.getPassword())){
+            chef.setPassword(passwordEncoder.encode(dto.getPassword()));
+            modified = true;
+        }
 
-        Update update = new Update();
-        if (dto.getEmail() != null && StringUtils.hasText(dto.getEmail()))
-            update.set("email", dto.getEmail());
+        if (dto.getBirthdate() != null){
+            chef.setBirthdate(dto.getBirthdate());
+            modified = true;
+        }
 
-        if (dto.getPassword() != null && StringUtils.hasText(dto.getPassword()))
-            update.set("password", passwordEncoder.encode(dto.getPassword()));
-
-        if (dto.getBirthdate() != null)
-            update.set("birthdate", dto.getBirthdate());
-
-        FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
-        Chef chef = mongoTemplate.findAndModify(query, update, options, Chef.class);
-
-        if (chef == null) {
-            throw new NoSuchElementException("Chef not found");
+        if(modified){
+            chefRepository.save(chef);
         }
         return chefConvertions.chefToChefInfo(chef);
     }
@@ -448,30 +441,6 @@ public class ChefService {
      * @param recipeId - recipe id
      * @return the recipe
      */
-    /*public ShowRecipeDTO getRecipeDetails(String recipeId){
-        UserPrincipal authChef = (UserPrincipal) SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getPrincipal();
-
-        Chef chef = chefRepository.findById(authChef.getId())
-                .orElseThrow(() -> new NoSuchElementException("Chef not found"));
-
-        List<PendingRecipe> pendingRecipes = chef.getRecipesToConfirm();
-        PendingRecipe targetRecipe = null;
-        for(PendingRecipe pendingRecipe : pendingRecipes){
-            if(pendingRecipe.getId().equals(recipeId)){
-                targetRecipe = pendingRecipe;
-            }
-        }
-        if(targetRecipe == null){
-            throw new NoSuchElementException("Recipe not found");
-        }
-
-        ShowRecipeDTO recipe = recipeConvertions.PendingToDetails(targetRecipe);
-        recipe.setChef(chef.getName() + " " + chef.getSurname());
-        recipe.setChefId(chef.getId());
-        return recipe;
-    }*/
     public ShowRecipeDTO getRecipeDetails(String recipeId){
         UserPrincipal authChef = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -491,7 +460,6 @@ public class ChefService {
             throw new NoSuchElementException("Recipe not found");
         }
 
-        ShowRecipeDTO recipePreview = recipeConvertions.EntityToDto(recipe);
-        return recipePreview;
+        return recipeConvertions.EntityToDto(recipe);
     }
 }
