@@ -30,8 +30,8 @@ public class ShoppingListService {
     }
 
 
-    public static final String REDIS_APP_NAMESPACE = "MySmartRecipeBook:";
-    private static final String REDIS_KEY_PREFIX = "shoppingList:user:";
+    private static final String REDIS_ENTITY = "Foodie:";
+    private static final String REDIS_KEY_PREFIX = "shoppingList";
 
     /**
      * Method to return the shopping list and its contents
@@ -53,7 +53,7 @@ public class ShoppingListService {
      */
     private IngredientsListDTO returnShoppingList(String username) {
 
-        String key = REDIS_APP_NAMESPACE + REDIS_KEY_PREFIX + username;
+        String key = REDIS_ENTITY + username + REDIS_KEY_PREFIX;
 
         Set<String> ingredients;
         try (Jedis jedis = jedisSentinelPool.getResource()) {
@@ -84,7 +84,7 @@ public class ShoppingListService {
         ingredients.removeIf(ingredient -> !ingredientService.isValidIngredient(ingredient));
         ingredients.replaceAll(String::toLowerCase);
 
-        String key = REDIS_APP_NAMESPACE + REDIS_KEY_PREFIX + authFoodie.getUsername();
+        String key = REDIS_ENTITY + authFoodie.getUsername() + REDIS_KEY_PREFIX;
 
 
         if (!ingredients.isEmpty()) {
@@ -112,7 +112,7 @@ public class ShoppingListService {
 
 
         if(ingredientService.isValidIngredient(ingredient.toLowerCase())) {
-            String key = REDIS_APP_NAMESPACE + REDIS_KEY_PREFIX + authFoodie.getUsername();
+            String key = REDIS_ENTITY + authFoodie.getUsername() + REDIS_KEY_PREFIX;
             try (Jedis jedis = jedisSentinelPool.getResource()) {
                 jedis.srem(key, ingredient.toLowerCase());
             }

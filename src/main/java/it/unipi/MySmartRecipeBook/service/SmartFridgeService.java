@@ -50,9 +50,13 @@ public class SmartFridgeService {
         this.conversion = conversion;
     }
 
-    public static final String REDIS_APP_NAMESPACE = "MySmartRecipeBook:";
-    private static final String REDIS_FRIDGE_PREFIX = "smartFridge:ingredients:";
-    private static final String REDIS_RECIPES_PREFIX = "smartFridge:suggestions:";
+    private static final String REDIS_ENTITY = "Foodie:";
+    private static final String REDIS_FRIDGE_PREFIX = "smartFridge:ingredients";
+    private static final String REDIS_RECIPES_PREFIX = "smartFridge:suggestions";
+
+
+
+
 
     /**
      * Method to get the smart fridge and its contents
@@ -74,7 +78,7 @@ public class SmartFridgeService {
      */
     private IngredientsListDTO returnSmartFridge(String username) {
 
-        String key = REDIS_APP_NAMESPACE + REDIS_FRIDGE_PREFIX + username;
+        String key = REDIS_ENTITY + username + REDIS_FRIDGE_PREFIX;
 
         Set<String> ingredients;
         try (Jedis jedis = jedisSentinelPool.getResource()) {
@@ -104,12 +108,12 @@ public class SmartFridgeService {
         ingredients.replaceAll(ingredient -> ingredient.strip().toLowerCase());
         ingredients.removeIf(ingredient -> !ingredientService.isValidIngredient(ingredient));
 
-        String key = REDIS_APP_NAMESPACE + REDIS_FRIDGE_PREFIX + authFoodie.getUsername();
+        String key = REDIS_ENTITY + authFoodie.getUsername() + REDIS_FRIDGE_PREFIX;
 
         if (!ingredients.isEmpty()) {
             try (Jedis jedis = jedisSentinelPool.getResource()) {
                 jedis.sadd(key, ingredients.toArray(new String[0]));
-                jedis.del(REDIS_APP_NAMESPACE +REDIS_RECIPES_PREFIX + authFoodie.getUsername());
+                jedis.del(REDIS_ENTITY + authFoodie.getUsername() + REDIS_RECIPES_PREFIX);
             }
         }
         else{
@@ -133,7 +137,7 @@ public class SmartFridgeService {
         ingredient = ingredient.strip().toLowerCase();
 
         if(ingredientService.isValidIngredient(ingredient)) {
-            String key = REDIS_APP_NAMESPACE + REDIS_FRIDGE_PREFIX + authFoodie.getUsername();
+            String key = REDIS_ENTITY + authFoodie.getUsername() + REDIS_FRIDGE_PREFIX;
             try (Jedis jedis = jedisSentinelPool.getResource()) {
                 jedis.srem(key, ingredient);
             }
@@ -149,7 +153,7 @@ public class SmartFridgeService {
      * @return the recipes suggested
      */
     public SliceRecipeDTO<RecipeSuggestionDTO> getRecommendations(String username, int pageNum) {
-        String cacheKey = REDIS_APP_NAMESPACE +REDIS_RECIPES_PREFIX + username;
+        String cacheKey = REDIS_ENTITY + username + REDIS_RECIPES_PREFIX;
         String json;
         try (Jedis jedis = jedisSentinelPool.getResource()) {
             json = jedis.get(cacheKey);
@@ -208,7 +212,7 @@ public class SmartFridgeService {
      * @param removedIngredient - the removed ingredient
      */
     private void updateCacheAfterRemoval(String username, String removedIngredient) {
-        String cacheKey = REDIS_APP_NAMESPACE +REDIS_RECIPES_PREFIX + username;
+        String cacheKey = REDIS_ENTITY + username + REDIS_RECIPES_PREFIX;
         try (Jedis jedis = jedisSentinelPool.getResource()){
             String json = jedis.get(cacheKey);
 

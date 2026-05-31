@@ -11,7 +11,7 @@ import redis.clients.jedis.JedisSentinelPool;
 @Service
 public class IngredientService {
     private final JedisSentinelPool jedisSentinelPool;
-    private static final String INGREDIENTS_REDIS_KEY = "MySmartRecipeBook:allowed_ingredients";
+    private static final String INGREDIENTS_REDIS_KEY = "Allowed_ingredients";
 
     public IngredientService(JedisSentinelPool jedisSentinelPool) {
         this.jedisSentinelPool = jedisSentinelPool;
