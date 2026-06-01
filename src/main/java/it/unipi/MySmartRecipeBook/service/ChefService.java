@@ -138,6 +138,7 @@ public class ChefService {
         Chef chef = chefRepository.findById(loggedChef.getId())
                 .orElseThrow(() -> new NoSuchElementException("Chef not found"));
 
+
         recipeMongoRepository.deleteAllByChefId(loggedChef.getId());
 
         if(chef.getRecipesToConfirm() != null) {
@@ -151,10 +152,9 @@ public class ChefService {
         }
 
         chefRepository.delete(chef);
-        lowLoadManager.addTask(Task.TaskType.DELETE_CHEF_RECIPE, loggedChef.getId());
+        lowLoadManager.addTask(Task.TaskType.DELETE_CHEF_RECIPE, "0", loggedChef.getId());
     }
 
-    // TODO: TESTARE
     /**
      * Function called by the chef to write a new recipe: the recipe is on a waiting list at the
      * beginning waiting for admin's approval.
@@ -179,8 +179,8 @@ public class ChefService {
         if (recipeDTO.getDifficulty() == null || !DIFFICULTIES.contains(recipeDTO.getDifficulty())) {
             throw new IllegalArgumentException("Invalid or missing difficulty");
         }
-
         List<IngredientDTO> ingredients = recipeDTO.getIngredients();
+        ingredients.forEach(i -> i.setName(i.getName().toLowerCase()));
         for(IngredientDTO ingredient : ingredients) {
 
             String ingredientName = ingredient.getName();
@@ -247,8 +247,9 @@ public class ChefService {
         boolean findRecipe = false;
         for (ChefRecipeSummary recipe : newRecipes) {
             if (recipe.getId().equals(recipeId)) {
-
-                chef.setTotalSaves(chef.getTotalSaves() - recipe.getNumSaves());
+                int totSaves = chef.getTotalSaves() == null ? 0 : chef.getTotalSaves();
+                int recipeSaves = recipe.getNumSaves() == null ? 0 : recipe.getNumSaves();
+                chef.setTotalSaves(totSaves - recipeSaves);
                 newRecipes.remove(recipe);
 
                 if(chef.getOldRecipes() != null){
@@ -267,7 +268,9 @@ public class ChefService {
         if(!findRecipe){
             for(String oldRecipeId : chef.getOldRecipes()){
                 if(oldRecipeId.equals(recipeId)){
-                    chef.setTotalSaves(chef.getTotalSaves() - deletedRecipe.getNumSaves());
+                    int totSaves = chef.getTotalSaves() == null ? 0 : chef.getTotalSaves();
+                    int recipeSaves = deletedRecipe.getNumSaves() == null ? 0 : deletedRecipe.getNumSaves();
+                    chef.setTotalSaves(totSaves - recipeSaves);
                     chef.getOldRecipes().remove(oldRecipeId);
                     break;
                 }
@@ -291,7 +294,6 @@ public class ChefService {
         lowLoadManager.addTask(Task.TaskType.DELETE_RECIPE, recipeId);
     }
 
-    // TODO: da testare
     /**
      * Remove a recipe from the list of recipes waiting to be confirmed
      * @param recipeId gets the recipe ID of the recipe that is waiting to be approved

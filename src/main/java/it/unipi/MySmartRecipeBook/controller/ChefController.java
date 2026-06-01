@@ -72,7 +72,6 @@ public class ChefController {
 
     /**
      * Delete chef's profile
-     * @see ChefService#deleteChef(String)
      * @return ResponseEntity with message
      */
     @DeleteMapping("/deleteProfile")

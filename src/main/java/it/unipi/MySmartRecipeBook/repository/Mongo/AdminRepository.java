@@ -42,7 +42,12 @@ public interface AdminRepository extends MongoRepository<Admin, String> {
     @Update("{ '$pull': { 'recipes_to_approve': { 'id': ?1 } } }")
     Integer removeRecipeFromApprovals(String adminId, String recipeId);
 
-
+    /**
+     * Removes pending recipes
+     * @param adminId - the ID of the admin
+     * @param recipeIds - recipe id
+     * @return modified document
+     */
     @Query("{ '_id': ?0 }")
     @Update("{ '$pull': { 'recipes_to_approve': { 'id': { '$in': ?1 } } } }")
     Integer removeRecipesFromApprovals(String adminId, List<String> recipeIds);

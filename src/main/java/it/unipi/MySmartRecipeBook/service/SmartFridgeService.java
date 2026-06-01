@@ -51,8 +51,8 @@ public class SmartFridgeService {
     }
 
     private static final String REDIS_ENTITY = "Foodie:";
-    private static final String REDIS_FRIDGE_PREFIX = "smartFridge:ingredients";
-    private static final String REDIS_RECIPES_PREFIX = "smartFridge:suggestions";
+    private static final String REDIS_FRIDGE_PREFIX = ":smartFridge:ingredients";
+    private static final String REDIS_RECIPES_PREFIX = ":smartFridge:suggestions";
 
 
 
@@ -158,12 +158,12 @@ public class SmartFridgeService {
         try (Jedis jedis = jedisSentinelPool.getResource()) {
             json = jedis.get(cacheKey);
         }
-
+        List<RecipeSuggestionDTO> suggestions;
         if (json != null) {
             try {
-                return objectMapper.readValue(json, new TypeReference<>(){});
+                suggestions = objectMapper.readValue(json, new TypeReference<List<RecipeSuggestionDTO>>(){});
             } catch (JsonProcessingException e) {
-               throw new RuntimeException("Error occurred while using the application");
+                throw new RuntimeException("Error occurred while using the application");
             }
         }
         //If the recipe is not cached, check if there are at least 3 matched ingredients
@@ -179,19 +179,15 @@ public class SmartFridgeService {
         }
 
         List<String> ingredients = new ArrayList<>(ingredientsSet);
-        List<RecipeSuggestionDTO> suggestions = recipeNeo4jRepository.findRecipesByIngredients(ingredients);
+        suggestions = recipeNeo4jRepository.findRecipesByIngredients(ingredients);
 
         if(suggestions.isEmpty()){
             throw new IllegalArgumentException("No recipe matching ingredients");
         }
 
-
-        try {
             try (Jedis jedis = jedisSentinelPool.getResource()) {
                 jedis.set(cacheKey, objectMapper.writeValueAsString(suggestions));
-            }
-
-        } catch (JsonProcessingException e) {
+            } catch (JsonProcessingException e) {
             throw new RuntimeException("Error occurred while using the application");
         }
 

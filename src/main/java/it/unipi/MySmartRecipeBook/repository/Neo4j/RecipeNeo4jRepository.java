@@ -72,16 +72,6 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
     @Query("MATCH (r:Recipe {mongo_id: $recipeId}) DETACH DELETE r")
     void deleteRecipeById(String recipeId);
 
-    /**
-     * Deletes a chef and all related recipes.
-     * Uses OPTIONAL MATCH in case the chef has no recipes.
-     * DETACH DELETE removes nodes and all connected relationships.
-     *
-     * @param chefId chef ID
-     */
-    @Query("MATCH (c:Chef {mongo_id: $chefId}) " +
-            "OPTIONAL MATCH (c)-[:WROTE]->(r:Recipe) " +
-            "DETACH DELETE c, r")
-    void deleteChef(String chefId);
+
 
 }

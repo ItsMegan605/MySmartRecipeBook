@@ -32,5 +32,17 @@ public interface ChefNeo4jRepository extends Neo4jRepository<ChefNeo4j, String> 
             "} " +
             "RETURN name, surname, cat AS category")
     List<TopChefDTO> findTop3ChefsByCategory(@Param("categories") List<String> categories);
+
+    /**
+     * Deletes a chef and all related recipes.
+     * Uses OPTIONAL MATCH in case the chef has no recipes.
+     * DETACH DELETE removes nodes and all connected relationships.
+     *
+     * @param chefId chef ID
+     */
+    @Query("MATCH (c:Chef {mongo_id: $chefId}) " +
+            "OPTIONAL MATCH (c)-[:WROTE]->(r:Recipe) " +
+            "DETACH DELETE c, r")
+    void deleteChef(@Param("chefId") String chefId);
 }
 

@@ -30,7 +30,7 @@ public class ShoppingListService {
 
 
     private static final String REDIS_ENTITY = "Foodie:";
-    private static final String REDIS_KEY_PREFIX = "shoppingList";
+    private static final String REDIS_KEY_PREFIX = ":shoppingList";
 
     /**
      * Method to return the shopping list and its contents

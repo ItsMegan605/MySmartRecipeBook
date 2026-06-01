@@ -10,6 +10,7 @@ import it.unipi.MySmartRecipeBook.model.Mongo.users.Chef;
 import it.unipi.MySmartRecipeBook.event.Task;
 import it.unipi.MySmartRecipeBook.repository.Mongo.ChefRepository;
 import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
+import it.unipi.MySmartRecipeBook.repository.Neo4j.ChefNeo4jRepository;
 import it.unipi.MySmartRecipeBook.repository.Neo4j.RecipeNeo4jRepository;
 import it.unipi.MySmartRecipeBook.utils.conversionFunctions.RecipeUtilityFunctions;
 import jakarta.transaction.Transactional;
@@ -42,6 +43,8 @@ public class LowLoadManager {
     private LowLoadManager lowLoadManager;
 
     private final RecipeUtilityFunctions recipeUtilityFunctions;
+    @Autowired
+    private ChefNeo4jRepository chefNeo4jRepository;
 
     public LowLoadManager(RecipeMongoRepository recipeMongoRepository, ChefRepository chefRepository,
                           RecipeNeo4jRepository recipeNeo4jRepository, RecipeUtilityFunctions recipeUtilityFunctions) {
@@ -94,7 +97,7 @@ public class LowLoadManager {
     public void addTask (Task.TaskType type, String recipeId){
         TaskToDo task = new TaskToDo(type, recipeId);
         taskQueue.add(task);
-        System.out.println("Task successfully added to the queue: a new recipe will be added");
+        System.out.println("Task successfully added to the queue: recipe operation in progress");
     }
 
     /**
@@ -105,7 +108,7 @@ public class LowLoadManager {
     public void addTask (Task.TaskType type, GraphRecipeDTO recipe){
         TaskToDo task = new TaskToDo(type, recipe);
         taskQueue.add(task);
-        System.out.println("Task successfully added to the queue: a new node will be created");
+        System.out.println("Task successfully added to the queue: node operation in progress");
     }
 
     /**
@@ -203,7 +206,7 @@ public class LowLoadManager {
     }
 
     /**
-     * Batch decrement operation for recipe "saves" counters, when a foodie deltes its profile .
+     * Batch decrement operation for recipe "saves" counters, when a foodie deletes its profile .
      * @param task - the task to execute
      */
     @Transactional
@@ -397,7 +400,7 @@ public class LowLoadManager {
     public void deleteChefRecipes(String chefId){
         System.out.println("Deleting Chef Recipes");
 
-        recipeNeo4jRepository.deleteChef(chefId); //neo4j cleaning
+        chefNeo4jRepository.deleteChef(chefId); //neo4j cleaning
 
         /* Cleanup on Redis - this is not done eagerly; deletion occurs lazily when a cache miss/invalid state is encountered */    }
 

@@ -264,8 +264,9 @@ public class FoodieService {
             throw new NoSuchElementException("Recipe not found for the specified foodie");
         }
 
-        if (numPage <= 0 || !FOODIE_FILTERS.contains(category)) {
-            throw new IllegalArgumentException("Invalid parameters");
+        numPage = (numPage < 0) ? 0 : numPage;
+        if (!FOODIE_FILTERS.contains(category)) {
+            category = "saving-date";
         }
 
         List<FoodieRecipeSummary> recipesPreview = new ArrayList<>();
@@ -320,11 +321,18 @@ public class FoodieService {
         if(recipe.isEmpty()){
             foodieRepository.removeRecipeFromFavourites(foodie.getId(), id);
             throw new NoSuchElementException("Recipe not found");
+        } else if (recipe.get().getStatus().equals("PENDING")) {
+            throw new NoSuchElementException("The recipe is not found");
         }
 
         return recipeUtilityFunctions.EntityToDto(recipe.get());
     }
 
+    /**
+     * Get the chef by its surname
+     * @param chefSurname - chef surname
+     * @return - the chef
+     */
     public List<ChefPreviewDTO> getChefList (String chefSurname){
         List<Chef> chefs = chefRepository.findBySurnameContainingIgnoreCase(chefSurname);
 
