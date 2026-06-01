@@ -21,6 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -138,8 +139,18 @@ public class ChefService {
                 .orElseThrow(() -> new NoSuchElementException("Chef not found"));
 
         recipeMongoRepository.deleteAllByChefId(loggedChef.getId());
-        chefRepository.delete(chef);
 
+        if(chef.getRecipesToConfirm() != null) {
+            List<String> recipeToRemove = new ArrayList<>();
+            for(PendingRecipe recipe : chef.getRecipesToConfirm()) {
+                recipeToRemove.add(recipe.getId());
+            }
+
+            Admin admin = adminRepository.findByUsername("admin");
+            adminRepository.removeRecipesFromApprovals(admin.getId(), recipeToRemove);
+        }
+
+        chefRepository.delete(chef);
         lowLoadManager.addTask(Task.TaskType.DELETE_CHEF_RECIPE, loggedChef.getId());
     }
 

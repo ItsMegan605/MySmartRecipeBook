@@ -8,6 +8,8 @@ import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.Update;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * Repository for managing Admin documents in MongoDB.
  */
@@ -39,6 +41,11 @@ public interface AdminRepository extends MongoRepository<Admin, String> {
     @Query("{ '_id': ?0 }")
     @Update("{ '$pull': { 'recipes_to_approve': { 'id': ?1 } } }")
     Integer removeRecipeFromApprovals(String adminId, String recipeId);
+
+
+    @Query("{ '_id': ?0 }")
+    @Update("{ '$pull': { 'recipes_to_approve': { 'id': { '$in': ?1 } } } }")
+    Integer removeRecipesFromApprovals(String adminId, List<String> recipeIds);
 
     /**
      * Removes a chef from the approval list by username.
