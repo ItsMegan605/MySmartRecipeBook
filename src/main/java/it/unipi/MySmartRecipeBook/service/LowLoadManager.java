@@ -152,7 +152,7 @@ public class LowLoadManager {
                     break;
 
                 case SET_COUNTERS_REMOVE_FAVOURITE:
-                    lowLoadManager.updateChefCounters(task);
+                    lowLoadManager.decrementChefCounters(task);
                     break;
 
                 case CREATE_RECIPE_NEO4J:
@@ -274,15 +274,20 @@ public class LowLoadManager {
      * @param task - the task to execute
      */
     @Transactional
-    public void updateChefCounters(TaskToDo task) {
+    public void decrementChefCounters(TaskToDo task) {
 
         System.out.println("Update Chef Counters: removing from favorites");
 
         Chef targetChef = chefRepository.findById(task.getChefId())
                         .orElseThrow(() -> new NoSuchElementException("Chef not found"));
-        targetChef.setTotalSaves(targetChef.getTotalSaves()-1);
+        int totSaves = targetChef.getTotalSaves() == null ? 0 : targetChef.getTotalSaves();
+        targetChef.setTotalSaves(Math.max(0, totSaves-1));
 
         boolean found = false;
+        if(targetChef.getNewRecipes() == null){
+            throw new NoSuchElementException("Recipe not found");
+        }
+
         for(ChefRecipeSummary recipe : targetChef.getNewRecipes()){
             if(recipe.getId().equals(task.getRecipeId())){
                 found = true;
@@ -291,7 +296,7 @@ public class LowLoadManager {
             }
         }
 
-        if(!found){
+        if(!found && targetChef.getOldRecipes() != null){
             for(String oldRecipeId : targetChef.getOldRecipes()){
                 if(oldRecipeId.equals(task.getRecipeId())){
                     found = true;
@@ -301,23 +306,26 @@ public class LowLoadManager {
         }
 
         if(!found){
-            throw new NoSuchElementException("No recipe found");
+            throw new NoSuchElementException("Recipe not found");
         }
 
-        for(ChefRecipeSummary recipe : targetChef.getPopularRecipes()){
-            if(recipe.getId().equals(task.getRecipeId())){
-                recipe.setNumSaves(recipe.getNumSaves()-1);
+        if(targetChef.getPopularRecipes() != null) {
+            for (ChefRecipeSummary recipe : targetChef.getPopularRecipes()) {
+                if (recipe.getId().equals(task.getRecipeId())) {
+                    recipe.setNumSaves(recipe.getNumSaves() - 1);
 
-                if(recipe.getNumSaves() < 40){
-                    targetChef.getPopularRecipes().remove(recipe);
-                    break;
+                    if (recipe.getNumSaves() < 40) {
+                        targetChef.getPopularRecipes().remove(recipe);
+                        break;
+                    }
                 }
             }
         }
 
         chefRepository.save(targetChef);
         //Updating the total saves in recipe's collection
-        recipeMongoRepository.updateSavesCounter(task.getRecipeId(), -1);
+
+        recipeMongoRepository.decrementSavesCounter(task.getRecipeId());
     }
 
     /**

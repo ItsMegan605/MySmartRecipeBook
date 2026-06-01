@@ -70,6 +70,15 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
     @Update("{ '$inc' : { 'num_saves' : ?1 } }")
     void updateSavesCounter(String recipeId, int i);
 
+
+    /**
+     * Decrement the save counter of a recipe.
+     * @param recipeId recipe ID
+     */
+    @Query("{ '_id' : ?0 }")
+    @Update("{ '$inc' : { 'num_saves' : -1 } }")
+    void decrementSavesCounter(String recipeId);
+
     /**
      * Deletes all recipes of a specific chef.
      * @param chefId chef ID
@@ -108,7 +117,7 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
                     "previousCount: { $sum: { $cond: [ '$is_previous', 1, 0 ] } } " +
                     "} }",
             "{ $addFields: { totalCount: { $add: [ '$recentCount', '$previousCount' ] } } }",
-            //"{ $match: { totalCount: { $gte: 5 } } }",
+
             "{ $addFields: { " +
                     "growthRate: { $cond: [ " +
                     "{ $gt: [ '$previousCount', 0 ] }, " +

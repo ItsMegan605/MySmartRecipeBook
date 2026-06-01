@@ -36,7 +36,7 @@ public class AdminController {
      * @return ResponseEntity with approval message
      */
     @PostMapping("/approve/{id}")
-    @Operation(summary = "Approve a pending recipe", description = "Approves a recipe that is currently pending approval")
+    @Operation(summary = "Approve a pending recipe", description = "Approves a recipe that is currently pending waiting for admin approval")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Recipe successfully approved"),
             @ApiResponse(responseCode = "404", description = "Recipe not found")

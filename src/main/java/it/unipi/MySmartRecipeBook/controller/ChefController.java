@@ -80,11 +80,7 @@ public class ChefController {
     @ApiResponse(responseCode = "200")
     public ResponseEntity<String> deleteProfile() {
 
-        String username = SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getName();
-
-        chefService.deleteChef(username);
+        chefService.deleteChef();
         return ResponseEntity.ok("Profile successfully deleted. We are sorry to see you leaving");
     }
 

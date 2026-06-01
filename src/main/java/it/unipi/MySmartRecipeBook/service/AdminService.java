@@ -102,6 +102,10 @@ public class AdminService {
         RecipeMongo recipeToModify = recipeRepository.findById(recipeId)
                         .orElseThrow(()-> new NoSuchElementException("Recipe not found"));
 
+        if(!recipeToModify.getStatus().equals("PENDING")) {
+            throw new NoSuchElementException("Recipe not found");
+        }
+
         recipeToModify.setStatus("APPROVED");
         recipeRepository.save(recipeToModify);
 
@@ -183,7 +187,13 @@ public class AdminService {
         Admin admin = adminRepository.findById(logged_admin.getId())
                 .orElseThrow(() -> new NoSuchElementException("Admin not found"));
 
-        AdminPendingRecipe recipe = getAdminPendingRecipe(recipeId, admin);
+        RecipeMongo recipe = recipeRepository.findById(recipeId)
+                .orElseThrow(() -> new NoSuchElementException("Recipe not found"));
+
+        if(recipe.getStatus().equals("APPROVED")) {
+            throw new NoSuchElementException("Recipe not found");
+        }
+
         String chefId = recipe.getChef().getId();
 
         boolean recipeFoundAdmin = adminRepository.removeRecipeFromApprovals(admin.getId(), recipeId) > 0;

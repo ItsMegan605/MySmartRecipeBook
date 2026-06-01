@@ -125,21 +125,22 @@ public class ChefService {
 
     /**
      * Delete chef's profile
-     * @param chefId Gets the chef's id in order to delete his/her profile and then the low load manager handles
-     *               the deletion of the chef once the load of the cpu is lower than 30%
      * @throws NoSuchElementException if the chef doesn't exist
      */
     @Transactional
-    public void deleteChef(String chefId) {
+    public void deleteChef() {
 
-        Chef chef = chefRepository.findByUsername(chefId)
+        UserPrincipal loggedChef = (UserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        Chef chef = chefRepository.findById(loggedChef.getId())
                 .orElseThrow(() -> new NoSuchElementException("Chef not found"));
 
-
-        recipeMongoRepository.deleteAllByChefId(chefId);
+        recipeMongoRepository.deleteAllByChefId(loggedChef.getId());
         chefRepository.delete(chef);
 
-        lowLoadManager.addTask(Task.TaskType.DELETE_CHEF_RECIPE, chefId);
+        lowLoadManager.addTask(Task.TaskType.DELETE_CHEF_RECIPE, loggedChef.getId());
     }
 
     // TODO: TESTARE
