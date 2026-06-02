@@ -4,6 +4,7 @@ import it.unipi.MySmartRecipeBook.dto.LoginRequestDTO;
 import it.unipi.MySmartRecipeBook.dto.JwtResponseDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegisteredUserDTO;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Admin;
+import it.unipi.MySmartRecipeBook.model.Mongo.users.Chef;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Foodie;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.PendingChef;
 import it.unipi.MySmartRecipeBook.repository.Mongo.AdminRepository;
@@ -14,6 +15,7 @@ import it.unipi.MySmartRecipeBook.security.jwt.JwtUtils;
 
 import it.unipi.MySmartRecipeBook.utils.conversionFunctions.ChefUtilityFunctions;
 import it.unipi.MySmartRecipeBook.utils.conversionFunctions.FoodieUtilityFunctions;
+import jakarta.transaction.Transactional;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
@@ -31,12 +33,12 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
     private final AdminRepository adminRepository;
-    private final ChefUtilityFunctions chefUtils;
+    private final ChefUtilityFunctions chefConversions;
     private final FoodieUtilityFunctions foodieUtils;
 
     public AuthService(ChefRepository chefRepository, FoodieRepository foodieRepository,
                        AuthenticationManager authenticationManager, JwtUtils jwtUtils,
-                       AdminRepository adminRepository, ChefUtilityFunctions chefUtils,
+                       AdminRepository adminRepository, ChefUtilityFunctions chefConversions,
                        FoodieUtilityFunctions foodieUtils) {
 
         this.chefRepository = chefRepository;
@@ -44,15 +46,18 @@ public class AuthService {
         this.authenticationManager = authenticationManager;
         this.jwtUtils = jwtUtils;
         this.adminRepository = adminRepository;
-        this.chefUtils = chefUtils;
+        this.chefConversions = chefConversions;
         this.foodieUtils = foodieUtils;
     }
 
 
     /**
-     * Registration of a new chef
-     * @param chefDTO - the chef's DTO
+     * Registers a new chef, saving it in the chef collection with a "PENDING" status
+     * and adding it to the admin's list of chefs waiting for approval.
+     * @param chefDTO a {@link RegisteredUserDTO} containing all the registration information of the chef
+     * @throws DataIntegrityViolationException if the username is already taken by another chef or foodie
      */
+    @Transactional
     public void registerChef(RegisteredUserDTO chefDTO) {
 
         if (chefRepository.existsByUsername(chefDTO.getUsername())
@@ -60,29 +65,21 @@ public class AuthService {
             throw new DataIntegrityViolationException("Username already taken");
         }
 
-        PendingChef chef = chefUtils.createChefEntity(chefDTO);
+        Chef chef = chefConversions.createChefEntity(chefDTO);
+        chef = chefRepository.save(chef);
 
         Admin admin = adminRepository.findByUsername("admin");
-
-
-        if(admin.getChefsToApprove()!=null) {
-            for (PendingChef targetChef : admin.getChefsToApprove()) {
-                if (chefUtils.chefAlreadyInserted(targetChef, chef)) {
-                    throw new IllegalArgumentException("Request already sent or username already present");
-                }
-            }
-        }
-
-        adminRepository.addChefToApprovals(admin.getId(), chef);
+        PendingChef pendingChef = chefConversions.createPendingChef(chef);
+        adminRepository.addChefToApprovals(admin.getId(), pendingChef);
     }
 
 
     /**
-     * Registration of a new foodie
-     * @param foodieDTO - foodie's DTO
+     * Registers a new foodie, saving it in the foodie collection.
+     * @param foodieDTO a {@link RegisteredUserDTO} containing all the registration information of the foodie
+     * @throws DataIntegrityViolationException if the username is already taken by another foodie or chef
      */
     public void registerFoodie(RegisteredUserDTO foodieDTO) {
-
 
         if (chefRepository.existsByUsername(foodieDTO.getUsername())
                 || foodieRepository.existsByUsername(foodieDTO.getUsername())) {
@@ -95,9 +92,9 @@ public class AuthService {
 
 
     /**
-     * Login function
-     * @param request - the login request
-     * @return the token and authorization for the user
+     * Authenticates a registered user using the provided username and password.
+     * @param request a {@link LoginRequestDTO} containing the credentials specified by the user (username and password)
+     * @return a {@link JwtResponseDTO} containing the generated JWT token and the user's authorization details
      */
     public JwtResponseDTO authenticateUser(LoginRequestDTO request) {
 

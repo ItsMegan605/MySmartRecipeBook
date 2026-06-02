@@ -43,11 +43,7 @@ public class ChefController {
     @ApiResponse(responseCode = "200")
     public ResponseEntity<RegisteredUserInfoDTO> getInformation() {
 
-        String username = SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getName();
-
-        return ResponseEntity.ok(chefService.getByUsername(username));
+        return ResponseEntity.ok(chefService.getByUsername());
     }
 
     /**

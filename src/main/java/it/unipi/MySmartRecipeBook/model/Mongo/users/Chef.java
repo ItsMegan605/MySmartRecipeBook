@@ -48,4 +48,6 @@ public class Chef extends RegisteredUser {
     @Field("tot_recipes")
     private Integer totalRecipes;
 
+    private String status;
+
 }

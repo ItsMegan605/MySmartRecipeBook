@@ -133,7 +133,7 @@ public class RecipeService {
      */
     public SliceRecipeDTO<ChefPreviewRecipeDTO> getChefRecipePage (int pageNumber, String chefId){
 
-        Chef chef = chefRepository.findById(chefId)
+        Chef chef = chefRepository.findApprovedById(chefId)
                 .orElseThrow(() -> new NoSuchElementException("Chef not found"));
 
         int start = (pageNumber-1)*pageSizeChef;

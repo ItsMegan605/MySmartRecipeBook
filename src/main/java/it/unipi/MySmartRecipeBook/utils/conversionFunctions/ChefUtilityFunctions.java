@@ -20,25 +20,46 @@ public class ChefUtilityFunctions {
     private final PasswordEncoder passwordEncoder;
 
     public ChefUtilityFunctions(PasswordEncoder passwordEncoder) {
+
         this.passwordEncoder = passwordEncoder;
     }
 
     /**
      * Converts a registration DTO into a PendingChef to insert in the admin document among the chef waiting to be accepted.
+     * @param newChef the entity data
+     * @return the PendingChef entity
+     */
+    public PendingChef createPendingChef (Chef newChef){
+
+        PendingChef chef = new PendingChef();
+        chef.setId(newChef.getId());
+        chef.setUsername(newChef.getUsername());
+        chef.setName(newChef.getName());
+        chef.setSurname(newChef.getSurname());
+
+        chef.setEmail(newChef.getEmail());
+
+        chef.setBirthdate(newChef.getBirthdate());
+
+        return chef;
+    }
+
+    /**
+     * Converts a registration DTO into a Chef entity to insert in the chef collection
      * @param dto the registration data
      * @return the PendingChef entity
      */
-    public PendingChef createChefEntity (RegisteredUserDTO dto){
+    public Chef createChefEntity (RegisteredUserDTO dto){
 
-        PendingChef chef = new PendingChef();
+        Chef chef = new Chef();
         chef.setUsername(dto.getUsername());
         chef.setName(dto.getName());
         chef.setSurname(dto.getSurname());
-
-        chef.setEmail(dto.getEmail());
         chef.setPassword(passwordEncoder.encode(dto.getPassword()));
-
+        chef.setEmail(dto.getEmail());
         chef.setBirthdate(dto.getBirthdate());
+
+        chef.setStatus("PENDING");
 
         return chef;
     }
@@ -85,7 +106,6 @@ public class ChefUtilityFunctions {
 
         Chef chefMongo = new Chef();
         chefMongo.setUsername(chef.getUsername());
-        chefMongo.setPassword(chef.getPassword());
         chefMongo.setName(chef.getName());
         chefMongo.setSurname(chef.getSurname());
         chefMongo.setEmail(chef.getEmail());
@@ -115,12 +135,14 @@ public class ChefUtilityFunctions {
     public List<ChefPreviewDTO> chefModelToChefDTO(List<Chef> chefs) {
         List<ChefPreviewDTO> chefsDTO = new ArrayList<>();
         for(Chef chef: chefs){
-            ChefPreviewDTO chefDTO = new ChefPreviewDTO();
-            chefDTO.setId(chef.getId());
-            chefDTO.setFullName(chef.getName()+ " " + chef.getSurname());
-            chefDTO.setTotRecipes(chef.getTotalRecipes());
-            chefDTO.setTotSaves(chef.getTotalSaves());
-            chefsDTO.add(chefDTO);
+            if(chef.getStatus().equals("APPROVED")) {
+                ChefPreviewDTO chefDTO = new ChefPreviewDTO();
+                chefDTO.setId(chef.getId());
+                chefDTO.setFullName(chef.getName() + " " + chef.getSurname());
+                chefDTO.setTotRecipes(chef.getTotalRecipes());
+                chefDTO.setTotSaves(chef.getTotalSaves());
+                chefsDTO.add(chefDTO);
+            }
         }
         return chefsDTO;
     }
@@ -130,7 +152,7 @@ public class ChefUtilityFunctions {
      * @param chef the pending chef entity
      * @return the detailed registered user info DTO
      */
-    public RegisteredUserInfoDTO pendingChefToChefDetails (PendingChef chef){
+    public RegisteredUserInfoDTO pendingChefToChefDetails (Chef chef){
 
         return new RegisteredUserInfoDTO(
                 chef.getUsername(),

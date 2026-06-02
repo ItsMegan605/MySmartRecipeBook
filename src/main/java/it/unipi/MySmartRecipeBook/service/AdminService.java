@@ -40,7 +40,7 @@ public class AdminService {
     @Value("${app.recipe.pag-size-chef:5}")
     private int pageSizeAdmin;
 
-    private final RecipeUtilityFunctions recipeConvertions;
+    private final RecipeUtilityFunctions recipeConversions;
     private final ChefRepository chefRepository;
     private final AdminRepository adminRepository;
     private final RecipeMongoRepository recipeRepository;
@@ -49,10 +49,10 @@ public class AdminService {
     private final ChefNeo4jRepository chefNeo4jRepository;
     private final ChefUtilityFunctions chefUtilityFunctions;
 
-    public AdminService(RecipeUtilityFunctions recipeConvertions, ChefRepository chefRepository,
+    public AdminService(RecipeUtilityFunctions recipeConversions, ChefRepository chefRepository,
                         AdminRepository adminRepository, RecipeMongoRepository recipeRepository,
                         LowLoadManager lowLoadManager, FoodieRepository foodieRepository, ChefNeo4jRepository chefNeo4jRepository, ChefUtilityFunctions chefUtilityFunctions) {
-        this.recipeConvertions = recipeConvertions;
+        this.recipeConversions = recipeConversions;
         this.chefRepository = chefRepository;
         this.adminRepository = adminRepository;
         this.recipeRepository = recipeRepository;
@@ -62,31 +62,14 @@ public class AdminService {
         this.chefUtilityFunctions = chefUtilityFunctions;
     }
 
-    /**
-     * Get the pending chef
-     * @param username - of the chef
-     * @param admin - admin
-     * @return - the chef
-     */
-    private PendingChef getPendingChef(String username, Admin admin) {
-        List<PendingChef> chefsToApprove = admin.getChefsToApprove();
 
-        if (chefsToApprove == null) {
-            throw new NoSuchElementException("No chef has to be approved");
-        }
-
-        for (PendingChef chef : chefsToApprove) {
-            if (chef.getUsername().equals(username)) {
-                return chef;
-            }
-        }
-
-        throw new NoSuchElementException("Chef to approve not found");
-    }
-
-    /**
-     * Approve a pending recipe
-     * @param recipeId - recipe id
+     /**
+     * Approves a pending recipe, changing its status from "PENDING" to "APPROVED".
+     * The recipe is removed from the admin's list of pending recipes and the corresponding chef's list,
+     * and is then added to the new recipes list. Finally, it is asynchronously added to the graph database.
+     * @param recipeId the unique identifier of the recipe to be approved
+     * @throws NoSuchElementException if the admin or the recipe is not found in the database,
+     * or if the recipe is not in a "PENDING" state
      */
     @Transactional
     public void saveRecipe(String recipeId) {
@@ -98,7 +81,6 @@ public class AdminService {
         Admin admin = adminRepository.findById(logged_admin.getId())
                 .orElseThrow(() -> new NoSuchElementException("Admin not found"));
 
-        getAdminPendingRecipe(recipeId, admin);
         RecipeMongo recipeToModify = recipeRepository.findById(recipeId)
                         .orElseThrow(()-> new NoSuchElementException("Recipe not found"));
 
@@ -112,48 +94,31 @@ public class AdminService {
         adminRepository.removeRecipeFromApprovals(admin.getId(), recipeId);
         addToChefRecipes(recipeToModify);
 
-        GraphRecipeDTO graphRecipe = recipeConvertions.MongoToNeo4jGraph(recipeToModify);
+        GraphRecipeDTO graphRecipe = recipeConversions.MongoToNeo4jGraph(recipeToModify);
         lowLoadManager.addTask(Task.TaskType.CREATE_RECIPE_NEO4J, graphRecipe);
 
     }
 
-    private static AdminPendingRecipe getAdminPendingRecipe(String recipeId, Admin admin) {
-        List<AdminPendingRecipe> recipesToApprove = admin.getRecipesToApprove();
-
-        if (recipesToApprove == null) {
-            throw new NoSuchElementException("No recipe has to be approved");
-        }
-
-        AdminPendingRecipe recipeApproved = null;
-        for (AdminPendingRecipe recipe : recipesToApprove) {
-            if (recipe.getId().equals(recipeId)) {
-                recipeApproved = recipe;
-                break;
-            }
-        }
-
-        if (recipeApproved == null) {
-            throw new NoSuchElementException("Recipe not found among the ones that have to be approved");
-        }
-        return recipeApproved;
-    }
 
     /**
-     * Adds a recipe to chef's page
-     * @param recipe - the recipe
+     * Removes an approved recipe from the chef's pending recipes list and adds it to the new_recipes list.
+     * Ensures that the new_recipes list contains a maximum of 15 elements, moving the oldest one to the
+     * old_recipes list of IDs if the limit is exceeded.
+     * @param recipe the approved {@link RecipeMongo} entity to add
+     * @throws NoSuchElementException if the corresponding chef is not found
      */
     private void addToChefRecipes(RecipeMongo recipe) {
 
         String chefId = recipe.getChef().getId();
 
-        Chef chef = chefRepository.findById(chefId)
+        Chef chef = chefRepository.findApprovedById(chefId)
                 .orElseThrow(() -> new NoSuchElementException("Chef not found"));
 
         if (chef.getRecipesToConfirm() != null) {
             chef.getRecipesToConfirm().removeIf(pendingRecipe -> pendingRecipe.getId().equals(recipe.getId()));
         }
 
-        ChefRecipeSummary newChefRecipe = recipeConvertions.recipeToChefRecipe(recipe);
+        ChefRecipeSummary newChefRecipe = recipeConversions.recipeToChefRecipe(recipe);
 
         if(chef.getNewRecipes() == null) {
             chef.setNewRecipes(new java.util.ArrayList<>());
@@ -162,7 +127,11 @@ public class AdminService {
         chef.getNewRecipes().add(0, newChefRecipe);
 
         if( chef.getNewRecipes().size() > 15 ) {
-            ChefRecipeSummary oldestRecipe = chef.getNewRecipes().remove(14);
+            ChefRecipeSummary oldestRecipe = chef.getNewRecipes().remove(15);
+
+            if(chef.getOldRecipes() == null) {
+                chef.setOldRecipes(new java.util.ArrayList<>());
+            }
             chef.getOldRecipes().add(0, oldestRecipe.getId());
         }
 
@@ -173,10 +142,11 @@ public class AdminService {
     }
 
 
-
     /**
-     * Discard a pending recipe
-     * @param recipeId - id of the recipe
+     * Rejects a pending recipe, removing it from both the admin's approval list and the corresponding chef's waiting list.
+     * The recipe is then permanently deleted from the database.
+     * @param recipeId the unique identifier of the recipe to discard
+     * @throws NoSuchElementException if the admin or the recipe is not found, or if the recipe is already approved
      */
     @Transactional
     public void discardRecipe(String recipeId) {
@@ -206,10 +176,11 @@ public class AdminService {
     }
 
 
-
     /**
-     * Approve a pending chef registration request
-     * @param chefUsername - username of the chef
+     * Approves a pending chef registration request. The chef is removed from the admin's pending list,
+     * its status is changed to "APPROVED", and the corresponding node is added to the graph database.
+     * @param chefUsername the unique username of the chef to approve
+     * @throws NoSuchElementException if the admin or the chef is not found, or if the chef's status is already "APPROVED"
      */
     @Transactional
     public void approveChef(String chefUsername) {
@@ -221,16 +192,20 @@ public class AdminService {
         Admin admin = adminRepository.findById(logged_admin.getId())
                 .orElseThrow(() -> new NoSuchElementException("Admin not found"));
 
-        PendingChef chef = getPendingChef(chefUsername, admin);
+        Chef chef = chefRepository.findByUsername(chefUsername)
+                .orElseThrow(() -> new NoSuchElementException("Chef not found"));
 
-        Chef chefMongo = chefUtilityFunctions.pendingChefToChef(chef);
+        if(chef.getStatus().equals("APPROVED")) {
+            throw new NoSuchElementException("Chef to approve not found");
+        }
 
-        Chef chefApproved = chefRepository.save(chefMongo);
+        chef.setStatus("APPROVED");
+        chefRepository.save(chef);
 
         adminRepository.removeChefFromApprovals(admin.getId(), chefUsername);
 
         ChefNeo4j chefNeo4j = new ChefNeo4j();
-        chefNeo4j.setMongoId(chefApproved.getId());
+        chefNeo4j.setMongoId(chef.getId());
         chefNeo4j.setName(chef.getName());
         chefNeo4j.setSurname(chef.getSurname());
         chefNeo4jRepository.save(chefNeo4j);
@@ -238,9 +213,12 @@ public class AdminService {
 
 
     /**
-     * Discard a pending chef registration request
-     * @param chefUsername - chef's username
+     * Rejects a pending chef registration request. The chef is removed from the admin's pending list
+     * and from the chef collection.
+     * @param chefUsername the unique username of the chef to reject
+     * @throws NoSuchElementException if the admin or the chef is not found, or if the chef's status is already "APPROVED"
      */
+    @Transactional
     public void declineChef(String chefUsername) {
 
         UserPrincipal logged_admin = (UserPrincipal) SecurityContextHolder.getContext()
@@ -250,17 +228,27 @@ public class AdminService {
         Admin admin = adminRepository.findById(logged_admin.getId())
                 .orElseThrow(() -> new NoSuchElementException("Admin not found"));
 
-        getPendingChef(chefUsername, admin);
+        Chef chefToDiscard = chefRepository.findByUsername(chefUsername)
+                .orElseThrow(() -> new NoSuchElementException("Chef to discard not found"));
 
+        if(chefToDiscard.getStatus().equals("APPROVED")) {
+            throw new NoSuchElementException("Chef to discard not found");
+        }
+
+        chefRepository.deleteById(chefToDiscard.getId());
         adminRepository.removeChefFromApprovals(admin.getId(), chefUsername);
+
     }
 
-    /**
-     * Method to show the list of the pending recipes to be approved or discarded
-     * @param pageNumber - paging
-     * @return the paging with the list of recipes
-     */
 
+    /**
+     * Retrieves a paginated list of pending recipes waiting for the admin's approval.
+     * @param pageNumber the requested page number
+     * @return a {@link SliceRecipeDTO} containing the requested page of {@link PendingRecipeDTO}s,
+     * along with two boolean values indicating the existence of previous or next pages
+     * @throws NoSuchElementException if the admin is not found
+     * @throws IllegalArgumentException if the pageNumber is negative
+     */
     public SliceRecipeDTO<PendingRecipeDTO> showPendingRecipes(int pageNumber) {
 
         UserPrincipal logged_admin = (UserPrincipal) SecurityContextHolder.getContext()
@@ -289,7 +277,7 @@ public class AdminService {
 
         List<PendingRecipeDTO> content = new ArrayList<>();
         for (AdminPendingRecipe recipe : adminPendingRecipes.subList(start, end)) {
-            content.add(recipeConvertions.pendingRecipeToAdminDTO(recipe));
+            content.add(recipeConversions.pendingRecipeToAdminDTO(recipe));
         }
 
         boolean hasPrevious = pageNumber > 1;
@@ -298,10 +286,14 @@ public class AdminService {
         return new SliceRecipeDTO<>(content, hasNext, hasPrevious);
     }
 
+
     /**
-     * Method to show the list of the pending chefs
-     * @param pageNumber - paging
-     * @return the page with the list of pending chefs
+     * Retrieves a paginated list of pending chef request waiting for the admin's approval.
+     * @param pageNumber the requested page number
+     * @return a {@link SliceRecipeDTO} containing the requested page of {@link PendingChefDTO}s,
+     * along with two boolean values indicating the existence of previous or next pages
+     * @throws NoSuchElementException if the admin is not found
+     * @throws IllegalArgumentException if the pageNumber is negative
      */
     public SliceRecipeDTO<PendingChefDTO> showPendingChefs(int pageNumber) {
 
@@ -338,12 +330,15 @@ public class AdminService {
         return new SliceRecipeDTO<>(content, hasNext, hasPrevious);
     }
 
+
     /**
-     * Retrieves the detailed information of a pending chef from the admin's approval list.
-     * @param username - username of the pending chef to search for
-     * @return a DTO containing the detailed profile information of the requested chef
+     * Retrieves the detailed information of a chef waiting for the admin approval.
+     * @param chefUsername unique username of the chef to visualize
+     * @return a {@link RegisteredUserInfoDTO} containing the detailed profile information of the requested chef
+     * @throws NoSuchElementException if the admin or the chef is not found, if the chef is not
+     * present in the admin's pending list, or if the chef has already been approved
      */
-    public RegisteredUserInfoDTO seeChefDetails(String username){
+    public RegisteredUserInfoDTO seeChefDetails(String chefUsername){
 
         UserPrincipal logged_admin = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -352,15 +347,29 @@ public class AdminService {
         Admin admin = adminRepository.findById(logged_admin.getId())
                 .orElseThrow(() -> new NoSuchElementException("Admin not found"));
 
-        PendingChef targetChef = getPendingChef(username, admin);
+        boolean found = admin.getChefsToApprove().stream()
+                .anyMatch(chef -> chef.getUsername().equals(chefUsername));
 
-        return chefUtilityFunctions.pendingChefToChefDetails(targetChef);
+        if(!found) {
+            throw new NoSuchElementException("Chef to approve not found");
+        }
+
+        Chef chef = chefRepository.findByUsername(chefUsername)
+                .orElseThrow(() -> new NoSuchElementException("Chef not found"));
+
+        if(chef.getStatus().equals("APPROVED")) {
+            throw new NoSuchElementException("Chef not found");
+        }
+
+        return chefUtilityFunctions.pendingChefToChefDetails(chef);
     }
 
     /**
-     * Retrieves the detailed information of a pending recipe from the admin's approval list.
-     * @param recipeId the unique identifier of the pending recipe
-     * @return a DTO containing the full details of the requested recipe
+     * Retrieves the detailed information of a recipe waiting for the admin approval.
+     * @param recipeId unique identifier of the recipe to visualize
+     * @return a {@link ShowRecipeDTO} containing the detailed information of the requested recipe
+     * @throws NoSuchElementException if the admin or the recipe is not found, if the recipe is not
+     * present among the one waiting for the admin's approval, or if the recipe has already been approved
      */
     public ShowRecipeDTO seeRecipeDetails(String recipeId){
 
@@ -385,21 +394,26 @@ public class AdminService {
             throw new NoSuchElementException("Recipe not found");
         }
 
-        return recipeConvertions.EntityToDto(recipe);
+        return recipeConversions.EntityToDto(recipe);
     }
 
+
     /**
-     * Monthly foodies count
-     * @return the monthly foodies subscribed to the app
+     * Retrieves registration statistics for foodies.
+     * The data is grouped by year and includes a breakdown of new registrations per month.
+     * @return a list of {@link YearAnalyticsDTO} containing the registration counts grouped by year and month
      */
     public List<YearAnalyticsDTO> getMonthlyFoodies() {
+
         return foodieRepository.getMonthlyFoodiesStats();
     }
 
 
     /**
-     * Emerging vs Declining Parameters (Analytics)
-     * @return the list of the category trends
+     * Analyzes and retrieves the trends of recipe categories based on their creation dates.
+     * Compares the volume of recipes created in the last year against the previous year to calculate
+     * a percentage growth rate. Classifies each category's trend as "NEW", "EMERGING", "DECLINING", or "STABLE".
+     * @return a list of {@link TrendAnalyticsDTO} containing the classified trends and growth percentages
      */
     public List<TrendAnalyticsDTO> getCategoryTrends() {
 
@@ -428,9 +442,10 @@ public class AdminService {
         return results;
     }
 
+
     /**
-     * Method for the chef's Bayesian ranking
-     * @return the Bayesian Ranking of the chefs
+     * Calculates and retrieves the ranking of chefs using a Bayesian average scoring system.
+     * @return a list of {@link ChefRankAnalyticsDTO} containing the ranked chefs, their scores, and their positions
      */
     public List<ChefRankAnalyticsDTO> getBayesianRanking() {
 

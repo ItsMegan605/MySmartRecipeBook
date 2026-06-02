@@ -161,34 +161,36 @@ public class SmartFridgeService {
         List<RecipeSuggestionDTO> suggestions;
         if (json != null) {
             try {
-                suggestions = objectMapper.readValue(json, new TypeReference<List<RecipeSuggestionDTO>>(){});
+                suggestions = objectMapper.readValue(json, new TypeReference<>(){});
             } catch (JsonProcessingException e) {
                 throw new RuntimeException("Error occurred while using the application");
             }
         }
-        //If the recipe is not cached, check if there are at least 3 matched ingredients
-        IngredientsListDTO ingredientsListDTO = getSmartFridge();
-        Set<String> ingredientsSet = ingredientsListDTO.getIngredients();
+        else {
+            //If the recipe is not cached, check if there are at least 3 matched ingredients
+            IngredientsListDTO ingredientsListDTO = getSmartFridge();
+            Set<String> ingredientsSet = ingredientsListDTO.getIngredients();
 
-        for(String ingredient : FILTERED_INGREDIENTS){
-           ingredientsSet.remove(ingredient);
-        }
+            for (String ingredient : FILTERED_INGREDIENTS) {
+                ingredientsSet.remove(ingredient);
+            }
 
-        if (ingredientsSet == null || ingredientsSet.size() < 3) {
-            throw new IllegalArgumentException("Insert at least 3 ingredients");
-        }
+            if (ingredientsSet == null || ingredientsSet.size() < 3) {
+                throw new IllegalArgumentException("Insert at least 3 ingredients");
+            }
 
-        List<String> ingredients = new ArrayList<>(ingredientsSet);
-        suggestions = recipeNeo4jRepository.findRecipesByIngredients(ingredients);
+            List<String> ingredients = new ArrayList<>(ingredientsSet);
+            suggestions = recipeNeo4jRepository.findRecipesByIngredients(ingredients);
 
-        if(suggestions.isEmpty()){
-            throw new IllegalArgumentException("No recipe matching ingredients");
-        }
+            if (suggestions.isEmpty()) {
+                throw new IllegalArgumentException("No recipe matching ingredients");
+            }
 
             try (Jedis jedis = jedisSentinelPool.getResource()) {
                 jedis.set(cacheKey, objectMapper.writeValueAsString(suggestions));
             } catch (JsonProcessingException e) {
-            throw new RuntimeException("Error occurred while using the application");
+                throw new RuntimeException("Error occurred while using the application");
+            }
         }
 
         int start = (pageNum-1)*pageSize;
@@ -254,14 +256,14 @@ public class SmartFridgeService {
      */
     public ShowRecipeDTO getFridgeRecipeById(String id){
 
-        Optional<RecipeMongo> full_recipe = recipeRepository.findById(id);
+        Optional<RecipeMongo> full_recipe = recipeRepository.findApprovedById(id);
 
         if(full_recipe.isEmpty()){
             UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
                     .getAuthentication()
                     .getPrincipal();
 
-            String fridgeKey = "MySmartRecipeBook:smartFridge:suggestions:" + authFoodie.getUsername();
+            String fridgeKey = REDIS_ENTITY + authFoodie.getUsername() + REDIS_RECIPES_PREFIX;
             try (Jedis jedis = jedisSentinelPool.getResource()) {
                 String suggestedRecipes = jedis.get(fridgeKey);
                 if (suggestedRecipes != null) {

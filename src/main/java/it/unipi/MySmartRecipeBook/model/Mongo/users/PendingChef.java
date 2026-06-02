@@ -20,26 +20,16 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class PendingChef {
 
-    @NotBlank(message = "Username is required")
-    @Size(max = 20)
+    private String id;
+
     private String username;
 
-    @NotBlank(message = "First name is required")
     private String name;
 
-    @NotBlank(message = "Last name is required")
     private String surname;
 
-    @NotBlank(message = "E-mail is required")
-    @Email
-    @Size(max = 50)
     private String email;
 
-    @NotBlank
-    @Size(min = 8, max = 20)
-    private String password;
-
-    @Past(message = "Birthdate must be in the past")
     private LocalDate birthdate;
 
 

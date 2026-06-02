@@ -85,6 +85,8 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
      */
     void deleteAllByChefId(String chefId);
 
+    void deleteByIdIn(List<String> ids);
+
     /**
      * Deletes a recipe by ID.
      * @param id recipe ID

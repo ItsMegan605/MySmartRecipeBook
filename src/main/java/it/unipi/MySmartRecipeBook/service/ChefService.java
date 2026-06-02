@@ -29,68 +29,67 @@ import java.util.NoSuchElementException;
 import org.springframework.util.StringUtils;
 
 /**
- * Service Function for the chef of the application
- * where the logic of the different operations is handled.
- * At first the parameters, such as repositories  and utility functions are declared
+ * Chef service that handles chef's business logic operations
  */
 @Service
 public class ChefService {
 
-
     @Value("${app.recipe.pag-size-chef:5}")
     private int pageSizeChef;
 
-
     private final ChefRepository chefRepository;
     private final PasswordEncoder passwordEncoder;
-    private final ChefUtilityFunctions chefConvertions;
-    private final RecipeUtilityFunctions recipeConvertions;
+    private final ChefUtilityFunctions chefConversions;
+    private final RecipeUtilityFunctions recipeConversions;
     private final AdminRepository adminRepository;
     private final RecipeMongoRepository recipeMongoRepository;
     private final LowLoadManager lowLoadManager;
     private final IngredientService ingredientService;
 
-    public ChefService(ChefRepository chefRepository, ChefUtilityFunctions chefConvertions,
-                       RecipeUtilityFunctions recipeConvertions, PasswordEncoder passwordEncoder,
+    public ChefService(ChefRepository chefRepository, ChefUtilityFunctions chefConversions,
+                       RecipeUtilityFunctions recipeConversions, PasswordEncoder passwordEncoder,
                        AdminRepository adminRepository, RecipeMongoRepository recipeMongoRepository,
                        LowLoadManager lowLoadManager, IngredientService ingredientService) {
         this.chefRepository = chefRepository;
-        this.chefConvertions = chefConvertions;
+        this.chefConversions = chefConversions;
         this.passwordEncoder = passwordEncoder;
         this.adminRepository = adminRepository;
         this.recipeMongoRepository = recipeMongoRepository;
         this.lowLoadManager = lowLoadManager;
         this.ingredientService = ingredientService;
-        this.recipeConvertions = recipeConvertions;
+        this.recipeConversions = recipeConversions;
     }
 
 
     /**
-     * Retrieve chef's information
-     * @param username Gets the chef's username
-     * @return if the chef exists or not to gather his/her information
-     * @throws NoSuchElementException if the chef doesn't exist
+     * Retrieves the chef's personal information.
+     * @return a {@link RegisteredUserInfoDTO} containing all the chef's personal information
+     * @throws NoSuchElementException if the chef is not found or is not in an "APPROVED" state
      */
-    public RegisteredUserInfoDTO getByUsername(String username) {
+    public RegisteredUserInfoDTO getByUsername() {
 
-        Chef chef = chefRepository.findByUsername(username)
+        UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        Chef chef = chefRepository.findApprovedById(authFoodie.getId())
                 .orElseThrow(() -> new NoSuchElementException("Chef not found"));
 
-        return chefConvertions.chefToChefInfo(chef);
+        return chefConversions.chefToChefInfo(chef);
     }
 
 
     /**
-     * This function allows a chef to change his/her personal information, in particular
-     * one or more among the following fields: Email, password and birthday
-     * We don't allow a chef to change his/her username, name and surname for security reasons
-     * @param dto We get the dto for the chef and check the authentication parameters
-     * @return if the chef exists we return the updated chef's information
-     * @throws NoSuchElementException if the chef doesn't exist
+     * Updates an authenticated chef's personal information. Supported fields for update are email, password and birthdate.
+     * For security reasons, the username, name, and surname cannot be modified.
+     * @param changeInfoDto a {@link UpdateChefDTO} containing the personal information the chef wants to change
+     * @return a {@link RegisteredUserInfoDTO} containing the updated chef's personal information
+     * @throws NoSuchElementException if the chef is not found
+     * @throws IllegalArgumentException if the {@link UpdateChefDTO} is null or empty
      */
-    public RegisteredUserInfoDTO updateChef(UpdateChefDTO dto) {
+    public RegisteredUserInfoDTO updateChef(UpdateChefDTO changeInfoDto) {
 
-        if(dto == null || dto.isEmpty()){
+        if(changeInfoDto == null || changeInfoDto.isEmpty()){
             throw new IllegalArgumentException("Invalid parameters");
         }
 
@@ -103,30 +102,33 @@ public class ChefService {
 
         boolean modified = false;
 
-        if (dto.getEmail() != null && StringUtils.hasText(dto.getEmail())){
-            chef.setEmail(dto.getEmail());
+        if (changeInfoDto.getEmail() != null && StringUtils.hasText(changeInfoDto.getEmail())){
+            chef.setEmail(changeInfoDto.getEmail());
             modified = true;
         }
 
-        if (dto.getPassword() != null && StringUtils.hasText(dto.getPassword())){
-            chef.setPassword(passwordEncoder.encode(dto.getPassword()));
+        if (changeInfoDto.getPassword() != null && StringUtils.hasText(changeInfoDto.getPassword())){
+            chef.setPassword(passwordEncoder.encode(changeInfoDto.getPassword()));
             modified = true;
         }
 
-        if (dto.getBirthdate() != null){
-            chef.setBirthdate(dto.getBirthdate());
+        if (changeInfoDto.getBirthdate() != null){
+            chef.setBirthdate(changeInfoDto.getBirthdate());
             modified = true;
         }
 
         if(modified){
             chefRepository.save(chef);
         }
-        return chefConvertions.chefToChefInfo(chef);
+        return chefConversions.chefToChefInfo(chef);
     }
 
+
     /**
-     * Delete chef's profile
-     * @throws NoSuchElementException if the chef doesn't exist
+     * Deletes the currently authenticated chef's profile, removing all its recipes from the DB
+     * and removing any recipes from the admin's pending list.
+     * The chef and its corresponding recipes are then asynchronously deleted from the graph DB.
+     * @throws NoSuchElementException if the chef is not found
      */
     @Transactional
     public void deleteChef() {
@@ -135,11 +137,23 @@ public class ChefService {
                 .getAuthentication()
                 .getPrincipal();
 
-        Chef chef = chefRepository.findById(loggedChef.getId())
+        Chef chef = chefRepository.findApprovedById(loggedChef.getId())
                 .orElseThrow(() -> new NoSuchElementException("Chef not found"));
 
+        List<String> ids = new ArrayList<>();
+        if(chef.getNewRecipes() != null && !chef.getNewRecipes().isEmpty()){
+            for(ChefRecipeSummary recipe : chef.getNewRecipes()){
+                ids.add(recipe.getId());
+            }
+        }
 
-        recipeMongoRepository.deleteAllByChefId(loggedChef.getId());
+        if(chef.getOldRecipes() != null && !chef.getOldRecipes().isEmpty()){
+            for(String recipeId : chef.getOldRecipes()){
+                ids.add(recipeId);
+            }
+        }
+
+        recipeMongoRepository.deleteByIdIn(ids);
 
         if(chef.getRecipesToConfirm() != null) {
             List<String> recipeToRemove = new ArrayList<>();
@@ -152,15 +166,18 @@ public class ChefService {
         }
 
         chefRepository.delete(chef);
-        lowLoadManager.addTask(Task.TaskType.DELETE_CHEF_RECIPE, "0", loggedChef.getId());
+        lowLoadManager.addTask(Task.TaskType.DELETE_CHEF_PROFILE_NEO4J, "0", loggedChef.getId());
     }
 
+
     /**
-     * Function called by the chef to write a new recipe: the recipe is on a waiting list at the
-     * beginning waiting for admin's approval.
-     * @param recipeDTO DTO with all the mandatory fields inserted by the chef when he writes the recipe
-     * @throws NoSuchElementException if the chef is not found, if the admin is not found and if one of the fields is wrong/missing
-     * @return DTO with a recipe preview to show the chef while he/she waits for the approval
+     * Creates a new recipe for the currently authenticated chef. The recipe is saved to the database
+     * with a "PENDING" status and is added to both the admin's and the chef's pending lists,
+     * waiting for admin's approval.
+     * @param recipeDTO a {@link CreateRecipeDTO} containing all the mandatory fields provided by the chef
+     * @return a {@link PendingRecipeChefDTO} providing a preview of the newly created recipe
+     * @throws NoSuchElementException if the chef or the admin is not found
+     * @throws IllegalArgumentException if the category, difficulty, ingredients, quantity or preparation time are missing or invalid
      */
     @Transactional
     public PendingRecipeChefDTO createRecipe(CreateRecipeDTO recipeDTO) {
@@ -169,7 +186,7 @@ public class ChefService {
                 .getAuthentication()
                 .getPrincipal();
 
-        Chef chef = chefRepository.findById(authChef.getId())
+        Chef chef = chefRepository.findApprovedById(authChef.getId())
                 .orElseThrow(() -> new NoSuchElementException("Chef not found"));
 
         if (recipeDTO.getCategory() == null || !CATEGORIES.contains(recipeDTO.getCategory())) {
@@ -205,23 +222,27 @@ public class ChefService {
         }
 
         ChefInfoDTO chefDTO = new ChefInfoDTO(chef.getId(), chef.getName(), chef.getSurname());
-        RecipeMongo recipeToAdd = recipeConvertions.dtoToModel(recipeDTO, chefDTO);
+        RecipeMongo recipeToAdd = recipeConversions.dtoToModel(recipeDTO, chefDTO);
         RecipeMongo recipeAdded = recipeMongoRepository.save(recipeToAdd);
 
-        AdminPendingRecipe savedRecipe = recipeConvertions.createBaseRecipe(recipeDTO, chefDTO, recipeAdded.getId());
+        AdminPendingRecipe savedRecipe = recipeConversions.createBaseRecipe(recipeDTO, chefDTO, recipeAdded.getId());
         adminRepository.addRecipeToApprovals(admin.getId(), savedRecipe);
 
-        PendingRecipe chefRecipe = recipeConvertions.recipeToChefRecipe(savedRecipe, recipeAdded.getId());
+        PendingRecipe chefRecipe = recipeConversions.recipeToChefRecipe(savedRecipe, recipeAdded.getId());
         chefRepository.addRecipeToWaiting(chef.getId(), chefRecipe);
 
-        return recipeConvertions.baseToChefDTO(savedRecipe);
+        return recipeConversions.baseToChefDTO(savedRecipe);
     }
 
+
     /**
-     * function to delete a recipe: once deleted it must update the total recipes of a chef and later
-     * update the user's SmartFridge
-     * @param recipeId gets the recipe's ID number
-     * @throws NoSuchElementException if the chef or recipe is not found
+     * Deletes a recipe belonging to the authenticated chef. The lists of new and old recipes are handled accordingly:
+     * if the recipe is one of the old ones, its id is simply removed from the list; however, if it is one of the newest 15,
+     * it is removed from the new recipes list and the most recent among the old ones is inserted into it (using the appropriate conversions).
+     * If the recipe is among the popular ones, it is removed from that list as well. The chef's total number of saves and the total number of
+     * recipes are updated accordingly. Asynchronously, the recipe is removed from the graph DB.
+     * @param recipeId the unique identifier of the recipe to delete
+     * @throws NoSuchElementException if the chef or recipe is not found, or if the recipe does not belong to the authenticated chef
      */
     @Transactional
     public void deleteRecipe(String recipeId) {
@@ -230,88 +251,79 @@ public class ChefService {
                 .getAuthentication()
                 .getPrincipal();
 
-        Chef chef = chefRepository.findById(authChef.getId())
+        Chef chef = chefRepository.findApprovedById(authChef.getId())
                 .orElseThrow(() -> new NoSuchElementException("Chef not found"));
 
-        List<ChefRecipeSummary> newRecipes = chef.getNewRecipes();
 
-        if (newRecipes == null) {
-            throw new NoSuchElementException("No recipes found");
-        }
+        RecipeMongo recipeToDelete = recipeMongoRepository.findApprovedById(recipeId)
+                .orElseThrow(() -> new NoSuchElementException("Recipe not found"));
 
-        RecipeMongo deletedRecipe = recipeMongoRepository.deleteRecipeById(recipeId);
-        if(deletedRecipe == null){
+        if(!recipeToDelete.getChef().getId().equals(chef.getId())) {
             throw new NoSuchElementException("Recipe not found");
         }
 
-        boolean findRecipe = false;
-        for (ChefRecipeSummary recipe : newRecipes) {
-            if (recipe.getId().equals(recipeId)) {
-                int totSaves = chef.getTotalSaves() == null ? 0 : chef.getTotalSaves();
-                int recipeSaves = recipe.getNumSaves() == null ? 0 : recipe.getNumSaves();
-                chef.setTotalSaves(totSaves - recipeSaves);
-                newRecipes.remove(recipe);
+        recipeMongoRepository.delete(recipeToDelete);
 
-                if(chef.getOldRecipes() != null){
-                    String oldRecipeId = chef.getOldRecipes().remove(0);
-                    RecipeMongo recipeMongo = recipeMongoRepository.findById(oldRecipeId)
-                            .orElseThrow(() -> new NoSuchElementException("Recipe not found"));
-                    ChefRecipeSummary reducedRecipe = recipeConvertions.recipeToChefRecipe(recipeMongo);
-                    chef.getNewRecipes().add(reducedRecipe);
-                }
+        int totSaves = chef.getTotalSaves() == null ? 0 : chef.getTotalSaves();
+        int recipeSaves = recipeToDelete.getNumSaves() == null ? 0 : recipeToDelete.getNumSaves();
+        chef.setTotalSaves(Math.max(0, totSaves - recipeSaves));
 
-                findRecipe = true;
-                break;
+        List<ChefRecipeSummary> newRecipes = chef.getNewRecipes() == null ? new ArrayList<>() : chef.getNewRecipes();
+        boolean recipeFound = newRecipes.removeIf(recipe -> recipe.getId().equals(recipeId));
+
+        if(recipeFound) {
+            if(chef.getOldRecipes() != null && !chef.getOldRecipes().isEmpty()) {
+                String oldRecipeId = chef.getOldRecipes().remove(0);
+                RecipeMongo recipeMongo = recipeMongoRepository.findById(oldRecipeId)
+                        .orElseThrow(() -> new NoSuchElementException("Recipe not found"));
+                ChefRecipeSummary reducedRecipe = recipeConversions.recipeToChefRecipe(recipeMongo);
+                chef.getNewRecipes().add(reducedRecipe);
+            }
+        }
+        else {
+            if (chef.getOldRecipes() != null) {
+                chef.getOldRecipes().remove(recipeId);
             }
         }
 
-        if(!findRecipe){
-            for(String oldRecipeId : chef.getOldRecipes()){
-                if(oldRecipeId.equals(recipeId)){
-                    int totSaves = chef.getTotalSaves() == null ? 0 : chef.getTotalSaves();
-                    int recipeSaves = deletedRecipe.getNumSaves() == null ? 0 : deletedRecipe.getNumSaves();
-                    chef.setTotalSaves(totSaves - recipeSaves);
-                    chef.getOldRecipes().remove(oldRecipeId);
-                    break;
-                }
-            }
+        if(recipeToDelete.getNumSaves() != null &&  recipeToDelete.getNumSaves() >= 40 &&
+            chef.getPopularRecipes() != null && !chef.getPopularRecipes().isEmpty()) {
+            chef.getPopularRecipes().removeIf(popularRecipe -> popularRecipe.getId().equals(recipeId));
         }
 
+        int totRecipes = chef.getTotalRecipes() == null ? 0 : chef.getTotalRecipes();
+        chef.setTotalRecipes(Math.max(0, totRecipes - 1));
 
-        List<ChefRecipeSummary> popularRecipes = chef.getPopularRecipes();
-        if(popularRecipes != null){
-            for(ChefRecipeSummary popularRecipe : popularRecipes){
-                if(popularRecipe.getId().equals(recipeId)){
-                    chef.getPopularRecipes().remove(popularRecipe);
-                    break;
-                }
-            }
-        }
-
-        chef.setTotalRecipes(chef.getTotalRecipes() - 1);
         chefRepository.save(chef);
-
-        lowLoadManager.addTask(Task.TaskType.DELETE_RECIPE, recipeId);
+        lowLoadManager.addTask(Task.TaskType.DELETE_RECIPE_NEO4J, recipeId);
     }
 
+
     /**
-     * Remove a recipe from the list of recipes waiting to be confirmed
-     * @param recipeId gets the recipe ID of the recipe that is waiting to be approved
-     * @throws NoSuchElementException
-     * Updates the Repository
+     * Removes a pending recipe from both the admin's and the chef's pending list. The recipe is then deleted from the DB.
+     * @param recipeId the unique identifier of the recipe to delete
+     * @throws NoSuchElementException if the chef, the admin, or the recipe is not found,
+     * if the recipe is not in a "PENDING" state, or if the recipe does not belong to the authenticated chef
      */
     @Transactional
     public void removeRecipe(String recipeId) {
 
-        UserPrincipal chef1 = (UserPrincipal) SecurityContextHolder.getContext()
+        UserPrincipal authChef = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getPrincipal();
 
-        Chef chef = chefRepository.findById(chef1.getId())
+        Chef chef = chefRepository.findApprovedById(authChef.getId())
                 .orElseThrow(() -> new NoSuchElementException("Chef not found"));
 
-        if(chef.getRecipesToConfirm() == null){
-            throw new NoSuchElementException("No recipes waiting to be confirmed");
+        RecipeMongo recipe = recipeMongoRepository.findById(recipeId)
+                    .orElseThrow(() -> new NoSuchElementException("Recipe not found"));
+
+        if(!recipe.getStatus().equals("PENDING")){
+            throw new NoSuchElementException("Recipe not found");
+        }
+
+        if(!recipe.getChef().getId().equals(chef.getId())) {
+            throw new NoSuchElementException("Recipe not found");
         }
 
         chefRepository.removeRecipeFromWaiting(chef.getId(), recipeId);
@@ -325,11 +337,15 @@ public class ChefService {
         recipeMongoRepository.deleteById(recipeId);
     }
 
+
     /**
-     * Function to show the total recipes to a chef
-     * @param pageNumber Number of the page, each page has 5 recipes
-     * @return the recipe's details
-     *
+     * Retrieves a paginated list of the preview of the chef's approved recipes, ordered in descending order
+     * (from newest to oldest) by creation date.
+     * @param pageNumber the requested page number
+     * @return a {@link SliceRecipeDTO} containing a preview of the recipes, along with two boolean values indicating
+     * the existence of previous or next pages
+     * @throws NoSuchElementException if the authenticated chef is not found
+     * @throws IllegalArgumentException if the page number is zero or negative
      */
     public SliceRecipeDTO<ChefPreviewRecipeDTO> showRecipes (int pageNumber){
 
@@ -337,43 +353,63 @@ public class ChefService {
                 .getAuthentication()
                 .getPrincipal();
 
-        Chef chef = chefRepository.findById(authChef.getId())
+        Chef chef = chefRepository.findApprovedById(authChef.getId())
                 .orElseThrow(() -> new NoSuchElementException("Chef not found"));
 
         if(pageNumber <= 0){
             throw new IllegalArgumentException("Invalid parameters");
         }
 
-
         int start = (pageNumber-1)*pageSizeChef;
         int end = pageNumber*pageSizeChef;
+
         List<ChefPreviewRecipeDTO> content;
-        boolean hasPrevious = true;
+        boolean hasPrevious = pageNumber > 1;
+
         if(pageNumber <= 3){
 
             if (chef.getNewRecipes() == null || chef.getNewRecipes().isEmpty()) {
-                return new SliceRecipeDTO<>(null, false, false);
+                return new SliceRecipeDTO<>(new ArrayList<>(), false, false);
             }
 
-            content = recipeConvertions.ChefListToSummaryList(chef.getNewRecipes().subList(start, end));
-            hasPrevious = pageNumber != 1;
-        }
+            if (start >= chef.getNewRecipes().size()) {
+                return new SliceRecipeDTO<>(new ArrayList<>(), false, hasPrevious);
+            }
 
+            int actualEnd = Math.min(end, chef.getNewRecipes().size());
+            content = recipeConversions.ChefListToSummaryList(chef.getNewRecipes().subList(start, actualEnd));
+        }
         else{
 
-            List<String> oldRecipesIds = chef.getOldRecipes().subList(start, end);
+            if (chef.getOldRecipes() == null || chef.getOldRecipes().isEmpty()) {
+                return new SliceRecipeDTO<>(new ArrayList<>(), false, true);
+            }
+
+            int offset = 3*pageSizeChef;
+            if (start -offset >= chef.getOldRecipes().size()) {
+                return new SliceRecipeDTO<>(new ArrayList<>(), false, true);
+            }
+
+            int actualEnd = Math.min(end-offset, chef.getOldRecipes().size());
+            List<String> oldRecipesIds = chef.getOldRecipes().subList(start - offset, actualEnd);
             List<RecipeMongo> recipes = recipeMongoRepository.findByIdIn(oldRecipesIds);
-            content = recipeConvertions.MongoListToChefPreview(recipes);
+            content = recipeConversions.MongoListToChefPreview(recipes);
         }
 
-        boolean hasNext = chef.getTotalRecipes() > end;
+        int totalRecipes = chef.getTotalRecipes() == null ? 0 : chef.getTotalRecipes();
+        boolean hasNext = totalRecipes > end;
         return  new SliceRecipeDTO<>(content, hasNext, hasPrevious);
     }
 
+
     /**
-     * Method to show the most popular recipes from a chef
-     * @param pageNumber - paging
-     * @return - paging with the list of recipes
+     * Retrieves a paginated list of the preview of the chef's popular recipes, ordered in descending order
+     * (from the most popular to the least popular).
+     * @param pageNumber the requested page number
+     * @return a {@link SliceRecipeDTO} containing a preview of the recipes, along with two boolean values indicating
+     * the existence of previous or next pages
+     * @throws NoSuchElementException if the authenticated chef is not found
+     * @throws IllegalArgumentException if the page number is zero or negative
      */
     public SliceRecipeDTO<ChefPreviewRecipeDTO> showPopularRecipes(int pageNumber){
 
@@ -381,7 +417,7 @@ public class ChefService {
                 .getAuthentication()
                 .getPrincipal();
 
-        Chef chef = chefRepository.findById(authChef.getId())
+        Chef chef = chefRepository.findApprovedById(authChef.getId())
                 .orElseThrow(() -> new NoSuchElementException("Chef not found"));
 
         if(pageNumber <= 0){
@@ -389,24 +425,33 @@ public class ChefService {
         }
 
         if(chef.getPopularRecipes() == null || chef.getPopularRecipes().isEmpty()) {
-            throw new NoSuchElementException("No popular recipes");
+            return new SliceRecipeDTO<>(new ArrayList<>(), false, false);
         }
 
         int start = (pageNumber-1)*pageSizeChef;
-        int end = pageNumber*pageSizeChef;
+        if (start >= chef.getPopularRecipes().size()) {
+            return new SliceRecipeDTO<>(new ArrayList<>(), false, true);
+        }
 
-        boolean hasPrevious = pageNumber != 1;
+        int end = Math.min(pageNumber*pageSizeChef, chef.getPopularRecipes().size());
+
+        boolean hasPrevious = pageNumber > 1;
         boolean hasNext = chef.getPopularRecipes().size() > end;
 
         List<ChefRecipeSummary> chefList = chef.getPopularRecipes().subList(start, end);
-        List<ChefPreviewRecipeDTO> previewList = recipeConvertions.ChefListToSummaryList(chefList);
+        List<ChefPreviewRecipeDTO> previewList = recipeConversions.ChefListToSummaryList(chefList);
         return new SliceRecipeDTO<>(previewList, hasNext, hasPrevious);
     }
 
+
     /**
-     * Method to show a chef his/her pending recipes
-     * @param pageNumber - paging
-     * @return the page with the list of pending recipes
+     * Retrieves a paginated list of the preview of the chef's pending recipes, waiting for the admin's approval,
+     * ordered in ascending order (from the oldest to the newest).
+     * @param pageNumber the requested page number
+     * @return a {@link SliceRecipeDTO} containing a preview of the recipes, along with two boolean values indicating
+     * the existence of previous or next pages
+     * @throws NoSuchElementException if the authenticated chef is not found
+     * @throws IllegalArgumentException if the page number is zero or negative
      */
     public SliceRecipeDTO<PendingRecipeChefDTO> showPendingRecipes(int pageNumber) {
 
@@ -414,7 +459,7 @@ public class ChefService {
                 .getAuthentication()
                 .getPrincipal();
 
-        Chef chef = chefRepository.findById(authChef.getId())
+        Chef chef = chefRepository.findApprovedById(authChef.getId())
                 .orElseThrow(() -> new NoSuchElementException("Chef not found"));
 
         if (pageNumber <= 0) {
@@ -422,18 +467,19 @@ public class ChefService {
         }
 
         if (chef.getRecipesToConfirm() == null || chef.getRecipesToConfirm().isEmpty()) {
-            return new SliceRecipeDTO<>(null, false, false);
+            return new SliceRecipeDTO<>(new ArrayList<>(), false, false);
         }
 
         List<PendingRecipe> pendingRecipes = chef.getRecipesToConfirm();
 
         int start = (pageNumber - 1) * pageSizeChef;
+        if (start >= pendingRecipes.size()) {
+            return new SliceRecipeDTO<>(new ArrayList<>(), false, true);
+        }
+
         int end = Math.min(pageNumber * pageSizeChef, pendingRecipes.size());
 
-        if (start >= pendingRecipes.size()) {
-            return new SliceRecipeDTO<>(null, false, true);
-        }
-        List<PendingRecipeChefDTO> content = recipeConvertions.ChefPreviewToPendingChefRecipe(
+        List<PendingRecipeChefDTO> content = recipeConversions.ChefPreviewToPendingChefRecipe(
                 pendingRecipes.subList(start, end));
 
         boolean hasPrevious = pageNumber > 1;
@@ -444,29 +490,27 @@ public class ChefService {
 
 
     /**
-     * Method to get the Recipe details
-     * @param recipeId - recipe id
-     * @return the recipe
+     * Retrieves the details of a specific recipe.
+     * @param recipeId the unique identifier of the recipe to retrieve
+     * @return a {@link ShowRecipeDTO} containing the full details of the recipe
+     * @throws NoSuchElementException if the chef or the recipe is not found,
+     * or if the recipe does not belong to the authenticated chef
      */
     public ShowRecipeDTO getRecipeDetails(String recipeId){
         UserPrincipal authChef = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getPrincipal();
 
-        Chef chef = chefRepository.findById(authChef.getId())
+        Chef chef = chefRepository.findApprovedById(authChef.getId())
                 .orElseThrow(() -> new NoSuchElementException("Chef not found"));
 
         RecipeMongo recipe = recipeMongoRepository.findById(recipeId)
                 .orElseThrow(() -> new NoSuchElementException("Recipe not found"));
 
-        if (!recipe.getStatus().equals("PENDING")) {
-            throw new NoSuchElementException("Not pending recipe");
-        }
-
         if(!recipe.getChef().getId().equals(chef.getId())){
             throw new NoSuchElementException("Recipe not found");
         }
 
-        return recipeConvertions.EntityToDto(recipe);
+        return recipeConversions.EntityToDto(recipe);
     }
 }

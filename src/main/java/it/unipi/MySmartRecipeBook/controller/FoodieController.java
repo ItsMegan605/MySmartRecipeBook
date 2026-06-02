@@ -101,11 +101,7 @@ public class FoodieController {
     @ApiResponse(responseCode = "200")
     public ResponseEntity<String> saveRecipe (@PathVariable String recipeId) {
 
-        UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getPrincipal();
-
-        foodieService.saveRecipe(authFoodie.getId(), recipeId);
+        foodieService.saveRecipe(recipeId);
         return ResponseEntity.ok("Recipe has been successfully added to favourites");
     }
 

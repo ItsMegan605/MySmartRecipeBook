@@ -6,10 +6,7 @@ import it.unipi.MySmartRecipeBook.dto.InfoToDeleteDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.FoodiePreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
-import it.unipi.MySmartRecipeBook.dto.users.ChefPreviewDTO;
-import it.unipi.MySmartRecipeBook.dto.users.RegisteredUserInfoDTO;
-import it.unipi.MySmartRecipeBook.dto.users.TopChefDTO;
-import it.unipi.MySmartRecipeBook.dto.users.UpdateFoodieDTO;
+import it.unipi.MySmartRecipeBook.dto.users.*;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefRecipeSummary;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Chef;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Foodie;
@@ -27,11 +24,6 @@ import it.unipi.MySmartRecipeBook.utils.conversionFunctions.FoodieUtilityFunctio
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.mongodb.core.FindAndModifyOptions;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -41,35 +33,34 @@ import org.springframework.util.StringUtils;
 import java.util.*;
 
 /**
- * Foodie service with business logic
+ * Foodie service that handles foodie's business logic operations
  */
 @Service
 public class FoodieService {
 
-    private final RecipeUtilityFunctions recipeUtilityFunctions;
     @Value("${app.recipe.pag-size-foodie:5}")
     private int pageSizeFoodie;
 
+    private final RecipeUtilityFunctions recipeUtilityFunctions;
     private final FoodieRepository foodieRepository;
     private final RecipeMongoRepository recipeRepository;
     private final PasswordEncoder passwordEncoder;
     private final FoodieUtilityFunctions usersConvertions;
     private final LowLoadManager lowLoadManager;
-    private final MongoTemplate mongoTemplate;
     private final ChefNeo4jRepository chefNeo4jRepository;
     private final ChefUtilityFunctions chefConvertions;
     private final ChefRepository chefRepository;
 
     public FoodieService(FoodieRepository foodieRepository, RecipeMongoRepository recipeRepository,
                          PasswordEncoder passwordEncoder, FoodieUtilityFunctions usersConvertions,
-                         LowLoadManager lowLoadManager, MongoTemplate mongoTemplate, RecipeUtilityFunctions recipeUtilityFunctions,
+                         LowLoadManager lowLoadManager, RecipeUtilityFunctions recipeUtilityFunctions,
                          ChefNeo4jRepository chefNeo4jRepository, ChefUtilityFunctions chefConvertions, ChefRepository chefRepository) {
         this.foodieRepository = foodieRepository;
         this.recipeRepository = recipeRepository;
         this.passwordEncoder = passwordEncoder;
         this.usersConvertions = usersConvertions;
         this.lowLoadManager = lowLoadManager;
-        this.mongoTemplate = mongoTemplate;
+
         this.recipeUtilityFunctions = recipeUtilityFunctions;
         this.chefNeo4jRepository = chefNeo4jRepository;
         this.chefConvertions = chefConvertions;
@@ -77,10 +68,10 @@ public class FoodieService {
     }
 
     /**
-     * Retrieve foodie's information
-     * @return the foodie's profile
+     * Retrieves the foodie's personal information.
+     * @return a {@link RegisteredUserInfoDTO} containing all the foodie's personal information
+     * @throws NoSuchElementException if the foodie is not found
      */
-
     public RegisteredUserInfoDTO getById() {
 
         UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
@@ -95,13 +86,16 @@ public class FoodieService {
 
 
     /**
-     * This function allows a foodie to change his/her personal information, except the username
-     * @param dto - the foodie's dto
-     * @return the new changed information
+     * Updates an authenticated foodie's personal information. Supported fields for update are name, surname, email, password and birthdate.
+     * For security reasons, the username cannot be modified.
+     * @param changeInfoDto a {@link UpdateFoodieDTO} containing the personal information the foodie wants to change
+     * @return a {@link RegisteredUserInfoDTO} containing the updated chef's personal information
+     * @throws NoSuchElementException if the foodie is not found
+     * @throws IllegalArgumentException if the {@link UpdateFoodieDTO} is null or empty
      */
-    public RegisteredUserInfoDTO updateFoodie(UpdateFoodieDTO dto) {
+    public RegisteredUserInfoDTO updateFoodie(UpdateFoodieDTO changeInfoDto) {
 
-        if(dto == null || dto.isEmpty()){
+        if(changeInfoDto == null || changeInfoDto.isEmpty()){
             throw new IllegalArgumentException("Invalid parameters");
         }
 
@@ -109,40 +103,47 @@ public class FoodieService {
                 .getAuthentication()
                 .getPrincipal();
 
-        if (!foodieRepository.existsById(authFoodie.getId())) {
-            throw new NoSuchElementException("Foodie not found");
+        Foodie foodie = foodieRepository.findById(authFoodie.getId())
+                .orElseThrow(() -> new NoSuchElementException("Foodie not found"));
+
+        boolean modified = false;
+
+        if (changeInfoDto.getName() != null && StringUtils.hasText(changeInfoDto.getName())) {
+            foodie.setName(changeInfoDto.getName());
+            modified = true;
         }
 
-        Query query = new Query(Criteria.where("id").is(authFoodie.getId()));
+        if (changeInfoDto.getSurname() != null && StringUtils.hasText(changeInfoDto.getSurname())) {
+            foodie.setSurname(changeInfoDto.getSurname());
+            modified = true;
+        }
 
-        Update update = new Update();
-        if (dto.getName() != null && StringUtils.hasText(dto.getName()))
-            update.set("name", dto.getName());
+        if (changeInfoDto.getEmail() != null && StringUtils.hasText(changeInfoDto.getEmail())) {
+            foodie.setEmail(changeInfoDto.getEmail());
+            modified = true;
+        }
 
-        if (dto.getSurname() != null && StringUtils.hasText(dto.getSurname()))
-            update.set("surname", dto.getSurname());
+        if (changeInfoDto.getPassword() != null && StringUtils.hasText(changeInfoDto.getPassword())) {
+            foodie.setPassword(passwordEncoder.encode(changeInfoDto.getPassword()));
+            modified = true;
+        }
 
-        if (dto.getEmail() != null && StringUtils.hasText(dto.getEmail()))
-            update.set("email", dto.getEmail());
+        if (changeInfoDto.getBirthdate() != null){
+            foodie.setBirthdate(changeInfoDto.getBirthdate());
+            modified = true;
+        }
 
-        if (dto.getPassword() != null && StringUtils.hasText(dto.getPassword()))
-            update.set("password", passwordEncoder.encode(dto.getPassword()));
-
-        if (dto.getBirthdate() != null)
-            update.set("birthdate", dto.getBirthdate());
-
-        FindAndModifyOptions options = FindAndModifyOptions.options().returnNew(true);
-        Foodie foodie = mongoTemplate.findAndModify(query, update, options, Foodie.class);
-
-        if (foodie == null) {
-            throw new NoSuchElementException("Foodie not found");
+        if (modified) {
+            foodieRepository.save(foodie);
         }
         return usersConvertions.entityToFoodieDTO(foodie);
     }
 
 
     /**
-     * Delete foodie's profile
+     * Deletes the currently authenticated foodie's profile. Asynchronously, the chef and recipes counters are updated
+     * to account for the removal of the foodie's profile and all their saved recipes.
+     * @throws NoSuchElementException if the authenticated foodie is not found in the database
      */
     @Transactional
     public void deleteFoodie() {
@@ -163,32 +164,37 @@ public class FoodieService {
                 String chefId = recipe.getChef().getId();
 
                 recipesId.add(recipeId);
-
                 recipesByChefId.computeIfAbsent(chefId, k -> new ArrayList<>()).add(recipeId);
             }
         }
 
         InfoToDeleteDTO infoFoodie = new InfoToDeleteDTO(recipesId, recipesByChefId);
         lowLoadManager.addTask(Task.TaskType.SET_COUNTERS_FOODIE_DELETE, infoFoodie);
-
         foodieRepository.delete(foodie);
     }
 
-
-
+    // TODO: da ricontrollare gestione asincrona
     /**
-     * Add a recipe to foodie's favourites
-     * @param foodieId - id of the foodie
-     * @param recipeId - the recipe id
+     * Adds a preview of the selected recipe to the authenticated foodie's favorites list.
+     * Asynchronously, the recipe's total saves and the corresponding chef's counters are updated.
+     * @param recipeId the unique identifier of the recipe to save
+     * @throws NoSuchElementException if the recipe or the foodie is not found
+     * @throws DataIntegrityViolationException if the recipe has already been saved by the foodie
      */
     @Transactional
-    public void saveRecipe(String foodieId, String recipeId) {
+    public void saveRecipe(String recipeId) {
 
-        Foodie foodie = foodieRepository.findById(foodieId)
+        UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        Foodie foodie = foodieRepository.findById(authFoodie.getId())
                 .orElseThrow(() -> new NoSuchElementException("Foodie not found"));
 
-        List<FoodieRecipeSummary> recipes = foodie.getSavedRecipes();
+        RecipeMongo recipe = recipeRepository.findApprovedById(recipeId)
+                .orElseThrow(() -> new NoSuchElementException("Recipe not found"));
 
+        List<FoodieRecipeSummary> recipes = foodie.getSavedRecipes();
         if(recipes != null){
             boolean alreadySaved = recipes.stream()
                     .anyMatch(saved -> saved.getId().equals(recipeId));
@@ -198,21 +204,18 @@ public class FoodieService {
             }
         }
 
-        RecipeMongo recipe = recipeRepository.findApprovedById(recipeId)
-                .orElseThrow(() -> new NoSuchElementException("Recipe to save not found"));
-
         FoodieRecipeSummary fullRecipe = recipeUtilityFunctions.entityToReducedRecipe(recipe);
+        foodieRepository.addRecipeToFavourites(authFoodie.getId(), recipeId, fullRecipe);
 
-        foodieRepository.addRecipeToFavourites(foodieId, recipeId, fullRecipe);
-
-        ChefRecipeSummary chefRecipe = recipeUtilityFunctions.recipeToChefRecipe(recipe);
-        lowLoadManager.addTask(Task.TaskType.SET_COUNTERS_ADD_FAVOURITE, chefRecipe, recipe.getChef().getId());
+        lowLoadManager.addTask(Task.TaskType.SET_COUNTERS_NEW_FAVOURITE, fullRecipe.getId(), recipe.getChef().getId());
     }
 
 
     /**
-     * Remove a recipe from foodie's favourites list
-     * @param recipeId - the recipe id
+     * Removes the preview of the selected recipe to the authenticated foodie's favorites list.
+     * Asynchronously, the recipe's total saves and the corresponding chef's counters are updated.
+     * @param recipeId the unique identifier of the recipe to remove
+     * @throws NoSuchElementException if the foodie or the foodie is not found, or if the recipe is not present in the saved list
      */
     @Transactional
     public void removeSavedRecipe(String recipeId) {
@@ -240,7 +243,7 @@ public class FoodieService {
         if (targetChefId != null) {
             lowLoadManager.addTask(Task.TaskType.SET_COUNTERS_REMOVE_FAVOURITE, recipeId, targetChefId);
         } else {
-            throw new  NoSuchElementException("Recipe not found for the specified foodie");
+            throw new NoSuchElementException("Recipe not found among the saved one");
         }
     }
 
@@ -264,7 +267,7 @@ public class FoodieService {
             throw new NoSuchElementException("Recipe not found for the specified foodie");
         }
 
-        numPage = (numPage < 0) ? 0 : numPage;
+        numPage = Math.max(numPage, 1);
         if (!FOODIE_FILTERS.contains(category)) {
             category = "saving-date";
         }

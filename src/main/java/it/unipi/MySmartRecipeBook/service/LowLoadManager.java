@@ -150,7 +150,7 @@ public class LowLoadManager {
                     lowLoadManager.decrementSavesCounters(task);
                     break;
 
-                case SET_COUNTERS_ADD_FAVOURITE:
+                case SET_COUNTERS_NEW_FAVOURITE:
                     lowLoadManager.updateChefCountersSaves(task);
                     break;
 
@@ -162,11 +162,11 @@ public class LowLoadManager {
                     lowLoadManager.createNeo4jRecipe(task);
                     break;
 
-                case DELETE_CHEF_RECIPE:
+                case DELETE_CHEF_PROFILE_NEO4J:
                     deleteChefRecipes(task.getChefId());
                     break;
 
-                case DELETE_RECIPE:
+                case DELETE_RECIPE_NEO4J:
                     deleteRecipe(task.getRecipeId());
                     break;
 
@@ -224,7 +224,7 @@ public class LowLoadManager {
         Map<String, List<String>> recipesByChefId = task.getInfoToDelete().getChefRecipeList();
 
         recipesByChefId.forEach((chefId, chefRecipes) -> {
-            Chef targetChef = chefRepository.findById(chefId)
+            Chef targetChef = chefRepository.findApprovedById(chefId)
                     .orElseThrow(() -> new NoSuchElementException("Chef not found"));
 
             for (String recipeId : chefRecipes) {
@@ -281,7 +281,7 @@ public class LowLoadManager {
 
         System.out.println("Update Chef Counters: removing from favorites");
 
-        Chef targetChef = chefRepository.findById(task.getChefId())
+        Chef targetChef = chefRepository.findApprovedById(task.getChefId())
                         .orElseThrow(() -> new NoSuchElementException("Chef not found"));
         int totSaves = targetChef.getTotalSaves() == null ? 0 : targetChef.getTotalSaves();
         targetChef.setTotalSaves(Math.max(0, totSaves-1));
@@ -341,7 +341,7 @@ public class LowLoadManager {
 
         System.out.println("Update Chef Counters: increasing saves numbers");
 
-        Chef targetChef = chefRepository.findById(task.getChefId())
+        Chef targetChef = chefRepository.findApprovedById(task.getChefId())
                 .orElseThrow(() -> new NoSuchElementException("Chef not found"));
         int totSaves = targetChef.getTotalSaves() == null ? 0 : targetChef.getTotalSaves();
         targetChef.setTotalSaves(totSaves+1);
@@ -369,11 +369,9 @@ public class LowLoadManager {
             throw new NoSuchElementException("No recipe found");
         }
 
-        RecipeMongo recipe = recipeMongoRepository.findById(task.getRecipeId())
+        RecipeMongo recipe = recipeMongoRepository.findApprovedById(task.getRecipeId())
                         .orElseThrow(() -> new NoSuchElementException("No recipe found"));
-        int numSaves = recipe.getNumSaves() == null ? 0 : recipe.getNumSaves();
-        recipe.setNumSaves(numSaves+1);
-        recipeMongoRepository.save(recipe);
+        recipeMongoRepository.updateSavesCounter(task.getRecipeId(), 1);
 
 
         if(recipe.getNumSaves() == 40){
