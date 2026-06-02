@@ -89,6 +89,7 @@ public class ShoppingListService {
         if (!ingredients.isEmpty()) {
             try (Jedis jedis = jedisSentinelPool.getResource()) {
                 jedis.sadd(key, ingredients.toArray(new String[0]));
+                jedis.expire(key, 86400*15);
             }
         }
         else{
@@ -114,6 +115,7 @@ public class ShoppingListService {
             String key = REDIS_ENTITY + authFoodie.getUsername() + REDIS_KEY_PREFIX;
             try (Jedis jedis = jedisSentinelPool.getResource()) {
                 jedis.srem(key, ingredient.toLowerCase());
+                jedis.expire(key, 86400*15);
             }
         }
 

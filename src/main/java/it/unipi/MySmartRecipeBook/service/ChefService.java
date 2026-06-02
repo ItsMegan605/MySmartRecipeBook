@@ -2,6 +2,7 @@ package it.unipi.MySmartRecipeBook.service;
 
 import static it.unipi.MySmartRecipeBook.utils.parameters.Parameters.*;
 
+import org.springframework.dao.DuplicateKeyException;
 import it.unipi.MySmartRecipeBook.dto.IngredientDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.*;
 import it.unipi.MySmartRecipeBook.dto.users.*;
@@ -153,14 +154,14 @@ public class ChefService {
             }
         }
 
-        recipeMongoRepository.deleteByIdIn(ids);
 
         if(chef.getRecipesToConfirm() != null) {
             List<String> recipeToRemove = new ArrayList<>();
             for(PendingRecipe recipe : chef.getRecipesToConfirm()) {
+                ids.add(recipe.getId());
                 recipeToRemove.add(recipe.getId());
             }
-
+            recipeMongoRepository.deleteByIdIn(ids);
             Admin admin = adminRepository.findByUsername("admin");
             adminRepository.removeRecipesFromApprovals(admin.getId(), recipeToRemove);
         }
@@ -223,7 +224,13 @@ public class ChefService {
 
         ChefInfoDTO chefDTO = new ChefInfoDTO(chef.getId(), chef.getName(), chef.getSurname());
         RecipeMongo recipeToAdd = recipeConversions.dtoToModel(recipeDTO, chefDTO);
-        RecipeMongo recipeAdded = recipeMongoRepository.save(recipeToAdd);
+        RecipeMongo recipeAdded = null;
+       try {
+           recipeAdded = recipeMongoRepository.save(recipeToAdd);
+       } catch(DuplicateKeyException e){
+            throw new IllegalArgumentException("Recipe already exists");
+       };
+
 
         AdminPendingRecipe savedRecipe = recipeConversions.createBaseRecipe(recipeDTO, chefDTO, recipeAdded.getId());
         adminRepository.addRecipeToApprovals(admin.getId(), savedRecipe);

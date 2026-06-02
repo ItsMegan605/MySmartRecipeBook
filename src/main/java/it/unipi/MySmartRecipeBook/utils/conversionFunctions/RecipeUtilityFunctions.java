@@ -78,7 +78,11 @@ public class RecipeUtilityFunctions {
             recipeDTO.setImageURL(recipe.getImageURL());
             recipeDTO.setChefName(recipe.getChef().getName() + " " + recipe.getChef().getSurname());
             recipeDTO.setChefId(recipe.getChef().getId());
-            recipeDTO.setNumSaves(recipe.getNumSaves());
+            Integer numSaves = recipe.getNumSaves();
+            if (numSaves == null ){
+                numSaves = 0;
+            }
+            recipeDTO.setNumSaves(numSaves);
             recipesDTO.add(recipeDTO);
         }
         return recipesDTO;

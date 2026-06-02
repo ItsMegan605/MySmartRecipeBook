@@ -44,7 +44,7 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
      * @param pageable pagination information
      * @return slice of recipes
      */
-    @Query("{ 'status': ?1, 'category': ?1 }")
+    @Query("{ 'status': ?1, 'category': ?0 }")
     Slice<RecipeMongo> findByCategory(String category, String status, Pageable pageable);
 
     /**
@@ -80,19 +80,10 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
     void decrementSavesCounter(String recipeId);
 
     /**
-     * Deletes all recipes of a specific chef.
-     * @param chefId chef ID
+     * Delete a recipe list given an id list
+     * @param ids - recipes id
      */
-    void deleteAllByChefId(String chefId);
-
     void deleteByIdIn(List<String> ids);
-
-    /**
-     * Deletes a recipe by ID.
-     * @param id recipe ID
-     * @return number of deleted documents
-     */
-    RecipeMongo deleteRecipeById(String id);
 
     /**
      * Computes category trends based on recent and previous time windows:

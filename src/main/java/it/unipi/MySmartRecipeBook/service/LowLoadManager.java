@@ -55,18 +55,6 @@ public class LowLoadManager {
     }
 
     /**
-     * Adds a task involving a ChefRecipeSummary to the low-load processing queue.
-     * @param type - task type
-     * @param recipe - the recipe 
-     * @param chefId - id of the chef
-     */
-    public void addTask (Task.TaskType type, ChefRecipeSummary recipe, String chefId){
-        TaskToDo task = new TaskToDo(type, recipe, chefId);
-        taskQueue.add(task);
-        System.out.println("Task successfully added to the queue");
-    }
-
-    /**
      * Task linked to specific Chef and Recipe identifiers.
      * @param type - task type
      * @param recipeId - id of the recipe
@@ -294,7 +282,8 @@ public class LowLoadManager {
         for(ChefRecipeSummary recipe : targetChef.getNewRecipes()){
             if(recipe.getId().equals(task.getRecipeId())){
                 found = true;
-                recipe.setNumSaves(recipe.getNumSaves()-1);
+                int oldSaves = recipe.getNumSaves() == null ? 0 : recipe.getNumSaves()-1;
+                recipe.setNumSaves(oldSaves);
                 break;
             }
         }
@@ -346,40 +335,26 @@ public class LowLoadManager {
         int totSaves = targetChef.getTotalSaves() == null ? 0 : targetChef.getTotalSaves();
         targetChef.setTotalSaves(totSaves+1);
 
-        boolean found = false;
-        for(ChefRecipeSummary recipe : targetChef.getNewRecipes()){
-            if(recipe.getId().equals(task.getRecipeId())){
-                int oldNumSaves = recipe.getNumSaves() == null ? 0 : recipe.getNumSaves();
-                recipe.setNumSaves(oldNumSaves+1);
-                found = true;
-                break;
-            }
-        }
-
-        if(!found){
-            for(String recipeId : targetChef.getOldRecipes()){
-                if(recipeId.equals(task.getRecipeId())){
-                    found = true;
+        if(targetChef.getNewRecipes() != null){
+            for(ChefRecipeSummary recipe : targetChef.getNewRecipes()){
+                if(recipe.getId().equals(task.getRecipeId())){
+                    int oldNumSaves = recipe.getNumSaves() == null ? 0 : recipe.getNumSaves();
+                    recipe.setNumSaves(oldNumSaves+1);
                     break;
                 }
             }
         }
 
-        if(!found){
-            throw new NoSuchElementException("No recipe found");
-        }
-
         RecipeMongo recipe = recipeMongoRepository.findApprovedById(task.getRecipeId())
                         .orElseThrow(() -> new NoSuchElementException("No recipe found"));
         recipeMongoRepository.updateSavesCounter(task.getRecipeId(), 1);
-
-
-        if(recipe.getNumSaves() == 40){
+        int newNumSaves = recipe.getNumSaves() == null? 0 : recipe.getNumSaves();
+        if(newNumSaves == 40){
             ChefRecipeSummary recipeToAdd = recipeUtilityFunctions.recipeToChefRecipe(recipe);
             targetChef.getPopularRecipes().add(recipeToAdd);
             targetChef.getPopularRecipes().sort(Comparator.comparing(ChefRecipeSummary::getNumSaves).reversed());
         }
-        else if (recipe.getNumSaves() > 40){
+        else if (newNumSaves > 40){
             for (ChefRecipeSummary popularRecipe : targetChef.getPopularRecipes()) {
                 if (popularRecipe.getId().equals(recipe.getId())) {
                     popularRecipe.setNumSaves(popularRecipe.getNumSaves()+1);

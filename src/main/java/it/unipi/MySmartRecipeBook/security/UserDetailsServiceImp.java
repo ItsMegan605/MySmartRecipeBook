@@ -53,7 +53,7 @@ public class UserDetailsServiceImp implements UserDetailsService {
 
         //check if the username belongs to a Chef
         Optional<Chef> chefOpt = chefRepository.findByUsername(username);
-        if (chefOpt.isPresent()) {
+        if (chefOpt.isPresent() && chefOpt.get().getStatus().equals("APPROVED")) {
             return UserPrincipal.buildChef(chefOpt.get());
         }
 

@@ -173,7 +173,6 @@ public class FoodieService {
         foodieRepository.delete(foodie);
     }
 
-    // TODO: da ricontrollare gestione asincrona
     /**
      * Adds a preview of the selected recipe to the authenticated foodie's favorites list.
      * Asynchronously, the recipe's total saves and the corresponding chef's counters are updated.
