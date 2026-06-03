@@ -111,6 +111,7 @@ public class AdminController {
         SliceRecipeDTO<PendingRecipeDTO> recipeList = adminService.showPendingRecipes(page);
         return ResponseEntity.ok(recipeList);
     }
+
     /**
      * Get method for a paginated list of chef registration requests that are pending admin approval.
      * @param page the page number to retrieve

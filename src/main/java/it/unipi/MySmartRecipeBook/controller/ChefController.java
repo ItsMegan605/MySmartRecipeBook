@@ -12,7 +12,6 @@ import it.unipi.MySmartRecipeBook.service.ChefService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -35,7 +34,7 @@ public class ChefController {
 
     /**
      * Method to Retrieve the chef's information
-     * @see ChefService#getByUsername(String)
+     * @see ChefService#getByUsername()
      * @return ResponseEntity ok message
      */
     @GetMapping("/info")
@@ -68,6 +67,7 @@ public class ChefController {
 
     /**
      * Delete chef's profile
+     * @see ChefService#deleteChef()
      * @return ResponseEntity with message
      */
     @DeleteMapping("/deleteProfile")
@@ -126,7 +126,6 @@ public class ChefController {
         chefService.removeRecipe(recipeId);
         return ResponseEntity.ok("Recipe successfully removed");
     }
-
 
     /**
      * Method to delete a recipe that already exists

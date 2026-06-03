@@ -23,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -159,10 +160,10 @@ public class ChefService {
                 ids.add(recipe.getId());
                 recipeToRemove.add(recipe.getId());
             }
-            recipeMongoRepository.deleteByIdIn(ids);
             Admin admin = adminRepository.findByUsername("admin");
             adminRepository.removeRecipesFromApprovals(admin.getId(), recipeToRemove);
         }
+        recipeMongoRepository.deleteByIdIn(ids);
 
         chefRepository.delete(chef);
         lowLoadManager.addTask(Task.TaskType.DELETE_CHEF_PROFILE_NEO4J, "0", loggedChef.getId());
@@ -222,12 +223,12 @@ public class ChefService {
 
         ChefInfoDTO chefDTO = new ChefInfoDTO(chef.getId(), chef.getName(), chef.getSurname());
         RecipeMongo recipeToAdd = recipeConversions.dtoToModel(recipeDTO, chefDTO);
-        RecipeMongo recipeAdded = null;
+        RecipeMongo recipeAdded;
        try {
            recipeAdded = recipeMongoRepository.save(recipeToAdd);
        } catch(DuplicateKeyException e){
             throw new IllegalArgumentException("Recipe already exists");
-       };
+       }
 
 
         AdminPendingRecipe savedRecipe = recipeConversions.createBaseRecipe(recipeDTO, chefDTO, recipeAdded.getId());
@@ -398,6 +399,7 @@ public class ChefService {
             int actualEnd = Math.min(end-offset, chef.getOldRecipes().size());
             List<String> oldRecipesIds = chef.getOldRecipes().subList(start - offset, actualEnd);
             List<RecipeMongo> recipes = recipeMongoRepository.findByIdIn(oldRecipesIds);
+            recipes.sort(Comparator.comparing(RecipeMongo::getCreationDate).reversed());
             content = recipeConversions.MongoListToChefPreview(recipes);
         }
 

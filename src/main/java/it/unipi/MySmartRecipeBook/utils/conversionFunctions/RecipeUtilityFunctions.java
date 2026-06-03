@@ -106,6 +106,23 @@ public class RecipeUtilityFunctions {
     }
 
     /**
+     * Converts a RecipeMongo entity into a ChefRecipeSummary for the popular recipes
+     * @param recipeMongo the mongo recipe
+     * @return the chef recipe summary
+     */
+    public ChefRecipeSummary recipeToChefPopular (RecipeMongo recipeMongo){
+
+        ChefRecipeSummary recipe = new ChefRecipeSummary();
+        recipe.setId(recipeMongo.getId());
+        recipe.setTitle(recipeMongo.getTitle());
+        recipe.setImageURL(recipeMongo.getImageURL());
+        recipe.setCreationDate(recipeMongo.getCreationDate());
+        recipe.setNumSaves(recipeMongo.getNumSaves()+1);
+
+        return recipe;
+    }
+
+    /**
      * Converts a list of RecipeMongo entities to a list of ChefRecipeSummary DTOs.
      * @param recipesToConvert the list of mongo recipes
      * @return the list of summaries

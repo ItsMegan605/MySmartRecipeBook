@@ -6,7 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
+/**
+ * DTO used to display a summary preview of a Chef.
+ */
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter

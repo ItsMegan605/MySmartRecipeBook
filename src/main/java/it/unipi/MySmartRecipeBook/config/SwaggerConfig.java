@@ -8,12 +8,16 @@ import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 
 /**
- * Swagger configuration
+ * Swagger (OpenAPI) configuration class.
  */
 @Configuration
 public class SwaggerConfig {
 
-        @Bean
+    /**
+     * Configures the custom OpenAPI documentation and sets up JWT Bearer authentication.
+     * @return the configured OpenAPI object with security schemes applied
+     */
+    @Bean
         public OpenAPI customOpenAPI() {
             final String securitySchemeName = "bearerAuth";
 

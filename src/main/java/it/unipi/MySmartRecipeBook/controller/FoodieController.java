@@ -11,13 +11,11 @@ import it.unipi.MySmartRecipeBook.dto.users.ChefPreviewDTO;
 import it.unipi.MySmartRecipeBook.dto.users.RegisteredUserInfoDTO;
 import it.unipi.MySmartRecipeBook.dto.users.TopChefDTO;
 import it.unipi.MySmartRecipeBook.dto.users.UpdateFoodieDTO;
-import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import it.unipi.MySmartRecipeBook.service.FoodieService;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -93,7 +91,7 @@ public class FoodieController {
     /**
      * Add a recipe to foodie's favourites
      * @param recipeId - recipeID
-     * @see FoodieService#saveRecipe(String, String)
+     * @see FoodieService#saveRecipe(String) 
      * @return ResponseEntity with message
      */
     @PostMapping("/addFavourite/{recipeId}")

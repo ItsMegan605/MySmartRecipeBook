@@ -12,7 +12,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Redis Master - slace configuration
+ * Redis Master-Replica (Sentinel) configuration.
  */
 @Configuration
 public class RedisConfig {
@@ -24,8 +24,8 @@ public class RedisConfig {
     private String masterName;
 
     /**
-     * Redis configuration for master slave
-     * @return configured istance of JedisSentinelPool
+     * Configures and provides the Redis JedisSentinelPool for Master-Replica setup.
+     * @return a configured instance of JedisSentinelPool
      */
     @Bean
     public JedisSentinelPool jedisSentinelPool() {

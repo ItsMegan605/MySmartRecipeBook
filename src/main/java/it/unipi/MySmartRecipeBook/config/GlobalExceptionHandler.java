@@ -21,15 +21,17 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
- * Global handler for the different type of exceptions
+ * Global handler for the different types of exceptions in the application.
+ * Centralizes the exception handling and provides consistent HTTP responses.
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
 
     /**
-     * MethodArgumentNotValidException: Exception that occurs when a request payload fails @Valid validation
-     * for example missing required fields or empty strings in a DTO.
+     * Handles MethodArgumentNotValidException.
+     * This exception occurs when a request payload fails @Valid validation
+     * (For example missing required fields or empty strings in a DTO).
      * */
     @ApiResponses({
             @ApiResponse(
@@ -51,8 +53,9 @@ public class GlobalExceptionHandler {
 
 
     /**
-     * ConstraintViolationException: when validation fails directly on method parameters
-     * for example an invalid age.
+     * Handles ConstraintViolationException.
+     * This exception occurs when validation fails directly on method parameters
+     * (For example an invalid age).
      * */
     @ApiResponses({
             @ApiResponse(
@@ -71,10 +74,10 @@ public class GlobalExceptionHandler {
         });
         return ResponseEntity.badRequest().body(errors);
     }
-/**
- * TypeMismatchException: thrown when a request parameter or path variable cannot be
- * converted to the expected Java type
- * */
+    /**
+     * Handles TypeMismatchException.
+     * Thrown when a request parameter or path variable cannot be converted to the expected Java type.
+     * */
     @ApiResponses({
             @ApiResponse(
                     responseCode = "400",
@@ -91,7 +94,6 @@ public class GlobalExceptionHandler {
      * Exception: global  handler for any unexpected Exception
      * not caught by specific handlers.
      * */
-
     @ApiResponses({
             @ApiResponse(
                     responseCode = "500",
@@ -112,8 +114,9 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     *  IllegalArgumentException: illegal argument inserted
-     *  */
+     * Handles IllegalArgumentException.
+     * Thrown when an illegal or inappropriate argument has been passed to a method.
+     */
     @ApiResponses({
             @ApiResponse(
                     responseCode = "400",
@@ -127,8 +130,9 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     *  NoSuchElementException: when something doesn't exist and/or can't be found
-     *  */
+     * Handles NoSuchElementException.
+     * Thrown when a requested resource or element does not exist or cannot be found.
+     */
     @ApiResponses({
             @ApiResponse(
                     responseCode = "404",
@@ -141,10 +145,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
 
-/**
- * AccessDeniedException: This occurs when an authenticated user attempts to execute an operation or access
- * an endpoint without the required roles or permissions.
- * */
+    /**
+     * Handles AccessDeniedException.
+     * Occurs when an authenticated user attempts to execute an operation or access an endpoint
+     * without the required roles or permissions.
+     */
     @ApiResponses({
             @ApiResponse(
                     responseCode = "403",
@@ -158,9 +163,10 @@ public class GlobalExceptionHandler {
     }
 
 
-/**
- *  HttpMessageNotReadableException: Exception that handles HTTP request body:  malformed or unreadable
- *  */
+    /**
+     * Handles HttpMessageNotReadableException.
+     * * Triggered when the HTTP request body is malformed or unreadable.
+     * */
 @ApiResponses({
             @ApiResponse(
                     responseCode = "400",
@@ -174,11 +180,9 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Method to handle the data integrity
-     * @param ex - name of the exception
-     * @return the message of the exception
+     * Handles DataIntegrityViolationException.
+     * Thrown when an attempt to insert or update data results in violation of an integrity constraint.
      */
-
     @ApiResponses({
             @ApiResponse(
                     responseCode = "409",
@@ -192,12 +196,9 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Exception for the user's username while logging in the application
-     * @param unf - exception name
-     * @return The message
+     * Handles UsernameNotFoundException.
+     * Triggered when the user's username is not found during the login process.
      */
-
-
     @ApiResponses({
             @ApiResponse(
                     responseCode = "401",
@@ -211,8 +212,8 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Exception to handle wrong credentials in the application
-     * @return The message
+     * Handles BadCredentialsException.
+     * Thrown when the provided credentials (e.g., password) are incorrect.
      */
     @ApiResponses({
             @ApiResponse(

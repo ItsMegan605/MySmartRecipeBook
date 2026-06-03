@@ -349,9 +349,9 @@ public class LowLoadManager {
         RecipeMongo recipe = recipeMongoRepository.findApprovedById(task.getRecipeId())
                         .orElseThrow(() -> new NoSuchElementException("No recipe found"));
         recipeMongoRepository.updateSavesCounter(task.getRecipeId(), 1);
-        int newNumSaves = recipe.getNumSaves() == null? 0 : recipe.getNumSaves();
+        int newNumSaves = recipe.getNumSaves() == null? 0 : recipe.getNumSaves()+1;
         if(newNumSaves == 40){
-            ChefRecipeSummary recipeToAdd = recipeUtilityFunctions.recipeToChefRecipe(recipe);
+            ChefRecipeSummary recipeToAdd = recipeUtilityFunctions.recipeToChefPopular(recipe);
             targetChef.getPopularRecipes().add(recipeToAdd);
             targetChef.getPopularRecipes().sort(Comparator.comparing(ChefRecipeSummary::getNumSaves).reversed());
         }
