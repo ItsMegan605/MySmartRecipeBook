@@ -32,26 +32,27 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 @Service
 public class LowLoadManager {
-    @Lazy
-    private static final Queue<TaskToDo> taskQueue = new ConcurrentLinkedQueue<>();
-    private final RecipeMongoRepository recipeMongoRepository;
-    private final ChefRepository chefRepository;
-    private final RecipeNeo4jRepository recipeNeo4jRepository;
 
     @Autowired
     @Lazy
     private LowLoadManager lowLoadManager;
 
+    private static final Queue<TaskToDo> taskQueue = new ConcurrentLinkedQueue<>();
+
+    private final RecipeMongoRepository recipeMongoRepository;
+    private final ChefRepository chefRepository;
+    private final RecipeNeo4jRepository recipeNeo4jRepository;
     private final RecipeUtilityFunctions recipeUtilityFunctions;
-    @Autowired
-    private ChefNeo4jRepository chefNeo4jRepository;
+    private final ChefNeo4jRepository chefNeo4jRepository;
 
     public LowLoadManager(RecipeMongoRepository recipeMongoRepository, ChefRepository chefRepository,
-                          RecipeNeo4jRepository recipeNeo4jRepository, RecipeUtilityFunctions recipeUtilityFunctions) {
+                          RecipeNeo4jRepository recipeNeo4jRepository, RecipeUtilityFunctions recipeUtilityFunctions,
+                          ChefNeo4jRepository chefNeo4jRepository) {
         this.recipeMongoRepository = recipeMongoRepository;
         this.chefRepository = chefRepository;
         this.recipeNeo4jRepository = recipeNeo4jRepository;
         this.recipeUtilityFunctions = recipeUtilityFunctions;
+        this.chefNeo4jRepository = chefNeo4jRepository;
     }
 
     /**

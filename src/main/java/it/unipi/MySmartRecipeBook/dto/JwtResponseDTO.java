@@ -6,9 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * DTO representing the JWT response payload
- * on successful authentication.
- * */
+ * DTO representing the JWT response payload on successful authentication.
+ */
 @Getter
 @Setter
 @AllArgsConstructor

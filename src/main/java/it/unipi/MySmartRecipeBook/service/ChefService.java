@@ -149,9 +149,7 @@ public class ChefService {
         }
 
         if(chef.getOldRecipes() != null && !chef.getOldRecipes().isEmpty()){
-            for(String recipeId : chef.getOldRecipes()){
-                ids.add(recipeId);
-            }
+                ids.addAll(chef.getOldRecipes());
         }
 
 

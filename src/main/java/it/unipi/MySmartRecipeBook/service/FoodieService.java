@@ -7,7 +7,6 @@ import it.unipi.MySmartRecipeBook.dto.recipe.FoodiePreviewRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.users.*;
-import it.unipi.MySmartRecipeBook.model.Mongo.recipes.ChefRecipeSummary;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Chef;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Foodie;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.FoodieRecipeSummary;
@@ -45,25 +44,25 @@ public class FoodieService {
     private final FoodieRepository foodieRepository;
     private final RecipeMongoRepository recipeRepository;
     private final PasswordEncoder passwordEncoder;
-    private final FoodieUtilityFunctions usersConvertions;
+    private final FoodieUtilityFunctions foodieConversions;
     private final LowLoadManager lowLoadManager;
     private final ChefNeo4jRepository chefNeo4jRepository;
-    private final ChefUtilityFunctions chefConvertions;
+    private final ChefUtilityFunctions chefConversions;
     private final ChefRepository chefRepository;
 
     public FoodieService(FoodieRepository foodieRepository, RecipeMongoRepository recipeRepository,
-                         PasswordEncoder passwordEncoder, FoodieUtilityFunctions usersConvertions,
+                         PasswordEncoder passwordEncoder, FoodieUtilityFunctions foodieConversions,
                          LowLoadManager lowLoadManager, RecipeUtilityFunctions recipeUtilityFunctions,
-                         ChefNeo4jRepository chefNeo4jRepository, ChefUtilityFunctions chefConvertions, ChefRepository chefRepository) {
+                         ChefNeo4jRepository chefNeo4jRepository, ChefUtilityFunctions chefConversions, ChefRepository chefRepository) {
         this.foodieRepository = foodieRepository;
         this.recipeRepository = recipeRepository;
         this.passwordEncoder = passwordEncoder;
-        this.usersConvertions = usersConvertions;
+        this.foodieConversions = foodieConversions;
         this.lowLoadManager = lowLoadManager;
 
         this.recipeUtilityFunctions = recipeUtilityFunctions;
         this.chefNeo4jRepository = chefNeo4jRepository;
-        this.chefConvertions = chefConvertions;
+        this.chefConversions = chefConversions;
         this.chefRepository = chefRepository;
     }
 
@@ -81,7 +80,7 @@ public class FoodieService {
         Foodie foodie = foodieRepository.findById(authFoodie.getId())
                 .orElseThrow(() -> new NoSuchElementException("Foodie not found"));
 
-        return usersConvertions.entityToFoodieDTO(foodie);
+        return foodieConversions.entityToFoodieDTO(foodie);
     }
 
 
@@ -136,7 +135,7 @@ public class FoodieService {
         if (modified) {
             foodieRepository.save(foodie);
         }
-        return usersConvertions.entityToFoodieDTO(foodie);
+        return foodieConversions.entityToFoodieDTO(foodie);
     }
 
 
@@ -211,10 +210,10 @@ public class FoodieService {
 
 
     /**
-     * Removes the preview of the selected recipe to the authenticated foodie's favorites list.
+     * Removes the preview of the selected recipe from the authenticated foodie's favorites list.
      * Asynchronously, the recipe's total saves and the corresponding chef's counters are updated.
      * @param recipeId the unique identifier of the recipe to remove
-     * @throws NoSuchElementException if the foodie or the foodie is not found, or if the recipe is not present in the saved list
+     * @throws NoSuchElementException if the foodie or the recipe is not found, or if the recipe is not present among the saved ones
      */
     @Transactional
     public void removeSavedRecipe(String recipeId) {
@@ -248,12 +247,16 @@ public class FoodieService {
 
 
     /**
-     * Show foodie's favourites
-     * @param category - category of the recipe
-     * @param numPage - paging
-     * @return The page with the list of favourites
+     * Retrieves the foodie's favorite recipes filtered by a specified category, difficulty, or saving date.
+     * The results are sorted in descending order by saving date and paginated.
+     * @param filter the filtering criterion
+     * @param numPage the number of the page to retrieve
+     * @return a {@link SliceRecipeDTO} containing the paginated recipe previews, along with two boolean values indicating
+     * the existence of previous or next pages
+     * @throws NoSuchElementException if the foodie is not found
+     * @throws IllegalArgumentException if the page number is zero or negative, or if the filter is invalid
      */
-    public SliceRecipeDTO<FoodiePreviewRecipeDTO> getRecipeByCategory(String category, int numPage) {
+    public SliceRecipeDTO<FoodiePreviewRecipeDTO> getRecipeByCategory(String filter, int numPage) {
 
         UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -263,54 +266,56 @@ public class FoodieService {
                 .orElseThrow(() -> new NoSuchElementException("Foodie not found"));
 
         if (foodie.getSavedRecipes() == null) {
-            throw new NoSuchElementException("Recipe not found for the specified foodie");
+            return new SliceRecipeDTO<>(new ArrayList<>(), false, false);
         }
 
-        numPage = Math.max(numPage, 1);
-        if (!FOODIE_FILTERS.contains(category)) {
-            category = "saving-date";
+        if(numPage <= 0 || !FOODIE_FILTERS.contains(filter)){
+            throw new IllegalArgumentException("Invalid parameters");
         }
 
         List<FoodieRecipeSummary> recipesPreview = new ArrayList<>();
-        if (CATEGORIES.contains(category)) {
+        if (CATEGORIES.contains(filter)) {
             for (FoodieRecipeSummary recipe : foodie.getSavedRecipes()) {
-                if (recipe.getCategory().equals(category)) {
+                if (recipe.getCategory().equals(filter)) {
                     recipesPreview.add(recipe);
                 }
             }
-        } else if (DIFFICULTIES.contains(category)) {
+        } else if (DIFFICULTIES.contains(filter)) {
             for (FoodieRecipeSummary recipe : foodie.getSavedRecipes()) {
-                if (recipe.getDifficulty().equals(category)) {
+                if (recipe.getDifficulty().equals(filter)) {
                     recipesPreview.add(recipe);
                 }
             }
-        } else if (category.equals("saving-date")) {
+        } else if (filter.equals("saving-date")) {
             recipesPreview.addAll(foodie.getSavedRecipes());
         }
 
         int start = (numPage - 1) * pageSizeFoodie;
+        boolean hasPrevious = numPage > 1;
         if (start >= recipesPreview.size()) {
-            throw new IllegalArgumentException("Invalid page number");
+            return new SliceRecipeDTO<>(new ArrayList<>(), false, hasPrevious);
         }
 
         recipesPreview.sort(Comparator.comparing(FoodieRecipeSummary::getSavingDate).reversed());
+
         int end = Math.min(start + pageSizeFoodie, recipesPreview.size());
-
         boolean hasNext = recipesPreview.size() > numPage * pageSizeFoodie;
-        boolean hasPrevious = numPage > 1;
-        List<FoodieRecipeSummary> recipes = recipesPreview.subList(start, end);
 
+        List<FoodieRecipeSummary> recipes = recipesPreview.subList(start, end);
         List<FoodiePreviewRecipeDTO> content = recipeUtilityFunctions.foodieSummaryToUserPreview(recipes);
         return new SliceRecipeDTO<>(content, hasNext, hasPrevious);
-
     }
 
+
     /**
-     * Method to get a specific recipe from a foodie's saved list
-     * @param id - the recipe ID
-     * @return the requested recipe
+     * Retrieves the detailed information of the specified recipe from the foodie's favorites.
+     * If the saved recipe has been deleted from the database, it is automatically removed from the foodie's favorites.
+     * @param recipeId the unique identifier of the recipe the foodie wants to visualize
+     * @return a {@link ShowRecipeDTO} containing all the detailed information of the recipe
+     * @throws NoSuchElementException if the foodie or the recipe is not found, or if the recipe is not in the saved list
      */
-    public ShowRecipeDTO getRecipeFoodieById(String id){
+    @Transactional
+    public ShowRecipeDTO getRecipeFoodieById(String recipeId){
         UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getPrincipal();
@@ -318,35 +323,49 @@ public class FoodieService {
         Foodie foodie = foodieRepository.findById(authFoodie.getId())
                 .orElseThrow(() -> new NoSuchElementException("Foodie not found"));
 
-        Optional<RecipeMongo> recipe = recipeRepository.findById(id);
+        if(foodie.getSavedRecipes() == null){
+            throw new NoSuchElementException("Recipe not found");
+        }
+
+        boolean found = foodie.getSavedRecipes().stream()
+                .anyMatch(recipe -> recipe.getId().equals(recipeId));
+
+        if(!found){
+            throw new NoSuchElementException("Recipe not found for the specified foodie");
+        }
+
+        Optional<RecipeMongo> recipe = recipeRepository.findApprovedById(recipeId);
 
         if(recipe.isEmpty()){
-            foodieRepository.removeRecipeFromFavourites(foodie.getId(), id);
+            foodieRepository.removeRecipeFromFavourites(foodie.getId(), recipeId);
             throw new NoSuchElementException("Recipe not found");
-        } else if (recipe.get().getStatus().equals("PENDING")) {
-            throw new NoSuchElementException("The recipe is not found");
         }
 
         return recipeUtilityFunctions.EntityToDto(recipe.get());
     }
 
+
     /**
-     * Get the chef by its surname
-     * @param chefSurname - chef surname
-     * @return - the chef
+     * Retrieves the list of matching chefs by their surname.
+     * @param chefSurname the target surname to search for
+     * @return a list of {@link ChefPreviewDTO} containing the previews of the matching chefs,
+     * or an empty list if no matches are found
      */
     public List<ChefPreviewDTO> getChefList (String chefSurname){
-        List<Chef> chefs = chefRepository.findBySurnameContainingIgnoreCase(chefSurname);
 
-        if(chefs.isEmpty()){
-            throw new NoSuchElementException("Not matching chefs found");
+        List<Chef> chefs = chefRepository.findBySurnameContainingIgnoreCase(chefSurname);
+        if(chefs == null || chefs.isEmpty()){
+            return new ArrayList<>();
         }
-        return chefConvertions.chefModelToChefDTO(chefs);
+
+        return chefConversions.chefModelToChefDTO(chefs);
     }
 
+
     /**
-     * Ranking with top 3 chefs
-     * @return the top chef for each category in the application
+     * Retrieves the ranking of the top 3 chefs for each available recipe category.
+     * The ranking is determined by the volume of recipes written by a chef within a specific category.
+     * @return a list of {@link TopChefDTO} containing the name of the top chefs grouped by category
      */
     public List<TopChefDTO> getTopChef() {
 
