@@ -352,7 +352,13 @@ public class RecipeUtilityFunctions {
         return recipeDTO;
     }
 
-
+    /**
+     * Converts a CreateRecipeDTO and ChefInfoDTO into a complete RecipeMongo entity.
+     * The resulting recipe is initialized with a "PENDING" status and the current timestamp.
+     * @param recipeDto the data transfer object containing the recipe creation details
+     * @param chefInfo the data transfer object containing the chef's information
+     * @return a fully populated RecipeMongo entity representing the new recipe
+     */
     public RecipeMongo dtoToModel (CreateRecipeDTO recipeDto, ChefInfoDTO chefInfo) {
 
         RecipeMongo recipe = new RecipeMongo();

@@ -47,7 +47,12 @@ public class CreateRecipeDTO{
     @NotBlank(message = "Insert preparation")
     private String preparation;
 
-
+    /**
+     * Validates the format of the preparation time.
+     * The expected format is a number followed by a time unit
+     * (for example "15 min", "1.5 hours").
+     * @return true if the preparation time format is valid, false otherwise.
+     */
     public boolean validPrepTime () {
         if (this.prepTime == null || this.prepTime.isEmpty()) {
             return false;
