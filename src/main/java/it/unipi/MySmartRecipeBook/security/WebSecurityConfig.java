@@ -83,6 +83,7 @@ public class WebSecurityConfig {
                         // PUBLIC endpoints
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/recipes/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "api/ingredients/**").permitAll()
                         .requestMatchers("/error").permitAll()
 
                         // SWAGGER endpoints

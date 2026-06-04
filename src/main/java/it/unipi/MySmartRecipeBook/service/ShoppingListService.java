@@ -11,6 +11,7 @@ import redis.clients.jedis.JedisSentinelPool;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -89,7 +90,7 @@ public class ShoppingListService {
         if(ingredients == null ||  ingredients.isEmpty()) {
             throw new IllegalArgumentException("No ingredient inserted");
         }
-
+        ingredients.removeIf(Objects::isNull);
         ingredients.removeIf(ingredient -> !ingredientService.isValidIngredient(ingredient));
         ingredients.replaceAll(String::toLowerCase);
 

@@ -116,7 +116,7 @@ public class SmartFridgeService {
         if(ingredients == null || ingredients.isEmpty()) {
             throw new IllegalArgumentException("No ingredients inserted");
         }
-
+        ingredients.removeIf(Objects::isNull);
         ingredients.replaceAll(ingredient -> ingredient.strip().toLowerCase());
         ingredients.removeIf(ingredient -> !ingredientService.isValidIngredient(ingredient));
 
