@@ -383,7 +383,7 @@ public class ChefService {
             }
 
             int actualEnd = Math.min(end, chef.getNewRecipes().size());
-            content = recipeConversions.ChefListToSummaryList(chef.getNewRecipes().subList(start, actualEnd));
+            content = recipeConversions.chefListToSummaryList(chef.getNewRecipes().subList(start, actualEnd));
         }
         else{
 
@@ -400,7 +400,7 @@ public class ChefService {
             List<String> oldRecipesIds = chef.getOldRecipes().subList(start - offset, actualEnd);
             List<RecipeMongo> recipes = recipeMongoRepository.findByIdIn(oldRecipesIds);
             recipes.sort(Comparator.comparing(RecipeMongo::getCreationDate).reversed());
-            content = recipeConversions.MongoListToChefPreview(recipes);
+            content = recipeConversions.mongoListToChefPreview(recipes);
         }
 
         int totalRecipes = chef.getTotalRecipes() == null ? 0 : chef.getTotalRecipes();
@@ -446,7 +446,7 @@ public class ChefService {
         boolean hasNext = chef.getPopularRecipes().size() > end;
 
         List<ChefRecipeSummary> chefList = chef.getPopularRecipes().subList(start, end);
-        List<ChefPreviewRecipeDTO> previewList = recipeConversions.ChefListToSummaryList(chefList);
+        List<ChefPreviewRecipeDTO> previewList = recipeConversions.chefListToSummaryList(chefList);
         return new SliceRecipeDTO<>(previewList, hasNext, hasPrevious);
     }
 
@@ -518,6 +518,6 @@ public class ChefService {
             throw new NoSuchElementException("Recipe not found");
         }
 
-        return recipeConversions.EntityToDto(recipe);
+        return recipeConversions.entityToDto(recipe);
     }
 }

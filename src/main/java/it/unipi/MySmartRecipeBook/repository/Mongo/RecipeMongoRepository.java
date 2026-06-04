@@ -47,6 +47,14 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
     @Query("{ 'status': ?1, 'category': ?0 }")
     Slice<RecipeMongo> findByCategory(String category, String status, Pageable pageable);
 
+
+    /**
+     * Finds recipes by status with pagination.
+     * @param pageable pagination information
+     * @return slice of recipes
+     */
+    Slice<RecipeMongo> findByStatus(String status, Pageable pageable);
+
     /**
      * Finds all recipes of a chef ordered by creation date (descending).
      * @param chefId chef ID

@@ -24,7 +24,7 @@ public class RecipeUtilityFunctions {
      * @param recipe the mongo recipe
      * @return the detailed recipe DTO
      */
-    public ShowRecipeDTO EntityToDto (RecipeMongo recipe){
+    public ShowRecipeDTO entityToDto (RecipeMongo recipe){
 
         ShowRecipeDTO recipeDTO = new ShowRecipeDTO();
         recipeDTO.setMongoId(recipe.getId());
@@ -67,7 +67,7 @@ public class RecipeUtilityFunctions {
      * @param recipes the list of mongo recipes
      * @return the list of user preview DTOs
      */
-    public List<UserPreviewRecipeDTO> EntityToUserDto (List<RecipeMongo> recipes){
+    public List<UserPreviewRecipeDTO> entityToUserDto (List<RecipeMongo> recipes){
 
         List<UserPreviewRecipeDTO> recipesDTO = new ArrayList<>();
         for(RecipeMongo recipe : recipes) {
@@ -231,7 +231,7 @@ public class RecipeUtilityFunctions {
      * @param recipesList the list of recipe summaries
      * @return the list of preview DTOs
      */
-    public List<ChefPreviewRecipeDTO> ChefListToSummaryList(List<ChefRecipeSummary> recipesList) {
+    public List<ChefPreviewRecipeDTO> chefListToSummaryList(List<ChefRecipeSummary> recipesList) {
 
         List<ChefPreviewRecipeDTO> chefPreviewList = new ArrayList<>();
         for(ChefRecipeSummary recipe : recipesList){
@@ -257,7 +257,7 @@ public class RecipeUtilityFunctions {
      * @param recipesToConvert the list of mongo recipes
      * @return the list of preview DTOs
      */
-    public List<ChefPreviewRecipeDTO> MongoListToChefPreview(List<RecipeMongo> recipesToConvert) {
+    public List<ChefPreviewRecipeDTO> mongoListToChefPreview(List<RecipeMongo> recipesToConvert) {
 
         List<ChefPreviewRecipeDTO> chefRecipes = new ArrayList<>();
 

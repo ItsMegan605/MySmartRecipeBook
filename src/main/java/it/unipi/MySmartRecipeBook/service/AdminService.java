@@ -394,7 +394,7 @@ public class AdminService {
             throw new NoSuchElementException("Recipe not found");
         }
 
-        return recipeConversions.EntityToDto(recipe);
+        return recipeConversions.entityToDto(recipe);
     }
 
 

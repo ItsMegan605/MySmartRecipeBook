@@ -55,11 +55,13 @@ public class LowLoadManager {
         this.chefNeo4jRepository = chefNeo4jRepository;
     }
 
+
     /**
-     * Task linked to specific Chef and Recipe identifiers.
-     * @param type - task type
-     * @param recipeId - id of the recipe
-     * @param chefId - id for the chef
+     * Enqueues a background task associated with both a specific recipe and a chef.
+     * This is used for operations such as updating popularity counters (both when a recipe is added or removed from favorites).
+     * @param type the specific type of task to be executed
+     * @param recipeId the unique identifier of the target recipe
+     * @param chefId the unique identifier of the associated chef
      */
     public void addTask (Task.TaskType type, String recipeId, String chefId){
         TaskToDo task = new TaskToDo(type, recipeId, chefId);
@@ -67,42 +69,51 @@ public class LowLoadManager {
         System.out.println("Task successfully added to the queue");
     }
 
+
     /**
-     * Task to delete and clean DB records with info to delete
-     * @param type - task type
-     * @param infoToDelete - information to delete
+     * Enqueues a background task associated with a list of recipe IDs to delete and the corresponding chefs.
+     * This is used for the foodie's profile deletion, in order to update chefs' popularity counters.
+     * @param type the specific type of task to be executed
+     * @param infoToDelete a {@link InfoToDeleteDTO} containing the list of recipe IDs and a map associating each chef with their affected recipes
      */
     public void addTask (Task.TaskType type, InfoToDeleteDTO infoToDelete){
         TaskToDo task = new TaskToDo(type, infoToDelete);
         taskQueue.add(task);
-        System.out.println("Task successfully added to the queue: managing of information to delete");
+        System.out.println("Task successfully added to the queue");
     }
 
+
     /**
-     * Adds a generic task linked to a specific recipe identifier to the queue.
-     * @param type - task type
-     * @param recipeId - id for the recipe
+     * Enqueues a background task associated with a specific recipe.
+     * This is used for delete the specified recipe from neo4j when a chef deletes one of its recipes
+     * @param type the specific type of task to be executed
+     * @param recipeId the unique identifier of the target recipe
      */
     public void addTask (Task.TaskType type, String recipeId){
         TaskToDo task = new TaskToDo(type, recipeId);
         taskQueue.add(task);
-        System.out.println("Task successfully added to the queue: recipe operation in progress");
+        System.out.println("Task successfully added to the queue");
     }
 
+
     /**
-     * Graph synchronization with Neo4j
-     * @param type - task type
-     * @param recipe - the recipe
+     * Enqueues a background task associated with a specific recipe.
+     * This is used to add the specified recipe to neo4j when the admin approves a chef's recipe
+     * @param type the specific type of task to be executed
+     * @param recipe a {@link GraphRecipeDTO} containing all the information required to add a new recipe on the graph DB
      */
     public void addTask (Task.TaskType type, GraphRecipeDTO recipe){
         TaskToDo task = new TaskToDo(type, recipe);
         taskQueue.add(task);
-        System.out.println("Task successfully added to the queue: node operation in progress");
+        System.out.println("Task successfully added to the queue");
     }
 
+
     /**
-     * Scheduled consumer that evaluates system health
-     * and processes the task queue.
+     * Scheduled method executed every 10 seconds to process the background task queue.
+     * Tasks are executed only if the system CPU load is below 30%.
+     * To keep the application running smoothly, a maximum of 10 tasks are executed
+     * at a time. The rest are kept in the queue for the next run.
      */
     @Scheduled(fixedDelay = 10000)
     public void taskHandler(){
@@ -126,10 +137,12 @@ public class LowLoadManager {
         }
     }
 
+
     /**
-     * Task dispatcher. Routes the dequeued task to
-     * the appropriate internal method based on its TaskType enum.
-     * @param task - the task to execute
+     * Reads the task from the queue and calls the correct method based on its {@link Task.TaskType}.
+     * If an error occurs during execution, it is caught and logged to prevent the whole
+     * background process from crashing.
+     * @param task the {@link TaskToDo} object containing the operation type and the required elements to execute the operation
      */
     private void executeTask(TaskToDo task){
 
@@ -168,19 +181,251 @@ public class LowLoadManager {
         }
     }
 
+
     /**
-     * Eventual Consistency operations so that the graph db is updated.
-     * This method creates the new Neo4j nodes.
-     * @param task - the task to execute
+     * Executed when the {@link Task.TaskType} is "SET_COUNTERS_FOODIE_DELETE".
+     * This method updates the popularity counters of the affected chefs according to the foodie's profile deletion.
+     * @param task a {@link TaskToDo} containing the list of recipes saved by the foodie and a map
+     * associating each chef with their corresponding list of saved recipes
+     */
+    @Transactional
+    public void decrementSavesCounters(TaskToDo task){
+
+        System.out.println("Decrementing chef saves counters according to foodie's profile deletion");
+        if (task.getInfoToDelete() == null) {
+            return;
+        }
+
+        List<String> recipesId = task.getInfoToDelete().getRecipeIds();
+        if(recipesId != null) {
+            for (String recipeId : recipesId) {
+                recipeMongoRepository.updateSavesCounter(recipeId, -1);
+            }
+        }
+
+        Map<String, List<String>> recipesByChefId = task.getInfoToDelete().getChefRecipeList();
+        if (recipesByChefId == null) {
+            return;
+        }
+
+        recipesByChefId.forEach((chefId, chefRecipes) -> {
+            Optional<Chef> optTargetChef = chefRepository.findApprovedById(chefId);
+            if(optTargetChef.isEmpty()){
+                return;
+            }
+
+            Chef targetChef = optTargetChef.get();
+            for (String recipeId : chefRecipes) {
+
+                boolean found = false;
+                int currentTotalSaves = targetChef.getTotalSaves() == null ? 0 : targetChef.getTotalSaves();
+
+                if (targetChef.getNewRecipes() != null && !targetChef.getNewRecipes().isEmpty()) {
+
+                    for (ChefRecipeSummary recipe : targetChef.getNewRecipes()) {
+                        if (recipe.getId().equals(recipeId)) {
+                            found = true;
+                            int currentRecipeSaves = recipe.getNumSaves() == null ? 0 : recipe.getNumSaves();
+                            recipe.setNumSaves(Math.max(0, currentRecipeSaves - 1));
+                            targetChef.setTotalSaves(Math.max(0, currentTotalSaves - 1));
+                            break;
+                        }
+                    }
+
+
+                    if (!found && targetChef.getOldRecipes() != null) {
+                        for (String oldRecipeId : targetChef.getOldRecipes()) {
+                            if (oldRecipeId.equals(recipeId)) {
+                                found = true;
+                                targetChef.setTotalSaves(Math.max(0, currentTotalSaves - 1));
+                                break;
+                            }
+                        }
+                    }
+
+                    if (found && targetChef.getPopularRecipes() != null) {
+                        for (ChefRecipeSummary recipe : targetChef.getPopularRecipes()) {
+                            if (recipe.getId().equals(recipeId)) {
+                                int currentPopSaves = recipe.getNumSaves() == null ? 0 : recipe.getNumSaves();
+                                recipe.setNumSaves(Math.max(0, currentPopSaves - 1));
+
+                                if (recipe.getNumSaves() < 40) {
+                                    targetChef.getPopularRecipes().remove(recipe);
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            chefRepository.save(targetChef);
+        });
+    }
+
+
+    /**
+     * Executed when the {@link Task.TaskType} is "SET_COUNTERS_REMOVE_FAVOURITE".
+     * This method updates the popularity counters of the affected chef when a foodie removes a recipe from its favorites.
+     * In addition, updates the recipe's total saves in the recipe collection.
+     * @param task a {@link TaskToDo} containing the id of the target recipe and the id of the corresponding chef
+     */
+    @Transactional
+    public void decrementChefCounters(TaskToDo task) {
+
+        System.out.println("Decrement chef saves counters when a foodie removes a recipe from its favourite");
+
+        Optional<Chef> optTargetChef = chefRepository.findApprovedById(task.getChefId());
+        if(optTargetChef.isEmpty()){
+            return;
+        }
+
+        Chef targetChef =  optTargetChef.get();
+        int totSaves = targetChef.getTotalSaves() == null ? 0 : targetChef.getTotalSaves();
+        targetChef.setTotalSaves(Math.max(0, totSaves-1));
+
+        boolean found = false;
+        if(targetChef.getNewRecipes() != null && !targetChef.getNewRecipes().isEmpty()) {
+
+            for (ChefRecipeSummary recipe : targetChef.getNewRecipes()) {
+                if (recipe.getId().equals(task.getRecipeId())) {
+                    found = true;
+                    int oldSaves = recipe.getNumSaves() == null ? 0 : recipe.getNumSaves();
+                    recipe.setNumSaves(Math.max(0, oldSaves - 1));
+                    break;
+                }
+            }
+
+            if (!found && targetChef.getOldRecipes() != null) {
+                for (String oldRecipeId : targetChef.getOldRecipes()) {
+                    if (oldRecipeId.equals(task.getRecipeId())) {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+
+            if (found) {
+                if (targetChef.getPopularRecipes() != null) {
+                    for (ChefRecipeSummary recipe : targetChef.getPopularRecipes()) {
+                        if (recipe.getId().equals(task.getRecipeId())) {
+                            int numSaves = recipe.getNumSaves() == null ? 0 : recipe.getNumSaves();
+                            recipe.setNumSaves(Math.max(0, numSaves - 1));
+
+                            if (recipe.getNumSaves() < 40) {
+                                targetChef.getPopularRecipes().remove(recipe);
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        chefRepository.save(targetChef);
+        recipeMongoRepository.decrementSavesCounter(task.getRecipeId());
+    }
+
+
+    /**
+     * Executed when the {@link Task.TaskType} is "SET_COUNTERS_NEW_FAVOURITE".
+     * This method updates the popularity counters of the affected chef when a foodie adds a recipe to its favorites.
+     * @param task a {@link TaskToDo} containing the id of the target recipe and the id of the corresponding chef
+     */
+    @Transactional
+    public void updateChefCountersSaves(TaskToDo task) {
+
+        System.out.println("Incrementing chef counters when a foodie adds a recipe to its favourite");
+
+        Optional <Chef> optTargetChef = chefRepository.findApprovedById(task.getChefId());
+        if(optTargetChef.isEmpty()){
+            return;
+        }
+
+        Chef targetChef =  optTargetChef.get();
+        int totSaves = targetChef.getTotalSaves() == null ? 0 : targetChef.getTotalSaves();
+        targetChef.setTotalSaves(totSaves + 1);
+
+        if(targetChef.getNewRecipes() != null && !targetChef.getNewRecipes().isEmpty()) {
+            for(ChefRecipeSummary recipe : targetChef.getNewRecipes()){
+                if(recipe.getId().equals(task.getRecipeId())){
+                    int oldNumSaves = recipe.getNumSaves() == null ? 0 : recipe.getNumSaves();
+                    recipe.setNumSaves(oldNumSaves+1);
+                    break;
+                }
+            }
+        }
+
+        Optional<RecipeMongo> optRecipe = recipeMongoRepository.findApprovedById(task.getRecipeId());
+        if(optRecipe.isEmpty()){
+            return;
+        }
+        RecipeMongo recipe = optRecipe.get();
+        recipeMongoRepository.updateSavesCounter(task.getRecipeId(), 1);
+
+        int newNumSaves = recipe.getNumSaves() == null? 0 : recipe.getNumSaves()+1;
+        if(newNumSaves == 40){
+            ChefRecipeSummary recipeToAdd = recipeUtilityFunctions.recipeToChefPopular(recipe);
+            if(targetChef.getPopularRecipes() == null) {
+                targetChef.setPopularRecipes(new ArrayList<>());
+            }
+            targetChef.getPopularRecipes().add(recipeToAdd);
+            targetChef.getPopularRecipes().sort(Comparator.comparing(ChefRecipeSummary::getNumSaves).reversed());
+        }
+        else if (newNumSaves > 40 && targetChef.getPopularRecipes() != null){
+            for (ChefRecipeSummary popularRecipe : targetChef.getPopularRecipes()) {
+                if (popularRecipe.getId().equals(recipe.getId())) {
+                    popularRecipe.setNumSaves(popularRecipe.getNumSaves() + 1);
+                    break;
+                }
+            }
+            targetChef.getPopularRecipes().sort(
+                    Comparator.comparing((ChefRecipeSummary r) -> r.getNumSaves() == null ? 0 : r.getNumSaves()).reversed());
+        }
+
+        chefRepository.save(targetChef);
+    }
+
+
+    /**
+     * Deletes the chef node and all its related recipes from Neo4j after the chef's profile deletion.
+     * @param chefId the unique identifier of the chef to remove
+     */
+    public void deleteChefRecipes(String chefId){
+
+        System.out.println("Deleting Chef and all its recipes from Neo4j");
+        chefNeo4jRepository.deleteChef(chefId);
+    }
+
+
+    /**
+     * Removes the recipe node and its corresponding relationships from Neo4j after the chef deletes one of its recipes.
+     * @param recipeId unique identifier of the recipe to delete
+     */
+    public void deleteRecipe(String recipeId){
+
+        System.out.println("Deleting recipe from Neo4j");
+        recipeNeo4jRepository.deleteRecipeById(recipeId);
+    }
+
+
+    /**
+     * Creates a new recipe node on Neo4j after the admin approval of a pending recipe.
+     * @param task a {@link TaskToDo} containing the {@link GraphRecipeDTO} with all the details of the recipe to add
      */
     public void createNeo4jRecipe(TaskToDo task) {
 
-        System.out.println("Creating Neo4j recipe");
+        System.out.println("Creating Neo4j recipe after the admin approval");
+        if (task.getRecipe() == null) {
+            System.out.println("No recipe data found in task, skipping Neo4j creation...");
+            return;
+        }
+
         List<String> ingredientNames = new ArrayList<>();
         List<IngredientDTO> ingredients = task.getRecipe().getIngredients();
 
-        for(IngredientDTO ingredient : ingredients){
-            ingredientNames.add(ingredient.getName());
+        if(ingredients != null){
+            for(IngredientDTO ingredient : ingredients){
+                ingredientNames.add(ingredient.getName());
+            }
         }
 
         recipeNeo4jRepository.createRecipe(
@@ -191,202 +436,5 @@ public class LowLoadManager {
                 task.getRecipe().getChefId(),
                 ingredientNames
         );
-
-    }
-
-    /**
-     * Batch decrement operation for recipe "saves" counters, when a foodie deletes its profile .
-     * @param task - the task to execute
-     */
-    @Transactional
-    public void decrementSavesCounters(TaskToDo task){
-
-        System.out.println("Decrementing Saves Counters");
-        List<String> recipesId = task.getInfoToDelete().getRecipeIds();
-
-        if(recipesId != null) {
-            for (String recipeId : recipesId) {
-                recipeMongoRepository.updateSavesCounter(recipeId, -1);
-            }
-        }
-
-        Map<String, List<String>> recipesByChefId = task.getInfoToDelete().getChefRecipeList();
-
-        recipesByChefId.forEach((chefId, chefRecipes) -> {
-            Chef targetChef = chefRepository.findApprovedById(chefId)
-                    .orElseThrow(() -> new NoSuchElementException("Chef not found"));
-
-            for (String recipeId : chefRecipes) {
-
-                boolean found = false;
-
-                for(ChefRecipeSummary recipe : targetChef.getNewRecipes()){
-                    if(recipe.getId().equals(recipeId)){
-                        found = true;
-                        recipe.setNumSaves(recipe.getNumSaves()-1);
-                        targetChef.setTotalSaves(targetChef.getTotalSaves()-1);
-                        break;
-                    }
-                }
-
-                if(!found){ //if not in the new recipes, look in the old ones
-                    for(String oldRecipeId : targetChef.getOldRecipes()){
-                        if(oldRecipeId.equals(recipeId)){
-                            found = true;
-                            targetChef.setTotalSaves(targetChef.getTotalSaves()-1);
-                            break;
-                        }
-                    }
-                }
-
-                if(!found){
-                    throw new NoSuchElementException("No recipe found");
-                }
-
-
-                for(ChefRecipeSummary recipe : targetChef.getPopularRecipes()){
-                    if(recipe.getId().equals(recipeId)){
-                        recipe.setNumSaves(recipe.getNumSaves()-1);
-
-                        if(recipe.getNumSaves() < 40){
-                            targetChef.getPopularRecipes().remove(recipe);
-                            break;
-                        }
-                    }
-                }
-            }
-            chefRepository.save(targetChef);
-        });
-
-    }
-
-    /**
-     * Decrements the popularity metrics when a foodie
-     * removes a recipe from their favorites.
-     * @param task - the task to execute
-     */
-    @Transactional
-    public void decrementChefCounters(TaskToDo task) {
-
-        System.out.println("Update Chef Counters: removing from favorites");
-
-        Chef targetChef = chefRepository.findApprovedById(task.getChefId())
-                        .orElseThrow(() -> new NoSuchElementException("Chef not found"));
-        int totSaves = targetChef.getTotalSaves() == null ? 0 : targetChef.getTotalSaves();
-        targetChef.setTotalSaves(Math.max(0, totSaves-1));
-
-        boolean found = false;
-        if(targetChef.getNewRecipes() == null){
-            throw new NoSuchElementException("Recipe not found");
-        }
-
-        for(ChefRecipeSummary recipe : targetChef.getNewRecipes()){
-            if(recipe.getId().equals(task.getRecipeId())){
-                found = true;
-                int oldSaves = recipe.getNumSaves() == null ? 0 : recipe.getNumSaves()-1;
-                recipe.setNumSaves(oldSaves);
-                break;
-            }
-        }
-
-        if(!found && targetChef.getOldRecipes() != null){
-            for(String oldRecipeId : targetChef.getOldRecipes()){
-                if(oldRecipeId.equals(task.getRecipeId())){
-                    found = true;
-                    break;
-                }
-            }
-        }
-
-        if(!found){
-            throw new NoSuchElementException("Recipe not found");
-        }
-
-        if(targetChef.getPopularRecipes() != null) {
-            for (ChefRecipeSummary recipe : targetChef.getPopularRecipes()) {
-                if (recipe.getId().equals(task.getRecipeId())) {
-                    recipe.setNumSaves(recipe.getNumSaves() - 1);
-
-                    if (recipe.getNumSaves() < 40) {
-                        targetChef.getPopularRecipes().remove(recipe);
-                        break;
-                    }
-                }
-            }
-        }
-
-        chefRepository.save(targetChef);
-        //Updating the total saves in recipe's collection
-
-        recipeMongoRepository.decrementSavesCounter(task.getRecipeId());
-    }
-
-    /**
-     * Increase popularity counter (num_saves)
-     * for the chef when a foodie adds a recipe to its favorites
-     * @param task - the task to execute
-     */
-    @Transactional
-    public void updateChefCountersSaves(TaskToDo task) {
-
-        System.out.println("Update Chef Counters: increasing saves numbers");
-
-        Chef targetChef = chefRepository.findApprovedById(task.getChefId())
-                .orElseThrow(() -> new NoSuchElementException("Chef not found"));
-        int totSaves = targetChef.getTotalSaves() == null ? 0 : targetChef.getTotalSaves();
-        targetChef.setTotalSaves(totSaves+1);
-
-        if(targetChef.getNewRecipes() != null){
-            for(ChefRecipeSummary recipe : targetChef.getNewRecipes()){
-                if(recipe.getId().equals(task.getRecipeId())){
-                    int oldNumSaves = recipe.getNumSaves() == null ? 0 : recipe.getNumSaves();
-                    recipe.setNumSaves(oldNumSaves+1);
-                    break;
-                }
-            }
-        }
-
-        RecipeMongo recipe = recipeMongoRepository.findApprovedById(task.getRecipeId())
-                        .orElseThrow(() -> new NoSuchElementException("No recipe found"));
-        recipeMongoRepository.updateSavesCounter(task.getRecipeId(), 1);
-        int newNumSaves = recipe.getNumSaves() == null? 0 : recipe.getNumSaves()+1;
-        if(newNumSaves == 40){
-            ChefRecipeSummary recipeToAdd = recipeUtilityFunctions.recipeToChefPopular(recipe);
-            targetChef.getPopularRecipes().add(recipeToAdd);
-            targetChef.getPopularRecipes().sort(Comparator.comparing(ChefRecipeSummary::getNumSaves).reversed());
-        }
-        else if (newNumSaves > 40){
-            for (ChefRecipeSummary popularRecipe : targetChef.getPopularRecipes()) {
-                if (popularRecipe.getId().equals(recipe.getId())) {
-                    popularRecipe.setNumSaves(popularRecipe.getNumSaves()+1);
-                    break;
-                }
-            }
-            targetChef.getPopularRecipes().sort(Comparator.comparing(ChefRecipeSummary::getNumSaves).reversed());
-        }
-        chefRepository.save(targetChef);
-    }
-
-    /**
-     * Deletes all recipes associated with a specific chef from Neo4j.
-     * @param chefId - chef id
-     */
-    public void deleteChefRecipes(String chefId){
-        System.out.println("Deleting Chef Recipes");
-
-        chefNeo4jRepository.deleteChef(chefId); //neo4j cleaning
-
-        /* Cleanup on Redis - this is not done eagerly; deletion occurs lazily when a cache miss/invalid state is encountered */    }
-
-    /**
-     * Removes the recipe node and its corresponding
-     * edges/relationships from Neo4j.
-     * @param recipeId - id of the recipe
-     */
-    public void deleteRecipe(String recipeId){
-
-        System.out.println("Deleting Recipe: " + recipeId);
-        recipeNeo4jRepository.deleteRecipeById(recipeId);
-
     }
 }

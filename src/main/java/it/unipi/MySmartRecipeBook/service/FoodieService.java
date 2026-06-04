@@ -341,7 +341,7 @@ public class FoodieService {
             throw new NoSuchElementException("Recipe not found");
         }
 
-        return recipeUtilityFunctions.EntityToDto(recipe.get());
+        return recipeUtilityFunctions.entityToDto(recipe.get());
     }
 
 

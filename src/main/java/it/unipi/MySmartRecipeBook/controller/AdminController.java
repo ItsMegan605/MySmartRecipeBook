@@ -30,10 +30,10 @@ public class AdminController {
     }
 
     /**
-     * Post Method to approve a pending recipe
-     * @param recipeId - id of the recipe
+     * Approves a chef's pending recipe
+     * @param recipeId the unique identifier of the recipe to approve
+     * @return a {@link ResponseEntity} containing the approval success message
      * @see AdminService#saveRecipe(String)
-     * @return ResponseEntity with approval message
      */
     @PostMapping("/approve/{id}")
     @Operation(summary = "Approve a pending recipe", description = "Approves a recipe that is currently pending waiting for admin approval")
@@ -48,10 +48,10 @@ public class AdminController {
 
 
     /**
-     * Delete Method to discard a pending recipe
-     * @param recipeId - id of the recipe
+     * Discards a chef's pending recipe.
+     * @param recipeId the unique identifier of the recipe to discard
+     * @return a {@link ResponseEntity} containing the discard success message
      * @see AdminService#discardRecipe(String)
-     * @return ResponseEntity with  message
      */
     @DeleteMapping("/discard/{id}")
     @Operation(summary = "Discard a pending recipe", description = "Rejects and permanently deletes a recipe that is pending approval.")
@@ -64,11 +64,12 @@ public class AdminController {
         return ResponseEntity.ok("Recipe successfully discarded");
     }
 
+
     /**
-     * Post method to approve a chef
-     * @param chefUsername - chef username
+     * Approves a pending chef's registration request
+     * @param chefUsername unique username of the chef to approve
+     * @return {@link ResponseEntity} containing the approval success message
      * @see AdminService#approveChef(String)
-     * @return ResponseEntity with  message
      */
     @PostMapping("/approveChef/{username}")
     @Operation(summary = "Approve a chef registration")
@@ -81,11 +82,12 @@ public class AdminController {
         return ResponseEntity.ok("Chef successfully added by admin");
     }
 
+
     /**
-     * Post method to discard a chef's request to register
-     * @param chefUsername - chef username
+     * Discards a pending chef's registration request
+     * @param chefUsername unique username of the chef to discard
+     * @return {@link ResponseEntity} containing the discard success message
      * @see AdminService#declineChef(String)
-     * @return ResponseEntity with  message
      */
     @DeleteMapping("/discardChef/{username}")
     @Operation(summary = "Decline a chef registration")
@@ -98,38 +100,69 @@ public class AdminController {
         return ResponseEntity.ok("Chef declined by admin");
     }
 
+
     /**
-     * Get method for a page with a list of recipes that are pending admin approval.
-     * @param page the page number to retrieve
+     * Retrieves a paginated list of pending recipes awaiting admin approval.
+     * @param pageNumber the page number to retrieve
+     * @return a {@link ResponseEntity} containing a {@link SliceRecipeDTO} with the pending recipes
      * @see AdminService#showPendingRecipes(int)
-     * @return a ResponseEntity containing a slice of pending recipes
      */
-    @GetMapping("/showRecipes/{page}")
+    @GetMapping("/showRecipes/{pageNumber}")
     @Operation(summary = "Get pending recipes", description = "Retrieves a paginated list of all recipes currently awaiting admin approval.")
     @ApiResponse(responseCode = "200")
-    public ResponseEntity<SliceRecipeDTO<PendingRecipeDTO>> showRecipe (@PathVariable int page){
-        SliceRecipeDTO<PendingRecipeDTO> recipeList = adminService.showPendingRecipes(page);
+    public ResponseEntity<SliceRecipeDTO<PendingRecipeDTO>> showRecipe (@PathVariable int pageNumber){
+        SliceRecipeDTO<PendingRecipeDTO> recipeList = adminService.showPendingRecipes(pageNumber);
         return ResponseEntity.ok(recipeList);
     }
 
+
     /**
-     * Get method for a paginated list of chef registration requests that are pending admin approval.
-     * @param page the page number to retrieve
+     * Retrieves a paginated list of pending chefs awaiting admin approval.
+     * @param pageNumber the page number to retrieve
+     * @return a {@link ResponseEntity} containing a {@link SliceRecipeDTO} with the pending chefs
      * @see AdminService#showPendingChefs(int)
-     * @return a ResponseEntity containing a slice of pending chef profiles
      */
-    @GetMapping("/showChefs/{page}")
+    @GetMapping("/showChefs/{pageNumber}")
     @Operation(summary = "Get pending chef requests", description = "Retrieves a paginated list of users who have requested to become chefs and are awaiting approval.")
     @ApiResponse(responseCode = "200")
-    public ResponseEntity<SliceRecipeDTO<PendingChefDTO>> showChefs (@PathVariable int page){
-        SliceRecipeDTO<PendingChefDTO> chefList = adminService.showPendingChefs(page);
+    public ResponseEntity<SliceRecipeDTO<PendingChefDTO>> showChefs (@PathVariable int pageNumber){
+        SliceRecipeDTO<PendingChefDTO> chefList = adminService.showPendingChefs(pageNumber);
         return ResponseEntity.ok(chefList);
     }
 
+
     /**
-     * Get method to get the number of users that registered in past months
+     * Retrieves the detailed information about a specific pending chef.
+     * @param username the unique username of the chef to retrieve
+     * @return {@link ResponseEntity} containing a {@link RegisteredUserInfoDTO} with the chef's details
+     * @see AdminService#seeChefDetails(String)
+     */
+    @GetMapping("/details/chef/{username}")
+    @Operation(summary = "Get chef details")
+    @ApiResponse(responseCode = "200")
+    public ResponseEntity<RegisteredUserInfoDTO> seeChefDetails (@PathVariable String username){
+        return ResponseEntity.ok(adminService.seeChefDetails(username));
+    }
+
+
+    /**
+     * Retrieves the detailed information about a specific pending recipe.
+     * @param recipeId the unique identifier of the recipe to retrieve
+     * @return {@link ResponseEntity} containing a {@link ShowRecipeDTO} with the recipe's details
+     * @see AdminService#seeRecipeDetails(String)
+     */
+    @GetMapping("/details/recipe/{recipeId}")
+    @Operation(summary = "Get recipe details")
+    @ApiResponse(responseCode = "200")
+    public ResponseEntity<ShowRecipeDTO> seeRecipeDetails (@PathVariable String recipeId){
+        return ResponseEntity.ok(adminService.seeRecipeDetails(recipeId));
+    }
+
+
+    /**
+     * Retrieves the statistical data regarding the number of new foodies registered over the past months.
+     * @return a {@link ResponseEntity} containing a list of {@link YearAnalyticsDTO} representing the monthly registration statistics
      * @see AdminService#getMonthlyFoodies()
-     * @return ResponseEntity with ok message
      */
     @GetMapping ("/monthlyFoodies")
     @Operation(summary = "Get monthly user registration analytics", description = "Provides statistical data on the number of new foodies registered over the past months.")
@@ -139,11 +172,11 @@ public class AdminController {
         return ResponseEntity.ok(stats);
     }
 
+
     /**
-     * Get method to see the trending of the different categories
+     * Retrieves the analytics regarding the popularity and trends of different recipe categories.
+     * @return a {@link ResponseEntity} containing a list of {@link TrendAnalyticsDTO} representing the category trends
      * @see AdminService#getCategoryTrends()
-     * @return ResponseEntity with ok message
-     *
      */
     @GetMapping("/categoryTrends")
     @Operation(summary = "Get category trend analytics", description = "Provides insights into the popularity and trends of different recipe categories.")
@@ -153,44 +186,19 @@ public class AdminController {
     }
 
     /**
-     * Bayesian Chef Ranking visible to Foodies
+     * Retrieves the ranking of chefs calculated using a Bayesian algorithm.
+     * @return a {@link ResponseEntity} containing a list of {@link ChefRankAnalyticsDTO} representing the Bayesian chef ranking
      * @see AdminService#getBayesianRanking()
-     * @return ResponseEntity ok message
      */
     @GetMapping("/chefsRanking")
     @Operation(summary = "Get Bayesian Chef Ranking visible to foodies")
     @ApiResponse(responseCode = "200")
     public ResponseEntity<java.util.List<ChefRankAnalyticsDTO>> getChefRanking() {
-
         return ResponseEntity.ok(
                 adminService.getBayesianRanking()
         );
     }
 
-    /**
-     * Get method to retrieve detailed information about a specific chef.
-     * @param username the username of the chef
-     * @see AdminService#seeChefDetails(String)
-     * @return ResponseEntity containing the chef's details
-     */
-    @GetMapping("/details/chef/{username}")
-    @Operation(summary = "Get chef details")
-    @ApiResponse(responseCode = "200")
-    public ResponseEntity<RegisteredUserInfoDTO> seeChefDetails (@PathVariable String username){
-        return ResponseEntity.ok(adminService.seeChefDetails(username));
-    }
 
-    /**
-     * Get method to retrieve detailed information about a specific recipe.
-     * @param recipeId - recipe ID
-     * @see AdminService#seeRecipeDetails(String)
-     * @return ResponseEntity containing the recipe's details
-     */
-    @GetMapping("/details/recipe/{recipeId}")
-    @Operation(summary = "Get recipe details")
-    @ApiResponse(responseCode = "200")
-    public ResponseEntity<ShowRecipeDTO> seeRecipeDetails (@PathVariable String recipeId){
-        return ResponseEntity.ok(adminService.seeRecipeDetails(recipeId));
-    }
 }
 

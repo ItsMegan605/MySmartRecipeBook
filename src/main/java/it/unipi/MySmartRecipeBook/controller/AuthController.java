@@ -25,16 +25,17 @@ import java.time.Period;
 public class AuthController {
 
     private final AuthService authService;
-
     public AuthController(AuthService authService) {
+
         this.authService = authService;
     }
 
     /**
-     * Endpoint for chef registration request
-     * @param dto - dto of the user
+     * Submits a registration request for a new chef. The request will remain pending until approved by an admin.
+     * @param registrationDTO the {@link RegisteredUserDTO} containing the chef's registration details
+     * @return a {@link ResponseEntity} containing a success message confirming the pending status
+     * @throws IllegalArgumentException if the applicant is under 15 years of age
      * @see AuthService#registerChef(RegisteredUserDTO)
-     * @return ResponseEntity with message
      */
     @PostMapping("/register/chef")
     @Operation(summary = "Register a new chef")
@@ -42,20 +43,22 @@ public class AuthController {
             @ApiResponse(responseCode = "200"),
             @ApiResponse(responseCode = "400")
     })
-    public ResponseEntity<String> registerChef (@Valid @RequestBody RegisteredUserDTO dto){
+    public ResponseEntity<String> registerChef (@Valid @RequestBody RegisteredUserDTO registrationDTO){
 
-        if(Period.between(dto.getBirthdate(), LocalDate.now()).getYears() < 15){
+        if(Period.between(registrationDTO.getBirthdate(), LocalDate.now()).getYears() < 15){
             throw new IllegalArgumentException("You must be at least 15 years old to use this service");        }
 
-        authService.registerChef(dto);
+        authService.registerChef(registrationDTO);
         return ResponseEntity.ok("Registration request completed successfully. Waiting for admin approval.");
     }
 
+
     /**
-     * Endpoint for the foodie's registration phase
-     * @param dto with user's parameters
+     * Registers a new foodie in the application.
+     * @param registrationDTO the {@link RegisteredUserDTO} containing the foodie's registration details
+     * @return a {@link ResponseEntity} containing a success message
+     * @throws IllegalArgumentException if the applicant is under 15 years of age
      * @see AuthService#registerFoodie(RegisteredUserDTO)
-     * @return ResponseEntity with message
      */
     @PostMapping("/register/foodie")
     @Operation(summary = "Register a new foodie")
@@ -63,19 +66,20 @@ public class AuthController {
             @ApiResponse(responseCode = "200"),
             @ApiResponse(responseCode = "400")
     })
-    public ResponseEntity<String> registerFoodie (@Valid @RequestBody RegisteredUserDTO dto){
+    public ResponseEntity<String> registerFoodie (@Valid @RequestBody RegisteredUserDTO registrationDTO){
 
-        if(Period.between(dto.getBirthdate(), LocalDate.now()).getYears() < 15){
+        if(Period.between(registrationDTO.getBirthdate(), LocalDate.now()).getYears() < 15){
             throw new IllegalArgumentException("You must be at least 15 years old to use this service");        }
 
-        authService.registerFoodie(dto);
+        authService.registerFoodie(registrationDTO);
         return ResponseEntity.ok("Foodie registered successfully");
     }
 
     /**
-     * Login endpoint for both chef and foodie
-     * @param request - login request
-     * @return ResponseEntity ok message
+     * Authenticates a user (either a chef or a foodie) and generates a JWT token for session management.
+     * @param request the {@link LoginRequestDTO} containing the user's credentials (username and password)
+     * @return a {@link ResponseEntity} containing the {@link JwtResponseDTO} with the generated authentication token
+     * @see AuthService#authenticateUser(LoginRequestDTO)
      */
     @PostMapping("/login")
     @Operation(summary = "User login")
