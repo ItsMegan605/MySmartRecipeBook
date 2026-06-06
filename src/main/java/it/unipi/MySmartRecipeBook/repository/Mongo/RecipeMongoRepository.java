@@ -132,27 +132,31 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
     List<TrendAnalyticsDTO> findCategoryTrend(LocalDateTime recentDate, LocalDateTime previousDate);
 
     @Aggregation(pipeline = {
-            "{ $match: { status: 'APPROVED' } }",
+            "{ $match: { status: 'APPROVED', chef: { $exists: true, $ne: null } } }",
             "{ $sort: { num_saves: -1 } }",
             "{ $group: { " +
                     "_id: '$category', " +
-                    "idRaw: { $first: '$_id' }, " +
+                    "recipeId: { $first: '$_id' }, " +
                     "title: { $first: '$title' }, " +
-                    "chefFirstName: { $first: '$chef.name' }, " +
-                    "chefLastName: { $first: '$chef.surname' }, " +
-                    "chefIdRaw: { $first: '$chef._id' }, " +
-                    "numSavesRaw: { $first: '$num_saves' }, " +
-                    "imageURLRaw: { $first: '$image_url' }" +
+                    "imageURL: { $first: '$image_url' }, " +
+                    "numSaves: { $first: '$num_saves' }, " +
+                    "chefObj: { $first: '$chef' } " +
                     "} }",
+            // FIX 1: $ifNull prova prima _id, poi id (copre entrambi i casi di serializzazione)
+            // FIX 2: $ifNull su name e surname prima del $concat
             "{ $project: { " +
                     "_id: 0, " +
                     "category: '$_id', " +
-                    "id: { $toString: '$idRaw' }, " +
+                    "id: { $toString: '$recipeId' }, " +
                     "title: 1, " +
-                    "chefName: { $concat: [{ $ifNull: ['$chefFirstName', ''] }, ' ', { $ifNull: ['$chefLastName', ''] }] }, " +
-                    "chefId: { $toString: '$chefIdRaw' }, " +
-                    "numSaves: { $ifNull: ['$numSavesRaw', 0] }, " +
-                    "imageURL: '$imageURLRaw'" +
+                    "numSaves: 1, " +
+                    "imageURL: 1, " +
+                    "chefId: { $toString: { $ifNull: ['$chefObj._id', '$chefObj.id'] } }, " +
+                    "chefName: { $cond: { " +
+                    "  if: { $and: [{ $ne: ['$chefObj.name', null] }, { $ne: ['$chefObj.surname', null] }] }, " +
+                    "  then: { $concat: ['$chefObj.name', ' ', '$chefObj.surname'] }, " +
+                    "  else: null " +
+                    "} } " +
                     "} }"
     })
     List<TopRecipeByCategoryDTO> findMostSavedRecipePerCategory();

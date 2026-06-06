@@ -10,6 +10,7 @@ import it.unipi.MySmartRecipeBook.repository.Mongo.RecipeMongoRepository;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.Document;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -205,5 +206,6 @@ public class RecipeService {
     public List<TopRecipeByCategoryDTO> getCategoryTrend() {
         return recipeRepository.findMostSavedRecipePerCategory();
     }
+
 }
 
