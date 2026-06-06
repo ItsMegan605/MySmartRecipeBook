@@ -1,5 +1,6 @@
 package it.unipi.MySmartRecipeBook.repository.Mongo;
 
+import it.unipi.MySmartRecipeBook.dto.recipe.TopRecipeByCategoryDTO;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -130,4 +131,29 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
     })
     List<TrendAnalyticsDTO> findCategoryTrend(LocalDateTime recentDate, LocalDateTime previousDate);
 
+    @Aggregation(pipeline = {
+            "{ $match: { status: 'APPROVED' } }",
+            "{ $sort: { num_saves: -1 } }",
+            "{ $group: { " +
+                    "_id: '$category', " +
+                    "idRaw: { $first: '$_id' }, " +
+                    "title: { $first: '$title' }, " +
+                    "chefFirstName: { $first: '$chef.name' }, " +
+                    "chefLastName: { $first: '$chef.surname' }, " +
+                    "chefIdRaw: { $first: '$chef._id' }, " +
+                    "numSavesRaw: { $first: '$num_saves' }, " +
+                    "imageURLRaw: { $first: '$image_url' }" +
+                    "} }",
+            "{ $project: { " +
+                    "_id: 0, " +
+                    "category: '$_id', " +
+                    "id: { $toString: '$idRaw' }, " +
+                    "title: 1, " +
+                    "chefName: { $concat: [{ $ifNull: ['$chefFirstName', ''] }, ' ', { $ifNull: ['$chefLastName', ''] }] }, " +
+                    "chefId: { $toString: '$chefIdRaw' }, " +
+                    "numSaves: { $ifNull: ['$numSavesRaw', 0] }, " +
+                    "imageURL: '$imageURLRaw'" +
+                    "} }"
+    })
+    List<TopRecipeByCategoryDTO> findMostSavedRecipePerCategory();
 }

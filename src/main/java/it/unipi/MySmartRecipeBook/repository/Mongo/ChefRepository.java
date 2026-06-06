@@ -27,15 +27,6 @@ public interface ChefRepository extends MongoRepository<Chef, String> {
     Optional<Chef> findByUsername(String username);
 
     /**
-     * Finds an already approved chef by username.
-     * @param username the chef username
-     * @return optional Chef
-     */
-    @Query("{ 'username': ?0, 'status': 'APPROVED' }")
-    Optional<Chef> findApprovedByUsername(String username);
-    //TODO: si può togliere?
-
-    /**
      * Finds an already approved chef by id.
      * @param chefId the chef username
      * @return optional Chef

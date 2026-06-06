@@ -6,6 +6,7 @@ import lombok.Getter;
 
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 /**
  * Recipe's preview for foodies
@@ -21,15 +22,19 @@ public class UserPreviewRecipeDTO {
 
     private String title;
 
+    @Field("imageURL")
     @JsonProperty("image_URL")
     private String imageURL;
 
+    @Field("chefName")
     @JsonProperty("chef_name")
     private String chefName;
 
+    @Field("chefId")
     @JsonProperty("chef_id")
     private String chefId;
 
+    @Field("numSaves")
     @JsonProperty("num_saves")
     private int numSaves;
 }

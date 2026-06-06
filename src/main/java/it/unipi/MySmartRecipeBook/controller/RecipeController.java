@@ -4,13 +4,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import it.unipi.MySmartRecipeBook.dto.recipe.ChefPreviewRecipeDTO;
-import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
-import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
-import it.unipi.MySmartRecipeBook.dto.recipe.UserPreviewRecipeDTO;
+import it.unipi.MySmartRecipeBook.dto.recipe.*;
+import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
 import it.unipi.MySmartRecipeBook.service.RecipeService;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 /**
@@ -114,6 +115,18 @@ public class RecipeController {
 
         SliceRecipeDTO<ChefPreviewRecipeDTO>recipe_list = recipeService.getChefRecipePage(pageNumber, chefId);
         return ResponseEntity.ok(recipe_list);
+    }
+
+    @GetMapping("/categoryTrend")
+    @Operation(summary = "View trending category", description = "Returns all recipes published by a specific Chef, identified by their ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400")
+    })
+    public ResponseEntity<List<TopRecipeByCategoryDTO>> getcategoryTrends (){
+
+        List<TopRecipeByCategoryDTO> category = recipeService.getCategoryTrend();
+        return ResponseEntity.ok(category);
     }
 
 

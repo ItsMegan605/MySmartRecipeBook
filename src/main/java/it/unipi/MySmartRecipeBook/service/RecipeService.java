@@ -201,5 +201,9 @@ public class RecipeService {
         return new SliceRecipeDTO<>(content, hasNext, hasPrevious);
     }
 
+
+    public List<TopRecipeByCategoryDTO> getCategoryTrend() {
+        return recipeRepository.findMostSavedRecipePerCategory();
+    }
 }
 

@@ -213,8 +213,7 @@ public class SmartFridgeService {
                         jedis.del(cacheKey);
                     } else {
                         updatedList.sort(Comparator.comparingInt(RecipeSuggestionDTO::getMatchCount).reversed());
-                        jedis.setex(cacheKey, 86400*15, objectMapper.writeValueAsString(updatedList));
-                    }
+                        jedis.setex(cacheKey, 86400*15, objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(updatedList));                    }
 
                 } catch (JsonProcessingException e) {
                     throw new RuntimeException("Error occurred while using the application");
@@ -281,8 +280,7 @@ public class SmartFridgeService {
             }
 
             try (Jedis jedis = jedisSentinelPool.getResource()) {
-                jedis.setex(cacheKey, 86400*15, objectMapper.writeValueAsString(suggestions));
-
+                jedis.setex(cacheKey, 86400*15, objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(suggestions));
             } catch (JsonProcessingException e) {
                 throw new RuntimeException("Error occurred while using the application");
             }
@@ -333,8 +331,7 @@ public class SmartFridgeService {
                         List<RecipeSuggestionDTO> cachedRecipes = objectMapper.readValue(suggestedRecipes, new TypeReference<>() {
                         });
                         cachedRecipes.removeIf(recipe -> recipe.getId().equals(id));
-                        jedis.setex(fridgeKey, 86400*15, objectMapper.writeValueAsString(cachedRecipes));
-
+                        jedis.setex(fridgeKey, 86400*15, objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(cachedRecipes));
                     } catch (JsonProcessingException e) {
                         throw new RuntimeException("Error occurred while using the application");
                     }
