@@ -131,33 +131,27 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
     })
     List<TrendAnalyticsDTO> findCategoryTrend(LocalDateTime recentDate, LocalDateTime previousDate);
 
+
     @Aggregation(pipeline = {
-            "{ $match: { status: 'APPROVED', chef: { $exists: true, $ne: null } } }",
+            "{ $match: { status: 'APPROVED' } }",
             "{ $sort: { num_saves: -1 } }",
             "{ $group: { " +
                     "_id: '$category', " +
                     "recipeId: { $first: '$_id' }, " +
                     "title: { $first: '$title' }, " +
-                    "imageURL: { $first: '$image_url' }, " +
+                    "chef: { $first: '$chef' }, " +
                     "numSaves: { $first: '$num_saves' }, " +
-                    "chefObj: { $first: '$chef' } " +
+                    "imageURL: { $first: '$image_url' }" +
                     "} }",
-            // FIX 1: $ifNull prova prima _id, poi id (copre entrambi i casi di serializzazione)
-            // FIX 2: $ifNull su name e surname prima del $concat
             "{ $project: { " +
-                    "_id: 0, " +
                     "category: '$_id', " +
-                    "id: { $toString: '$recipeId' }, " +
+                    "id: '$recipeId', " +
                     "title: 1, " +
+                    "chef: 1, " +
                     "numSaves: 1, " +
-                    "imageURL: 1, " +
-                    "chefId: { $toString: { $ifNull: ['$chefObj._id', '$chefObj.id'] } }, " +
-                    "chefName: { $cond: { " +
-                    "  if: { $and: [{ $ne: ['$chefObj.name', null] }, { $ne: ['$chefObj.surname', null] }] }, " +
-                    "  then: { $concat: ['$chefObj.name', ' ', '$chefObj.surname'] }, " +
-                    "  else: null " +
-                    "} } " +
+                    "imageURL: 1" +
                     "} }"
     })
-    List<TopRecipeByCategoryDTO> findMostSavedRecipePerCategory();
+    List<RecipeMongo> findMostSavedRecipePerCategory();
+
 }

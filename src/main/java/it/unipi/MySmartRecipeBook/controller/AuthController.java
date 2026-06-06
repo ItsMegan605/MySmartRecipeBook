@@ -75,6 +75,7 @@ public class AuthController {
         return ResponseEntity.ok("Foodie registered successfully");
     }
 
+
     /**
      * Authenticates a user (either a chef or a foodie) and generates a JWT token for session management.
      * @param request the {@link LoginRequestDTO} containing the user's credentials (username and password)

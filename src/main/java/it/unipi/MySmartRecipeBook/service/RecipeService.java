@@ -204,7 +204,8 @@ public class RecipeService {
 
 
     public List<TopRecipeByCategoryDTO> getCategoryTrend() {
-        return recipeRepository.findMostSavedRecipePerCategory();
+        List<RecipeMongo> recipes = recipeRepository.findMostSavedRecipePerCategory();
+        return recipeConversions.entityToCategoryTrend(recipes);
     }
 
 }

@@ -4,6 +4,7 @@ import static it.unipi.MySmartRecipeBook.utils.parameters.Parameters.*;
 
 import it.unipi.MySmartRecipeBook.dto.InfoToDeleteDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.FoodiePreviewRecipeDTO;
+import it.unipi.MySmartRecipeBook.dto.recipe.RecipeSuggestionDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.ShowRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.SliceRecipeDTO;
 import it.unipi.MySmartRecipeBook.dto.users.*;
@@ -13,6 +14,7 @@ import it.unipi.MySmartRecipeBook.model.Mongo.recipes.FoodieRecipeSummary;
 import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
 import it.unipi.MySmartRecipeBook.repository.Mongo.ChefRepository;
 import it.unipi.MySmartRecipeBook.repository.Neo4j.ChefNeo4jRepository;
+import it.unipi.MySmartRecipeBook.repository.Neo4j.RecipeNeo4jRepository;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import it.unipi.MySmartRecipeBook.utils.conversionFunctions.ChefUtilityFunctions;
 import it.unipi.MySmartRecipeBook.utils.conversionFunctions.RecipeUtilityFunctions;
@@ -40,6 +42,7 @@ public class FoodieService {
     @Value("${app.recipe.pag-size-foodie:5}")
     private int pageSizeFoodie;
 
+    private final RecipeNeo4jRepository recipeNeo4jRepository;
     private final RecipeUtilityFunctions recipeUtilityFunctions;
     private final FoodieRepository foodieRepository;
     private final RecipeMongoRepository recipeRepository;
@@ -53,17 +56,18 @@ public class FoodieService {
     public FoodieService(FoodieRepository foodieRepository, RecipeMongoRepository recipeRepository,
                          PasswordEncoder passwordEncoder, FoodieUtilityFunctions foodieConversions,
                          LowLoadManager lowLoadManager, RecipeUtilityFunctions recipeUtilityFunctions,
-                         ChefNeo4jRepository chefNeo4jRepository, ChefUtilityFunctions chefConversions, ChefRepository chefRepository) {
+                         ChefNeo4jRepository chefNeo4jRepository, ChefUtilityFunctions chefConversions,
+                         ChefRepository chefRepository, RecipeNeo4jRepository recipeNeo4jRepository) {
         this.foodieRepository = foodieRepository;
         this.recipeRepository = recipeRepository;
         this.passwordEncoder = passwordEncoder;
         this.foodieConversions = foodieConversions;
         this.lowLoadManager = lowLoadManager;
-
         this.recipeUtilityFunctions = recipeUtilityFunctions;
         this.chefNeo4jRepository = chefNeo4jRepository;
         this.chefConversions = chefConversions;
         this.chefRepository = chefRepository;
+        this.recipeNeo4jRepository = recipeNeo4jRepository;
     }
 
     /**
@@ -370,6 +374,27 @@ public class FoodieService {
     public List<TopChefDTO> getTopChef() {
 
         return chefNeo4jRepository.findTop3ChefsByCategory(CATEGORIES);
+    }
+
+
+    /**
+     * Retrieves a list of recipes that are similar to the specified target recipe.
+     * The similarity is calculated based on the number of shared ingredients.
+     * @param recipeId the unique identifier of the target recipe
+     * @return a list of up to three {@link RecipeSuggestionDTO} containing the most similar recipes,
+     * ordered by the highest number of shared ingredients
+     * @throws NoSuchElementException if the recipe is not found or if it has not been approved yet
+     */
+    public List<RecipeSuggestionDTO> getSimilarRecipes(String recipeId){
+
+        RecipeMongo recipe = recipeRepository.findById(recipeId)
+                .orElseThrow(() -> new NoSuchElementException("Recipe not found"));
+
+        if(recipe.getStatus().equals("PENDING")){
+            throw new NoSuchElementException("Recipe not found");
+        }
+
+        return recipeNeo4jRepository.findSimilarRecipes(recipeId);
     }
 
 }

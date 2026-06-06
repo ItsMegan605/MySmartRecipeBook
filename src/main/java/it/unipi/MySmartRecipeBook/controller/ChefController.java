@@ -27,29 +27,32 @@ import java.time.Period;
 public class ChefController {
 
     private final ChefService chefService;
-
     public ChefController(ChefService chefService) {
+
         this.chefService = chefService;
     }
 
+
     /**
-     * Method to Retrieve the chef's information
+     * Retrieves the personal information of the currently authenticated chef.
+     * @return a {@link ResponseEntity} containing a {@link RegisteredUserInfoDTO} with the chef's personal information
      * @see ChefService#getByUsername()
-     * @return ResponseEntity ok message
      */
     @GetMapping("/info")
-    @Operation(summary = "Retrieve the chef's information")
+    @Operation(summary = "Retrieve the chef's personal information")
     @ApiResponse(responseCode = "200")
     public ResponseEntity<RegisteredUserInfoDTO> getInformation() {
 
         return ResponseEntity.ok(chefService.getByUsername());
     }
 
+
     /**
-     * Change chef's information
-     * @param updates - update chef info
+     * Changes the personal information of the currently authenticated chef.
+     * @param updates a {@link UpdateChefDTO} containing the chef's personal information to update
+     * @return a {@link ResponseEntity} containing a {@link RegisteredUserInfoDTO} with the updated chef's personal information
+     * @throws IllegalArgumentException if the updated birthdate results in an age under 15
      * @see ChefService#updateChef(UpdateChefDTO)
-     * @return ResponseEntity ok message
      */
     @PostMapping("/changeInfo")
     @Operation(summary = "Change chef's information")
@@ -66,9 +69,9 @@ public class ChefController {
 
 
     /**
-     * Delete chef's profile
+     * Deletes the profile of the authenticated chef.
+     * @return a {@link ResponseEntity} with a success message confirming the deletion
      * @see ChefService#deleteChef()
-     * @return ResponseEntity with message
      */
     @DeleteMapping("/deleteProfile")
     @Operation(summary = "Delete chef's profile")
@@ -76,14 +79,15 @@ public class ChefController {
     public ResponseEntity<String> deleteProfile() {
 
         chefService.deleteChef();
-        return ResponseEntity.ok("Profile successfully deleted. We are sorry to see you leaving");
+        return ResponseEntity.ok("Profile successfully deleted. We are sorry to see you leave");
     }
 
+
     /**
-     * Method to handle a new recipe
-     * @param dto - recipe DTO
+     * Creates a new recipe for the currently authenticated chef.
+     * @param recipeDTO a {@link CreateRecipeDTO} containing all the mandatory fields provided by the chef
+     * @return a {@link ResponseEntity} containing a {@link PendingRecipeChefDTO} with the details of the newly created pending recipe
      * @see ChefService#createRecipe(CreateRecipeDTO)
-     * @return ResponseEntity ok message
      */
     @PostMapping("/addNewRecipe")
     @Operation(summary = "Submit a new recipe")
@@ -91,32 +95,33 @@ public class ChefController {
             @ApiResponse(responseCode = "200"),
             @ApiResponse(responseCode = "400")
     })
-    public ResponseEntity<PendingRecipeChefDTO> saveRecipe (@Valid @RequestBody CreateRecipeDTO dto){
+    public ResponseEntity<PendingRecipeChefDTO> saveRecipe (@Valid @RequestBody CreateRecipeDTO recipeDTO){
 
-        PendingRecipeChefDTO recipe = chefService.createRecipe(dto);
+        PendingRecipeChefDTO recipe = chefService.createRecipe(recipeDTO);
         return ResponseEntity.ok(recipe);
     }
 
+    // TODO: modifica endpoint
     /**
-     * Get Method to show the chef's pending recipes
-     * @param page - the page
-     * @see ChefService#showPendingRecipes(int) 
-     * @return Response entity ok message 
+     * Retrieves a paginated list of the chef's recipes that are currently waiting for approval.
+     * @param pageNumber the requested page number
+     * @return a {@link ResponseEntity} containing a list of {@link PendingRecipeChefDTO} with the paginated preview of the pending recipes
+     * @see ChefService#showPendingRecipes(int)
      */
-    @GetMapping("/showWaiting/{page}")
+    @GetMapping("/showWaiting/{pageNumber}")
     @Operation(summary = "Show chef's pending recipes")
     @ApiResponse(responseCode = "200")
-    public ResponseEntity<SliceRecipeDTO<PendingRecipeChefDTO>> showPendingRecipes (@PathVariable int page){
-        SliceRecipeDTO<PendingRecipeChefDTO> recipeList = chefService.showPendingRecipes(page);
+    public ResponseEntity<SliceRecipeDTO<PendingRecipeChefDTO>> showPendingRecipes (@PathVariable int pageNumber){
+        SliceRecipeDTO<PendingRecipeChefDTO> recipeList = chefService.showPendingRecipes(pageNumber);
         return ResponseEntity.ok(recipeList);
     }
 
 
     /**
-     * Remove a recipe that is waiting to be confirmed
-     * @param recipeId - recipe ID
+     * Removes a pending recipe that is waiting for the admin approval.
+     * @param recipeId the unique identifier of the target recipe
+     * @return a {@link ResponseEntity} with a success message confirming the deletion
      * @see ChefService#removeRecipe(String)
-     * @return ResponseEntity ok message
      */
     @DeleteMapping("/removeWaiting/{id}")
     @Operation(summary = "Remove a pending recipe")
@@ -127,14 +132,15 @@ public class ChefController {
         return ResponseEntity.ok("Recipe successfully removed");
     }
 
+
     /**
-     * Method to delete a recipe that already exists
-     * @param recipeId - recipe ID
+     * Deletes a recipe that has already been approved.
+     * @param recipeId the unique identifier of the target recipe
+     * @return a {@link ResponseEntity} with a success message confirming the deletion
      * @see ChefService#deleteRecipe(String)
-     * @return ResponseEntity with message
      */
     @DeleteMapping("/deleteRecipe/{id}")
-    @Operation(summary = "Delete an existing recipe")
+    @Operation(summary = "Delete an already approved recipe")
     @ApiResponse(responseCode = "200")
     public ResponseEntity<String> deleteRecipe (@PathVariable("id") String recipeId){
 
@@ -143,25 +149,27 @@ public class ChefController {
     }
 
 
+    // TODO: cambiare endpoint
     /**
-     * Show a recipe to a chef
-     * @param page - the page
+     * Retrieves a paginated list of the preview of the chef's approved recipes.
+     * @param pageNumber the requested page number
+     * @return a {@link ResponseEntity} containing a list of {@link ChefPreviewRecipeDTO} with the paginated preview of the chef's recipes
      * @see ChefService#showRecipes(int)
-     * @return ResponseEntity ok message
      */
-    @GetMapping("/show/{page}")
+    @GetMapping("/show/{pageNumber}")
     @Operation(summary = "Show published recipes")
     @ApiResponse(responseCode = "200")
-    public ResponseEntity<SliceRecipeDTO<ChefPreviewRecipeDTO>> showRecipe (@PathVariable int page){
-        SliceRecipeDTO<ChefPreviewRecipeDTO> recipeList = chefService.showRecipes(page);
+    public ResponseEntity<SliceRecipeDTO<ChefPreviewRecipeDTO>> showRecipe (@PathVariable int pageNumber){
+        SliceRecipeDTO<ChefPreviewRecipeDTO> recipeList = chefService.showRecipes(pageNumber);
         return ResponseEntity.ok(recipeList);
     }
 
+
     /**
-     * Show to the chef his/her popular recipes
+     * Retrieves a paginated list of the preview of the chef's popular recipes.
      * @param pageNumber - page number
+     * @return a {@link ResponseEntity} containing a list of {@link ChefPreviewRecipeDTO} with the paginated preview of the chef's popular recipes
      * @see ChefService#showPopularRecipes(int)
-     * @return ResponseEntity ok message
      */
     @GetMapping("/popular/{pageNumber}")
     @Operation(summary = "Show popular recipes")
@@ -171,11 +179,12 @@ public class ChefController {
         return ResponseEntity.ok(recipeList);
     }
 
+
     /**
-     * Get method to retrieve detailed information about a specific pending recipe.
-     * @param recipeId - pending recipeID
+     * Retrieves the detailed information about a specific pending recipe.
+     * @param recipeId the unique identifier of the pending recipe
+     * @return a {@link ResponseEntity} containing a {@link ShowRecipeDTO} with the details of the specific pending recipe
      * @see ChefService#getRecipeDetails(String)
-     * @return ResponseEntity containing the pending recipe's details
      */
     @GetMapping("/details/pending/{recipeId}")
     @Operation(summary = "Get pending recipe details")

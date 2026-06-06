@@ -73,5 +73,33 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
     void deleteRecipeById(String recipeId);
 
 
+    /**
+     * Finds similar recipes based on the number of shared ingredients.
+     * Query logic:
+     * - match the target recipe by its Mongo ID
+     * - traverse to its ingredients and then to other recipes using those ingredients
+     * - exclude the target recipe itself from the results
+     * - count the shared ingredients and collect their names
+     * - traverse to the Chef node to retrieve the author's details
+     * - return the top 3 similar recipes ordered by the highest number of shared ingredients
+     *
+     * @param recipeId the Mongo ID of the target recipe
+     * @return list of RecipeSuggestionDTO containing the similar recipes and their chefs
+     */
+    @Query("MATCH (target:Recipe {mongo_id: $recipeId})<-[:USED_IN]-(i:Ingredient)-[:USED_IN]->(other:Recipe) " +
+            "WHERE target <> other " +
+            "WITH other, count(i) AS sharedIngredientsCount, collect(i.name) AS sharedIngredients " +
+            "MATCH (other)-[:WRITTEN_BY]->(c:Chef) " +
+            "RETURN other.mongo_id AS id, " +
+            "       other.title AS title, " +
+            "       other.imageURL AS imageURL, " +
+            "       c.name AS chefName, " +
+            "       c.surname AS chefSurname, " +
+            "       c.mongo_id AS chefId, " +
+            "       sharedIngredientsCount AS matchCount, " +
+            "       sharedIngredients AS matchedIngredients " +
+            "ORDER BY matchCount DESC, other.title ASC " +
+            "LIMIT 3")
+    List<RecipeSuggestionDTO> findSimilarRecipes(String recipeId);
 
 }

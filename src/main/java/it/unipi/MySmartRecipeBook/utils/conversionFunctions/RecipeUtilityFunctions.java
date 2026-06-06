@@ -391,4 +391,21 @@ public class RecipeUtilityFunctions {
 
         return recipe;
     }
+
+    public List<TopRecipeByCategoryDTO> entityToCategoryTrend(List<RecipeMongo> recipes) {
+        List<TopRecipeByCategoryDTO> recipesPreview = new ArrayList<>();
+        for (RecipeMongo recipe : recipes) {
+            TopRecipeByCategoryDTO dto = new TopRecipeByCategoryDTO();
+            dto.setId(recipe.getId());
+            dto.setTitle(recipe.getTitle());
+            dto.setCategory(recipe.getCategory());
+            dto.setImageURL(recipe.getImageURL());
+            dto.setNumSaves(recipe.getNumSaves());
+            dto.setChefId(recipe.getChef().getId());
+            dto.setChefName(recipe.getChef().getName() + " " + recipe.getChef().getSurname());
+            recipesPreview.add(dto);
+        }
+        return recipesPreview;
+
+    }
 }
