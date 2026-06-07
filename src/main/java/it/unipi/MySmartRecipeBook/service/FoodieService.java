@@ -389,12 +389,10 @@ public class FoodieService {
 
     /**
      * Retrieves a list of similar chefs for a given chef ID.
-     *
      * This method first verifies the existence and status of the chef in the primary repository.
      * It ensures the chef exists and that their status is not 'PENDING' before proceeding.
      * Once validated, it delegates the search to the Neo4j repository to find and return chefs
      * with similar characteristics.
-     *
      * @param chefId the unique identifier of the chef to find similarities for
      * @return a list of {@link ChefInfoDTO} representing the similar chefs
      * @throws NoSuchElementException if no chef is found with the provided ID, or if the chef's status is 'PENDING'

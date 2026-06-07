@@ -1,8 +1,6 @@
 package it.unipi.MySmartRecipeBook.repository.Neo4j;
 
 import it.unipi.MySmartRecipeBook.dto.users.ChefInfoDTO;
-import it.unipi.MySmartRecipeBook.dto.users.ChefPreviewDTO;
-import it.unipi.MySmartRecipeBook.dto.users.TopChefDTO;
 import it.unipi.MySmartRecipeBook.model.Neo4j.ChefNeo4j;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;

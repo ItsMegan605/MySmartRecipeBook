@@ -5,9 +5,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.unipi.MySmartRecipeBook.dto.recipe.*;
-import it.unipi.MySmartRecipeBook.model.Mongo.recipes.RecipeMongo;
 import it.unipi.MySmartRecipeBook.service.RecipeService;
-import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -123,7 +121,7 @@ public class RecipeController {
             @ApiResponse(responseCode = "200"),
             @ApiResponse(responseCode = "400")
     })
-    public ResponseEntity<List<TopRecipeByCategoryDTO>> getcategoryTrends (){
+    public ResponseEntity<List<TopRecipeByCategoryDTO>> getCategoryTrends (){
 
         List<TopRecipeByCategoryDTO> category = recipeService.getCategoryTrend();
         return ResponseEntity.ok(category);

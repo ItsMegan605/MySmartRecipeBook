@@ -53,32 +53,29 @@ public interface FoodieRepository extends MongoRepository<Foodie, String> {
      * @param foodieId foodie ID
      * @param recipeId recipe ID
      * @param recipe recipe summary
-     * @return number of modified documents
      */
     @Query("{ '_id': ?0, 'saved_recipes.id': { '$ne': ?1 } }")
     @Update("{ '$push': { 'saved_recipes': { '$each': [ ?2 ], '$position': 0 } } }")
-    long addRecipeToFavourites(String foodieId, String recipeId, FoodieRecipeSummary recipe);
+    void addRecipeToFavourites(String foodieId, String recipeId, FoodieRecipeSummary recipe);
 
     /**
      * Removes a recipe from the favourites list.
      * @param foodieId foodie ID
      * @param recipeId recipe ID
-     * @return number of modified documents
      */
     @Query("{ '_id': ?0}")
     @Update("{ '$pull': { 'saved_recipes': { 'id': ?1} }}")
-    long removeRecipeFromFavourites(String foodieId, String recipeId);
+    void removeRecipeFromFavourites(String foodieId, String recipeId);
 
     /**
      * Adds multiple recipes to favourites if not already present.
      * @param foodieId foodie ID
      * @param recipesId list of recipe IDs
      * @param recipes list of recipe summaries
-     * @return number of modified documents
      */
     @Query("{ '_id': ?0, 'saved_recipes.id': { '$nin': ?1 } }")
     @Update("{ '$push': { 'saved_recipes': { '$each': ?2 , '$position': 0 } } }")
-    long addRecipesToFavourites(String foodieId, List<String> recipesId, List<FoodieRecipeSummary> recipes);
+    void addRecipesToFavourites(String foodieId, List<String> recipesId, List<FoodieRecipeSummary> recipes);
 
     /**
      * Computes monthly statistics of registered foodies.

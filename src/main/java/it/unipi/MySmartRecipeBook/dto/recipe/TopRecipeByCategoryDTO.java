@@ -1,12 +1,10 @@
 package it.unipi.MySmartRecipeBook.dto.recipe;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import it.unipi.MySmartRecipeBook.dto.users.ChefInfoDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.mongodb.core.mapping.Field;
 
 /**
  * DTO for the top recipe by category
