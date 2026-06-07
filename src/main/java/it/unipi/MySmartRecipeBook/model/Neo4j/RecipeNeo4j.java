@@ -26,10 +26,11 @@ public class RecipeNeo4j {
     private String title;
 
     private String imageURL;
+    //TODO: controllare se servono
 
-    @Relationship(type = "USED_IN", direction = Relationship.Direction.INCOMING)
+    //@Relationship(type = "USED_IN", direction = Relationship.Direction.INCOMING)
     private List<IngredientNeo4j> ingredients;
 
-    @Relationship(type = "WRITTEN_BY", direction = Relationship.Direction.OUTGOING)
+    //@Relationship(type = "WRITTEN_BY", direction = Relationship.Direction.OUTGOING)
     private ChefNeo4j chef;
 }

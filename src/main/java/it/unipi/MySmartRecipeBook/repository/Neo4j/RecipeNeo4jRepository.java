@@ -63,7 +63,8 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
             "UNWIND $ingredients AS ingName " +
             "MATCH (i:Ingredient {name: ingName}) " +
             //"MATCH (i:Ingredient) WHERE toLower(trim(i.name)) = toLower(trim(ingName)) " +
-            "MERGE (r)<-[:USED_IN]-(i)")
+            "MERGE (r)<-[:USED_IN]-(i) " +
+            "MERGE (r)-[:USES]->(i)")
     void createRecipe(String recipeId, String title, String imageURL, String chefId, List<String> ingredients);
 
     /**
@@ -87,7 +88,7 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
      * @param recipeId the Mongo ID of the target recipe
      * @return list of RecipeSuggestionDTO containing the similar recipes and their chefs
      */
-    @Query("MATCH (target:Recipe {mongo_id: $recipeId})<-[:USED_IN]-(i:Ingredient)-[:USED_IN]->(other:Recipe) " +
+    @Query("MATCH (target:Recipe {mongo_id: $recipeId})-[:USES]->(i:Ingredient)-[:USED_IN]->(other:Recipe) " +
             "WHERE target <> other " +
             "WITH other, count(i) AS sharedIngredientsCount, collect(i.name) AS sharedIngredients " +
             "MATCH (other)-[:WRITTEN_BY]->(c:Chef) " +
@@ -105,7 +106,6 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
 
     /**
      * Finds suggested complementary ingredients based on their co-occurrence in recipes.
-     *
      * This method executes a Neo4j Cypher query that performs the following operations:
      * - Matches target ingredients from the provided list and finds the recipes they are used in.
      * - Finds other ingredients (co-occurrences) used in those same recipes.
@@ -118,7 +118,7 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
      * @param ignoredIngredients a list of ingredient names to explicitly exclude from the final suggestions
      * @return a list of {@link IngredientSuggestionDTO} containing the target ingredients and their top suggestions
      */
-    @Query("MATCH (target:Ingredient)-[:USED_IN]->(r:Recipe)<-[:USED_IN]-(other:Ingredient) " +
+    @Query("MATCH (target:Ingredient)-[:USED_IN]->(r:Recipe)-[:USES]->(other:Ingredient) " +
             "WHERE target.name IN $ingredientList " +
             "AND NOT other.name IN $ignoredIngredients " +
             "WITH target.name AS originalIngredient, other.name AS suggestedIngredient, count(r) AS occurrences " +
