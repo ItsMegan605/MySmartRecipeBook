@@ -76,18 +76,18 @@ public class SmartFridgeController {
      * @see SmartFridgeService#getRecommendations(String, int)
      * @return the Smart fridge's recipes suggestions
      */
-    @GetMapping("/recommendations/{pageNum}")
+    @GetMapping("/recommendations/{pageNumber}")
     @Operation(summary = "Get recipe recommendations based on fridge contents")
     @ApiResponses({
             @ApiResponse(responseCode = "200"),
             @ApiResponse(responseCode = "204")
     })
-    public ResponseEntity<SliceRecipeDTO<RecipeSuggestionDTO>> getRecommendations(@PathVariable int pageNum) {
+    public ResponseEntity<SliceRecipeDTO<RecipeSuggestionDTO>> getRecommendations(@PathVariable int pageNumber) {
         UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getPrincipal();
 
-        SliceRecipeDTO<RecipeSuggestionDTO> recipes = smartFridgeService.getRecommendations(authFoodie.getUsername(), pageNum);
+        SliceRecipeDTO<RecipeSuggestionDTO> recipes = smartFridgeService.getRecommendations(authFoodie.getUsername(), pageNumber);
 
         if (recipes.getContent().isEmpty()) {
             return ResponseEntity.noContent().build();
