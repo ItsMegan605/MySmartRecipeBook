@@ -1,9 +1,11 @@
 package it.unipi.MySmartRecipeBook.repository.Neo4j;
 
+import it.unipi.MySmartRecipeBook.dto.IngredientSuggestionDTO;
 import it.unipi.MySmartRecipeBook.dto.recipe.RecipeSuggestionDTO;
 import it.unipi.MySmartRecipeBook.model.Neo4j.RecipeNeo4j;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -50,12 +52,11 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
      * @param recipeId recipe ID
      * @param title recipe title
      * @param imageURL recipe image URL
-     * @param category recipe category
      * @param chefId chef ID
      * @param ingredients list of ingredient names
      */
     @Query("MERGE (c:Chef {mongo_id: $chefId}) " +
-            "CREATE (r:Recipe {mongo_id: $recipeId, title: $title, imageURL: $imageURL, category : $category}) " +
+            "CREATE (r:Recipe {mongo_id: $recipeId, title: $title, imageURL: $imageURL}) " +
             "MERGE (c)<-[:WRITTEN_BY]-(r) " +
             "MERGE (c)-[:WROTE]->(r) " +
             "WITH r " +
@@ -63,7 +64,7 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
             "MATCH (i:Ingredient {name: ingName}) " +
             //"MATCH (i:Ingredient) WHERE toLower(trim(i.name)) = toLower(trim(ingName)) " +
             "MERGE (r)<-[:USED_IN]-(i)")
-    void createRecipe(String recipeId, String title, String imageURL, String category, String chefId, List<String> ingredients);
+    void createRecipe(String recipeId, String title, String imageURL, String chefId, List<String> ingredients);
 
     /**
      * Deletes a recipe node by its Mongo ID.
@@ -101,5 +102,31 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
             "ORDER BY matchCount DESC, other.title ASC " +
             "LIMIT 3")
     List<RecipeSuggestionDTO> findSimilarRecipes(String recipeId);
+
+    /**
+     * Finds suggested complementary ingredients based on their co-occurrence in recipes.
+     *
+     * This method executes a Neo4j Cypher query that performs the following operations:
+     * - Matches target ingredients from the provided list and finds the recipes they are used in.
+     * - Finds other ingredients (co-occurrences) used in those same recipes.
+     * - Filters out any ingredients that are present in the ignored list.
+     * - Counts how often the target and suggested ingredients appear together to determine the strength of the association.
+     * - Orders the pairs by occurrence in descending order.
+     * - Returns the original ingredient mapped to its top 3 most frequently paired suggested ingredients.
+     *
+     * @param ingredientList the list of target ingredient names to base the suggestions on
+     * @param ignoredIngredients a list of ingredient names to explicitly exclude from the final suggestions
+     * @return a list of {@link IngredientSuggestionDTO} containing the target ingredients and their top suggestions
+     */
+    @Query("MATCH (target:Ingredient)-[:USED_IN]->(r:Recipe)<-[:USED_IN]-(other:Ingredient) " +
+            "WHERE target.name IN $ingredientList " +
+            "AND NOT other.name IN $ignoredIngredients " +
+            "WITH target.name AS originalIngredient, other.name AS suggestedIngredient, count(r) AS occurrences " +
+            "ORDER BY occurrences DESC " +
+            "RETURN originalIngredient, collect(suggestedIngredient)[0..3] AS suggestedIngredients")
+    List<IngredientSuggestionDTO> findSuggestedIngredientsForList(
+            @Param("ingredientList") List<String> ingredientList,
+            @Param("ignoredIngredients") List<String> ignoredIngredients
+    );
 
 }

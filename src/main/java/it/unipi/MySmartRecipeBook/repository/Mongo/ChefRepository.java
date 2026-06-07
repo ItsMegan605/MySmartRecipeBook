@@ -74,7 +74,6 @@ public interface ChefRepository extends MongoRepository<Chef, String> {
     @Update("{ '$push': { 'recipes_to_confirm': ?1 } }")
     void addRecipeToWaiting(String chefId, PendingRecipe recipe);
 
-
     /**
      * Computes a Bayesian ranking of chefs based on saves and number of recipes.
      * Thia function excludes the admin, replaces the new values with 0, computes the global average C, then
@@ -109,7 +108,8 @@ public interface ChefRepository extends MongoRepository<Chef, String> {
 
             "{ $setWindowFields: { sortBy: { score: -1 }, output: { rank: { $rank: {} } } } }",
 
-            "{ $project: { rank: 1, username: 1, score: 1 } }"
+            // MODIFICA QUI: Sostituito username con name e surname
+            "{ $project: { rank: 1, name: 1, surname: 1, score: 1 } }"
     })
     List<ChefRankAnalyticsDTO> chefBayesianRanking();
 }

@@ -367,17 +367,6 @@ public class FoodieService {
 
 
     /**
-     * Retrieves the ranking of the top 3 chefs for each available recipe category.
-     * The ranking is determined by the volume of recipes written by a chef within a specific category.
-     * @return a list of {@link TopChefDTO} containing the name of the top chefs grouped by category
-     */
-    public List<TopChefDTO> getTopChef() {
-
-        return chefNeo4jRepository.findTop3ChefsByCategory(CATEGORIES);
-    }
-
-
-    /**
      * Retrieves a list of recipes that are similar to the specified target recipe.
      * The similarity is calculated based on the number of shared ingredients.
      * @param recipeId the unique identifier of the target recipe
@@ -397,4 +386,26 @@ public class FoodieService {
         return recipeNeo4jRepository.findSimilarRecipes(recipeId);
     }
 
+
+    /**
+     * Retrieves a list of similar chefs for a given chef ID.
+     *
+     * This method first verifies the existence and status of the chef in the primary repository.
+     * It ensures the chef exists and that their status is not 'PENDING' before proceeding.
+     * Once validated, it delegates the search to the Neo4j repository to find and return chefs
+     * with similar characteristics.
+     *
+     * @param chefId the unique identifier of the chef to find similarities for
+     * @return a list of {@link ChefInfoDTO} representing the similar chefs
+     * @throws NoSuchElementException if no chef is found with the provided ID, or if the chef's status is 'PENDING'
+     */
+    public List<ChefInfoDTO> getSimilarChefs(String chefId) {
+        Chef chef = chefRepository.findById(chefId)
+                .orElseThrow(() -> new NoSuchElementException("Recipe not found"));
+        if(chef.getStatus().equals("PENDING")){
+            throw new NoSuchElementException("Chef not found");
+        }
+
+        return chefNeo4jRepository.findSimilarChefs(chefId);
+    }
 }

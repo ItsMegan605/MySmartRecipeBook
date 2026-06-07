@@ -404,7 +404,6 @@ public class AdminService {
      * @return a list of {@link YearAnalyticsDTO} containing the registration counts grouped by year and month
      */
     public List<YearAnalyticsDTO> getMonthlyFoodies() {
-
         return foodieRepository.getMonthlyFoodiesStats();
     }
 
@@ -448,7 +447,6 @@ public class AdminService {
      * @return a list of {@link ChefRankAnalyticsDTO} containing the ranked chefs, their scores, and their positions
      */
     public List<ChefRankAnalyticsDTO> getBayesianRanking() {
-
         return chefRepository.chefBayesianRanking();
     }
 

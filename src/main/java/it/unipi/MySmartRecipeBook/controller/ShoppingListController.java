@@ -3,6 +3,7 @@ package it.unipi.MySmartRecipeBook.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import it.unipi.MySmartRecipeBook.dto.IngredientSuggestionDTO;
 import it.unipi.MySmartRecipeBook.dto.IngredientsListDTO;
 import it.unipi.MySmartRecipeBook.service.ShoppingListService;
 import org.springframework.http.ResponseEntity;
@@ -70,4 +71,16 @@ public class ShoppingListController {
         return ResponseEntity.ok(list);
     }
 
+
+    /**
+     * Retrieves a list of suggested similar ingredients.
+     * @return a {@link ResponseEntity} containing a list of {@link IngredientSuggestionDTO} representing the suggested ingredients
+     */
+    @GetMapping("/suggestedIngredients")
+    @Operation(summary = "suggests similar ingredients")
+    @ApiResponse(responseCode = "200")
+    public ResponseEntity<List<IngredientSuggestionDTO>> suggestIngredient() {
+        List<IngredientSuggestionDTO> ingredientList = shoppingListService.getSuggestedIngredients();
+        return ResponseEntity.ok(ingredientList);
+    }
 }

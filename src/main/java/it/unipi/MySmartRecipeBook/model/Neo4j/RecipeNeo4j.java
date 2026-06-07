@@ -27,8 +27,6 @@ public class RecipeNeo4j {
 
     private String imageURL;
 
-    private String category;
-
     @Relationship(type = "USED_IN", direction = Relationship.Direction.INCOMING)
     private List<IngredientNeo4j> ingredients;
 

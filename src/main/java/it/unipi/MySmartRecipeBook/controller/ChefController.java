@@ -101,7 +101,6 @@ public class ChefController {
         return ResponseEntity.ok(recipe);
     }
 
-    // TODO: modifica endpoint
     /**
      * Retrieves a paginated list of the chef's recipes that are currently waiting for approval.
      * @param pageNumber the requested page number
@@ -149,7 +148,6 @@ public class ChefController {
     }
 
 
-    // TODO: cambiare endpoint
     /**
      * Retrieves a paginated list of the preview of the chef's approved recipes.
      * @param pageNumber the requested page number

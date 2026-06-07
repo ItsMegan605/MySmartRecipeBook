@@ -161,7 +161,6 @@ public class RecipeUtilityFunctions {
         recipeNeo4j.setIngredients(ingredients);
         recipeNeo4j.setChefId(recipe.getChef().getId());
         recipeNeo4j.setImgURL(recipe.getImageURL());
-        recipeNeo4j.setCategory(recipe.getCategory());
 
         return recipeNeo4j;
     }
@@ -392,6 +391,16 @@ public class RecipeUtilityFunctions {
         return recipe;
     }
 
+    /**
+     * Converts a list of recipe entities into a list of category trend Data Transfer Objects (DTOs).
+     *
+     * This method iterates through the provided recipe entities and maps their properties
+     * to the corresponding fields in the DTO. Notably, it extracts the nested chef information
+     * to set the chef ID and concatenates the chef's first and last name into a single full name string.
+     *
+     * @param recipes the list of {@link RecipeMongo} entities to be converted
+     * @return a list of {@link TopRecipeByCategoryDTO} containing the formatted recipe data
+     */
     public List<TopRecipeByCategoryDTO> entityToCategoryTrend(List<RecipeMongo> recipes) {
         List<TopRecipeByCategoryDTO> recipesPreview = new ArrayList<>();
         for (RecipeMongo recipe : recipes) {

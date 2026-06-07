@@ -131,7 +131,18 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
     })
     List<TrendAnalyticsDTO> findCategoryTrend(LocalDateTime recentDate, LocalDateTime previousDate);
 
-
+    /**
+     * Retrieves the most saved approved recipe for each available category.
+     *
+     * This method executes a MongoDB aggregation pipeline that performs the following operations:
+     * -Filters the recipes to include only those with an 'APPROVED' status.
+     * -Sorts the filtered recipes by the number of saves ({@code num_saves}) in descending order.
+     * -Groups the sorted recipes by category and selects the first recipe in each group.
+     * Due to the previous sorting stage, this effectively extracts the most saved recipe per category.
+     * - Maps and renames the grouped fields to match the structure of the {@link RecipeMongo} entity.
+     *
+     * @return a list of {@link RecipeMongo} objects representing the top saved recipe within each category
+     */
     @Aggregation(pipeline = {
             "{ $match: { status: 'APPROVED' } }",
             "{ $sort: { num_saves: -1 } }",

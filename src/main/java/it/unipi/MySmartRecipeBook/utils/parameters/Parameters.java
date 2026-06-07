@@ -27,6 +27,6 @@ public class Parameters {
     );
 
     public static final List<String> FILTERED_INGREDIENTS = List.of(
-            "salt", "water", "pepper", "oil"
+            "salt", "water", "pepper", "oil", "olive oil", "baking powder"
     );
 }

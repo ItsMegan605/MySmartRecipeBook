@@ -120,7 +120,6 @@ public class FoodieController {
         return ResponseEntity.ok("Recipe has been successfully removed from favourites");
     }
 
-    // TODO: cambiare endpoint
     /**
      * Retrieves the foodie's favorite recipes filtered by a specified category, difficulty, or saving date.
      * @param filter the filtering criterion
@@ -169,19 +168,6 @@ public class FoodieController {
 
 
     /**
-     * Retrieves the ranking of the top 3 chefs for each available recipe category.
-     * @return a {@link ResponseEntity} containing the list of {@link TopChefDTO} with the preview of the matching chefs
-     * @see FoodieService#getTopChef()
-     */
-    @GetMapping("/TopChef")
-    @Operation(summary = "Show top 3 chefs per category")
-    @ApiResponse(responseCode = "200")
-    public ResponseEntity<List<TopChefDTO>> getTopChef() {
-        List<TopChefDTO> topChefs = foodieService.getTopChef();
-        return ResponseEntity.ok(topChefs);
-    }
-
-    /**
      * Retrieves a list of recipes that are most similar to the specified recipe.
      * Similarity is calculated based on shared ingredients.
      * @param recipeId the unique identifier of the target recipe
@@ -195,4 +181,21 @@ public class FoodieController {
         List<RecipeSuggestionDTO> similarRecipes = foodieService.getSimilarRecipes(recipeId);
         return ResponseEntity.ok(similarRecipes);
     }
+
+    /**
+     * Retrieves a list of similar chefs based on the ingredients they use.
+     * @param chefId the unique identifier of the chef to compare against
+     * @return a {@link ResponseEntity} containing a list of {@link ChefInfoDTO} representing the similar chefs
+     */
+    @GetMapping("/findSimilarChef/{chefId}")
+    @Operation(summary = "Show similar chefs based on ingredients used")
+    @ApiResponse(responseCode = "200")
+    public ResponseEntity<List<ChefInfoDTO>> similarChefs(@PathVariable String chefId) {
+        List<ChefInfoDTO> similarChefs = foodieService.getSimilarChefs(chefId);
+        return ResponseEntity.ok(similarChefs);
+    }
+
+
+
+
 }

@@ -203,6 +203,14 @@ public class RecipeService {
     }
 
 
+
+    /**
+     * Retrieves the trending recipes across all categories.
+     * This method fetches the most saved approved recipe for each category from the repository
+     * and converts the resulting entities into a list of Data Transfer Objects (DTOs) suitable
+     * for the client response.
+     * @return a list of {@link TopRecipeByCategoryDTO} representing the top trending recipe for each category
+     */
     public List<TopRecipeByCategoryDTO> getCategoryTrend() {
         List<RecipeMongo> recipes = recipeRepository.findMostSavedRecipePerCategory();
         return recipeConversions.entityToCategoryTrend(recipes);

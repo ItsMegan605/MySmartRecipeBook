@@ -1,18 +1,20 @@
 package it.unipi.MySmartRecipeBook.service;
 
+import it.unipi.MySmartRecipeBook.dto.IngredientSuggestionDTO;
 import it.unipi.MySmartRecipeBook.dto.IngredientsListDTO;
 import it.unipi.MySmartRecipeBook.model.Mongo.users.Foodie;
 import it.unipi.MySmartRecipeBook.repository.Mongo.FoodieRepository;
+import it.unipi.MySmartRecipeBook.repository.Neo4j.RecipeNeo4jRepository;
 import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisSentinelPool;
+import it.unipi.MySmartRecipeBook.utils.parameters.*;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+
+import static it.unipi.MySmartRecipeBook.utils.parameters.Parameters.FILTERED_INGREDIENTS;
 
 /**
  * Shopping List service that handles shopping list's business logic operations
@@ -23,11 +25,13 @@ public class ShoppingListService {
     private final JedisSentinelPool jedisSentinelPool;
     private final IngredientService ingredientService;
     private final FoodieRepository foodieRepository;
+    private final RecipeNeo4jRepository recipeNeo4jRepository;
 
-    public ShoppingListService(JedisSentinelPool jedisSentinelPool, IngredientService ingredientService, FoodieRepository foodieRepository) {
+    public ShoppingListService(JedisSentinelPool jedisSentinelPool, IngredientService ingredientService, FoodieRepository foodieRepository, RecipeNeo4jRepository recipeNeo4jRepository) {
         this.jedisSentinelPool = jedisSentinelPool;
         this.ingredientService = ingredientService;
         this.foodieRepository = foodieRepository;
+        this.recipeNeo4jRepository = recipeNeo4jRepository;
     }
 
     private static final String REDIS_ENTITY = "Foodie:";
@@ -136,4 +140,19 @@ public class ShoppingListService {
         return returnShoppingList(foodie.getUsername());
     }
 
+    /**
+     * Retrieves a list of suggested ingredients based on the user's current shopping list.
+     * This method fetches the active shopping list, extracts the current ingredients,
+     * and queries the Neo4j repository to find complementary or frequently associated items.
+     * A predefined filter ({@code FILTERED_INGREDIENTS}) is passed to the query to
+     * exclude specific items from the final suggestions.
+     * @return a list of {@link IngredientSuggestionDTO} containing the recommended ingredients
+     */
+    public List<IngredientSuggestionDTO> getSuggestedIngredients() {
+
+        IngredientsListDTO ingredients = getShoppingList();
+        List<String> ingredientsList = new ArrayList<>(ingredients.getIngredients());
+        return recipeNeo4jRepository.findSuggestedIngredientsForList(ingredientsList, FILTERED_INGREDIENTS);
+
+    }
 }

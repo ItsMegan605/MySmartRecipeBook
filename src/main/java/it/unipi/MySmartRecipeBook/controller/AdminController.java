@@ -194,9 +194,7 @@ public class AdminController {
     @Operation(summary = "Get Bayesian Chef Ranking visible to foodies")
     @ApiResponse(responseCode = "200")
     public ResponseEntity<java.util.List<ChefRankAnalyticsDTO>> getChefRanking() {
-        return ResponseEntity.ok(
-                adminService.getBayesianRanking()
-        );
+        return ResponseEntity.ok(adminService.getBayesianRanking());
     }
 
 }

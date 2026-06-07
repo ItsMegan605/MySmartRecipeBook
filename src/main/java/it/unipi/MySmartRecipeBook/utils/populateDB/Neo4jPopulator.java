@@ -127,7 +127,7 @@ public class Neo4jPopulator implements CommandLineRunner {
                 recipeIngredients.add(ingredientName);
             }
 
-            neo4jRepository.createRecipe(recipe.getId(), recipe.getTitle(), recipe.getImageURL(), recipe.getCategory(),
+            neo4jRepository.createRecipe(recipe.getId(), recipe.getTitle(), recipe.getImageURL(),
                     recipe.getChef().getId(), recipeIngredients);
 
         }

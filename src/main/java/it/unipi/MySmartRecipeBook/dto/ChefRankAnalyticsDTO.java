@@ -13,6 +13,7 @@ import lombok.*;
 public class ChefRankAnalyticsDTO {
 
     private Integer rank;
-    private String username;
+    private String name;
+    private String surname;
     private Double score;
 }
