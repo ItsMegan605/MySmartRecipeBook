@@ -9,6 +9,7 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -28,6 +29,7 @@ public class Chef extends RegisteredUser {
 
     @NotBlank(message = "Username is required")
     @Size(max = 20)
+    @Indexed(unique = true)
     private String username;
 
     @Field("new_recipes")
