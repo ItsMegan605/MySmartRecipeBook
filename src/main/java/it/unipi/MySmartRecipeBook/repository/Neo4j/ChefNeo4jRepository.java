@@ -19,16 +19,21 @@ public interface ChefNeo4jRepository extends Neo4jRepository<ChefNeo4j, String> 
      * @return list of ChefInfoDTO
      */
     @Query("MATCH (target:Chef {mongo_id: $chefId})-[:WROTE]->(r1:Recipe)-[:USES]->(i:Ingredient) " +
+            "WHERE NOT i.name IN $ignoredIngredients " +
             "WITH DISTINCT target, i " +
             "MATCH (i)-[:USED_IN]->(r2:Recipe)-[:WRITTEN_BY]->(other:Chef) " +
             "WHERE target <> other " +
             "WITH other, count(DISTINCT i) AS sharedIngredientsScore " +
             "ORDER BY sharedIngredientsScore DESC " +
-            "LIMIT 5 " +
+            "LIMIT 3 " +
             "RETURN other.mongo_id AS id, " +
             "       other.name AS name, " +
             "       other.surname AS surname")
-    List<ChefInfoDTO> findSimilarChefs(@Param("chefId") String chefId);
+    List<ChefInfoDTO> findSimilarChefs(
+            @Param("chefId") String chefId,
+            @Param("ignoredIngredients") List<String> ignoredIngredients
+        );
+
 
 
     /**
