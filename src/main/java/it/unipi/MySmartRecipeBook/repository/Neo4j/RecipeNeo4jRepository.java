@@ -56,7 +56,7 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
      * @param ingredients list of ingredient names
      */
     @Query("MERGE (c:Chef {mongo_id: $chefId}) " +
-            "CREATE (r:Recipe {mongo_id: $recipeId, title: $title, imageURL: $imageURL}) " +
+            "CREATE (r:Recipe {mongo_id: $recipeId, title: $title, imageURL: $imageURL, category: $category}) " +
             "MERGE (c)<-[:WRITTEN_BY]-(r) " +
             "MERGE (c)-[:WROTE]->(r) " +
             "WITH r " +
@@ -65,7 +65,7 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
             //"MATCH (i:Ingredient) WHERE toLower(trim(i.name)) = toLower(trim(ingName)) " +
             "MERGE (r)<-[:USED_IN]-(i) " +
             "MERGE (r)-[:USES]->(i)")
-    void createRecipe(String recipeId, String title, String imageURL, String chefId, List<String> ingredients);
+    void createRecipe(String recipeId, String title, String imageURL, String category, String chefId, List<String> ingredients);
 
     /**
      * Deletes a recipe node by its Mongo ID.

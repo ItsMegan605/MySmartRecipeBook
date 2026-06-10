@@ -14,7 +14,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Represents a foodie user in the system.
+ * Represents the core Foodie entity stored within the "foodies" MongoDB collection.
  */
 @Getter
 @Setter

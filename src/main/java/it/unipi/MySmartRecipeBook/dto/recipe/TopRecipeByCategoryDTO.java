@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 /**
  * DTO for the top recipe by category
@@ -20,7 +21,6 @@ public class TopRecipeByCategoryDTO {
 
     private String title;
 
-    @JsonProperty("imageURL")
     private String imageURL;
 
     @JsonProperty("chef_name")
@@ -29,7 +29,7 @@ public class TopRecipeByCategoryDTO {
     @JsonProperty("chef_id")
     private String chefId;
 
-    @JsonProperty("numSaves")
+    @JsonProperty("num_saves")
     private int numSaves;
 
     private String category;

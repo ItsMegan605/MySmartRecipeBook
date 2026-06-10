@@ -53,9 +53,9 @@ public class SmartFridgeService {
     }
 
 
-    private static final String REDIS_ENTITY = "Foodie:";
-    private static final String REDIS_FRIDGE_PREFIX = ":smartFridge:ingredients";
-    private static final String REDIS_RECIPES_PREFIX = ":smartFridge:suggestions";
+    private static final String REDIS_KEY_PREFIX = "Foodie:";
+    private static final String REDIS_KEY_FRIDGE_SUFFIX = ":smartFridge:ingredients";
+    private static final String REDIS_KEY_RECIPES_SUFFIX = ":smartFridge:suggestions";
 
 
     /**
@@ -82,7 +82,7 @@ public class SmartFridgeService {
      */
     private IngredientsListDTO returnSmartFridge(String username) {
 
-        String key = REDIS_ENTITY + username + REDIS_FRIDGE_PREFIX;
+        String key = REDIS_KEY_PREFIX + username + REDIS_KEY_FRIDGE_SUFFIX;
 
         Set<String> ingredients;
         try (Jedis jedis = jedisSentinelPool.getResource()) {
@@ -120,12 +120,12 @@ public class SmartFridgeService {
         ingredients.replaceAll(ingredient -> ingredient.strip().toLowerCase());
         ingredients.removeIf(ingredient -> !ingredientService.isValidIngredient(ingredient));
 
-        String key = REDIS_ENTITY + foodie.getUsername() + REDIS_FRIDGE_PREFIX;
+        String key = REDIS_KEY_PREFIX + foodie.getUsername() + REDIS_KEY_FRIDGE_SUFFIX;
 
         if (!ingredients.isEmpty()) {
             try (Jedis jedis = jedisSentinelPool.getResource()) {
                 jedis.sadd(key, ingredients.toArray(new String[0]));
-                jedis.del(REDIS_ENTITY + foodie.getUsername() + REDIS_RECIPES_PREFIX);
+                jedis.del(REDIS_KEY_PREFIX + foodie.getUsername() + REDIS_KEY_RECIPES_SUFFIX);
                 jedis.expire(key, 86400*15);
 
             }
@@ -162,7 +162,7 @@ public class SmartFridgeService {
         ingredient = ingredient.strip().toLowerCase();
 
         if(ingredientService.isValidIngredient(ingredient)) {
-            String key = REDIS_ENTITY + foodie.getUsername() + REDIS_FRIDGE_PREFIX;
+            String key = REDIS_KEY_PREFIX + foodie.getUsername() + REDIS_KEY_FRIDGE_SUFFIX;
             try (Jedis jedis = jedisSentinelPool.getResource()) {
                 jedis.srem(key, ingredient);
                 jedis.expire(key, 86400*15);
@@ -184,7 +184,7 @@ public class SmartFridgeService {
      * @throws RuntimeException if an error occurs during the JSON serialization or deserialization of the cached data
      */
     private void updateCacheAfterRemoval(String username, String removedIngredient) {
-        String cacheKey = REDIS_ENTITY + username + REDIS_RECIPES_PREFIX;
+        String cacheKey = REDIS_KEY_PREFIX + username + REDIS_KEY_RECIPES_SUFFIX;
         try (Jedis jedis = jedisSentinelPool.getResource()){
             String json = jedis.get(cacheKey);
 
@@ -240,7 +240,7 @@ public class SmartFridgeService {
             throw new IllegalArgumentException("Invalid page number");
         }
 
-        String cacheKey = REDIS_ENTITY + username + REDIS_RECIPES_PREFIX;
+        String cacheKey = REDIS_KEY_PREFIX + username + REDIS_KEY_RECIPES_SUFFIX;
 
         String json;
         try (Jedis jedis = jedisSentinelPool.getResource()) {
@@ -323,7 +323,7 @@ public class SmartFridgeService {
             Foodie foodie = foodieRepository.findByUsername(authFoodie.getUsername())
                     .orElseThrow(() -> new NoSuchElementException("Foodie not found!"));
 
-            String fridgeKey = REDIS_ENTITY + foodie.getUsername() + REDIS_RECIPES_PREFIX;
+            String fridgeKey = REDIS_KEY_PREFIX + foodie.getUsername() + REDIS_KEY_RECIPES_SUFFIX;
             try (Jedis jedis = jedisSentinelPool.getResource()) {
                 String suggestedRecipes = jedis.get(fridgeKey);
                 if (suggestedRecipes != null) {

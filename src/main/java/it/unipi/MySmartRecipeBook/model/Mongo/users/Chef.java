@@ -16,7 +16,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import java.util.List;
 
 /**
- * Represents a chef user in the system.
+ * Represents the core Recipe entity stored within the "recipe" MongoDB collection.
  */
 @Getter
 @Setter

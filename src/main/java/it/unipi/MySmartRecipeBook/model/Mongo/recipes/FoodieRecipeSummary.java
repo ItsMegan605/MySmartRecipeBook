@@ -10,7 +10,8 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import java.time.LocalDate;
 
 /**
- * Represents a summary of a recipe saved by a foodie.
+ * Represents a lightweight, embedded sub-document stored within the Foodie entity.
+ * This class implements the "partial embedding" pattern.
  */
 @Getter
 @Setter

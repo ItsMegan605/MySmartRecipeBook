@@ -7,8 +7,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * This model includes full recipe details along with
- * the chef who submitted it.
+ * Represents a lightweight, embedded sub-document stored within the Admin entity.
+ * It tracks the essential details of a recipe (along with its author) that has been submitted
+ * by a chef and is currently awaiting review and approval by the admin.
  */
 @Getter
 @Setter

@@ -71,14 +71,12 @@ public class Neo4jPopulator implements CommandLineRunner {
             return;
         }
 
-        //clear the graph
         System.out.println("Cleaning Neo4j");
         neo4jRepository.deleteAll();
         chefNeo4jRepository.deleteAll();
         ingredientNeo4jRepository.deleteAll();
 
         System.out.println("Starting Neo4j population");
-        //create ingredient node on neo4j
         System.out.println("Creating ingredient nodes");
 
         Set<String> ingredients;
@@ -93,7 +91,7 @@ public class Neo4jPopulator implements CommandLineRunner {
         }
         ingredientNeo4jRepository.saveAll(ingredientsNeo4j);
 
-        //create chef node excluding admin
+
         System.out.println("Creating chef nodes");
         List<ChefNeo4j> chefsNeo4j = new ArrayList<>();
         List<Chef> chefs = chefRepository.findAll();
@@ -111,12 +109,12 @@ public class Neo4jPopulator implements CommandLineRunner {
         }
         chefNeo4jRepository.saveAll(chefsNeo4j);
 
-        neo4jClient.query("CREATE INDEX chef_mongo_id IF NOT EXISTS FOR (c:Chef) ON (c.mongo_id)").run();
-        neo4jClient.query("CREATE INDEX ingredient_name IF NOT EXISTS FOR (i:Ingredient) ON (i.name)").run();
-        neo4jClient.query("CREATE INDEX recipe_mongo_id IF NOT EXISTS FOR (r:Recipe) ON (r.mongo_id)").run();
+        neo4jClient.query("CREATE INDEX chef_mongo_id_idx IF NOT EXISTS FOR (c:Chef) ON (c.mongo_id)").run();
+        neo4jClient.query("CREATE INDEX ingredient_name_idx IF NOT EXISTS FOR (i:Ingredient) ON (i.name)").run();
+        neo4jClient.query("CREATE INDEX recipe_mongo_id_idx IF NOT EXISTS FOR (r:Recipe) ON (r.mongo_id)").run();
 
         neo4jClient.query("CALL db.awaitIndexes()").run();
-        // get the recipe list and create the recipe node
+
         System.out.println("Creating recipe nodes");
 
         List<RecipeMongo> listRecipes = recipeRepository.findAll();
@@ -128,7 +126,7 @@ public class Neo4jPopulator implements CommandLineRunner {
                 recipeIngredients.add(ingredientName);
             }
 
-            neo4jRepository.createRecipe(recipe.getId(), recipe.getTitle(), recipe.getImageURL(),
+            neo4jRepository.createRecipe(recipe.getId(), recipe.getTitle(), recipe.getImageURL(), recipe.getCategory(),
                     recipe.getChef().getId(), recipeIngredients);
 
         }

@@ -13,7 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import java.util.List;
 
 /**
- * Represents the admin user in the system.
+ * Represents the Admin entity within the system, stored within the "chefs" MongoDB collection.
  */
 @Getter
 @Setter

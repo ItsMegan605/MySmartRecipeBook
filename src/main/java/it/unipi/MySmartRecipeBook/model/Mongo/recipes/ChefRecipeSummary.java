@@ -9,7 +9,8 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import java.time.LocalDateTime;
 
 /**
- * Represents a summary view of a chef's recipe.
+ * Represents a lightweight, embedded sub-document stored within the Chef entity.
+ * This class implements the "partial embedding" pattern.
  */
 @Getter
 @Setter

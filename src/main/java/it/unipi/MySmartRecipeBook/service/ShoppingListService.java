@@ -33,8 +33,8 @@ public class ShoppingListService {
         this.recipeNeo4jRepository = recipeNeo4jRepository;
     }
 
-    private static final String REDIS_ENTITY = "Foodie:";
-    private static final String REDIS_KEY_PREFIX = ":shoppingList";
+    private static final String REDIS_KEY_PREFIX = "Foodie:";
+    private static final String REDIS_KEY_SUFFIX = ":shoppingList";
 
     /**
      * Retrieves the shopping list of the authenticated foodie.
@@ -60,7 +60,7 @@ public class ShoppingListService {
      */
     private IngredientsListDTO returnShoppingList(String username) {
 
-        String key = REDIS_ENTITY + username + REDIS_KEY_PREFIX;
+        String key = REDIS_KEY_PREFIX + username + REDIS_KEY_SUFFIX;
 
         Set<String> ingredients;
         try (Jedis jedis = jedisSentinelPool.getResource()) {
@@ -97,7 +97,7 @@ public class ShoppingListService {
         ingredients.removeIf(ingredient -> !ingredientService.isValidIngredient(ingredient));
         ingredients.replaceAll(String::toLowerCase);
 
-        String key = REDIS_ENTITY + foodie.getUsername() + REDIS_KEY_PREFIX;
+        String key = REDIS_KEY_PREFIX + foodie.getUsername() + REDIS_KEY_SUFFIX;
 
         if (!ingredients.isEmpty()) {
             try (Jedis jedis = jedisSentinelPool.getResource()) {
@@ -130,7 +130,7 @@ public class ShoppingListService {
                 .orElseThrow(() -> new NoSuchElementException("Foodie not found!"));
 
         if(ingredientService.isValidIngredient(ingredient.toLowerCase())) {
-            String key = REDIS_ENTITY + foodie.getUsername() + REDIS_KEY_PREFIX;
+            String key = REDIS_KEY_PREFIX + foodie.getUsername() + REDIS_KEY_SUFFIX;
             try (Jedis jedis = jedisSentinelPool.getResource()) {
                 jedis.srem(key, ingredient.toLowerCase());
                 jedis.expire(key, 86400*15);

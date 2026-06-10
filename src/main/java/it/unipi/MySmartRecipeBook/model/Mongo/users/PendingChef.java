@@ -8,7 +8,7 @@ import lombok.Setter;
 import java.time.LocalDate;
 
 /**
- * Represents a chef that is pending approval before it's accepted by the admin
+ * Lightweight embedded entity representing a newly registered chef currently wait for the admin to approve its registration request.
  */
 @Getter
 @Setter

@@ -18,14 +18,16 @@ import java.util.List;
 @NoArgsConstructor
 public class GraphRecipeDTO {
 
-    String id;
-    String title;
+    private String id;
+    private String title;
 
     @JsonProperty("chef_id")
-    String chefId;
+    private String chefId;
 
     @JsonProperty("image_url")
-    String imgURL;
+    private String imgURL;
 
-    List<IngredientDTO> ingredients;
+    private String category;
+
+    private List<IngredientDTO> ingredients;
 }

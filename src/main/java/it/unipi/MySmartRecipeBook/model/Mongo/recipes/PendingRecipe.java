@@ -9,7 +9,9 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import java.time.LocalDateTime;
 
 /**
- * Model for a recipe submitted by a chef that is pending approval.
+ * Represents a lightweight, embedded sub-document stored within the Chef entity.
+ * It tracks the essential details of a recipe that has been submitted by the chef
+ * and is currently awaiting review and approval by the admin.
  */
 @Getter
 @Setter

@@ -7,7 +7,7 @@ import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 /**
- * Represents a reduced version of a Chef.
+ * A partially embedded projection of the Chef entity, storing only essential identity fields to optimize read performance and avoid secondary database lookups.
  */
 @Getter
 @Setter

@@ -82,7 +82,7 @@ public interface ChefRepository extends MongoRepository<Chef, String> {
      */
     @Aggregation(pipeline = {
 
-            "{ $match: { username: { $ne: 'admin' } } }",
+            "{ $match: { username: { $ne: 'admin' }, status: { $ne: 'pending' } } }",
 
             "{ $addFields: { " +
                     "   tot_saves: { $ifNull: ['$tot_saves', 0] }, " +

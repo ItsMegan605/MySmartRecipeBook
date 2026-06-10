@@ -160,6 +160,7 @@ public class RecipeUtilityFunctions {
 
         recipeNeo4j.setIngredients(ingredients);
         recipeNeo4j.setChefId(recipe.getChef().getId());
+        recipeNeo4j.setCategory(recipe.getCategory());
         recipeNeo4j.setImgURL(recipe.getImageURL());
 
         return recipeNeo4j;

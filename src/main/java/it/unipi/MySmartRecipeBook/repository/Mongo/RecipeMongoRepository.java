@@ -105,6 +105,7 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
      * @return list of TrendAnalyticsDTO
      */
     @Aggregation(pipeline = {
+            "{ $match: { status: { $ne: 'pending' } } }",
             "{ $addFields: { " +
                     "is_recent: { $gte: [ { $toDate: '$creation_date' }, ?0 ] }, " +
                     "is_previous: { $and: [ " +
@@ -148,7 +149,7 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
                     "recipeId: { $first: '$_id' }, " +
                     "title: { $first: '$title' }, " +
                     "chef: { $first: '$chef' }, " +
-                    "numSaves: { $first: '$num_saves' }, " +
+                    "num_saves: { $first: '$num_saves' }, " +
                     "imageURL: { $first: '$image_url' }" +
                     "} }",
             "{ $project: { " +
@@ -156,7 +157,7 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
                     "id: '$recipeId', " +
                     "title: 1, " +
                     "chef: 1, " +
-                    "numSaves: 1, " +
+                    "num_saves: 1, " +
                     "imageURL: 1" +
                     "} }"
     })

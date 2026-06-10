@@ -28,6 +28,8 @@ public class RecipeNeo4j {
     private String imageURL;
     //TODO: controllare se servono
 
+    private String category;
+
     //@Relationship(type = "USED_IN", direction = Relationship.Direction.INCOMING)
     private List<IngredientNeo4j> ingredients;
 
