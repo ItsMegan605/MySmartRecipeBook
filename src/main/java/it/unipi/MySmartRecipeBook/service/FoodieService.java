@@ -32,7 +32,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
-import static it.unipi.MySmartRecipeBook.utils.parameters.Parameters.FILTERED_INGREDIENTS;
 
 /**
  * Foodie service that handles foodie's business logic operations
@@ -405,6 +404,6 @@ public class FoodieService {
             throw new NoSuchElementException("Chef not found");
         }
 
-        return chefNeo4jRepository.findSimilarChefs(chefId, FILTERED_INGREDIENTS);
+        return chefNeo4jRepository.findSimilarChefs(chefId);
     }
 }

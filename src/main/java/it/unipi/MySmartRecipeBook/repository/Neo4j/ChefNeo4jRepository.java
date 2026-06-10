@@ -14,27 +14,25 @@ import java.util.List;
 public interface ChefNeo4jRepository extends Neo4jRepository<ChefNeo4j, String> {
 
     /**
-     * Finds similar chefs based on shared ingredients across their recipes.
-     * @param chefId the mongo_id of the target chef
-     * @return list of ChefInfoDTO
+     *
+     * @param targetMongoId
+     * @return
      */
-    @Query("MATCH (target:Chef {mongo_id: $chefId})-[:WROTE]->(r1:Recipe)-[:USES]->(i:Ingredient) " +
-            "WHERE NOT i.name IN $ignoredIngredients " +
-            "WITH DISTINCT target, i " +
-            "MATCH (i)-[:USED_IN]->(r2:Recipe)-[:WRITTEN_BY]->(other:Chef) " +
-            "WHERE target <> other " +
-            "WITH other, count(DISTINCT i) AS sharedIngredientsScore " +
-            "ORDER BY sharedIngredientsScore DESC " +
-            "LIMIT 3 " +
-            "RETURN other.mongo_id AS id, " +
-            "       other.name AS name, " +
-            "       other.surname AS surname")
-    List<ChefInfoDTO> findSimilarChefs(
-            @Param("chefId") String chefId,
-            @Param("ignoredIngredients") List<String> ignoredIngredients
-        );
-
-
+    @Query("""
+        MATCH (target:Chef {mongo_id: $targetMongoId})-[:WROTE]->(r1:Recipe)-[:USES]->(i:Ingredient)
+        WITH target, i, collect(DISTINCT r1.category) AS targetCategories
+        WHERE COUNT { (i)-[:USED_IN]->() } < 350
+        WITH DISTINCT target, i, targetCategories
+        MATCH (i)-[:USED_IN]->(r2:Recipe)-[:WRITTEN_BY]->(other:Chef)
+        WHERE target <> other AND r2.category IN targetCategories
+        WITH other, count(DISTINCT i) AS sharedIngredientsScore
+        ORDER BY sharedIngredientsScore DESC
+        LIMIT 3
+        RETURN other.mongo_id AS id, 
+               other.name AS name, 
+               other.surname AS surname
+        """)
+    List<ChefInfoDTO> findSimilarChefs(String targetMongoId);
 
     /**
      * Deletes a chef and all related recipes.
