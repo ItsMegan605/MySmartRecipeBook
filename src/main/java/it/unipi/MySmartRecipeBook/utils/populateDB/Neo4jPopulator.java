@@ -62,10 +62,9 @@ public class Neo4jPopulator implements CommandLineRunner {
     /**
      * Executes the Neo4j graph population script on application startup if enabled.
      * @param args command line arguments
-     * @throws Exception if a database operation fails
      */
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
 
         if(!doNeo4jPopulation){
             return;

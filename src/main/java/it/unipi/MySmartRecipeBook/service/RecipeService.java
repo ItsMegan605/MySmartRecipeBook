@@ -84,7 +84,6 @@ public class RecipeService {
         return buildSliceDto(matchingRecipes);
     }
 
-    // TODO: da rimuovere secondo me
     /**
      * Retrieves all the newest recipes published on the application. The result is paginated.
      * @param pageNumber the page number to retrieve

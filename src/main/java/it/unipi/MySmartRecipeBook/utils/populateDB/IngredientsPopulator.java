@@ -33,10 +33,9 @@ public class IngredientsPopulator implements CommandLineRunner {
      * Executes the Redis ingredients population script on application startup if enabled in
      * application properties
      * @param args command line arguments
-     * @throws Exception if an error occurs during file reading or Redis communication
      */
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         if (!doRedisPopulation) {
             return;
         }

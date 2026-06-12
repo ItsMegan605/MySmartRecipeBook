@@ -143,15 +143,17 @@ public class ShoppingListService {
      * Retrieves a list of suggested ingredients based on the user's current shopping list.
      * This method fetches the active shopping list, extracts the current ingredients,
      * and queries the Neo4j repository to find complementary or frequently associated items.
-     * A predefined filter ({@code FILTERED_INGREDIENTS}) is passed to the query to
-     * exclude specific items from the final suggestions.
-     * @return a list of {@link IngredientSuggestionDTO} containing the recommended ingredients
+     * To avoid redundant suggestions, both the items already present in the shopping list
+     * and a predefined set of filtered items ({@code FILTERED_INGREDIENTS}) are combined
+     * and passed to the query to be excluded from the final results.
+     * * @return a list of {@link IngredientSuggestionDTO} containing the recommended ingredients
      */
     public List<IngredientSuggestionDTO> getSuggestedIngredients() {
 
         IngredientsListDTO ingredients = getShoppingList();
         List<String> ingredientsList = new ArrayList<>(ingredients.getIngredients());
-        return recipeNeo4jRepository.findSuggestedIngredientsForList(ingredientsList, FILTERED_INGREDIENTS);
-
+        List<String> ingredientsToRemove = new ArrayList<>(ingredients.getIngredients());
+        ingredientsToRemove.addAll(FILTERED_INGREDIENTS);
+        return recipeNeo4jRepository.findSuggestedIngredientsForList(ingredientsList,ingredientsToRemove);
     }
 }
