@@ -162,13 +162,12 @@ public class AdminController {
     /**
      * Retrieves the statistical data regarding the number of new foodies registered over the past months.
      * @return a {@link ResponseEntity} containing a list of {@link YearAnalyticsDTO} representing the monthly registration statistics
-     * @see AdminService#getMonthlyFoodies()
      */
-    @GetMapping ("/monthlyFoodies")
+    @GetMapping ("/monthlyFoodies/{year}")
     @Operation(summary = "Get monthly user registration analytics", description = "Provides statistical data on the number of new foodies registered over the past months.")
     @ApiResponse(responseCode = "200")
-    public ResponseEntity<List<YearAnalyticsDTO>> getMonthlyFoodies() {
-        List<YearAnalyticsDTO> stats = adminService.getMonthlyFoodies();
+    public ResponseEntity<YearAnalyticsDTO> getMonthlyFoodies(@PathVariable int year) {
+        YearAnalyticsDTO stats = adminService.getMonthlyFoodies(year);
         return ResponseEntity.ok(stats);
     }
 

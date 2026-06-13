@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import it.unipi.MySmartRecipeBook.dto.TrendAnalyticsDTO;
 import java.time.LocalDateTime;
+import java.time.Year;
 import java.util.*;
 
 /**
@@ -403,8 +404,13 @@ public class AdminService {
      * The data is grouped by year and includes a breakdown of new registrations per month.
      * @return a list of {@link YearAnalyticsDTO} containing the registration counts grouped by year and month
      */
-    public List<YearAnalyticsDTO> getMonthlyFoodies() {
-        return foodieRepository.getMonthlyFoodiesStats();
+    public YearAnalyticsDTO getMonthlyFoodies(int year) {
+
+        int currentYear = Year.now().getValue();
+        if(year >= currentYear || year < 2015) {
+            throw new IllegalArgumentException("Invalid year");
+        }
+        return foodieRepository.getMonthlyFoodiesStats(year);
     }
 
 

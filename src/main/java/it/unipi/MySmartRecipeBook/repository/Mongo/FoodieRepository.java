@@ -82,6 +82,7 @@ public interface FoodieRepository extends MongoRepository<Foodie, String> {
      * @return list of YearAnalyticsDTO
      */
     @Aggregation(pipeline = {
+            "{ $match: { $expr: { $eq: [{ $year: '$registration_date' }, ?0] } } }",
             "{ $group: { " +
                     "        _id: { $dateToString: { format: '%Y-%m', date: '$registration_date' } }, " +
                     "        year: { $first: { $dateToString: { format: '%Y', date: '$registration_date' } } }, " +
@@ -101,10 +102,8 @@ public interface FoodieRepository extends MongoRepository<Foodie, String> {
                     "        year: { $toInt: '$_id' }, " +
                     "        totalRegisteredFoodies: 1, " +
                     "        monthAnalyticsDTOList: 1 " +
-                    "} }",
-
-            "{$sort :  {'year' :  -1}}"
+                    "} }"
     })
-    List<YearAnalyticsDTO> getMonthlyFoodiesStats();
+    YearAnalyticsDTO getMonthlyFoodiesStats(int year);
 
 }

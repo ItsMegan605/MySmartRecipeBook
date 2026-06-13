@@ -43,10 +43,10 @@ public interface ChefRepository extends MongoRepository<Chef, String> {
 
     /**
      * Checks if a chef exists by ID.
-     * @param id chef ID
+     * @param chefId chef ID
      * @return true if exists
      */
-    boolean existsById(String id);
+    boolean existsById(String chefId);
 
     /**
      * Checks if a chef exists by username.
@@ -107,8 +107,7 @@ public interface ChefRepository extends MongoRepository<Chef, String> {
             "{ $sort: { score: -1 } }",
 
             "{ $setWindowFields: { sortBy: { score: -1 }, output: { rank: { $rank: {} } } } }",
-
-            // MODIFICA QUI: Sostituito username con name e surname
+            "{ $limit: 5 }",
             "{ $project: { rank: 1, name: 1, surname: 1, score: 1 } }"
     })
     List<ChefRankAnalyticsDTO> chefBayesianRanking();

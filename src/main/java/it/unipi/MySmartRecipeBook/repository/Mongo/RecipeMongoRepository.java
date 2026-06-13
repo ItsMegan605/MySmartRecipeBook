@@ -118,7 +118,6 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
                     "recentCount: { $sum: { $cond: [ '$is_recent', 1, 0 ] } }, " +
                     "previousCount: { $sum: { $cond: [ '$is_previous', 1, 0 ] } } " +
                     "} }",
-            "{ $addFields: { totalCount: { $add: [ '$recentCount', '$previousCount' ] } } }",
 
             "{ $addFields: { " +
                     "growthRate: { $cond: [ " +
@@ -126,8 +125,7 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
                     "{ $divide: [ { $subtract: [ '$recentCount', '$previousCount' ] }, '$previousCount' ] }, " +
                     "null " +
                     "] } " +
-                    "} }",
-            "{ $project: { totalCount: 0 } }"
+                    "} }"
     })
     List<TrendAnalyticsDTO> findCategoryTrend(LocalDateTime recentDate, LocalDateTime previousDate);
 
@@ -145,20 +143,20 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
             "{ $match: { status: 'APPROVED' } }",
             "{ $sort: { num_saves: -1 } }",
             "{ $group: { " +
-                    "_id: '$category', " +
-                    "recipeId: { $first: '$_id' }, " +
-                    "title: { $first: '$title' }, " +
-                    "chef: { $first: '$chef' }, " +
-                    "num_saves: { $first: '$num_saves' }, " +
-                    "imageURL: { $first: '$image_url' }" +
+                    "   _id: '$category', " +
+                    "   recipeId: { $first: '$_id' }, " +
+                    "   title: { $first: '$title' }, " +
+                    "   chef: { $first: '$chef' }, " +
+                    "   num_saves: { $first: '$num_saves' }, " +
+                    "   image_url: { $first: '$image_url' }" +
                     "} }",
             "{ $project: { " +
-                    "category: '$_id', " +
-                    "id: '$recipeId', " +
-                    "title: 1, " +
-                    "chef: 1, " +
-                    "num_saves: 1, " +
-                    "imageURL: 1" +
+                    "   _id: '$recipeId', " +
+                    "   category: '$_id', " +
+                    "   title: 1, " +
+                    "   chef: 1, " +
+                    "   num_saves: 1, " +
+                    "   image_url: 1" +
                     "} }"
     })
     List<RecipeMongo> findMostSavedRecipePerCategory();
