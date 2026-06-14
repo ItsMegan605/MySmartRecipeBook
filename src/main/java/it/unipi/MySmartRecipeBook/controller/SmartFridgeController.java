@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * Controller for the smart Fridge function
+ * REST Controller for managing the user's Smart Fridge.
  */
 @RestController
 @RequestMapping("/api/fridge")
@@ -31,56 +31,76 @@ public class SmartFridgeController {
         this.smartFridgeService = smartFridgeService;
     }
 
+
     /**
-     * Method to get the smart fridge and its content
-     * @see SmartFridgeService#getSmartFridge() 
-     * @return the Smart fridge contents
+     * Retrieves the current user's smart fridge and its contents.
+     * @return a {@link ResponseEntity} containing an {@link IngredientsListDTO} with the smart fridge contents
+     * @see SmartFridgeService#getSmartFridge()
      */
     @GetMapping("/get")
-    @Operation(summary = "Get the smart fridge")
-    @ApiResponse(responseCode = "200")
+    @Operation(summary = "Retrieve smart fridge", description = "Fetches the currently authenticated user's smart fridge and its ingredient contents.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Smart fridge successfully retrieved"),
+            @ApiResponse(responseCode = "404", description = "Foodie not found")
+    })
     public ResponseEntity<IngredientsListDTO> getList() {
 
         IngredientsListDTO ingredientsListDTO = smartFridgeService.getSmartFridge();
         return ResponseEntity.ok(ingredientsListDTO);
     }
-    
+
+
     /**
-     * Post Method to add ingredients to the smart fridge
-     * @see SmartFridgeService#addIngredients(List) 
-     * @return the Smart fridge and the new added ingredients
+     * Adds a list of ingredients to the user's smart fridge.
+     * @param ingredients a {@link List} of strings representing the ingredients to be added
+     * @return a {@link ResponseEntity} containing an {@link IngredientsListDTO} with the updated smart fridge contents
+     * @see SmartFridgeService#addIngredients(List)
      */
     @PostMapping("/add")
-    @Operation(summary = "Add ingredients to the fridge")
-    @ApiResponse(responseCode = "200")
-    public ResponseEntity<?> addIngredient(@RequestBody List<String> ingredients) {
+    @Operation(summary = "Add ingredients", description = "Adds one or more ingredients to the user's smart fridge.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ingredients successfully added"),
+            @ApiResponse(responseCode = "400", description = "Invalid ingredient list provided"),
+            @ApiResponse(responseCode = "404", description = "Foodie not found")
+    })
+    public ResponseEntity<IngredientsListDTO> addIngredient(@RequestBody List<String> ingredients) {
         IngredientsListDTO ingredientsListDTO = smartFridgeService.addIngredients(ingredients);
         return ResponseEntity.ok().body(ingredientsListDTO);
     }
 
+
     /**
-     * Post Method to remove ingredients from the smart fridge 
-     * @see SmartFridgeService#removeIngredient(String) 
-     * @return returns the Smart fridge without the removed ingredients.
+     * Removes a specific ingredient from the user's smart fridge.
+     * @param ingredient a {@link String} representing the ingredient to remove
+     * @return a {@link ResponseEntity} containing an {@link IngredientsListDTO} with the updated smart fridge contents
+     * @see SmartFridgeService#removeIngredient(String)
      */
     @DeleteMapping("/remove")
-    @Operation(summary = "Remove ingredients from the fridge")
-    @ApiResponse(responseCode = "200")
-    public ResponseEntity<?> removeIngredient(@RequestBody String ingredient ) {
+    @Operation(summary = "Remove ingredient", description = "Removes a specific ingredient from the user's smart fridge.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ingredient successfully removed"),
+            @ApiResponse(responseCode = "400", description = "Invalid ingredient provided"),
+            @ApiResponse(responseCode = "404", description = "Ingredient not found in the fridge or Foodie not found")
+    })
+    public ResponseEntity<IngredientsListDTO> removeIngredient(@RequestBody String ingredient ) {
         IngredientsListDTO ingredientsListDTO = smartFridgeService.removeIngredient(ingredient);
         return ResponseEntity.ok(ingredientsListDTO);
     }
 
+
     /**
-     * Get Method to get recommendations when we add ingredients, and we want a recipe suggestion
+     * Retrieves a paginated list of recipe recommendations based on the current contents of the user's smart fridge.
+     * @param pageNumber the requested page number
+     * @return a {@link ResponseEntity} containing a list of {@link RecipeSuggestionDTO} with the recommended recipes, or no content if none are found
      * @see SmartFridgeService#getRecommendations(String, int)
-     * @return the Smart fridge's recipes suggestions
      */
     @GetMapping("/recommendations/{pageNumber}")
-    @Operation(summary = "Get recipe recommendations based on fridge contents")
+    @Operation(summary = "Get recipe recommendations", description = "Retrieves a paginated list of suggested recipes that can be made using the ingredients currently stored in the smart fridge.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "204")
+            @ApiResponse(responseCode = "200", description = "Recommendations successfully retrieved"),
+            @ApiResponse(responseCode = "204", description = "No recipe recommendations found for the current fridge contents"),
+            @ApiResponse(responseCode = "400", description = "Invalid page number or not enough ingredients in the fridge"),
+            @ApiResponse(responseCode = "404", description = "Foodie not found")
     })
     public ResponseEntity<SliceRecipeDTO<RecipeSuggestionDTO>> getRecommendations(@PathVariable int pageNumber) {
         UserPrincipal authFoodie = (UserPrincipal) SecurityContextHolder.getContext()
@@ -95,19 +115,22 @@ public class SmartFridgeController {
         return ResponseEntity.ok(recipes);
     }
 
+
     /**
-     * Get method to retrieve a recipe's information from the fridge
-     * @param id identifier of the requested recipe
+     * Retrieves detailed information about a specific recipe suggested by the smart fridge.
+     * @param id the unique identifier of the requested recipe
+     * @return a {@link ResponseEntity} containing a {@link ShowRecipeDTO} with the recipe details
      * @see SmartFridgeService#getFridgeRecipeById(String)
-     * @return a ResponseEntity. Ok with the recipe details
      */
     @GetMapping("/recipe/{id}")
-    @Operation(summary = "Get recipe details from the fridge")
-    @ApiResponse(responseCode = "200")
+    @Operation(summary = "Get recipe details", description = "Retrieves the full details of a specific recipe recommended by the smart fridge.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Recipe details successfully retrieved"),
+            @ApiResponse(responseCode = "404", description = "Recipe not found")
+    })
     public ResponseEntity<ShowRecipeDTO> getRecipe(@PathVariable String id){
         ShowRecipeDTO recipe = smartFridgeService.getFridgeRecipeById(id);
         return ResponseEntity.ok(recipe);
     }
-
 }
 

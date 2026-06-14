@@ -2,6 +2,7 @@ package it.unipi.MySmartRecipeBook.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.unipi.MySmartRecipeBook.dto.IngredientSuggestionDTO;
 import it.unipi.MySmartRecipeBook.dto.IngredientsListDTO;
@@ -12,8 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * Rest Controller for the Shopping List
- * General Endpoint: /api/shopping
+ * REST Controller for managing the user's shopping list.
  */
 @RestController
 @RequestMapping("/api/shopping")
@@ -26,45 +26,57 @@ public class ShoppingListController {
         this.shoppingListService = shoppingListService;
     }
 
+
     /**
-     * Get Method to get the shopping list as foodie
+     * Retrieves the shopping list of the currently authenticated user.
+     * @return a {@link ResponseEntity} containing an {@link IngredientsListDTO} with the shopping list and its contents
      * @see ShoppingListService#getShoppingList()
-     * @return The shopping list and its contents
      */
     @GetMapping("/get")
-    @Operation(summary = "Get shopping list", description = "Retrieves the current user's shopping list.")
-    @ApiResponse(responseCode = "200")
+    @Operation(summary = "Retrieve shopping list", description = "Fetches the currently authenticated user's shopping list and its contents.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Shopping list successfully retrieved"),
+            @ApiResponse(responseCode = "404", description = "Foodie not found")
+    })
     public ResponseEntity<IngredientsListDTO> getList() {
 
         IngredientsListDTO ingredientsListDTO = shoppingListService.getShoppingList();
         return ResponseEntity.ok(ingredientsListDTO);
     }
 
+
     /**
-     * Post method to add items to the shopping list
-     * @param items: items given by a user as a list of strings, more than one item
-     *             can be added in one time
+     * Adds one or more ingredients to the user's shopping list.
+     * @param items a {@link List} of strings representing the ingredients to be added
+     * @return a {@link ResponseEntity} containing an {@link IngredientsListDTO} with the updated shopping list
      * @see ShoppingListService#addIngredients(List)
-     * @return The result of the shopping list with the new items
      */
     @PostMapping("/add")
-    @Operation(summary = "Add ingredients", description = "Adds ingredients to the shopping list.")
-    @ApiResponse(responseCode = "200")
-    public ResponseEntity<?> addItems(@RequestBody List<String> items) {
+    @Operation(summary = "Add ingredients", description = "Adds a list of provided ingredients to the user's shopping list.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ingredients successfully added"),
+            @ApiResponse(responseCode = "400", description = "Invalid ingredient list provided"),
+            @ApiResponse(responseCode = "404", description = "Foodie not found")
+    })
+    public ResponseEntity<IngredientsListDTO> addItems(@RequestBody List<String> items) {
 
         IngredientsListDTO list = shoppingListService.addIngredients(items);
         return ResponseEntity.ok(list);
     }
 
+
     /**
-     * Method to remove an item from the shopping list.
-     * @param ingredient Give a single ingredient as a string to remove it
-     * @return The result of the shopping list without the removed items
+     * Removes a specific ingredient from the user's shopping list.
+     * @param ingredient a {@link String} representing the single ingredient to remove
+     * @return a {@link ResponseEntity} containing an {@link IngredientsListDTO} with the updated shopping list
      * @see ShoppingListService#removeIngredient(String)
      */
     @DeleteMapping("/remove")
-    @Operation(summary = "Remove ingredients", description = "Removes ingredients to the shopping list.")
-    @ApiResponse(responseCode = "200")
+    @Operation(summary = "Remove ingredient", description = "Removes a specific ingredient from the user's shopping list.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ingredient successfully removed"),
+            @ApiResponse(responseCode = "404", description = "Ingredient not found in the shopping list")
+    })
     public ResponseEntity<IngredientsListDTO> removeItem(@RequestBody String ingredient) {
 
         IngredientsListDTO list = shoppingListService.removeIngredient(ingredient);
@@ -73,12 +85,16 @@ public class ShoppingListController {
 
 
     /**
-     * Retrieves a list of suggested similar ingredients.
-     * @return a {@link ResponseEntity} containing a list of {@link IngredientSuggestionDTO} representing the suggested ingredients
+     * Retrieves a list of suggested similar or complementary ingredients.
+     * @return a {@link ResponseEntity} containing a {@link List} of {@link IngredientSuggestionDTO} representing the suggested ingredients
+     * @see ShoppingListService#getSuggestedIngredients()
      */
     @GetMapping("/suggestedIngredients")
-    @Operation(summary = "suggests similar ingredients")
-    @ApiResponse(responseCode = "200")
+    @Operation(summary = "Suggest ingredients", description = "Retrieves a list of suggested ingredients based on the user's current shopping list or preferences.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Suggested ingredients successfully retrieved"),
+            @ApiResponse(responseCode = "404", description = "Foodie not found")
+    })
     public ResponseEntity<List<IngredientSuggestionDTO>> suggestIngredient() {
         List<IngredientSuggestionDTO> ingredientList = shoppingListService.getSuggestedIngredients();
         return ResponseEntity.ok(ingredientList);

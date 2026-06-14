@@ -37,10 +37,6 @@ public class ChefUtilityFunctions {
         chef.setName(newChef.getName());
         chef.setSurname(newChef.getSurname());
 
-        chef.setEmail(newChef.getEmail());
-
-        chef.setBirthdate(newChef.getBirthdate());
-
         return chef;
     }
 
@@ -80,39 +76,6 @@ public class ChefUtilityFunctions {
                 chef.getBirthdate()
         );
     }
-
-    /**
-     * Checks if a chef registration request already exists based on personal data or username.
-     * @param targetChef the existing pending chef
-     * @param chef the new pending chef
-     * @return true if a duplicate exists, false otherwise
-     */
-    public boolean chefAlreadyInserted(PendingChef targetChef, PendingChef chef) {
-
-        boolean sameRequest = targetChef.getName().equals(chef.getName()) &&
-                targetChef.getSurname().equals(chef.getSurname()) &&
-                targetChef.getBirthdate().equals(chef.getBirthdate());
-
-        boolean sameUsername = targetChef.getUsername().equals(chef.getUsername());
-        return sameRequest || sameUsername;
-    }
-
-    /**
-     * Converts an approved PendingChef into a final Chef entity.
-     * @param chef the pending chef
-     * @return the final Chef entity
-     */
-    public Chef pendingChefToChef (PendingChef chef){
-
-        Chef chefMongo = new Chef();
-        chefMongo.setUsername(chef.getUsername());
-        chefMongo.setName(chef.getName());
-        chefMongo.setSurname(chef.getSurname());
-        chefMongo.setEmail(chef.getEmail());
-        chefMongo.setBirthdate(chef.getBirthdate());
-        return chefMongo;
-    }
-
 
     /**
      * Converts a list of PendingChef entities into a list of PendingChefDTOs.

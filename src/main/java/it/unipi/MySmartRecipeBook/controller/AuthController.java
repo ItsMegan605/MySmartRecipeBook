@@ -17,7 +17,7 @@ import java.time.LocalDate;
 import java.time.Period;
 
 /**
- * Authentication controller
+ * REST Controller for user authentication and registration.
  */
 @RestController
 @RequestMapping("/api/auth")
@@ -38,10 +38,11 @@ public class AuthController {
      * @see AuthService#registerChef(RegisteredUserDTO)
      */
     @PostMapping("/register/chef")
-    @Operation(summary = "Register a new chef")
+    @Operation(summary = "Register a new chef", description = "Submits a registration request for a new chef account. The account remains pending until approved by the admin.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "400")
+            @ApiResponse(responseCode = "200", description = "Registration request successfully submitted"),
+            @ApiResponse(responseCode = "400", description = "Invalid registration data or age constraint violated"),
+            @ApiResponse(responseCode = "409", description = "Username already taken")
     })
     public ResponseEntity<String> registerChef (@Valid @RequestBody RegisteredUserDTO registrationDTO){
 
@@ -61,10 +62,11 @@ public class AuthController {
      * @see AuthService#registerFoodie(RegisteredUserDTO)
      */
     @PostMapping("/register/foodie")
-    @Operation(summary = "Register a new foodie")
+    @Operation(summary = "Register a new foodie", description = "Registers a new foodie in the application.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "400")
+            @ApiResponse(responseCode = "200", description = "Foodie successfully registered"),
+            @ApiResponse(responseCode = "400", description = "Invalid registration data or age constraint violated"),
+            @ApiResponse(responseCode = "409", description = "Username already taken")
     })
     public ResponseEntity<String> registerFoodie (@Valid @RequestBody RegisteredUserDTO registrationDTO){
 
@@ -83,8 +85,12 @@ public class AuthController {
      * @see AuthService#authenticateUser(LoginRequestDTO)
      */
     @PostMapping("/login")
-    @Operation(summary = "User login")
-    @ApiResponse(responseCode = "200")
+    @Operation(summary = "User login", description = "Authenticates a user with their credentials and returns a JWT token for accessing secured endpoints.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Successfully authenticated and JWT token generated"),
+            @ApiResponse(responseCode = "400", description = "Invalid request format"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - Invalid credentials")
+    })
     public ResponseEntity<JwtResponseDTO> login (@Valid @RequestBody LoginRequestDTO request){
 
         return ResponseEntity.ok(authService.authenticateUser(request));

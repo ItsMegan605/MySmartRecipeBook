@@ -18,7 +18,7 @@ import java.time.LocalDate;
 import java.time.Period;
 
 /**
- * Chef's controller
+ * REST Controller for managing Chef profiles and their recipe operations.
  */
 @RestController
 @RequestMapping("/api/chefs")
@@ -40,7 +40,10 @@ public class ChefController {
      */
     @GetMapping("/info")
     @Operation(summary = "Retrieve the chef's personal information")
-    @ApiResponse(responseCode = "200")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Information successfully retrieved"),
+            @ApiResponse(responseCode = "404", description = "Chef not found or not approved")
+    })
     public ResponseEntity<RegisteredUserInfoDTO> getInformation() {
 
         return ResponseEntity.ok(chefService.getByUsername());
@@ -57,8 +60,9 @@ public class ChefController {
     @PostMapping("/changeInfo")
     @Operation(summary = "Change chef's information")
     @ApiResponses({
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "400")
+            @ApiResponse(responseCode = "200", description = "Profile successfully updated"),
+            @ApiResponse(responseCode = "400", description = "Invalid input parameters or age constraint violated"),
+            @ApiResponse(responseCode = "404", description = "Chef not found")
     })
     public ResponseEntity<RegisteredUserInfoDTO> updateInformation (@Valid @RequestBody UpdateChefDTO updates){
 
@@ -75,7 +79,10 @@ public class ChefController {
      */
     @DeleteMapping("/deleteProfile")
     @Operation(summary = "Delete chef's profile")
-    @ApiResponse(responseCode = "200")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Profile successfully deleted"),
+            @ApiResponse(responseCode = "404", description = "Chef not found")
+    })
     public ResponseEntity<String> deleteProfile() {
 
         chefService.deleteChef();
@@ -92,14 +99,16 @@ public class ChefController {
     @PostMapping("/addNewRecipe")
     @Operation(summary = "Submit a new recipe")
     @ApiResponses({
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "400")
+            @ApiResponse(responseCode = "200", description = "Recipe successfully submitted for approval"),
+            @ApiResponse(responseCode = "400", description = "Invalid recipe data, missing fields, or recipe already exists"),
+            @ApiResponse(responseCode = "404", description = "Chef or Admin not found")
     })
     public ResponseEntity<PendingRecipeChefDTO> saveRecipe (@Valid @RequestBody CreateRecipeDTO recipeDTO){
 
         PendingRecipeChefDTO recipe = chefService.createRecipe(recipeDTO);
         return ResponseEntity.ok(recipe);
     }
+
 
     /**
      * Retrieves a paginated list of the chef's recipes that are currently waiting for approval.
@@ -109,7 +118,11 @@ public class ChefController {
      */
     @GetMapping("/showWaiting/{pageNumber}")
     @Operation(summary = "Show chef's pending recipes")
-    @ApiResponse(responseCode = "200")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Pending recipes successfully retrieved"),
+            @ApiResponse(responseCode = "400", description = "Invalid page number"),
+            @ApiResponse(responseCode = "404", description = "Chef not found")
+    })
     public ResponseEntity<SliceRecipeDTO<PendingRecipeChefDTO>> showPendingRecipes (@PathVariable int pageNumber){
         SliceRecipeDTO<PendingRecipeChefDTO> recipeList = chefService.showPendingRecipes(pageNumber);
         return ResponseEntity.ok(recipeList);
@@ -124,7 +137,10 @@ public class ChefController {
      */
     @DeleteMapping("/removeWaiting/{id}")
     @Operation(summary = "Remove a pending recipe")
-    @ApiResponse(responseCode = "200")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Pending recipe successfully removed"),
+            @ApiResponse(responseCode = "404", description = "Recipe not found, not in PENDING state, or does not belong to the chef")
+    })
     public ResponseEntity<String> removeRecipe (@PathVariable("id") String recipeId){
 
         chefService.removeRecipe(recipeId);
@@ -140,7 +156,10 @@ public class ChefController {
      */
     @DeleteMapping("/deleteRecipe/{id}")
     @Operation(summary = "Delete an already approved recipe")
-    @ApiResponse(responseCode = "200")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Approved recipe successfully deleted"),
+            @ApiResponse(responseCode = "404", description = "Recipe not found or does not belong to the chef")
+    })
     public ResponseEntity<String> deleteRecipe (@PathVariable("id") String recipeId){
 
         chefService.deleteRecipe(recipeId);
@@ -156,8 +175,12 @@ public class ChefController {
      */
     @GetMapping("/show/{pageNumber}")
     @Operation(summary = "Show published recipes")
-    @ApiResponse(responseCode = "200")
-    public ResponseEntity<SliceRecipeDTO<ChefPreviewRecipeDTO>> showRecipe (@PathVariable int pageNumber){
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Published recipes successfully retrieved"),
+            @ApiResponse(responseCode = "400", description = "Invalid page number"),
+            @ApiResponse(responseCode = "404", description = "Chef not found")
+    })
+    public ResponseEntity<SliceRecipeDTO<ChefPreviewRecipeDTO>> showRecipes (@PathVariable int pageNumber){
         SliceRecipeDTO<ChefPreviewRecipeDTO> recipeList = chefService.showRecipes(pageNumber);
         return ResponseEntity.ok(recipeList);
     }
@@ -171,22 +194,29 @@ public class ChefController {
      */
     @GetMapping("/popular/{pageNumber}")
     @Operation(summary = "Show popular recipes")
-    @ApiResponse(responseCode = "200")
-    public ResponseEntity<SliceRecipeDTO<ChefPreviewRecipeDTO>> popularRecipe (@PathVariable int pageNumber){
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Popular recipes successfully retrieved"),
+            @ApiResponse(responseCode = "400", description = "Invalid page number"),
+            @ApiResponse(responseCode = "404", description = "Chef not found")
+    })
+    public ResponseEntity<SliceRecipeDTO<ChefPreviewRecipeDTO>> showPopularRecipes (@PathVariable int pageNumber){
         SliceRecipeDTO<ChefPreviewRecipeDTO> recipeList = chefService.showPopularRecipes(pageNumber);
         return ResponseEntity.ok(recipeList);
     }
 
-
+    // TODO: modifica endpoint e testa con e senza pending
     /**
-     * Retrieves the detailed information about a specific pending recipe.
-     * @param recipeId the unique identifier of the pending recipe
-     * @return a {@link ResponseEntity} containing a {@link ShowRecipeDTO} with the details of the specific pending recipe
+     * Retrieves the detailed information about a specific chef's recipe.
+     * @param recipeId the unique identifier of the recipe
+     * @return a {@link ResponseEntity} containing a {@link ShowRecipeDTO} with the details of the specific recipe
      * @see ChefService#getRecipeDetails(String)
      */
-    @GetMapping("/details/pending/{recipeId}")
-    @Operation(summary = "Get pending recipe details")
-    @ApiResponse(responseCode = "200")
+    @GetMapping("/details/{recipeId}")
+    @Operation(summary = "Get recipe details", description = "Retrieves the full details of a specific recipe belonging to the authenticated chef.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Recipe details successfully retrieved"),
+            @ApiResponse(responseCode = "404", description = "Recipe not found or does not belong to the chef")
+    })
     public ResponseEntity<ShowRecipeDTO> getRecipeDetails (@PathVariable String recipeId){
         ShowRecipeDTO recipe = chefService.getRecipeDetails(recipeId);
         return ResponseEntity.ok(recipe);

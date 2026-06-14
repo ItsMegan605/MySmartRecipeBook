@@ -1,6 +1,7 @@
 package it.unipi.MySmartRecipeBook.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.unipi.MySmartRecipeBook.service.IngredientService;
 import org.springframework.http.ResponseEntity;
@@ -21,16 +22,19 @@ public class IngredientController {
     private final IngredientService ingredientService;
 
     public IngredientController(IngredientService ingredientService) {
+
         this.ingredientService = ingredientService;
     }
 
+
     /**
-     * Retrieves the dictionary of allowed ingredients for the frontend UI.
-     * * @return a ResponseEntity containing the set of allowed ingredients
+     * Retrieves the complete set of allowed ingredients available in the application.
+     * @return a {@link ResponseEntity} containing a {@link Set} of strings representing the allowed ingredients
+     * @see IngredientService#getAllAllowedIngredients()
      */
     @GetMapping("/allowedIngredients")
-    @Operation(summary = "Allowed ingredients", description = "Returns all ingredients allowed in the application")
-
+    @Operation(summary = "Allowed ingredients", description = "Retrieves the complete list of allowed ingredients available in the application")
+    @ApiResponse(responseCode = "200")
     public ResponseEntity<Set<String>> getAllAllowedIngredients() {
         Set<String> allowedIngredients = ingredientService.getAllAllowedIngredients();
         return ResponseEntity.ok(allowedIngredients);

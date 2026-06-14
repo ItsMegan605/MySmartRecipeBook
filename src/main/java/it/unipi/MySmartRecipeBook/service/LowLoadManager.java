@@ -178,6 +178,7 @@ public class LowLoadManager {
         }
         catch (Exception e){
             System.err.println("Error occurred while executing the task");
+            taskQueue.add(task);
         }
     }
 

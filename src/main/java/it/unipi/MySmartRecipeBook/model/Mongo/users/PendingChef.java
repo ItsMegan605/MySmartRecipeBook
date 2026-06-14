@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
-
 /**
  * Lightweight embedded entity representing a newly registered chef currently wait for the admin to approve its registration request.
  */
@@ -23,10 +21,5 @@ public class PendingChef {
     private String name;
 
     private String surname;
-
-    private String email;
-
-    private LocalDate birthdate;
-
 
 }

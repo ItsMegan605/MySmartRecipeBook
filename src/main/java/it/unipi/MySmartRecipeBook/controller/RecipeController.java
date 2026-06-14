@@ -11,9 +11,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-
 /**
- * Recipe's Controller
+ * REST Controller for viewing and searching recipes with public access.
  */
 @RestController
 @RequestMapping("/api/recipes")
@@ -23,19 +22,21 @@ public class RecipeController {
     private final RecipeService recipeService;
 
     public RecipeController(RecipeService recipeService) {
+
         this.recipeService = recipeService;
     }
 
+
     /**
-     * Shows all the details of a specified recipe.
-     * @param id user id
+     * Retrieves the detailed information of a specified recipe.
+     * @param id the unique identifier of the target recipe
+     * @return a {@link ResponseEntity} containing a {@link ShowRecipeDTO} with the recipe's details
      * @see RecipeService#getRecipeById(String)
-     * @return ResponseEntity ok message 
      */
     @GetMapping("/{id}")
-    @Operation(summary = "Get a recipe's details", description = "gives the recipe's details from its ID")
+    @Operation(summary = "Get recipe's details", description = "Retrieves the full details of a specific recipe using its unique id")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Recipe found"),
+            @ApiResponse(responseCode = "200", description = "Recipe details successfully retrieved"),
             @ApiResponse(responseCode = "404", description = "Recipe not found")
     })
     public ResponseEntity<ShowRecipeDTO> getRecipe (@PathVariable String id) {
@@ -44,66 +45,85 @@ public class RecipeController {
         return ResponseEntity.ok(standardRecipeDTO);
     }
 
+
+    // TODO: cambio endpoint
     /**
-     * Function to search a recipe by title in the home page (the research will be done searching sub-strings).
-     * Five recipes at a time will be shown
-     * @param title - recipe title
-     * @param pageNumber - number of the page
-     * @see RecipeService#getRecipeByTitle(String, int) 
-     * @return ResponseEntity ok message
+     * Searches for recipes by title (using substring matching) to display on the home page.
+     * Returns a paginated list with five recipes per page.
+     * @param title the substring to search for within recipe titles
+     * @param pageNumber the requested page number for pagination
+     * @return a {@link ResponseEntity} containing a list of {@link UserPreviewRecipeDTO} with the paginated search results
+     * @see RecipeService#getRecipeByTitle(String, int)
      */
-    @GetMapping("/search")
-    @Operation(summary = "Search recipes by title", description = "Searches for recipes containing the specified string in the title. Returns 5 results per page.")
-    @ApiResponse(responseCode = "200")
-    public ResponseEntity<SliceRecipeDTO<UserPreviewRecipeDTO>> getRecipeByTitle(@RequestParam String title, @RequestParam(defaultValue = "1") int pageNumber){
+    @GetMapping("/search/{title}/{pageNumber}")
+    @Operation(summary = "Search recipes by title", description = "Searches for recipes containing the specified string in their title. Returns 5 results per page.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Recipes successfully retrieved"),
+            @ApiResponse(responseCode = "400", description = "Invalid page number or search title")
+    })
+    public ResponseEntity<SliceRecipeDTO<UserPreviewRecipeDTO>> getRecipeByTitle(@PathVariable String title, @PathVariable int pageNumber){
 
         SliceRecipeDTO<UserPreviewRecipeDTO> recipes_list = recipeService.getRecipeByTitle(title, pageNumber);
         return ResponseEntity.ok(recipes_list);
     }
 
+
+    // TODO: path variable
     /**
-     * Home page for the recipes with the newest recipes uploaded
-     * @param pageNumber - page number
-     * @see RecipeService#getNewestRecipe(int) 
-     * @return ResponseEntity ok message 
+     * Retrieves a paginated list of the newest recipes uploaded to the system.
+     * @param pageNumber the requested page number
+     * @return a {@link ResponseEntity} containing a list of {@link UserPreviewRecipeDTO} with the paginated preview of the newest recipes
+     * @see RecipeService#getNewestRecipe(int)
      */
-    @GetMapping("/homeRecipe")
-    @Operation(summary = "View newest recipes", description = "Returns the list of the most recently uploaded recipes in the system, divided into pages.")
-    @ApiResponse(responseCode = "200")
-    public ResponseEntity<SliceRecipeDTO<UserPreviewRecipeDTO>> getHomeRecipe (@RequestParam(defaultValue = "1") int pageNumber){
+    @GetMapping("/homeRecipe/{pageNumber}")
+    @Operation(summary = "View newest recipes", description = "Retrieves a paginated list of the most recently uploaded recipes in the system.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Newest recipes successfully retrieved"),
+            @ApiResponse(responseCode = "400", description = "Invalid page number")
+    })
+    public ResponseEntity<SliceRecipeDTO<UserPreviewRecipeDTO>> getHomeRecipe (@PathVariable int pageNumber){
 
         SliceRecipeDTO<UserPreviewRecipeDTO> recipe_list = recipeService.getNewestRecipe(pageNumber);
         return ResponseEntity.ok(recipe_list);
     }
 
+
+    // TODO: cambiare endp
     /**
-     * Function to order the user's saved recipes by a specific category
-     * @param pageNumber - page number
-     * @param category - recipe category
-     * @see RecipeService#getByCategory(int, String) 
-     * @return ResponseEntity ok message 
+     * Retrieves a paginated list of recipes filtered by a specific category.
+     * @param pageNumber the requested page number
+     * @param category the category to filter the recipes by
+     * @return a {@link ResponseEntity} containing a list of {@link UserPreviewRecipeDTO} with the paginated recipes of the selected category
+     * @see RecipeService#getByCategory(int, String)
      */
-    @GetMapping("/category")
-    @Operation(summary = "Search by category", description = "Filters and returns recipes belonging to a specific category.")
-    @ApiResponse(responseCode = "200")
-    public ResponseEntity<SliceRecipeDTO<UserPreviewRecipeDTO>> getRecipeByCategory (@RequestParam(defaultValue = "1") int pageNumber, @RequestParam String category){
+    @GetMapping("/category/{category}/{pageNumber}")
+    @Operation(summary = "Search by category", description = "Filters and returns a paginated list of recipes belonging to a specific category.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Recipes successfully retrieved"),
+            @ApiResponse(responseCode = "400", description = "Invalid page number or category filter")
+    })
+    public ResponseEntity<SliceRecipeDTO<UserPreviewRecipeDTO>> getRecipeByCategory (@PathVariable int pageNumber, @PathVariable String category){
 
         SliceRecipeDTO<UserPreviewRecipeDTO> recipe_list = recipeService.getByCategory(pageNumber, category);
         return ResponseEntity.ok(recipe_list);
     }
 
+
+    // TODO: path
     /**
-     * Method to get recipes created a chef
-     * @param pageNumber - page number
-     * @param chefId - chef ID
-     * @see RecipeService#getChefRecipePage(int, String) 
-     * @return ResponseEntity ok message 
+     * Retrieves a paginated list of recipes created by a specific chef.
+     * @param pageNumber the requested page number
+     * @param chefId the unique identifier of the target chef
+     * @return a {@link ResponseEntity} containing a list of {@link ChefPreviewRecipeDTO} with the paginated chef's recipes
+     * @throws IllegalArgumentException if the page number is less than or equal to 0
+     * @see RecipeService#getChefRecipePage(int, String)
      */
     @GetMapping("/chef")
-    @Operation(summary = "View a Chef's recipes", description = "Returns all recipes published by a specific Chef, identified by their ID.")
+    @Operation(summary = "View chef's recipes", description = "Retrieves a paginated list of all recipes published by a specific Chef, identified by their id.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "400")
+            @ApiResponse(responseCode = "200", description = "Chef's recipes successfully retrieved"),
+            @ApiResponse(responseCode = "400", description = "Invalid page number provided"),
+            @ApiResponse(responseCode = "404", description = "Chef not found")
     })
     public ResponseEntity<SliceRecipeDTO<ChefPreviewRecipeDTO>> getChefRecipes (@RequestParam(defaultValue = "1") int pageNumber, @RequestParam String chefId){
 
@@ -115,12 +135,16 @@ public class RecipeController {
         return ResponseEntity.ok(recipe_list);
     }
 
+
+    /**
+     * Retrieves the top-rated recipe for each available category in the application,
+     * determined by the highest number of saves.
+     * @return a {@link ResponseEntity} containing a {@link List} of {@link TopRecipeByCategoryDTO} representing the top recipe per category
+     * @see RecipeService#getCategoryTrend()
+     */
     @GetMapping("/categoryTrend")
-    @Operation(summary = "View trending category", description = "Returns all recipes published by a specific Chef, identified by their ID.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "400")
-    })
+    @Operation(summary = "Retrieve top recipe per category", description = "Retrieves the single top recipe for each application category, selected based on the highest number of saves.")
+    @ApiResponse(responseCode = "200", description = "Top recipes per category successfully retrieved")
     public ResponseEntity<List<TopRecipeByCategoryDTO>> getCategoryTrends (){
 
         List<TopRecipeByCategoryDTO> category = recipeService.getCategoryTrend();

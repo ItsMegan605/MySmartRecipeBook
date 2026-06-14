@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * Admin controller
+ * Admin's REST Controller.
  */
 @RestController
 @RequestMapping("/api/admin")
@@ -26,6 +26,7 @@ public class AdminController {
 
     private final AdminService adminService;
     public AdminController(AdminService adminService) {
+
         this.adminService = adminService;
     }
 
@@ -39,7 +40,7 @@ public class AdminController {
     @Operation(summary = "Approve a pending recipe", description = "Approves a recipe that is currently pending waiting for admin approval")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Recipe successfully approved"),
-            @ApiResponse(responseCode = "404", description = "Recipe not found")
+            @ApiResponse(responseCode = "404", description = "Pending recipe not found")
     })
     public ResponseEntity<String> approveRecipe(@PathVariable("id") String recipeId) {
         adminService.saveRecipe(recipeId);
@@ -56,8 +57,8 @@ public class AdminController {
     @DeleteMapping("/discard/{id}")
     @Operation(summary = "Discard a pending recipe", description = "Rejects and permanently deletes a recipe that is pending approval.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "404")
+            @ApiResponse(responseCode = "200", description = "Recipe successfully discarded"),
+            @ApiResponse(responseCode = "404", description = "Pending recipe not found")
     })
     public ResponseEntity<String> discardRecipe(@PathVariable("id") String recipeId) {
         adminService.discardRecipe(recipeId);
@@ -72,7 +73,7 @@ public class AdminController {
      * @see AdminService#approveChef(String)
      */
     @PostMapping("/approveChef/{username}")
-    @Operation(summary = "Approve a chef registration")
+    @Operation(summary = "Approve a chef registration", description = "Approves a pending chef registration request.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Chef successfully approved"),
             @ApiResponse(responseCode = "404", description = "Chef not found or not pending")
@@ -90,10 +91,10 @@ public class AdminController {
      * @see AdminService#declineChef(String)
      */
     @DeleteMapping("/discardChef/{username}")
-    @Operation(summary = "Decline a chef registration")
+    @Operation(summary = "Decline a chef registration", description = "Declines a pending chef registration request.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "404")
+            @ApiResponse(responseCode = "200", description = "Chef registration successfully declined"),
+            @ApiResponse(responseCode = "404", description = "Chef not found or not pending")
     })
     public ResponseEntity<String> discardChef(@PathVariable("username") String chefUsername) {
         adminService.declineChef(chefUsername);
@@ -109,8 +110,12 @@ public class AdminController {
      */
     @GetMapping("/showRecipes/{pageNumber}")
     @Operation(summary = "Get pending recipes", description = "Retrieves a paginated list of all recipes currently awaiting admin approval.")
-    @ApiResponse(responseCode = "200")
-    public ResponseEntity<SliceRecipeDTO<PendingRecipeDTO>> showRecipe (@PathVariable int pageNumber){
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Pending recipes successfully retrieved"),
+            @ApiResponse(responseCode = "400", description = "Invalid page number"),
+            @ApiResponse(responseCode = "404", description = "Admin not found")
+    })
+    public ResponseEntity<SliceRecipeDTO<PendingRecipeDTO>> showRecipes (@PathVariable int pageNumber){
         SliceRecipeDTO<PendingRecipeDTO> recipeList = adminService.showPendingRecipes(pageNumber);
         return ResponseEntity.ok(recipeList);
     }
@@ -124,7 +129,11 @@ public class AdminController {
      */
     @GetMapping("/showChefs/{pageNumber}")
     @Operation(summary = "Get pending chef requests", description = "Retrieves a paginated list of users who have requested to become chefs and are awaiting approval.")
-    @ApiResponse(responseCode = "200")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Pending chefs successfully retrieved"),
+            @ApiResponse(responseCode = "400", description = "Invalid page number"),
+            @ApiResponse(responseCode = "404", description = "Admin not found")
+    })
     public ResponseEntity<SliceRecipeDTO<PendingChefDTO>> showChefs (@PathVariable int pageNumber){
         SliceRecipeDTO<PendingChefDTO> chefList = adminService.showPendingChefs(pageNumber);
         return ResponseEntity.ok(chefList);
@@ -138,8 +147,11 @@ public class AdminController {
      * @see AdminService#seeChefDetails(String)
      */
     @GetMapping("/details/chef/{username}")
-    @Operation(summary = "Get chef details")
-    @ApiResponse(responseCode = "200")
+    @Operation(summary = "Get chef details", description = "Retrieves the details of a specific pending chef.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Chef details successfully retrieved"),
+            @ApiResponse(responseCode = "404", description = "Pending chef not found")
+    })
     public ResponseEntity<RegisteredUserInfoDTO> seeChefDetails (@PathVariable String username){
         return ResponseEntity.ok(adminService.seeChefDetails(username));
     }
@@ -152,20 +164,28 @@ public class AdminController {
      * @see AdminService#seeRecipeDetails(String)
      */
     @GetMapping("/details/recipe/{recipeId}")
-    @Operation(summary = "Get recipe details")
-    @ApiResponse(responseCode = "200")
+    @Operation(summary = "Get recipe details", description = "Retrieves the details of a specific pending recipe.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Recipe details successfully retrieved"),
+            @ApiResponse(responseCode = "404", description = "Pending recipe not found")
+    })
     public ResponseEntity<ShowRecipeDTO> seeRecipeDetails (@PathVariable String recipeId){
         return ResponseEntity.ok(adminService.seeRecipeDetails(recipeId));
     }
 
 
+    // TODO: controllare endpoint
     /**
-     * Retrieves the statistical data regarding the number of new foodies registered over the past months.
-     * @return a {@link ResponseEntity} containing a list of {@link YearAnalyticsDTO} representing the monthly registration statistics
+     * Retrieves the statistics regarding the number of new foodies registered over the past months.
+     * @param year the specific year to retrieve analytics for
+     * @return a {@link ResponseEntity} containing a {@link YearAnalyticsDTO} representing the monthly registration statistics
      */
     @GetMapping ("/monthlyFoodies/{year}")
-    @Operation(summary = "Get monthly user registration analytics", description = "Provides statistical data on the number of new foodies registered over the past months.")
-    @ApiResponse(responseCode = "200")
+    @Operation(summary = "Get monthly user registration analytics", description = "Provides statistical data on the number of new foodies registered over the past months for a specific year.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Monthly analytics successfully retrieved"),
+            @ApiResponse(responseCode = "400", description = "Invalid year provided")
+    })
     public ResponseEntity<YearAnalyticsDTO> getMonthlyFoodies(@PathVariable int year) {
         YearAnalyticsDTO stats = adminService.getMonthlyFoodies(year);
         return ResponseEntity.ok(stats);
@@ -178,20 +198,21 @@ public class AdminController {
      * @see AdminService#getCategoryTrends()
      */
     @GetMapping("/categoryTrends")
-    @Operation(summary = "Get category trend analytics", description = "Provides insights into the popularity and trends of different recipe categories.")
-    @ApiResponse(responseCode = "200")
+    @Operation(summary = "Get category trend analytics", description = "Provides insights into the trends of different recipe categories.")
+    @ApiResponse(responseCode = "200", description = "Category trends successfully retrieved")
     public ResponseEntity<List<TrendAnalyticsDTO>> getCategoryTrends() {
         return ResponseEntity.ok(adminService.getCategoryTrends());
     }
 
+
     /**
      * Retrieves the ranking of chefs calculated using a Bayesian algorithm.
-     * @return a {@link ResponseEntity} containing a list of {@link ChefRankAnalyticsDTO} representing the Bayesian chef ranking
+     * @return a {@link ResponseEntity} containing a list of five {@link ChefRankAnalyticsDTO} representing the Bayesian ranking of the top 5 chefs
      * @see AdminService#getBayesianRanking()
      */
     @GetMapping("/chefsRanking")
-    @Operation(summary = "Get Bayesian Chef Ranking visible to foodies")
-    @ApiResponse(responseCode = "200")
+    @Operation(summary = "Get bayesian chef ranking", description = "Retrieves the ranking of chefs calculated using a Bayesian algorithm.")
+    @ApiResponse(responseCode = "200", description = "Chef ranking successfully retrieved")
     public ResponseEntity<java.util.List<ChefRankAnalyticsDTO>> getChefRanking() {
         return ResponseEntity.ok(adminService.getBayesianRanking());
     }
