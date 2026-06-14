@@ -118,14 +118,14 @@ public class RecipeController {
      * @throws IllegalArgumentException if the page number is less than or equal to 0
      * @see RecipeService#getChefRecipePage(int, String)
      */
-    @GetMapping("/chef")
+    @GetMapping("/chef/{chefId}/{pageNumber}")
     @Operation(summary = "View chef's recipes", description = "Retrieves a paginated list of all recipes published by a specific Chef, identified by their id.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Chef's recipes successfully retrieved"),
             @ApiResponse(responseCode = "400", description = "Invalid page number provided"),
             @ApiResponse(responseCode = "404", description = "Chef not found")
     })
-    public ResponseEntity<SliceRecipeDTO<ChefPreviewRecipeDTO>> getChefRecipes (@RequestParam(defaultValue = "1") int pageNumber, @RequestParam String chefId){
+    public ResponseEntity<SliceRecipeDTO<ChefPreviewRecipeDTO>> getChefRecipes (@PathVariable int pageNumber, @PathVariable String chefId){
 
         if(pageNumber <= 0){
             throw new IllegalArgumentException("Invalid parameters");

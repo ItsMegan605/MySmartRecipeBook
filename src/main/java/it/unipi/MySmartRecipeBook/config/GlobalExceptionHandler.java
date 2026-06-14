@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-
     /**
      * Handles MethodArgumentNotValidException.
      * This exception occurs when a request payload fails @Valid validation
@@ -74,6 +73,8 @@ public class GlobalExceptionHandler {
         });
         return ResponseEntity.badRequest().body(errors);
     }
+
+
     /**
      * Handles TypeMismatchException.
      * Thrown when a request parameter or path variable cannot be converted to the expected Java type.
@@ -89,6 +90,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleTypeMismatchException() {
         return  ResponseEntity.badRequest().body("invalid field");
     }
+
 
     /**
      * Exception: global  handler for any unexpected Exception
@@ -113,6 +115,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.internalServerError().body("Internal Server Error occurred while using the application");
     }
 
+
     /**
      * Handles IllegalArgumentException.
      * Thrown when an illegal or inappropriate argument has been passed to a method.
@@ -129,6 +132,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(e.getMessage());
     }
 
+
     /**
      * Handles NoSuchElementException.
      * Thrown when a requested resource or element does not exist or cannot be found.
@@ -144,6 +148,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleNoSuchElementException(NoSuchElementException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
+
 
     /**
      * Handles AccessDeniedException.
@@ -167,7 +172,7 @@ public class GlobalExceptionHandler {
      * Handles HttpMessageNotReadableException.
      * * Triggered when the HTTP request body is malformed or unreadable.
      * */
-@ApiResponses({
+    @ApiResponses({
             @ApiResponse(
                     responseCode = "400",
                     description = "Wrong request",
@@ -178,6 +183,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleHttpMessageNotReadableException() {
         return ResponseEntity.badRequest().body("HTTP request is not readable: format error");
     }
+
 
     /**
      * Handles DataIntegrityViolationException.
@@ -195,6 +201,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
 
+
     /**
      * Handles UsernameNotFoundException.
      * Triggered when the user's username is not found during the login process.
@@ -211,6 +218,7 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(unf.getMessage());
     }
 
+
     /**
      * Handles BadCredentialsException.
      * Thrown when the provided credentials (e.g., password) are incorrect.
@@ -226,6 +234,4 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleBadCredentialsException(){
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Username or password are not valid");
     }
-
-
 }
