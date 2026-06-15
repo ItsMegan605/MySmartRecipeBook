@@ -62,7 +62,6 @@ public interface RecipeNeo4jRepository extends Neo4jRepository<RecipeNeo4j, Long
             "WITH r " +
             "UNWIND $ingredients AS ingName " +
             "MATCH (i:Ingredient {name: ingName}) " +
-            //"MATCH (i:Ingredient) WHERE toLower(trim(i.name)) = toLower(trim(ingName)) " +
             "MERGE (r)<-[:USED_IN]-(i) " +
             "MERGE (r)-[:USES]->(i)")
     void createRecipe(String recipeId, String title, String imageURL, String category, String chefId, List<String> ingredients);

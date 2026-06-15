@@ -29,7 +29,7 @@ public interface RecipeMongoRepository extends MongoRepository<RecipeMongo, Stri
     Optional<RecipeMongo> findApprovedById(String id);
 
     /**
-     * Finds recipes by title (case insensitive) with pagination.
+     * Finds recipes by title (case-insensitive) with pagination.
      * @param title substring that is part of the title
      * @param pageable pagination information
      * @return slice of recipes

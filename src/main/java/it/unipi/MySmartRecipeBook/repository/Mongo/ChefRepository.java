@@ -76,7 +76,7 @@ public interface ChefRepository extends MongoRepository<Chef, String> {
 
     /**
      * Computes a Bayesian ranking of chefs based on saves and number of recipes.
-     * Thia function excludes the admin, replaces the new values with 0, computes the global average C, then
+     * This function excludes the admin, replaces the new values with 0, computes the global average C, then
      * computes individual average R, we give the Bayesian score and sort the results.
      * @return list of ranked chefs
      */
