@@ -16,5 +16,6 @@ import java.util.Map;
 public class InfoToDeleteDTO {
 
     List<String> recipeIds;
+
     Map<String, List<String>> chefRecipeList;
 }

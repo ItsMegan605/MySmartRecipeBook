@@ -19,6 +19,7 @@ import java.util.List;
 public class GraphRecipeDTO {
 
     private String id;
+
     private String title;
 
     @JsonProperty("chef_id")

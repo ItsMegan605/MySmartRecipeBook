@@ -44,31 +44,24 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        //retrieve the Authorization header from the HTTP request
         String headerAuth = request.getHeader("Authorization");
 
-        //check if the header exists and contains a Bearer token
-        //standard format: Authorization: Bearer <token>
+
         if (headerAuth != null && headerAuth.startsWith("Bearer ")) {
 
-            //extract the token by removing "Bearer "
             String jwt = headerAuth.substring(7);
 
-            //validate the token
             if (jwtUtils.validateJwtToken(jwt)) {
 
-                //extract user information from the token
                 String id = jwtUtils.getIdFromJwtToken(jwt);
                 String username = jwtUtils.getUsernameFromJwtToken(jwt);
                 List<String> roles = jwtUtils.getRolesFromJwtToken(jwt);
 
-                //convert roles into GrantedAuthority objects
                 var authorities = roles.stream()
                         .map(SimpleGrantedAuthority::new)
                         .toList();
 
-                //create a UserPrincipal WITHOUT querying the database
-                //(all necessary information is already inside the JWT)
+
                 UserPrincipal userPrincipal = new UserPrincipal(
                         id,
                         username,
@@ -76,7 +69,6 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                         authorities
                 );
 
-                //create an Authentication object representing the authenticated user
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
                                 userPrincipal,
@@ -84,20 +76,15 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                                 authorities
                         );
 
-                // attach request details (e.g., IP, session info)
                 authentication.setDetails(
                         new WebAuthenticationDetailsSource()
                                 .buildDetails(request));
-
-                //store the authentication inside the SecurityContext.From this point on, Spring Security considers
-                // the request as authenticated
 
                 SecurityContextHolder.getContext()
                         .setAuthentication(authentication);
             }
         }
 
-        //continue the filter chain
         filterChain.doFilter(request, response);
     }
 }

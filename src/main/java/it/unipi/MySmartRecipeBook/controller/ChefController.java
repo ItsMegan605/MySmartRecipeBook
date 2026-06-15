@@ -204,7 +204,6 @@ public class ChefController {
         return ResponseEntity.ok(recipeList);
     }
 
-    // TODO: modifica endpoint e testa con e senza pending
     /**
      * Retrieves the detailed information about a specific chef's recipe.
      * @param recipeId the unique identifier of the recipe

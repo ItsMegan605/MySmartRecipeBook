@@ -24,7 +24,6 @@ import java.util.List;
 @Tag(name = "Smart Fridge", description = "Endpoints for managing the smart fridge and getting recipe recommendations")
 public class SmartFridgeController {
 
-
     private final SmartFridgeService smartFridgeService;
 
     public SmartFridgeController(SmartFridgeService smartFridgeService) {

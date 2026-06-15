@@ -46,7 +46,6 @@ public class RecipeController {
     }
 
 
-    // TODO: cambio endpoint
     /**
      * Searches for recipes by title (using substring matching) to display on the home page.
      * Returns a paginated list with five recipes per page.
@@ -68,7 +67,6 @@ public class RecipeController {
     }
 
 
-    // TODO: path variable
     /**
      * Retrieves a paginated list of the newest recipes uploaded to the system.
      * @param pageNumber the requested page number
@@ -88,7 +86,6 @@ public class RecipeController {
     }
 
 
-    // TODO: cambiare endp
     /**
      * Retrieves a paginated list of recipes filtered by a specific category.
      * @param pageNumber the requested page number
@@ -109,7 +106,6 @@ public class RecipeController {
     }
 
 
-    // TODO: path
     /**
      * Retrieves a paginated list of recipes created by a specific chef.
      * @param pageNumber the requested page number

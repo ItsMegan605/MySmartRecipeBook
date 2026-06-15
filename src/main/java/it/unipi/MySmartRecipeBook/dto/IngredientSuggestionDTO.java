@@ -14,6 +14,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class IngredientSuggestionDTO {
+
     private String originalIngredient;
+
     private List<String> suggestedIngredients;
 }

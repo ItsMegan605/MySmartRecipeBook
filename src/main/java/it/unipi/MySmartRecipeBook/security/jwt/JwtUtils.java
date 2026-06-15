@@ -17,11 +17,11 @@ import it.unipi.MySmartRecipeBook.security.UserPrincipal;
 @Component
 public class JwtUtils {
 
-    //secret key used to sign the JWT (loaded from application.properties)
+    //secret key used to sign the JWT
     @Value("${app.jwt.secret}")
     private String jwtSecret;
 
-    //token expiration time in milliseconds (loaded from application.properties)
+    //token expiration time in milliseconds
     @Value("${app.jwt.expiration-ms}")
     private int jwtExpirationMs;
 
@@ -40,13 +40,11 @@ public class JwtUtils {
      */
     public String generateJwtToken(Authentication authentication) {
 
-        //retrieve the authenticated user
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
 
         String id = userPrincipal.getId();
         String username = authentication.getName();
 
-        //extract user roles
         var roles = authentication.getAuthorities()
                 .stream()
                 .map(auth -> auth.getAuthority())

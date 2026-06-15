@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.IndexDirection;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.index.TextIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -30,7 +31,6 @@ public class RecipeMongo {
     @Id
     private String id;
 
-    @Indexed(unique = true)
     @TextIndexed
     private String title;
 
@@ -54,6 +54,7 @@ public class RecipeMongo {
 
     private ReducedChef chef;
 
+    @Indexed(direction = IndexDirection.DESCENDING)
     @Field("creation_date")
     private LocalDateTime creationDate;
 

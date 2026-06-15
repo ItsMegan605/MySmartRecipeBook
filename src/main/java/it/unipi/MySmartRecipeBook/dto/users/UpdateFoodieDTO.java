@@ -19,7 +19,6 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class UpdateFoodieDTO{
 
-
     private String name;
 
     private String surname;
@@ -32,6 +31,10 @@ public class UpdateFoodieDTO{
 
     private String password;
 
+    /**
+     * Checks if the updatable fields in the DTO are empty or null.
+     * @return true if the parameters are empty or null, false otherwise.
+     */
     public boolean isEmpty() {
         return !StringUtils.hasText(this.email) &&
                 !StringUtils.hasText(this.name) &&

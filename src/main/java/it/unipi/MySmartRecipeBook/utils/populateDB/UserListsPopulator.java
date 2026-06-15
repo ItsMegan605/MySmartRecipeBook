@@ -18,6 +18,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Component that populates Redis with user-specific data (shopping lists and smart fridge contents)
+ * upon application startup. It also pre-calculates and caches initial recipe recommendations
+ * based on the smart fridge ingredients.
+ */
 @Order(5)
 @Component
 public class UserListsPopulator implements CommandLineRunner {
@@ -46,6 +51,12 @@ public class UserListsPopulator implements CommandLineRunner {
         public List<String> smartFridge;
     }
 
+    /**
+     * Calculates recipe recommendations based on the ingredients present in a user's smart fridge
+     * and caches the results in Redis.
+     * * @param username the username of the foodie
+     * @param jedis the active Jedis connection instance
+     */
     private void getRecommendations(String username, Jedis jedis) {
 
         String fridgeKey = REDIS_ENTITY + username + REDIS_FRIDGE_PREFIX;
@@ -70,6 +81,11 @@ public class UserListsPopulator implements CommandLineRunner {
         }
     }
 
+    /**
+     * Executes the population logic upon application startup. Reads from 'user_lists.json',
+     * updates Redis with shopping lists and fridge contents, and triggers recommendation caching.
+     * * @param args command line arguments
+     */
     @Override
     public void run(String... args) {
         if (!doRedisPopulation) {

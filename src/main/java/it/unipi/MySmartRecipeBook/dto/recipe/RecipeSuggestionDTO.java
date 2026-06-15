@@ -16,11 +16,14 @@ import java.util.List;
 public class RecipeSuggestionDTO implements Serializable {
 
     private String id;
+
     private String title;
+
     private String imageURL;
 
     @JsonIgnore
     private String chefName;
+
     @JsonIgnore
     private String chefSurname;
 
@@ -30,6 +33,7 @@ public class RecipeSuggestionDTO implements Serializable {
     private String chefId;
 
     private int matchCount;
+
     private List<String> matchedIngredients;
 
     /**

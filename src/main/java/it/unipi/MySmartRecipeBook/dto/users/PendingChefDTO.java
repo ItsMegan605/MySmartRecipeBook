@@ -15,6 +15,8 @@ import lombok.Setter;
 public class PendingChefDTO {
 
     private String username;
+
     private String name;
+
     private String surname;
 }

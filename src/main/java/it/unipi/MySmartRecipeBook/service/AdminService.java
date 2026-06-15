@@ -453,6 +453,7 @@ public class AdminService {
      * @return a list of {@link ChefRankAnalyticsDTO} containing the ranked chefs, their scores, and their positions
      */
     public List<ChefRankAnalyticsDTO> getBayesianRanking() {
+
         return chefRepository.chefBayesianRanking();
     }
 

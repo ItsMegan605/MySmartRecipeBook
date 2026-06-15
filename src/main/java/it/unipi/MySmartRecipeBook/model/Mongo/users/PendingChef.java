@@ -6,7 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Lightweight embedded entity representing a newly registered chef currently wait for the admin to approve its registration request.
+ * Lightweight embedded entity representing a newly registered chef currently
+ * waiting for the admin to approve its registration request.
  */
 @Getter
 @Setter

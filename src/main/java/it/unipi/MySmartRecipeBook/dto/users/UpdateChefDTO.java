@@ -28,6 +28,10 @@ public class UpdateChefDTO {
     @Past
     private LocalDate birthdate;
 
+    /**
+     * Checks if the updatable fields in the DTO are empty or null.
+     * @return true if email, password, birthdate are empty or null, false otherwise.
+     */
     public boolean isEmpty() {
         return !StringUtils.hasText(this.email) &&
                 !StringUtils.hasText(this.password) &&

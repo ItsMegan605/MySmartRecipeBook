@@ -18,8 +18,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PendingRecipe {
+
     @Field("id")
     String id;
+
     private String title;
 
     @Field("image_url")

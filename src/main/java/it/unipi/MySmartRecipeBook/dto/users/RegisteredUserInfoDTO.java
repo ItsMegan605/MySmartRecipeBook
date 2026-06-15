@@ -13,7 +13,6 @@ import java.time.LocalDate;
 /**
  * DTO used to display a registered user's profile information.
  * */
-
 @Getter
 @Setter
 @NoArgsConstructor

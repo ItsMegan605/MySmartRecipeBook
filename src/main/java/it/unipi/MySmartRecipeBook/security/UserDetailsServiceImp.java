@@ -51,19 +51,16 @@ public class UserDetailsServiceImp implements UserDetailsService {
             return UserPrincipal.buildAdmin(admin);
         }
 
-        //check if the username belongs to a Chef
         Optional<Chef> chefOpt = chefRepository.findByUsername(username);
         if (chefOpt.isPresent() && chefOpt.get().getStatus().equals("APPROVED")) {
             return UserPrincipal.buildChef(chefOpt.get());
         }
 
-        //check if the username belongs to a Foodie
         Optional<Foodie> foodieOpt = foodieRepository.findByUsername(username);
         if (foodieOpt.isPresent()) {
             return UserPrincipal.buildFoodie(foodieOpt.get());
         }
 
-        //throw exception if user is not found in the database
         throw new UsernameNotFoundException("User not found");
     }
 }

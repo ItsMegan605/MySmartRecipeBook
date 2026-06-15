@@ -16,6 +16,8 @@ import lombok.Setter;
 public class ChefInfoDTO {
 
     private String id;
+
     private String name;
+
     private String surname;
 }

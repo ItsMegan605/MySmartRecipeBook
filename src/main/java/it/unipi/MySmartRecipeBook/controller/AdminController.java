@@ -174,7 +174,6 @@ public class AdminController {
     }
 
 
-    // TODO: controllare endpoint
     /**
      * Retrieves the statistics regarding the number of new foodies registered over the past months.
      * @param year the specific year to retrieve analytics for
